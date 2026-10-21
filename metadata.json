@@ -1,0 +1,6 @@
+{
+  "name": "SIGEPRO - Sistema Integral de Gestión de Proveedores Flota Sugamuxi S.A.",
+  "description": "SIGEPRO: Sistema Integral de Gestión de Proveedores de Flota Sugamuxi S.A. Registro simplificado, expediente digital, gestión de formatos institucionales (FS.GA-FOR-009 y FS.GA-FOR-039), control documental, revisiones y convocatorias.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

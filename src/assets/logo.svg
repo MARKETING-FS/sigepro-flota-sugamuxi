@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 750" fill="none">
+  <!-- Flota Sugamuxi Official 'fs' Emblem Vector -->
+  <!-- 1. Top Sweeping Crescent Wing -->
+  <path
+    d="M 328 24 C 540 24 810 58 970 148 C 880 205 825 248 784 274 C 840 215 885 168 840 120 C 785 62 550 48 328 24 Z"
+    fill="currentColor"
+  />
+  
+  <!-- 2. Stylized 'f' Character & Extended Tail -->
+  <!-- Top dot for 'f' -->
+  <ellipse cx="612" cy="202" rx="28" ry="17" transform="rotate(-38 612 202)" fill="currentColor" />
+  
+  <!-- Main 'f' stem and upper hook -->
+  <path
+    d="M 432 330 C 475 240 540 160 592 160 C 608 160 598 190 575 235 C 535 315 480 430 460 510 L 590 440 L 585 460 L 452 530 C 425 640 375 750 316 830 L 290 812 C 342 740 388 640 412 550 C 370 560 320 572 308 552 C 300 540 330 520 422 490 C 438 435 460 375 482 320 L 432 330 Z"
+    fill="currentColor"
+  />
+
+  <!-- Lower Left Dynamic Swoosh Tail -->
+  <path
+    d="M 432 550 C 360 620 220 720 120 810 C 40 880 0 920 1 945 C 5 985 100 1000 160 970 C 260 920 400 780 490 620 C 435 630 380 645 350 635 C 290 695 180 810 130 870 C 80 930 40 940 35 915 C 30 875 100 810 190 735 C 280 660 375 595 432 550 Z"
+    fill="currentColor"
+  />
+
+  <!-- Lower dot for 'f' -->
+  <ellipse cx="302" cy="808" rx="30" ry="18" transform="rotate(-40 302 808)" fill="currentColor" />
+
+  <!-- 3. Stylized 's' Character -->
+  <!-- Top dot for 's' -->
+  <ellipse cx="778" cy="398" rx="28" ry="17" transform="rotate(-38 778 398)" fill="currentColor" />
+
+  <!-- 's' Serpentine Body -->
+  <path
+    d="M 776 346 C 765 346 720 375 675 425 C 625 480 615 525 632 575 C 650 630 705 680 748 720 C 730 745 685 780 615 790 C 570 795 565 765 590 735 L 570 730 C 540 770 550 820 605 818 C 670 815 735 770 762 730 C 785 695 780 655 745 605 C 710 555 675 510 682 468 C 690 425 730 385 770 370 L 776 346 Z"
+    fill="currentColor"
+  />
+
+  <!-- Lower dot for 's' -->
+  <ellipse cx="582" cy="734" rx="30" ry="18" transform="rotate(-40 582 734)" fill="currentColor" />
+</svg>
