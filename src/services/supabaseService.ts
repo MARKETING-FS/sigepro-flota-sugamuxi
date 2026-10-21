@@ -27,7 +27,8 @@ export const supabaseService = {
         return null;
       }
 
-      if (!suppliers || suppliers.length === 0) return null;
+      if (!suppliers) return null;
+      if (suppliers.length === 0) return [];
 
       // Cargar documentos relacionados
       const { data: documents, error: docError } = await supabase
@@ -272,6 +273,61 @@ export const supabaseService = {
       return !error;
     } catch (err) {
       console.error('Error guardando auditoría en Supabase:', err);
+      return false;
+    }
+  },
+
+  /**
+   * Carga inicial de expedientes en Supabase si la base de datos está vacía
+   */
+  async seedInitialDossiers(dossiers: SupplierDossier[]): Promise<boolean> {
+    if (!isSupabaseConfigured() || !supabase) return false;
+    try {
+      console.info(`⏳ Sincronizando ${dossiers.length} proveedores iniciales con Supabase...`);
+      for (const d of dossiers) {
+        await this.saveDossier(d);
+      }
+      console.info('✅ Proveedores iniciales sincronizados con éxito en Supabase.');
+      return true;
+    } catch (err) {
+      console.error('Error al sincronizar proveedores iniciales con Supabase:', err);
+      return false;
+    }
+  },
+
+  /**
+   * Guarda una evaluación de proveedor en Supabase
+   */
+  async saveEvaluation(evaluation: SupplierEvaluation): Promise<boolean> {
+    if (!isSupabaseConfigured() || !supabase) return false;
+    try {
+      const { error } = await supabase.from('supplier_evaluations').upsert({
+        id: evaluation.id,
+        dossier_id: evaluation.dossierId,
+        supplier_name: evaluation.supplierName,
+        supplier_doc: evaluation.supplierDoc,
+        file_number: evaluation.fileNumber,
+        supplier_tier: evaluation.supplierTier,
+        category_name: evaluation.categoryName,
+        evaluation_type: evaluation.evaluationType,
+        annual_cycle_number: evaluation.annualCycleNumber,
+        period_year: evaluation.periodYear,
+        evaluation_date: evaluation.evaluationDate,
+        due_date: evaluation.dueDate,
+        evaluator_id: evaluation.evaluatorId,
+        evaluator_name: evaluation.evaluatorName,
+        evaluator_role: evaluation.evaluatorRole,
+        total_score: evaluation.totalScore,
+        concept: evaluation.concept,
+        criteria_scores: evaluation.criteriaScores || [],
+        observations: evaluation.observations,
+        strengths: evaluation.strengths,
+        improvement_commitments: evaluation.improvementCommitments,
+        certificate_code: evaluation.certificateCode,
+      });
+      return !error;
+    } catch (err) {
+      console.error('Error guardando evaluación en Supabase:', err);
       return false;
     }
   },

@@ -792,6 +792,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       supabaseService.getDossiers().then((remoteDossiers) => {
         if (remoteDossiers && remoteDossiers.length > 0) {
           setAllDossiers(remoteDossiers);
+        } else if (remoteDossiers && remoteDossiers.length === 0) {
+          supabaseService.seedInitialDossiers(allDossiers);
         }
       });
       supabaseService.getConvocatorias().then((remoteConvocatorias) => {
@@ -3479,6 +3481,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setSupplierEvaluations((prev) => [newEvaluation, ...prev]);
+    if (supabaseService.isConfigured()) {
+      supabaseService.saveEvaluation(newEvaluation);
+    }
 
     // Update the supplier dossier record with the new evaluation
     const isAnnual =
