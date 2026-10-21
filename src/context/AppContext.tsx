@@ -59,6 +59,7 @@ import { INITIAL_EVALUATION_METHOD, INITIAL_SUPPLIER_EVALUATIONS } from '../data
 import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/initialEmails';
 import { generateEmailContent } from '../utils/emailTemplates';
 import { supabaseService } from '../services/supabaseService';
+import { sendEmail } from '../services/emailService';
 
 interface AppContextType {
   role: UserRole;
@@ -983,18 +984,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return Math.floor(100000 + Math.random() * 900000).toString();
   };
 
-  // Dispatch Email Notification helper
+  // Dispatch Email Notification helper — envía correo real vía Resend + registra en estado
   const sendEmailNotification = (
     notification: Omit<EmailNotification, 'id' | 'sentAt' | 'status'>
   ) => {
+    const emailId = `email-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
     const newEmail: EmailNotification = {
       ...notification,
-      id: `email-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      id: emailId,
       sentAt: getNowFormatted(),
       status: 'DELIVERED',
       read: false,
     };
+
+    // Registrar en estado local inmediatamente (UI optimista)
     setEmailNotifications((prev) => [newEmail, ...prev]);
+
+    // Enviar correo real de forma asíncrona (no bloquea la UI)
+    if (notification.recipientEmail && notification.bodyHtml) {
+      sendEmail({
+        to: notification.recipientEmail,
+        subject: notification.subject,
+        html: notification.bodyHtml,
+      }).then((result) => {
+        if (!result.success) {
+          console.warn(`[AppContext] No se pudo enviar correo "${notification.subject}" a ${notification.recipientEmail}:`, result.error);
+        } else {
+          console.log(`[AppContext] Correo enviado (${result.mode}) → ${notification.recipientEmail} | msgId: ${result.messageId}`);
+        }
+      }).catch((err) => {
+        console.error('[AppContext] Error al enviar correo:', err);
+      });
+    }
   };
 
   const markEmailAsRead = (emailId: string) => {
