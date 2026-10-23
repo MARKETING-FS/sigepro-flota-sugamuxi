@@ -6,7 +6,9 @@ import {
   X,
   FileUp,
   ShieldCheck,
+  Zap,
 } from 'lucide-react';
+import { generateDocumentCodeSuggestions } from '../utils/documentCodeGenerator';
 import { SupplierDocument, DocumentStatus, UserRole } from '../types';
 
 interface Props {
@@ -30,9 +32,37 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
 }) => {
   if (!isOpen) return null;
 
-  const defaultCode = `DOC_ESP_${Date.now().toString().slice(-4)}`;
-  const [code, setCode] = useState(defaultCode);
   const [name, setName] = useState('Certificación / Anexo Técnico Especial');
+  const [code, setCode] = useState(() => generateDocumentCodeSuggestions('Certificación / Anexo Técnico Especial').primary || `DOC_ESP_${Date.now().toString().slice(-4)}`);
+  const [isCodeCustomized, setIsCodeCustomized] = useState(false);
+
+  const docSuggestions = React.useMemo(() => {
+    return generateDocumentCodeSuggestions(name);
+  }, [name]);
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    if (!isCodeCustomized) {
+      const suggestions = generateDocumentCodeSuggestions(val);
+      setCode(suggestions.primary);
+    }
+  };
+
+  const handleCodeChange = (val: string) => {
+    setCode(val.toUpperCase().replace(/\s+/g, '_'));
+    setIsCodeCustomized(true);
+  };
+
+  const handleApplySuggestion = (sugCode: string) => {
+    setCode(sugCode);
+    setIsCodeCustomized(true);
+  };
+
+  const handleResetToAuto = () => {
+    setIsCodeCustomized(false);
+    const suggestions = generateDocumentCodeSuggestions(name);
+    setCode(suggestions.primary);
+  };
   const [isRequired, setIsRequired] = useState(false);
   const [status, setStatus] = useState<DocumentStatus>('CARGADO');
   const [fileName, setFileName] = useState('anexo_tecnico_especial.pdf');
@@ -122,17 +152,49 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
           
           <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-slate-700 scrollbar-thin scrollbar-thumb-slate-300">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-800 mb-1">
+                Nombre Oficial del Documento <span className="text-blue-600 font-bold">*</span>
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder="Ej. Certificado de Calidad ISO 9001 o Póliza de Responsabilidad Civil"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-600"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
               <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1">
-                  Código del Documento / Requisito <span className="text-blue-600 font-bold">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-800">
+                    Código del Documento <span className="text-blue-600 font-bold">*</span>
+                  </label>
+                  {isCodeCustomized ? (
+                    <button
+                      type="button"
+                      onClick={handleResetToAuto}
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-600 hover:underline cursor-pointer"
+                      title="Recalcular automáticamente"
+                    >
+                      <Zap className="w-2.5 h-2.5 text-amber-500" />
+                      Auto iniciales
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                      <Zap className="w-2.5 h-2.5" />
+                      Auto iniciales
+                    </span>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={code}
-                  onChange={(e) => setCode(e.target.value)}
+                  onChange={(e) => handleCodeChange(e.target.value)}
                   placeholder="CERT_ISO, POLIZA_RC, etc."
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-600 uppercase"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold tracking-wider text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-600 uppercase"
                   required
                 />
               </div>
@@ -141,13 +203,13 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
                 <label className="block text-xs font-semibold text-slate-800 mb-1">
                   Obligatoriedad
                 </label>
-                <div className="pt-2 flex items-center gap-2">
+                <div className="py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
                   <input
                     type="checkbox"
                     id="isRequiredCustom"
                     checked={isRequired}
                     onChange={(e) => setIsRequired(e.target.checked)}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                   <label htmlFor="isRequiredCustom" className="text-xs font-medium text-slate-700 cursor-pointer">
                     Requisito Obligatorio
@@ -156,19 +218,54 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1">
-                Nombre Oficial del Documento <span className="text-blue-600 font-bold">*</span>
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ej. Certificado de Calidad ISO 9001 o Póliza de Responsabilidad Civil"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-600"
-                required
-              />
-            </div>
+            {name.trim().length > 2 && (
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                  Sugerencias nemotécnicas (clic para aplicar):
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {docSuggestions.initials && (
+                    <button
+                      type="button"
+                      onClick={() => handleApplySuggestion(docSuggestions.initials)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                        code === docSuggestions.initials
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400'
+                      }`}
+                    >
+                      ⚡ {docSuggestions.initials} <span className="opacity-75 font-sans text-[9px]">(Iniciales)</span>
+                    </button>
+                  )}
+                  {docSuggestions.prefixInitials && (
+                    <button
+                      type="button"
+                      onClick={() => handleApplySuggestion(docSuggestions.prefixInitials!)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                        code === docSuggestions.prefixInitials
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400'
+                      }`}
+                    >
+                      {docSuggestions.prefixInitials} <span className="opacity-75 font-sans text-[9px]">(Prefijo)</span>
+                    </button>
+                  )}
+                  {docSuggestions.shortSlug && (
+                    <button
+                      type="button"
+                      onClick={() => handleApplySuggestion(docSuggestions.shortSlug)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                        code === docSuggestions.shortSlug
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400'
+                      }`}
+                    >
+                      {docSuggestions.shortSlug} <span className="opacity-75 font-sans text-[9px]">(Corto)</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* File attachment */}
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">

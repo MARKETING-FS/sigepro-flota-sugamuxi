@@ -42,7 +42,9 @@ import {
   User,
   Sparkles,
   Lock,
+  Zap,
 } from 'lucide-react';
+import { generateDocumentCodeSuggestions } from '../utils/documentCodeGenerator';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
 import { BaseRequirementsTab } from './matrix/BaseRequirementsTab';
 import { EconomicActivitiesTab } from './matrix/EconomicActivitiesTab';
@@ -134,12 +136,41 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
   const [newDocCode, setNewDocCode] = useState('');
   const [newDocName, setNewDocName] = useState('');
+  const [isDocCodeCustomized, setIsDocCodeCustomized] = useState(false);
   const [newDocCategory, setNewDocCategory] = useState<
     'LEGAL' | 'FINANCIERO' | 'TECNICO' | 'HSEQ' | 'SARLAFT' | 'OPERATIVO'
   >('TECNICO');
   const [newDocDescription, setNewDocDescription] = useState('');
   const [newDocValidityRule, setNewDocValidityRule] = useState('');
   const [newDocRequiresExp, setNewDocRequiresExp] = useState(false);
+
+  const docCodeSuggestions = useMemo(() => {
+    return generateDocumentCodeSuggestions(newDocName);
+  }, [newDocName]);
+
+  const handleDocNameChange = (val: string) => {
+    setNewDocName(val);
+    if (!isDocCodeCustomized) {
+      const suggestions = generateDocumentCodeSuggestions(val);
+      setNewDocCode(suggestions.primary);
+    }
+  };
+
+  const handleDocCodeChange = (val: string) => {
+    setNewDocCode(val.toUpperCase().replace(/\s+/g, '_'));
+    setIsDocCodeCustomized(true);
+  };
+
+  const handleApplyDocCodeSuggestion = (suggestionCode: string) => {
+    setNewDocCode(suggestionCode);
+    setIsDocCodeCustomized(true);
+  };
+
+  const handleResetToAutoCode = () => {
+    setIsDocCodeCustomized(false);
+    const suggestions = generateDocumentCodeSuggestions(newDocName);
+    setNewDocCode(suggestions.primary);
+  };
 
   // Handle saving new category for matrix
   const handleSaveNewCategory = (e: React.FormEvent) => {
@@ -196,6 +227,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
     if (res.success) {
       showToast(res.message, 'success');
       setIsNewDocModalOpen(false);
+      setIsDocCodeCustomized(false);
       setNewDocCode('');
       setNewDocName('');
       setNewDocDescription('');
@@ -2495,7 +2527,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       {/* 8. MODAL NUEVO DOCUMENTO MAESTRO (MATRIX) */}
       {isNewDocModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
@@ -2511,28 +2543,69 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </div>
               </div>
               <button
-                onClick={() => setIsNewDocModalOpen(false)}
+                onClick={() => {
+                  setIsNewDocModalOpen(false);
+                  setIsDocCodeCustomized(false);
+                }}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveNewDocument} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveNewDocument} className="space-y-3.5 text-xs">
+              {/* 1. NOMBRE INSTITUCIONAL PRIMERO */}
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Nombre Institucional del Documento *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newDocName}
+                  onChange={(e) => handleDocNameChange(e.target.value)}
+                  placeholder="Ej. Certificado de Retenciones en la Fuente (RCE)..."
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">
+                  💡 Tip: Puedes incluir siglas al final entre paréntesis, ej: <span className="font-semibold text-blue-600 dark:text-blue-400">(RUT)</span>, <span className="font-semibold text-blue-600 dark:text-blue-400">(RCE)</span>, <span className="font-semibold text-blue-600 dark:text-blue-400">(SST)</span>.
+                </p>
+              </div>
+
+              {/* 2. CÓDIGO TÉCNICO AUTOCALCULADO + TIPO/DIMENSIÓN */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Código Técnico (Único) *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-bold text-slate-700 dark:text-slate-300">
+                      Código Técnico (Único) *
+                    </label>
+                    {isDocCodeCustomized ? (
+                      <button
+                        type="button"
+                        onClick={handleResetToAutoCode}
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                        title="Recalcular automáticamente a partir de las iniciales"
+                      >
+                        <Zap className="w-2.5 h-2.5 text-amber-500" />
+                        Autocalcular
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                        <Zap className="w-2.5 h-2.5" />
+                        Auto por iniciales
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="text"
                     required
                     value={newDocCode}
-                    onChange={(e) => setNewDocCode(e.target.value.toUpperCase().replace(/\s+/g, '_'))}
-                    placeholder="Ej. CERT_RETENCIONES"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono text-[11px] focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => handleDocCodeChange(e.target.value)}
+                    placeholder="Ej. CRF"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono font-bold tracking-wider text-[11px] focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+
                 <div>
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Tipo / Dimensión SIG *
@@ -2552,19 +2625,68 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Nombre Institucional del Documento *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newDocName}
-                  onChange={(e) => setNewDocName(e.target.value)}
-                  placeholder="Ej. Certificado de Retenciones en la Fuente..."
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              {/* CHIPS DE SUGERENCIAS */}
+              {newDocName.trim().length > 2 && (
+                <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                    Sugerencias de Nemotécnico (haz clic para aplicar):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {docCodeSuggestions.initials && (
+                      <button
+                        type="button"
+                        onClick={() => handleApplyDocCodeSuggestion(docCodeSuggestions.initials)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                          newDocCode === docCodeSuggestions.initials
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                        }`}
+                      >
+                        ⚡ {docCodeSuggestions.initials} <span className="opacity-75 font-sans text-[9px]">(Iniciales)</span>
+                      </button>
+                    )}
+                    {docCodeSuggestions.prefixInitials && (
+                      <button
+                        type="button"
+                        onClick={() => handleApplyDocCodeSuggestion(docCodeSuggestions.prefixInitials!)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                          newDocCode === docCodeSuggestions.prefixInitials
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                        }`}
+                      >
+                        {docCodeSuggestions.prefixInitials} <span className="opacity-75 font-sans text-[9px]">(Prefijo)</span>
+                      </button>
+                    )}
+                    {docCodeSuggestions.shortSlug && (
+                      <button
+                        type="button"
+                        onClick={() => handleApplyDocCodeSuggestion(docCodeSuggestions.shortSlug)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                          newDocCode === docCodeSuggestions.shortSlug
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                        }`}
+                      >
+                        {docCodeSuggestions.shortSlug} <span className="opacity-75 font-sans text-[9px]">(Corto)</span>
+                      </button>
+                    )}
+                    {docCodeSuggestions.fullSlug && (
+                      <button
+                        type="button"
+                        onClick={() => handleApplyDocCodeSuggestion(docCodeSuggestions.fullSlug)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                          newDocCode === docCodeSuggestions.fullSlug
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                        }`}
+                      >
+                        {docCodeSuggestions.fullSlug} <span className="opacity-75 font-sans text-[9px]">(Completo)</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -2608,7 +2730,10 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setIsNewDocModalOpen(false)}
+                  onClick={() => {
+                    setIsNewDocModalOpen(false);
+                    setIsDocCodeCustomized(false);
+                  }}
                   className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg transition-colors cursor-pointer"
                 >
                   Cancelar
