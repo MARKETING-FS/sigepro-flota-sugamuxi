@@ -858,7 +858,7 @@ export const SupplierOnboardingDashboard: React.FC = () => {
                   2. FORMATO OFICIAL
                 </span>
                 <span className="text-[10px] text-slate-400 font-bold font-mono">
-                  FS.GA-FOR-009 (v{form009.currentVersion})
+                  FS.GA-FOR-009 (v{form009?.currentVersion || '14.0'})
                 </span>
               </div>
               <div>{getDocStatusBadge(doc009?.status)}</div>
@@ -1116,7 +1116,7 @@ export const SupplierOnboardingDashboard: React.FC = () => {
                       Asignada por Flota Sugamuxi S.A.
                     </span>
                   )}
-                  {currentCatConfig.economicCode && (
+                  {currentCatConfig?.economicCode && (
                     <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold px-2.5 py-1 rounded-md bg-blue-900 text-cyan-300 border border-blue-800 shrink-0">
                       {currentCatConfig.economicCode}
                     </span>
@@ -1137,7 +1137,7 @@ export const SupplierOnboardingDashboard: React.FC = () => {
                           {selectedCategory}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                          {currentCatConfig.description}
+                          {currentCatConfig?.description || 'Línea de servicio registrada'}
                         </div>
                       </div>
                     </div>
@@ -1171,7 +1171,7 @@ export const SupplierOnboardingDashboard: React.FC = () => {
                     ))}
                   </select>
                   <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                    {currentCatConfig.description}
+                    {currentCatConfig?.description || ''}
                   </p>
                 </div>
               )}
