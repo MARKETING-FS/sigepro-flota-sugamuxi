@@ -43,7 +43,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   const recipientList = Array.isArray(to) ? to.join(', ') : to;
 
   // ─── RUTA 1: Edge Function de Supabase (producción segura) ────────────────
-  if (isSupabaseConfigured && supabase) {
+  if (isSupabaseConfigured() && supabase) {
     try {
       const { data, error } = await supabase.functions.invoke('send-email', {
         body: { to, subject, html, from, reply_to },
@@ -115,7 +115,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
  * Verifica si el servicio de correo está activo (Edge Function o API Key disponible).
  */
 export function isEmailServiceAvailable(): boolean {
-  const hasSupabase = isSupabaseConfigured;
+  const hasSupabase = isSupabaseConfigured();
   const hasDirectKey = Boolean(import.meta.env.VITE_RESEND_API_KEY);
   return hasSupabase || hasDirectKey;
 }

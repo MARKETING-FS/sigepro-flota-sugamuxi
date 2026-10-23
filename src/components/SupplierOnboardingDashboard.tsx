@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
+import { storageService } from '../services/storageService';
 import { InstitutionalForm, DocumentCode, SupplierDocument } from '../types';
 import { DOCUMENT_CATALOG_INFO } from '../data/initialData';
 import { InstitutionalFormsViewerModal } from './InstitutionalFormsViewerModal';

@@ -371,74 +371,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (
-          Array.isArray(parsed) &&
-          parsed.length >= 18 &&
-          parsed.filter((d: any) => d.assignedReviewerId === 'revisor-1').length === 8
-        ) {
-          return parsed.map((d: any) => {
-            const effectiveTier =
-              d.supplierTier ||
-              d.basicInfo?.supplierTier ||
-              (['Combustibles y Lubricantes', 'Mantenimiento Automotriz y Repuestos', 'Carrocerías y Metalmecánica', 'Llantas y Neumáticos', 'Pólizas y Seguros'].includes(d.selectedCategory)
-                ? 'A'
-                : ['Papelería y Útiles de Oficina', 'Servicios de Aseo y Cafetería', 'Publicidad y Medios Impresos'].includes(d.selectedCategory)
-                ? 'C'
-                : 'B');
-            return {
-              ...d,
-              supplierTier: effectiveTier,
-              basicInfo: {
-                ...(d.basicInfo || {}),
-                supplierTier: effectiveTier,
-              },
-              documents: d.documents || {},
-              auditHistory: Array.isArray(d.auditHistory) ? d.auditHistory : [],
-              internalConcepts: {
-                sarlatfCheck: {
-                  checked: false,
-                  result: 'SIN_COINCIDENCIAS',
-                  checkedBy: '',
-                  checkedAt: '',
-                  notes: '',
-                  ...(d.internalConcepts?.sarlatfCheck || {}),
-                },
-                ofacCheck: {
-                  checked: false,
-                  result: 'LIMPIO',
-                  checkedBy: '',
-                  checkedAt: '',
-                  ...(d.internalConcepts?.ofacCheck || {}),
-                },
-                procuraduriaPoliciaCheck: {
-                  checked: false,
-                  result: 'VIGENTE_SIN_ANTECEDENTES',
-                  checkedBy: '',
-                  checkedAt: '',
-                  ...(d.internalConcepts?.procuraduriaPoliciaCheck || {}),
-                },
-                legalConcept: {
-                  status: 'PENDIENTE',
-                  comments: '',
-                  reviewer: 'Dra. Patricia Salamanca - Asesora Jurídica',
-                  ...(d.internalConcepts?.legalConcept || {}),
-                },
-                financialConcept: {
-                  status: 'PENDIENTE',
-                  comments: '',
-                  reviewer: 'C.P. Fernando Torres',
-                  ...(d.internalConcepts?.financialConcept || {}),
-                },
-                hseqConcept: {
-                  status: 'PENDIENTE',
-                  comments: '',
-                  reviewer: 'Ing. Laura Valderrama',
-                  ...(d.internalConcepts?.hseqConcept || {}),
-                },
-                ...(d.internalConcepts || {}),
-              },
-            };
-          });
+        if (Array.isArray(parsed)) {
+          // Filtrar remanentes de demostración anteriores (dossier-001...dossier-008)
+          const nonDemo = parsed.filter((d: any) => d && d.id && !String(d.id).startsWith('dossier-00'));
+          if (nonDemo.length > 0) {
+            return nonDemo;
+          }
         }
       } catch (e) {
         console.error('Error loading dossiers from localStorage', e);
@@ -447,8 +385,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return INITIAL_DOSSIERS;
   });
 
-  // Alias setDossiers to setAllDossiers so all existing internal updater functions work seamlessly
-  const setDossiers = setAllDossiers;
+  // Setter enriquecido con sincronización y persistencia automática bidireccional en Supabase
+  const setDossiers: React.Dispatch<React.SetStateAction<SupplierDossier[]>> = (updater) => {
+    setAllDossiers((prev) => {
+      const next = typeof updater === 'function' ? (updater as any)(prev) : updater;
+      if (supabaseService.isConfigured()) {
+        // Persistir proveedores creados o modificados
+        next.forEach((d: SupplierDossier) => {
+          const old = prev.find((p) => p.id === d.id);
+          if (!old || old !== d) {
+            supabaseService.saveDossier(d);
+          }
+        });
+        // Sincronizar eliminaciones
+        prev.forEach((old: SupplierDossier) => {
+          if (!next.some((n: SupplierDossier) => n.id === old.id)) {
+            supabaseService.deleteDossier(old.id);
+          }
+        });
+      }
+      return next;
+    });
+  };
 
   // Filtered dossiers for viewing based on role and active user:
   // Revisor 1 only sees the 8 suppliers assigned to him!
@@ -787,19 +745,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const isSupabaseConnected = supabaseService.isConfigured();
 
-  // Carga asíncrona desde Supabase cuando las credenciales están configuradas
+  // Carga asíncrona y sincronización de datos con Supabase
   useEffect(() => {
     if (supabaseService.isConfigured()) {
       supabaseService.getDossiers().then((remoteDossiers) => {
-        if (remoteDossiers && remoteDossiers.length > 0) {
+        if (remoteDossiers !== null) {
           setAllDossiers(remoteDossiers);
-        } else if (remoteDossiers && remoteDossiers.length === 0) {
-          supabaseService.seedInitialDossiers(allDossiers);
         }
       });
       supabaseService.getConvocatorias().then((remoteConvocatorias) => {
-        if (remoteConvocatorias && remoteConvocatorias.length > 0) {
+        if (remoteConvocatorias !== null && remoteConvocatorias.length > 0) {
           setConvocatorias(remoteConvocatorias);
+        }
+      });
+      supabaseService.getEvaluations().then((remoteEvaluations) => {
+        if (remoteEvaluations !== null && remoteEvaluations.length > 0) {
+          setSupplierEvaluations(remoteEvaluations);
+        }
+      });
+      supabaseService.getAuditLogs().then((remoteLogs) => {
+        if (remoteLogs !== null && remoteLogs.length > 0) {
+          setSystemAuditLogs(remoteLogs);
+        }
+      });
+      supabaseService.getEmailNotifications().then((remoteEmails) => {
+        if (remoteEmails !== null && remoteEmails.length > 0) {
+          setEmailNotifications(remoteEmails);
+        }
+      });
+      supabaseService.getInstitutionalForms().then((remoteForms) => {
+        if (remoteForms !== null && remoteForms.length > 0) {
+          setInstitutionalForms(remoteForms);
+        }
+      });
+      supabaseService.getSystemParameters().then((remoteParams) => {
+        if (remoteParams !== null) {
+          setSystemParameters(remoteParams);
         }
       });
     }
@@ -999,6 +980,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Registrar en estado local inmediatamente (UI optimista)
     setEmailNotifications((prev) => [newEmail, ...prev]);
+    if (supabaseService.isConfigured()) {
+      supabaseService.saveEmailNotification(newEmail);
+    }
 
     // Enviar correo real de forma asíncrona (no bloquea la UI)
     if (notification.recipientEmail && notification.bodyHtml) {
@@ -2757,6 +2741,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       postulaciones: [],
     };
     setConvocatorias((prev) => [newConv, ...prev]);
+    if (supabaseService.isConfigured()) {
+      supabaseService.saveConvocatoria(newConv);
+    }
     showToast(`Convocatoria ${newConv.code} publicada con éxito.`, 'success', 'Convocatoria Publicada');
   };
 
