@@ -164,22 +164,64 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   const supplierName = isNatural ? dossier.basicInfo.fullName : dossier.basicInfo.companyName;
   const supplierDoc = isNatural ? dossier.basicInfo.documentNumber : dossier.basicInfo.nit;
 
+  const supplierCategoryReqs = getRequiredDocumentsForSupplier
+    ? getRequiredDocumentsForSupplier(dossier.basicInfo.supplierType, dossier.selectedCategory)
+    : null;
+
   const institutionalDocKeys = ['FS_GA_FOR_009', 'FS_GA_FOR_039'];
-  const institutionalDocs = institutionalDocKeys
-    .map((k) => (dossier.documents || {})[k])
-    .filter(Boolean) as SupplierDocument[];
-  const institutionalApprovedCount = institutionalDocs.filter((d) => d.status === 'APROBADO').length;
-  const institutionalTotalCount = institutionalDocs.length;
+  const doc009 = (dossier.documents || {})['FS_GA_FOR_009'];
+  const doc039 = (dossier.documents || {})['FS_GA_FOR_039'];
+  const institutionalApprovedCount = [doc009, doc039].filter((d) => d && d.status === 'APROBADO').length;
+  const institutionalTotalCount = 2;
 
-  const supportDocsList = (Object.entries(dossier.documents || {}) as [string, SupplierDocument][])
-    .filter(([code]) => !institutionalDocKeys.includes(code));
-  const supportApprovedCount = supportDocsList.filter(([_, d]) => d.status === 'APROBADO').length;
-  const supportTotalCount = supportDocsList.length;
+  // Recopilar todos los códigos exigidos por la matriz + cualquier soporte ya adjunto
+  const matrixMandatoryCodes = supplierCategoryReqs?.allMandatory || [];
+  const matrixOptionalCodes = supplierCategoryReqs?.allOptional || [];
+  const matrixSupportCodes = Array.from(new Set([...matrixMandatoryCodes, ...matrixOptionalCodes]));
+  const customSupportCodes = Object.keys(dossier.documents || {}).filter(
+    (code) => !institutionalDocKeys.includes(code) && !matrixSupportCodes.includes(code)
+  );
+  const allSupportCodes = Array.from(new Set([...matrixSupportCodes, ...customSupportCodes]));
 
-  const docList: SupplierDocument[] = Object.values(dossier.documents || {}) as SupplierDocument[];
-  const totalDocs = docList.length;
-  const approvedDocsCount = docList.filter((d: SupplierDocument) => d.status === 'APROBADO').length;
-  const allDocumentsApproved = totalDocs > 0 && docList.every((d: SupplierDocument) => d.status === 'APROBADO');
+  const supportDocsList: [string, SupplierDocument][] = allSupportCodes.map((code) => {
+    const existing = (dossier.documents || {})[code];
+    const docDef = (documentDefinitions || []).find((d) => d.code === code);
+    const catalog = DOCUMENT_CATALOG_INFO[code];
+    const isMandatory = matrixMandatoryCodes.includes(code) || Boolean(existing?.isRequired);
+    const docName = docDef?.name || existing?.name || catalog?.name || code;
+
+    if (existing) {
+      return [
+        code,
+        {
+          ...existing,
+          name: docName,
+          isRequired: isMandatory,
+        },
+      ];
+    }
+
+    return [
+      code,
+      {
+        id: `doc-${dossier.id}-${code.toLowerCase()}`,
+        code,
+        name: docName,
+        isRequired: isMandatory,
+        isInstitutionalForm: false,
+        status: 'PENDIENTE',
+      },
+    ];
+  });
+
+  const mandatorySupportCount = supportDocsList.filter(([_, d]) => d.isRequired).length;
+  const supportApprovedCount = supportDocsList.filter(([_, d]) => d.isRequired && d.status === 'APROBADO').length;
+  const supportTotalCount = mandatorySupportCount;
+
+  const totalMandatoryDocs = institutionalTotalCount + mandatorySupportCount;
+  const approvedDocsCount = institutionalApprovedCount + supportApprovedCount;
+  const allDocumentsApproved = totalMandatoryDocs > 0 && approvedDocsCount >= totalMandatoryDocs;
+  const totalDocs = totalMandatoryDocs;
 
   // Estado efectivo resolviendo: 1. Cambio manual con motivo, 2. Vigencia de contrato, 3. Cumplimiento documental
   const effectiveStatus: ProcessStatus = getDossierEffectiveStatus(dossier);
@@ -397,9 +439,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   const currentCatConfig = categoriesConfig?.find(
     (c) => c.category === dossier.selectedCategory
   );
-  const supplierCategoryReqs = getRequiredDocumentsForSupplier
-    ? getRequiredDocumentsForSupplier(dossier.basicInfo.supplierType, dossier.selectedCategory)
-    : null;
 
   const handleOpenEditDocModal = (code: string, doc: SupplierDocument, title?: string) => {
     setEditingDocCode(code);
@@ -1596,9 +1635,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             </div>
 
               <div className="divide-y divide-slate-200 border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-                {(Object.entries(dossier.documents) as [string, SupplierDocument][])
-                  .filter(([code]) => code !== 'FS_GA_FOR_009' && code !== 'FS_GA_FOR_039')
-                  .map(([code, doc]) => {
+                {supportDocsList.map(([code, doc]) => {
                     const docDef = (documentDefinitions || []).find((d) => d.code === code);
                     const catalog = DOCUMENT_CATALOG_INFO[code];
                     const docTitle = docDef?.name || doc.name || catalog?.name || code;

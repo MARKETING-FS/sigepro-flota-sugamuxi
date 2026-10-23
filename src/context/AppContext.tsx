@@ -2933,8 +2933,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const baseOptional = (baseConfig?.optionalDocs || []).filter((c) => !inactiveDocCodes.has(c));
 
     // 2. Specific additional requirements for Economic Activity / Category
+    const normalizeStr = (s = '') =>
+      s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
     const catConfig =
-      categoriesConfig.find((c) => c.category === categoryName && c.isActive !== false) ||
+      categoriesConfig.find((c) => normalizeStr(c.category) === normalizeStr(categoryName) && c.isActive !== false) ||
+      categoriesConfig.find((c) => normalizeStr(c.category) === normalizeStr(categoryName)) ||
       categoriesConfig.find((c) => c.category === categoryName) ||
       categoriesConfig[0];
 
