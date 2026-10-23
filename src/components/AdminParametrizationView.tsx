@@ -823,14 +823,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <span>Importar</span>
             </button>
 
-            <button
-              onClick={() => setIsResetConfirmOpen(true)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold rounded-lg border border-slate-200 transition-all shadow-2xs cursor-pointer dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700"
-              title="Restaurar parámetros predeterminados de fábrica"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-              <span>Restaurar Valores</span>
-            </button>
+
           </div>
         </div>
       </div>
@@ -2281,43 +2274,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
         </div>
       )}
 
-      {/* 5. MODAL RESET CONFIRMATION */}
-      {isResetConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-md w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
-              <RotateCcw className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                ¿Restaurar Parámetros y Matriz de Fábrica?
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Esta acción restaurará todos los catálogos maestros, listas desplegables y la matriz de requisitos documentales a la configuración predeterminada del SIG de Flota Sugamuxi S.A.
-              </p>
-            </div>
-            <div className="flex items-center justify-center gap-2 pt-2">
-              <button
-                onClick={() => setIsResetConfirmOpen(false)}
-                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  resetSystemParametersToDefault();
-                  resetMatrixToDefault();
-                  setIsResetConfirmOpen(false);
-                  showToast('Parámetros y matriz restaurados a valores predeterminados.', 'success');
-                }}
-                className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg transition-colors shadow-xs cursor-pointer border border-blue-600"
-              >
-                Confirmar Restauración
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* 6. MODAL IMPORT JSON */}
       {isImportModalOpen && (

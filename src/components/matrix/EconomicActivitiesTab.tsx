@@ -82,14 +82,19 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
   const naturalBaseConfig = baseRequirementsConfig['NATURAL'] || { mandatoryDocs: [], optionalDocs: [] };
   const juridicaBaseConfig = baseRequirementsConfig['JURIDICA'] || { mandatoryDocs: [], optionalDocs: [] };
 
-  // Filtered categories
+  // Filtered categories (accent-insensitive search)
   const filteredCategories = useMemo(() => {
+    const normalize = (str: string = '') =>
+      str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+    const q = normalize(searchQuery);
+
     return categoriesConfig.filter((cat) => {
-      const q = searchQuery.toLowerCase();
       const matchesSearch =
-        cat.category.toLowerCase().includes(q) ||
-        cat.description?.toLowerCase().includes(q) ||
-        (cat.economicCode && cat.economicCode.toLowerCase().includes(q));
+        !q ||
+        normalize(cat.category).includes(q) ||
+        normalize(cat.description).includes(q) ||
+        (cat.economicCode && normalize(cat.economicCode).includes(q));
 
       const matchesRisk =
         selectedRiskFilter === 'ALL' || cat.riskLevel === selectedRiskFilter;
