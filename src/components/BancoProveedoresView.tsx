@@ -546,272 +546,117 @@ export const BancoProveedoresView: React.FC = () => {
         </div>
       )}
 
-      {/* 2. KPI Metrics Grid - Separated: Creación vs Vinculación Contractual */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
-        {/* Dimensión 1: Estado de Creación (Homologación Documental) */}
-        <div className="bg-white dark:bg-[#0b1329] p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-blue-900/50 shadow-2xs space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-800 dark:text-cyan-300 flex items-center justify-center font-bold text-xs border border-blue-200/60 dark:border-blue-800 shrink-0">
-                1
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs font-black uppercase text-slate-800 dark:text-white tracking-wider block truncate sm:whitespace-normal">
-                  Estado de Creación & Homologación
-                </span>
-                <span className="text-[10px] text-slate-400 dark:text-slate-400 block truncate sm:whitespace-normal">Verificación documental y vigencia de soportes</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setCreationStatusFilter('ALL')}
-              className={`self-start sm:self-auto text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shrink-0 ${
-                creationStatusFilter === 'ALL'
-                  ? 'text-blue-900 bg-blue-50 border-blue-300 shadow-2xs dark:bg-blue-950 dark:text-cyan-300 dark:border-blue-800'
-                  : 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100 hover:text-blue-900 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700'
-              }`}
-              title="Restablecer a todos los proveedores registrados"
-            >
-              {totalCount} Registrados
-            </button>
+      {/* 2. Resumen Ejecutivo Limpio (4 KPIs Claves y Accionables) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Total Proveedores */}
+        <div
+          onClick={() => {
+            setCreationStatusFilter('ALL');
+            setContractStatusFilter('ALL');
+          }}
+          className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between shadow-2xs ${
+            creationStatusFilter === 'ALL' && contractStatusFilter === 'ALL'
+              ? 'bg-blue-50/70 border-blue-400 dark:bg-blue-950/60 dark:border-blue-700 ring-2 ring-blue-500/20'
+              : 'bg-white border-slate-200 hover:border-slate-300 dark:bg-[#0f172a] dark:border-slate-800'
+          }`}
+          title="Ver todos los proveedores registrados"
+        >
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+              Total Proveedores
+            </span>
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
+              {totalCount}
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">En registro oficial</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
-            {/* 1. Habilitados */}
-            <button
-              type="button"
-              onClick={() => setCreationStatusFilter((prev) => prev === 'PROVEEDOR_HABILITADO' ? 'ALL' : 'PROVEEDOR_HABILITADO')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                creationStatusFilter === 'PROVEEDOR_HABILITADO'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar proveedores habilitados (100% aprobados) - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                creationStatusFilter === 'PROVEEDOR_HABILITADO' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {habilitadosCreationCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                creationStatusFilter === 'PROVEEDOR_HABILITADO' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                Habilitados
-              </span>
-            </button>
-
-            {/* 2. En Revisión */}
-            <button
-              type="button"
-              onClick={() => setCreationStatusFilter((prev) => prev === 'EN_REVISION' ? 'ALL' : 'EN_REVISION')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                creationStatusFilter === 'EN_REVISION'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar proveedores en revisión técnica - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                creationStatusFilter === 'EN_REVISION' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {enRevisionCreationCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                creationStatusFilter === 'EN_REVISION' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                En Revisión
-              </span>
-            </button>
-
-            {/* 3. Vencidos */}
-            <button
-              type="button"
-              onClick={() => setCreationStatusFilter((prev) => prev === 'DOCUMENTACION_VENCIDA' ? 'ALL' : 'DOCUMENTACION_VENCIDA')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                creationStatusFilter === 'DOCUMENTACION_VENCIDA'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar proveedores con documentos obligatorios vencidos - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                creationStatusFilter === 'DOCUMENTACION_VENCIDA' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {docsVencidosCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                creationStatusFilter === 'DOCUMENTACION_VENCIDA' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                Vencidos
-              </span>
-            </button>
-
-            {/* 4. Por Vencer */}
-            <button
-              type="button"
-              onClick={() => setCreationStatusFilter((prev) => prev === 'DOCUMENTACION_POR_VENCER' ? 'ALL' : 'DOCUMENTACION_POR_VENCER')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                creationStatusFilter === 'DOCUMENTACION_POR_VENCER'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar proveedores con documentos por vencer (≤ 30 días) - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                creationStatusFilter === 'DOCUMENTACION_POR_VENCER' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {docsPorVencerCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                creationStatusFilter === 'DOCUMENTACION_POR_VENCER' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                Por Vencer
-              </span>
-            </button>
-
-            {/* 5. Subsanación */}
-            <button
-              type="button"
-              onClick={() => setCreationStatusFilter((prev) => prev === 'REQUIERE_CORRECCION' ? 'ALL' : 'REQUIERE_CORRECCION')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none col-span-2 sm:col-span-1 ${
-                creationStatusFilter === 'REQUIERE_CORRECCION'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar proveedores que requieren subsanación / corrección - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                creationStatusFilter === 'REQUIERE_CORRECCION' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {requiereCorreccionCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                creationStatusFilter === 'REQUIERE_CORRECCION' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                Subsanación
-              </span>
-            </button>
+          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+            <Users className="w-5 h-5" />
           </div>
         </div>
 
-        {/* Dimensión 2: Estado de Vinculación Contractual (por Objeto del Contrato) */}
-        <div className="bg-white dark:bg-[#0b1329] p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-blue-900/50 shadow-2xs space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-blue-900 dark:bg-blue-950 text-white dark:text-cyan-300 flex items-center justify-center font-bold text-xs border border-blue-800 dark:border-blue-700 shrink-0">
-                2
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs font-black uppercase text-slate-800 dark:text-white tracking-wider block truncate sm:whitespace-normal">
-                  Vinculación por Objeto del Contrato
-                </span>
-                <span className="text-[10px] text-slate-400 dark:text-slate-400 block truncate sm:whitespace-normal">Vigencia temporal y relación jurídica formal</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setContractStatusFilter((prev) => prev === 'CONTRATOS_ACTIVOS' ? 'ALL' : 'CONTRATOS_ACTIVOS')}
-              className={`self-start sm:self-auto text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shrink-0 ${
-                contractStatusFilter === 'CONTRATOS_ACTIVOS'
-                  ? 'bg-blue-900 text-white border-blue-900 shadow-2xs dark:bg-blue-900 dark:border-blue-700'
-                  : 'text-blue-900 bg-blue-50 border-blue-200 hover:bg-blue-100 dark:bg-slate-800/80 dark:text-cyan-300 dark:border-slate-700 dark:hover:bg-slate-700'
-              }`}
-              title="Filtrar contratos activos (vigentes o por vencer) - Clic para alternar"
-            >
-              {vigentesContractCount + porVencerContractCount} Contratos Activos
-            </button>
+        {/* Habilitados Oficiales */}
+        <div
+          onClick={() => {
+            setCreationStatusFilter((prev) => prev === 'PROVEEDOR_HABILITADO' ? 'ALL' : 'PROVEEDOR_HABILITADO');
+            setContractStatusFilter('ALL');
+          }}
+          className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between shadow-2xs ${
+            creationStatusFilter === 'PROVEEDOR_HABILITADO'
+              ? 'bg-blue-50/70 border-blue-500 dark:bg-blue-950/60 dark:border-blue-700 ring-2 ring-blue-500/20'
+              : 'bg-white border-slate-200 hover:border-slate-300 dark:bg-[#0f172a] dark:border-slate-800'
+          }`}
+          title="Filtrar proveedores con homologación 100% aprobada"
+        >
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-700 dark:text-cyan-400 block">
+              Habilitados (100%)
+            </span>
+            <span className="text-2xl font-black text-blue-950 dark:text-white font-mono mt-0.5 block">
+              {habilitadosCreationCount}
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Listos para contratación</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-            {/* 1. Vigente (>30d) */}
-            <button
-              type="button"
-              onClick={() => setContractStatusFilter((prev) => prev === 'VIGENTE' ? 'ALL' : 'VIGENTE')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                contractStatusFilter === 'VIGENTE'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar contratos vigentes > 30 días - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                contractStatusFilter === 'VIGENTE' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {vigentesContractCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                contractStatusFilter === 'VIGENTE' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                Vigente (&gt;30d)
-              </span>
-            </button>
+          <div className="w-10 h-10 rounded-xl bg-blue-900 text-white dark:bg-blue-950 dark:text-cyan-300 flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+        </div>
 
-            {/* 2. Por Vencer (≤30d) */}
-            <button
-              type="button"
-              onClick={() => setContractStatusFilter((prev) => prev === 'POR_VENCER' ? 'ALL' : 'POR_VENCER')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                contractStatusFilter === 'POR_VENCER'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar contratos por vencer en ≤ 30 días - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                contractStatusFilter === 'POR_VENCER' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {porVencerContractCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                contractStatusFilter === 'POR_VENCER' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                Por Vencer (≤30d)
-              </span>
-            </button>
+        {/* En Revisión / Subsanación */}
+        <div
+          onClick={() => {
+            setCreationStatusFilter((prev) => prev === 'EN_REVISION' ? 'ALL' : 'EN_REVISION');
+            setContractStatusFilter('ALL');
+          }}
+          className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between shadow-2xs ${
+            creationStatusFilter === 'EN_REVISION'
+              ? 'bg-blue-50/70 border-blue-500 dark:bg-blue-950/60 dark:border-blue-700 ring-2 ring-blue-500/20'
+              : 'bg-white border-slate-200 hover:border-slate-300 dark:bg-[#0f172a] dark:border-slate-800'
+          }`}
+          title="Filtrar proveedores en revisión o pendientes de subsanar"
+        >
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 block">
+              En Revisión
+            </span>
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
+              {enRevisionCreationCount + requiereCorreccionCount}
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+              {requiereCorreccionCount > 0 ? `${requiereCorreccionCount} requieren corrección` : 'Sin correcciones pendientes'}
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-cyan-300 flex items-center justify-center">
+            <Clock className="w-5 h-5" />
+          </div>
+        </div>
 
-            {/* 3. Vencido */}
-            <button
-              type="button"
-              onClick={() => setContractStatusFilter((prev) => prev === 'VENCIDO' ? 'ALL' : 'VENCIDO')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                contractStatusFilter === 'VENCIDO'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar contratos formalmente vencidos - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                contractStatusFilter === 'VENCIDO' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {vencidosContractCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                contractStatusFilter === 'VENCIDO' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                Vencido
-              </span>
-            </button>
-
-            {/* 4. Sin Contrato */}
-            <button
-              type="button"
-              onClick={() => setContractStatusFilter((prev) => prev === 'SIN_CONTRATO' ? 'ALL' : 'SIN_CONTRATO')}
-              className={`p-2 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                contractStatusFilter === 'SIN_CONTRATO'
-                  ? 'bg-slate-900 border-slate-800 text-white shadow-xs ring-2 ring-blue-500/40 dark:bg-blue-900/90 dark:border-blue-600 dark:ring-blue-400/50'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:bg-slate-800/60 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-slate-600'
-              }`}
-              title="Filtrar proveedores sin contrato formal activo - Clic para alternar"
-            >
-              <span className={`text-lg font-black block ${
-                contractStatusFilter === 'SIN_CONTRATO' ? 'text-white' : 'text-slate-800 dark:text-slate-100'
-              }`}>
-                {sinContratoCount}
-              </span>
-              <span className={`text-[9px] font-bold block truncate ${
-                contractStatusFilter === 'SIN_CONTRATO' ? 'text-cyan-300' : 'text-slate-600 dark:text-slate-400'
-              }`}>
-                Sin Contrato
-              </span>
-            </button>
+        {/* Con Alertas o Vencidos */}
+        <div
+          onClick={() => {
+            setCreationStatusFilter((prev) => prev === 'DOCUMENTACION_VENCIDA' ? 'ALL' : 'DOCUMENTACION_VENCIDA');
+            setContractStatusFilter('ALL');
+          }}
+          className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between shadow-2xs ${
+            creationStatusFilter === 'DOCUMENTACION_VENCIDA'
+              ? 'bg-amber-50/70 border-amber-400 dark:bg-amber-950/60 dark:border-amber-700 ring-2 ring-amber-500/20'
+              : 'bg-white border-slate-200 hover:border-slate-300 dark:bg-[#0f172a] dark:border-slate-800'
+          }`}
+          title="Filtrar proveedores con documentos obligatorios vencidos"
+        >
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 block">
+              Documentos Vencidos
+            </span>
+            <span className="text-2xl font-black text-amber-900 dark:text-amber-200 font-mono mt-0.5 block">
+              {docsVencidosCount}
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+              {docsPorVencerCount > 0 ? `${docsPorVencerCount} próximos a vencer` : 'Inhabilitación preventiva'}
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-300 flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5" />
           </div>
         </div>
       </div>
