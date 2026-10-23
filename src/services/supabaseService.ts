@@ -648,9 +648,14 @@ export const supabaseService = {
         .eq('id', 'global_parameters')
         .maybeSingle();
 
-      if (error || !data || !Array.isArray(data.categories_config)) return null;
+      if (error) {
+        console.error('[Supabase] Error consultando categories_config:', error);
+        return null;
+      }
+      if (!data || !Array.isArray(data.categories_config)) return null;
       return data.categories_config as CategoryRequirementConfig[];
-    } catch {
+    } catch (err) {
+      console.error('[Supabase] Excepción consultando categories_config:', err);
       return null;
     }
   },
@@ -663,8 +668,13 @@ export const supabaseService = {
         categories_config: categories,
         updated_at: new Date().toISOString(),
       });
-      return !error;
-    } catch {
+      if (error) {
+        console.error('[Supabase] Error guardando categories_config:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('[Supabase] Excepción guardando categories_config:', err);
       return false;
     }
   },
@@ -678,9 +688,14 @@ export const supabaseService = {
         .eq('id', 'global_parameters')
         .maybeSingle();
 
-      if (error || !data || !Array.isArray(data.document_definitions)) return null;
+      if (error) {
+        console.error('[Supabase] Error consultando document_definitions:', error);
+        return null;
+      }
+      if (!data || !Array.isArray(data.document_definitions)) return null;
       return data.document_definitions as DocumentDefinition[];
-    } catch {
+    } catch (err) {
+      console.error('[Supabase] Excepción consultando document_definitions:', err);
       return null;
     }
   },
@@ -693,8 +708,57 @@ export const supabaseService = {
         document_definitions: docDefs,
         updated_at: new Date().toISOString(),
       });
-      return !error;
-    } catch {
+      if (error) {
+        console.error('[Supabase] Error guardando document_definitions:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('[Supabase] Excepción guardando document_definitions:', err);
+      return false;
+    }
+  },
+
+  async getBaseRequirementsConfig(): Promise<Record<'NATURAL' | 'JURIDICA', PersonTypeBaseRequirementConfig> | null> {
+    if (!isSupabaseConfigured() || !supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('system_parameters')
+        .select('base_requirements')
+        .eq('id', 'global_parameters')
+        .maybeSingle();
+
+      if (error) {
+        console.error('[Supabase] Error consultando base_requirements:', error);
+        return null;
+      }
+      if (!data || !data.base_requirements || typeof data.base_requirements !== 'object') return null;
+      const res = data.base_requirements as Record<'NATURAL' | 'JURIDICA', PersonTypeBaseRequirementConfig>;
+      if (!res.NATURAL || !res.JURIDICA) return null;
+      return res;
+    } catch (err) {
+      console.error('[Supabase] Excepción consultando base_requirements:', err);
+      return null;
+    }
+  },
+
+  async saveBaseRequirementsConfig(
+    baseReqs: Record<'NATURAL' | 'JURIDICA', PersonTypeBaseRequirementConfig>
+  ): Promise<boolean> {
+    if (!isSupabaseConfigured() || !supabase) return false;
+    try {
+      const { error } = await supabase.from('system_parameters').upsert({
+        id: 'global_parameters',
+        base_requirements: baseReqs,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) {
+        console.error('[Supabase] Error guardando base_requirements:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('[Supabase] Excepción guardando base_requirements:', err);
       return false;
     }
   },

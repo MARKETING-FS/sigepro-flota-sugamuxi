@@ -213,6 +213,10 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
               <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
                 Edición Total de Campos Habilitada
               </span>
+              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Supabase Sincronizado
+              </span>
             </h2>
             <p className="text-xs text-slate-500">
               Parametrice los documentos técnicos, pólizas, condiciones y soportes exigibles para cada línea de bienes y servicios.

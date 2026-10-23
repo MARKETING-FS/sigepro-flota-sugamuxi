@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   UserRole,
   ThemeMode,
@@ -658,6 +658,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActiveViewState('evaluaciones');
   };
 
+  // Supabase Hydration Guards (prevents premature blank overwrites on mount)
+  const isCategoriesLoadedFromSupabase = useRef(false);
+  const isDocDefsLoadedFromSupabase = useRef(false);
+  const isBaseReqsLoadedFromSupabase = useRef(false);
+
   // Global Toast Notifications State
   const [toast, setToast] = useState<ToastNotificationData | null>(null);
 
@@ -700,20 +705,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(categoriesConfig));
-    if (supabaseService.isConfigured()) {
+    if (isCategoriesLoadedFromSupabase.current && supabaseService.isConfigured()) {
       supabaseService.saveCategoriesConfig(categoriesConfig);
     }
   }, [categoriesConfig]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_DOC_DEFINITIONS, JSON.stringify(documentDefinitions));
-    if (supabaseService.isConfigured()) {
+    if (isDocDefsLoadedFromSupabase.current && supabaseService.isConfigured()) {
       supabaseService.saveDocumentDefinitions(documentDefinitions);
     }
   }, [documentDefinitions]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_BASE_REQUIREMENTS, JSON.stringify(baseRequirementsConfig));
+    if (isBaseReqsLoadedFromSupabase.current && supabaseService.isConfigured()) {
+      supabaseService.saveBaseRequirementsConfig(baseRequirementsConfig);
+    }
   }, [baseRequirementsConfig]);
 
   useEffect(() => {
@@ -807,12 +815,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       supabaseService.getCategoriesConfig().then((remoteCats) => {
         if (remoteCats !== null) {
           setCategoriesConfig(remoteCats);
+          localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(remoteCats));
         }
+        isCategoriesLoadedFromSupabase.current = true;
       });
       supabaseService.getDocumentDefinitions().then((remoteDocs) => {
         if (remoteDocs !== null && remoteDocs.length > 0) {
           setDocumentDefinitions(remoteDocs);
+          localStorage.setItem(LOCAL_STORAGE_KEY_DOC_DEFINITIONS, JSON.stringify(remoteDocs));
         }
+        isDocDefsLoadedFromSupabase.current = true;
+      });
+      supabaseService.getBaseRequirementsConfig().then((remoteBase) => {
+        if (remoteBase !== null) {
+          setBaseRequirementsConfig(remoteBase);
+          localStorage.setItem(LOCAL_STORAGE_KEY_BASE_REQUIREMENTS, JSON.stringify(remoteBase));
+        }
+        isBaseReqsLoadedFromSupabase.current = true;
       });
       supabaseService.getSystemParameters().then((remoteParams) => {
         if (remoteParams !== null) {
@@ -3001,9 +3020,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateCategoryConfig = (categoryName: string, updatedConfig: Partial<CategoryRequirementConfig>) => {
-    setCategoriesConfig((prev) =>
-      prev.map((c) => (c.category === categoryName ? { ...c, ...updatedConfig } : c))
-    );
+    const updatedList = categoriesConfig.map((c) => (c.category === categoryName ? { ...c, ...updatedConfig } : c));
+    setCategoriesConfig(updatedList);
+    localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(updatedList));
+    if (supabaseService.isConfigured()) {
+      supabaseService.saveCategoriesConfig(updatedList);
+    }
   };
 
   const addCategoryConfig = (newConfig: CategoryRequirementConfig): { success: boolean; message: string } => {
@@ -3024,13 +3046,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       optionalForNatural: newConfig.optionalForNatural || [],
       optionalForJuridica: newConfig.optionalForJuridica || [],
     };
-    setCategoriesConfig((prev) => [...prev, cleanConfig]);
-    return { success: true, message: 'Nueva categoría y matriz de requisitos agregada exitosamente.' };
+    const updatedList = [...categoriesConfig, cleanConfig];
+    setCategoriesConfig(updatedList);
+    localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(updatedList));
+    if (supabaseService.isConfigured()) {
+      supabaseService.saveCategoriesConfig(updatedList);
+    }
+    return { success: true, message: 'Nueva categoría y matriz de requisitos guardada y sincronizada en Supabase exitosamente.' };
   };
 
   const deleteCategoryConfig = (categoryName: string): { success: boolean; message: string } => {
-    setCategoriesConfig((prev) => prev.filter((c) => c.category !== categoryName));
-    return { success: true, message: 'Actividad económica eliminada del catálogo activo.' };
+    const updatedList = categoriesConfig.filter((c) => c.category !== categoryName);
+    setCategoriesConfig(updatedList);
+    localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(updatedList));
+    if (supabaseService.isConfigured()) {
+      supabaseService.saveCategoriesConfig(updatedList);
+    }
+    return { success: true, message: 'Actividad económica eliminada del catálogo y actualizada en Supabase.' };
   };
 
   const toggleDocumentRequirement = (
@@ -3070,6 +3102,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return updated;
       })
     );
+    // Persist immediately to Supabase
+    setTimeout(() => {
+      const currentCats = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_CATEGORIES) || '[]');
+      if (currentCats.length > 0 && supabaseService.isConfigured()) {
+        supabaseService.saveCategoriesConfig(currentCats);
+      }
+    }, 50);
   };
 
   const addDocumentDefinition = (doc: DocumentDefinition): { success: boolean; message: string } => {
