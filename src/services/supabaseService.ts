@@ -639,6 +639,66 @@ export const supabaseService = {
   // 7. PARÁMETROS GLOBALES DEL SISTEMA (system_parameters)
   // ============================================================================
 
+  async getCategoriesConfig(): Promise<CategoryRequirementConfig[] | null> {
+    if (!isSupabaseConfigured() || !supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('system_parameters')
+        .select('categories_config')
+        .eq('id', 'global_parameters')
+        .maybeSingle();
+
+      if (error || !data || !Array.isArray(data.categories_config)) return null;
+      return data.categories_config as CategoryRequirementConfig[];
+    } catch {
+      return null;
+    }
+  },
+
+  async saveCategoriesConfig(categories: CategoryRequirementConfig[]): Promise<boolean> {
+    if (!isSupabaseConfigured() || !supabase) return false;
+    try {
+      const { error } = await supabase.from('system_parameters').upsert({
+        id: 'global_parameters',
+        categories_config: categories,
+        updated_at: new Date().toISOString(),
+      });
+      return !error;
+    } catch {
+      return false;
+    }
+  },
+
+  async getDocumentDefinitions(): Promise<DocumentDefinition[] | null> {
+    if (!isSupabaseConfigured() || !supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('system_parameters')
+        .select('document_definitions')
+        .eq('id', 'global_parameters')
+        .maybeSingle();
+
+      if (error || !data || !Array.isArray(data.document_definitions)) return null;
+      return data.document_definitions as DocumentDefinition[];
+    } catch {
+      return null;
+    }
+  },
+
+  async saveDocumentDefinitions(docDefs: DocumentDefinition[]): Promise<boolean> {
+    if (!isSupabaseConfigured() || !supabase) return false;
+    try {
+      const { error } = await supabase.from('system_parameters').upsert({
+        id: 'global_parameters',
+        document_definitions: docDefs,
+        updated_at: new Date().toISOString(),
+      });
+      return !error;
+    } catch {
+      return false;
+    }
+  },
+
   async getSystemParameters(): Promise<SystemParametersState | null> {
     if (!isSupabaseConfigured() || !supabase) return null;
 

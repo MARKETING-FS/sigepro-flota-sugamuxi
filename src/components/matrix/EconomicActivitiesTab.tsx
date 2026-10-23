@@ -22,6 +22,8 @@ import {
   Layers,
   Settings,
   HelpCircle,
+  Clock,
+  Calendar,
 } from 'lucide-react';
 
 interface EconomicActivitiesTabProps {
@@ -330,7 +332,31 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
       {/* Category Cards List */}
       <div className="space-y-4">
-        {filteredCategories.length === 0 ? (
+        {categoriesConfig.length === 0 ? (
+          <div className="bg-white p-10 sm:p-14 rounded-2xl border-2 border-dashed border-blue-200 text-center space-y-4 animate-in fade-in">
+            <div className="w-16 h-16 bg-blue-50 text-blue-700 rounded-2xl mx-auto flex items-center justify-center border border-blue-100 shadow-inner">
+              <Briefcase className="w-8 h-8" />
+            </div>
+            <div className="max-w-md mx-auto space-y-1.5">
+              <h3 className="text-base font-extrabold text-slate-900">
+                Matriz de Actividades Económicas Lista para Registro Real
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Se ha vaciado la información demo de la base de datos. Como Administrador, ahora puede registrar las actividades económicas, líneas de contratación y suministros reales de <strong>Flota Sugamuxi S.A.</strong>, asociar requisitos y parametrizar la vigencia documental.
+              </p>
+            </div>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={onOpenNewCategoryModal}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer hover:shadow-lg active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span>+ Registrar Primera Actividad Económica Real</span>
+              </button>
+            </div>
+          </div>
+        ) : filteredCategories.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center text-slate-500 text-xs">
             No se encontraron actividades económicas con los filtros seleccionados.
           </div>
@@ -524,6 +550,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                 Persona Jurídica
                               </th>
                             )}
+                            <th className="px-3 py-3 text-center">Control de Vigencia</th>
                             <th className="px-3 py-3">Regla de Validez / Vigencia</th>
                             <th className="px-3 py-3 text-right">Editar Documento</th>
                           </tr>
@@ -683,6 +710,44 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                       )}
                                     </td>
                                   )}
+
+                                  {/* Control de Vigencia y Vencimiento */}
+                                  <td className="px-3 py-3 text-center">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const newRequiresExp = !doc.requiresExpirationDate;
+                                        updateDocumentDefinition(doc.code, {
+                                          requiresExpirationDate: newRequiresExp,
+                                          validityRule: newRequiresExp && (!doc.validityRule || doc.validityRule.includes('permanente'))
+                                            ? 'Vigencia sujeta a fecha de vencimiento.'
+                                            : doc.validityRule,
+                                        });
+                                        onShowToast(
+                                          `"${doc.name}": ${newRequiresExp ? 'Control de VIGENCIA ACTIVADO (Exigirá fecha de vencimiento y semáforo)' : 'Control de vigencia marcado como PERMANENTE (Sin caducidad)'}`,
+                                          newRequiresExp ? 'success' : 'success'
+                                        );
+                                      }}
+                                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                                        doc.requiresExpirationDate
+                                          ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 shadow-2xs'
+                                          : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                                      }`}
+                                      title="Clic para alternar si este documento exige fecha de vencimiento y calcula semáforo de vigencia"
+                                    >
+                                      {doc.requiresExpirationDate ? (
+                                        <>
+                                          <Clock className="w-3 h-3 text-amber-700" />
+                                          <span>Con Vencimiento</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircle2 className="w-3 h-3 text-slate-400" />
+                                          <span>Permanente</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  </td>
 
                                   <td className="px-3 py-3 text-slate-600 text-[11px]">
                                     <div className="font-medium">{doc.validityRule || 'Documento vigente.'}</div>
@@ -987,16 +1052,63 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                 />
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <label className="flex items-center gap-2.5 text-xs text-slate-800 font-semibold cursor-pointer">
+              {/* Parametrización de Vigencia y Vencimiento */}
+              <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-xl space-y-3">
+                <label className="flex items-center gap-2.5 text-xs text-amber-950 font-bold cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editDocRequiresExp}
-                    onChange={(e) => setEditDocRequiresExp(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setEditDocRequiresExp(checked);
+                      if (!checked) {
+                        setEditDocValidity('Documento permanente sin fecha de caducidad.');
+                      } else if (!editDocValidity || editDocValidity.includes('permanente')) {
+                        setEditDocValidity('Vigencia periódica requerida sujeta a fecha de vencimiento.');
+                      }
+                    }}
+                    className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
                   />
-                  <span>Exigir fecha de vencimiento obligatoria al radicar</span>
+                  <span>¿Este documento tiene fecha de vencimiento? (Control de Vigencia SIG)</span>
                 </label>
+                
+                {editDocRequiresExp ? (
+                  <div className="space-y-2.5 pl-6 pt-1 border-t border-amber-200/80 animate-in fade-in">
+                    <p className="text-[11px] text-amber-900 leading-relaxed">
+                      Al activar esta opción, SIGEPRO exigirá obligatoriamente ingresar la <strong>fecha de vencimiento</strong> al radicar el documento y calculará automáticamente en los expedientes:
+                      <span className="block mt-1 text-[10px] text-slate-700 font-mono">
+                        🟢 Vigente (&gt;30d) &nbsp;|&nbsp; 🟡 Por vencer (≤30d) &nbsp;|&nbsp; 🔴 Vencido (&lt;0d)
+                      </span>
+                    </p>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                        Períodos Frecuentes de Renovación (Presets sugeridos):
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { label: '30 días (PILA / Banco / Cámara)', rule: 'Expedición no mayor a 30 días calendario.' },
+                          { label: '90 días (Trimestral)', rule: 'Vigencia trimestral no mayor a 90 días calendario.' },
+                          { label: '180 días (Semestral)', rule: 'Vigencia semestral (180 días).' },
+                          { label: '365 días (1 Año: Pólizas / Calidad ISO)', rule: 'Vigencia anual de 365 días calendario.' },
+                        ].map((preset) => (
+                          <button
+                            key={preset.label}
+                            type="button"
+                            onClick={() => setEditDocValidity(preset.rule)}
+                            className="px-2 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-md text-[10px] font-semibold text-amber-950 transition-colors cursor-pointer"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-slate-600 pl-6">
+                    Este requisito se considerará <strong>Permanente</strong> (sin semáforo de expiración periódica).
+                  </p>
+                )}
               </div>
 
               <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">

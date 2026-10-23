@@ -467,7 +467,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_CATEGORIES);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Filtrar remanentes demo de categorías (cat-001 a cat-010)
+          const nonMock = parsed.filter(
+            (c: any) => c && c.id && !String(c.id).startsWith('cat-00') && !String(c.id).startsWith('cat-01')
+          );
+          if (nonMock.length > 0) return nonMock;
+        }
       } catch (e) {
         console.error('Error loading categories from localStorage', e);
       }
@@ -680,10 +687,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(categoriesConfig));
+    if (supabaseService.isConfigured()) {
+      supabaseService.saveCategoriesConfig(categoriesConfig);
+    }
   }, [categoriesConfig]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_DOC_DEFINITIONS, JSON.stringify(documentDefinitions));
+    if (supabaseService.isConfigured()) {
+      supabaseService.saveDocumentDefinitions(documentDefinitions);
+    }
   }, [documentDefinitions]);
 
   useEffect(() => {
@@ -776,6 +789,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       supabaseService.getInstitutionalForms().then((remoteForms) => {
         if (remoteForms !== null && remoteForms.length > 0) {
           setInstitutionalForms(remoteForms);
+        }
+      });
+      supabaseService.getCategoriesConfig().then((remoteCats) => {
+        if (remoteCats !== null) {
+          setCategoriesConfig(remoteCats);
+        }
+      });
+      supabaseService.getDocumentDefinitions().then((remoteDocs) => {
+        if (remoteDocs !== null && remoteDocs.length > 0) {
+          setDocumentDefinitions(remoteDocs);
         }
       });
       supabaseService.getSystemParameters().then((remoteParams) => {
@@ -2993,11 +3016,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteCategoryConfig = (categoryName: string): { success: boolean; message: string } => {
-    if (categoriesConfig.length <= 1) {
-      return { success: false, message: 'Debe existir al menos una categoría en el sistema.' };
-    }
     setCategoriesConfig((prev) => prev.filter((c) => c.category !== categoryName));
-    return { success: true, message: 'Categoría eliminada del catálogo activo.' };
+    return { success: true, message: 'Actividad económica eliminada del catálogo activo.' };
   };
 
   const toggleDocumentRequirement = (

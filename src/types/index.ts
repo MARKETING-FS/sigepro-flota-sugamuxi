@@ -503,6 +503,8 @@ export interface DocumentDefinition {
   formCode?: string;
   suggestedFileTypes?: string[];
   requiresExpirationDate?: boolean;
+  validityDays?: number;
+  alertDaysBefore?: number;
   isActive?: boolean;
 }
 
