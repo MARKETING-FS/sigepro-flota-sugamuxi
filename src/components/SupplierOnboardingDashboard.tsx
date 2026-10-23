@@ -147,8 +147,8 @@ export const SupplierOnboardingDashboard: React.FC = () => {
   const currentBaseConfig = baseRequirementsConfig[basicInfo.supplierType] || baseRequirementsConfig['NATURAL'];
 
   const {
-    allMandatory: mandatorySupportDocs,
-    allOptional: optionalSupportDocs,
+    allMandatory: mandatorySupportDocs = [],
+    allOptional: optionalSupportDocs = [],
     baseMandatory,
     activityMandatory,
     baseOptional,

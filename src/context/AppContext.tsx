@@ -518,20 +518,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return INITIAL_CONVOCATORIAS;
   });
 
+  const sanitizeSystemParameters = (incoming?: Partial<SystemParametersState> | null): SystemParametersState => {
+    const p = incoming || {};
+    return {
+      ...INITIAL_SYSTEM_PARAMETERS,
+      ...p,
+      bankOptions: Array.isArray(p.bankOptions) && p.bankOptions.length > 0 ? p.bankOptions : INITIAL_SYSTEM_PARAMETERS.bankOptions,
+      bankAccountTypes: Array.isArray(p.bankAccountTypes) && p.bankAccountTypes.length > 0 ? p.bankAccountTypes : INITIAL_SYSTEM_PARAMETERS.bankAccountTypes,
+      documentTypes: Array.isArray(p.documentTypes) && p.documentTypes.length > 0 ? p.documentTypes : INITIAL_SYSTEM_PARAMETERS.documentTypes,
+      taxRegimes: Array.isArray(p.taxRegimes) && p.taxRegimes.length > 0 ? p.taxRegimes : INITIAL_SYSTEM_PARAMETERS.taxRegimes,
+      cityOptions: Array.isArray(p.cityOptions) && p.cityOptions.length > 0 ? p.cityOptions : INITIAL_SYSTEM_PARAMETERS.cityOptions,
+      arlRiskLevels: Array.isArray(p.arlRiskLevels) && p.arlRiskLevels.length > 0 ? p.arlRiskLevels : INITIAL_SYSTEM_PARAMETERS.arlRiskLevels,
+      convocatoriaTypes: Array.isArray(p.convocatoriaTypes) && p.convocatoriaTypes.length > 0 ? p.convocatoriaTypes : INITIAL_SYSTEM_PARAMETERS.convocatoriaTypes,
+      rejectionReasons: Array.isArray(p.rejectionReasons) && p.rejectionReasons.length > 0 ? p.rejectionReasons : INITIAL_SYSTEM_PARAMETERS.rejectionReasons,
+      globalSettings: {
+        ...INITIAL_SYSTEM_PARAMETERS.globalSettings,
+        ...(p.globalSettings || {}),
+      },
+    };
+  };
+
   // Dynamic System Parameters State (Admin General)
   const [systemParameters, setSystemParameters] = useState<SystemParametersState>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_SYSTEM_PARAMETERS);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return {
-          ...INITIAL_SYSTEM_PARAMETERS,
-          ...parsed,
-          globalSettings: {
-            ...INITIAL_SYSTEM_PARAMETERS.globalSettings,
-            ...(parsed.globalSettings || {}),
-          },
-        };
+        return sanitizeSystemParameters(parsed);
       } catch (e) {
         console.error('Error loading system parameters from localStorage', e);
       }
@@ -803,7 +816,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       supabaseService.getSystemParameters().then((remoteParams) => {
         if (remoteParams !== null) {
-          setSystemParameters(remoteParams);
+          setSystemParameters(sanitizeSystemParameters(remoteParams));
         }
       });
     }

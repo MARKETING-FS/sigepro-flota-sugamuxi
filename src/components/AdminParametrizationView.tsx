@@ -618,14 +618,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
   const catalogTabs: Array<{ id: ParamTab; label: string; icon: React.FC<any>; count?: number }> = [
     { id: 'categories', label: 'Categorías de Suministro / Servicio', icon: Layers, count: categoriesConfig.length },
-    { id: 'banks', label: 'Entidades Bancarias', icon: Building2, count: systemParameters.bankOptions.length },
-    { id: 'bankAccountTypes', label: 'Tipos de Cuenta', icon: CreditCard, count: systemParameters.bankAccountTypes.length },
-    { id: 'documentTypes', label: 'Tipos de Identificación', icon: FileText, count: systemParameters.documentTypes.length },
-    { id: 'taxRegimes', label: 'Régimen Tributario', icon: ShieldCheck, count: systemParameters.taxRegimes.length },
-    { id: 'cities', label: 'Ciudades y Cobertura', icon: MapPin, count: systemParameters.cityOptions.length },
-    { id: 'arlRiskLevels', label: 'Niveles ARL', icon: AlertCircle, count: systemParameters.arlRiskLevels.length },
-    { id: 'convocatoriaTypes', label: 'Modalidades Convocatorias', icon: Briefcase, count: systemParameters.convocatoriaTypes.length },
-    { id: 'rejectionReasons', label: 'Causas de Devolución / Glosas', icon: AlertTriangle, count: systemParameters.rejectionReasons.length },
+    { id: 'banks', label: 'Entidades Bancarias', icon: Building2, count: (systemParameters?.bankOptions || []).length },
+    { id: 'bankAccountTypes', label: 'Tipos de Cuenta', icon: CreditCard, count: (systemParameters?.bankAccountTypes || []).length },
+    { id: 'documentTypes', label: 'Tipos de Identificación', icon: FileText, count: (systemParameters?.documentTypes || []).length },
+    { id: 'taxRegimes', label: 'Régimen Tributario', icon: ShieldCheck, count: (systemParameters?.taxRegimes || []).length },
+    { id: 'cities', label: 'Ciudades y Cobertura', icon: MapPin, count: (systemParameters?.cityOptions || []).length },
+    { id: 'arlRiskLevels', label: 'Niveles ARL', icon: AlertCircle, count: (systemParameters?.arlRiskLevels || []).length },
+    { id: 'convocatoriaTypes', label: 'Modalidades Convocatorias', icon: Briefcase, count: (systemParameters?.convocatoriaTypes || []).length },
+    { id: 'rejectionReasons', label: 'Causas de Devolución / Glosas', icon: AlertTriangle, count: (systemParameters?.rejectionReasons || []).length },
   ];
 
   const systemTabs: Array<{ id: ParamTab; label: string; icon: React.FC<any> }> = [
@@ -644,7 +644,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }, [categoriesConfig, searchQuery]);
 
   const filteredBanks = useMemo(() => {
-    return systemParameters.bankOptions.filter((b) => {
+    return (systemParameters?.bankOptions || []).filter((b) => {
       const matchSearch = b.name.toLowerCase().includes(searchQuery.toLowerCase()) || b.code.toLowerCase().includes(searchQuery.toLowerCase());
       const matchStatus = filterStatus === 'ALL' || (filterStatus === 'ACTIVE' ? b.isActive : !b.isActive);
       return matchSearch && matchStatus;
@@ -652,7 +652,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }, [systemParameters.bankOptions, searchQuery, filterStatus]);
 
   const filteredBankAccountTypes = useMemo(() => {
-    return systemParameters.bankAccountTypes.filter((a) => {
+    return (systemParameters?.bankAccountTypes || []).filter((a) => {
       const matchSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.code.toLowerCase().includes(searchQuery.toLowerCase());
       const matchStatus = filterStatus === 'ALL' || (filterStatus === 'ACTIVE' ? a.isActive : !a.isActive);
       return matchSearch && matchStatus;
@@ -660,7 +660,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }, [systemParameters.bankAccountTypes, searchQuery, filterStatus]);
 
   const filteredDocumentTypes = useMemo(() => {
-    return systemParameters.documentTypes.filter((d) => {
+    return (systemParameters?.documentTypes || []).filter((d) => {
       const matchSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.code.toLowerCase().includes(searchQuery.toLowerCase());
       const matchStatus = filterStatus === 'ALL' || (filterStatus === 'ACTIVE' ? d.isActive : !d.isActive);
       return matchSearch && matchStatus;
@@ -668,7 +668,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }, [systemParameters.documentTypes, searchQuery, filterStatus]);
 
   const filteredTaxRegimes = useMemo(() => {
-    return systemParameters.taxRegimes.filter((t) => {
+    return (systemParameters?.taxRegimes || []).filter((t) => {
       const matchSearch =
         t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         t.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -679,7 +679,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }, [systemParameters.taxRegimes, searchQuery, filterStatus]);
 
   const filteredCities = useMemo(() => {
-    return systemParameters.cityOptions.filter((c) => {
+    return (systemParameters?.cityOptions || []).filter((c) => {
       const matchSearch =
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -690,7 +690,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }, [systemParameters.cityOptions, searchQuery, filterStatus]);
 
   const filteredArlRiskLevels = useMemo(() => {
-    return systemParameters.arlRiskLevels.filter((a) => {
+    return (systemParameters?.arlRiskLevels || []).filter((a) => {
       const matchSearch =
         a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -701,7 +701,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }, [systemParameters.arlRiskLevels, searchQuery, filterStatus]);
 
   const filteredConvocatoriaTypes = useMemo(() => {
-    return systemParameters.convocatoriaTypes.filter((c) => {
+    return (systemParameters?.convocatoriaTypes || []).filter((c) => {
       const matchSearch =
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -712,7 +712,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }, [systemParameters.convocatoriaTypes, searchQuery, filterStatus]);
 
   const filteredRejectionReasons = useMemo(() => {
-    return systemParameters.rejectionReasons.filter((r) => {
+    return (systemParameters?.rejectionReasons || []).filter((r) => {
       const matchSearch =
         r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1172,7 +1172,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-blue-600" />
-                    <span>Entidades Financieras y Bancos ({systemParameters.bankOptions.length})</span>
+                    <span>Entidades Financieras y Bancos ({(systemParameters?.bankOptions || []).length})</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Entidades bancarias y financieras autorizadas en Colombia para dispersión de pagos.
@@ -1297,7 +1297,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <CreditCard className="w-4 h-4 text-blue-600" />
-                    <span>Tipos de Cuenta Bancaria ({systemParameters.bankAccountTypes.length})</span>
+                    <span>Tipos de Cuenta Bancaria ({(systemParameters?.bankAccountTypes || []).length})</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Modalidades de cuenta disponibles en certificaciones bancarias de proveedores.
@@ -1375,7 +1375,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-blue-600" />
-                    <span>Tipos de Identificación y Documento ({systemParameters.documentTypes.length})</span>
+                    <span>Tipos de Identificación y Documento ({(systemParameters?.documentTypes || []).length})</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Tipos de documentos de identificación tributaria y ciudadana en Colombia.
@@ -1459,7 +1459,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-blue-600" />
-                    <span>Régimen Tributario y Calidad Fiscal ({systemParameters.taxRegimes.length})</span>
+                    <span>Régimen Tributario y Calidad Fiscal ({(systemParameters?.taxRegimes || []).length})</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Clasificación fiscal DIAN para retenciones en la fuente e ICA.
@@ -1539,7 +1539,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-blue-600" />
-                    <span>Ciudades, Municipios y Agencias ({systemParameters.cityOptions.length})</span>
+                    <span>Ciudades, Municipios y Agencias ({(systemParameters?.cityOptions || []).length})</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Cobertura operativa para radicación y sedes terminales de Flota Sugamuxi S.A.
@@ -1619,7 +1619,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-blue-600" />
-                    <span>Niveles de Riesgo Laboral ARL ({systemParameters.arlRiskLevels.length})</span>
+                    <span>Niveles de Riesgo Laboral ARL ({(systemParameters?.arlRiskLevels || []).length})</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Clasificación de riesgo en Seguridad y Salud en el Trabajo (SST - Decreto 1072 de 2015).
@@ -1701,7 +1701,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-blue-600" />
-                    <span>Modalidades de Contratación y Convocatorias ({systemParameters.convocatoriaTypes.length})</span>
+                    <span>Modalidades de Contratación y Convocatorias ({(systemParameters?.convocatoriaTypes || []).length})</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Procesos de selección y modalidades de contratación institucional.
@@ -1781,7 +1781,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-blue-600" />
-                    <span>Causas de Devolución y Observaciones SIG ({systemParameters.rejectionReasons.length})</span>
+                    <span>Causas de Devolución y Observaciones SIG ({(systemParameters?.rejectionReasons || []).length})</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Motivos preestablecidos para requerir subsanación en proveedores y documentos.

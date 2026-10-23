@@ -1592,8 +1592,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   .map(([code, doc]) => {
                     const catalog = DOCUMENT_CATALOG_INFO[code];
                     const docTitle = catalog?.name || doc.name;
-                    const isActivityReq = supplierCategoryReqs?.activityMandatory.includes(code) || supplierCategoryReqs?.activityOptional.includes(code);
-                    const isBaseReq = supplierCategoryReqs?.baseMandatory.includes(code) || supplierCategoryReqs?.baseOptional.includes(code);
+                    const isActivityReq = supplierCategoryReqs?.activityMandatory?.includes(code) || supplierCategoryReqs?.activityOptional?.includes(code);
+                    const isBaseReq = supplierCategoryReqs?.baseMandatory?.includes(code) || supplierCategoryReqs?.baseOptional?.includes(code);
                     const docExp = calculateDocumentExpiration(doc.expirationDate);
 
                     return (

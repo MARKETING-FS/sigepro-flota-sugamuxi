@@ -408,7 +408,7 @@ export const SupplierRegisterModal: React.FC<Props> = ({
                     onChange={handleChange}
                     className="w-full px-2.5 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-slate-900 shadow-2xs"
                   >
-                    {systemParameters.documentTypes
+                    {(systemParameters?.documentTypes || [])
                       .filter((d) => d.isActive)
                       .map((doc) => (
                         <option key={doc.code} value={doc.code}>
@@ -552,7 +552,7 @@ export const SupplierRegisterModal: React.FC<Props> = ({
                   required
                 />
                 <datalist id="supplier-register-cities">
-                  {systemParameters.cityOptions
+                  {(systemParameters?.cityOptions || [])
                     .filter((c) => c.isActive)
                     .map((c) => (
                       <option key={c.id} value={`${c.name}, ${c.department}`} />

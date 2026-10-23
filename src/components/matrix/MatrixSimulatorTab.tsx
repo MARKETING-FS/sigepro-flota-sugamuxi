@@ -107,14 +107,14 @@ export const MatrixSimulatorTab: React.FC = () => {
                 Fórmula de Exigibilidad Aplicada:
               </span>
               <div className="text-xs font-bold text-white flex items-center gap-2 flex-wrap mt-0.5">
-                <span>{simResults.baseMandatory.length} Base ({simRegimen === 'NATURAL' ? 'P. Natural' : 'P. Jurídica'})</span>
+                <span>{(simResults?.baseMandatory || []).length} Base ({simRegimen === 'NATURAL' ? 'P. Natural' : 'P. Jurídica'})</span>
                 <span>+</span>
-                <span>{simResults.activityMandatory.length} Específicos ({simCategory})</span>
+                <span>{(simResults?.activityMandatory || []).length} Específicos ({simCategory})</span>
                 <span>+</span>
                 <span>2 Formatos Institucionales SIG</span>
                 <span>=</span>
                 <strong className="text-cyan-300 text-sm font-black">
-                  {simResults.allMandatory.length + 2} Documentos Obligatorios Bloqueantes
+                  {(simResults?.allMandatory || []).length + 2} Documentos Obligatorios Bloqueantes
                 </strong>
               </div>
             </div>
@@ -122,10 +122,10 @@ export const MatrixSimulatorTab: React.FC = () => {
 
           <div className="flex items-center gap-2 text-xs font-bold">
             <span className="bg-slate-900 text-cyan-300 px-3 py-1.5 rounded-lg border border-slate-700">
-              {simResults.allMandatory.length + 2} Total Obligatorios
+              {(simResults?.allMandatory || []).length + 2} Total Obligatorios
             </span>
             <span className="bg-slate-900 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700">
-              {simResults.allOptional.length} Opcionales
+              {(simResults?.allOptional || []).length} Opcionales
             </span>
           </div>
         </div>

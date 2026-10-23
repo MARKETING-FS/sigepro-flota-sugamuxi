@@ -1006,7 +1006,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         onChange={handleInputChange}
                         className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       >
-                        {systemParameters.documentTypes
+                        {(systemParameters?.documentTypes || [])
                           .filter((d) => d.isActive)
                           .map((doc) => (
                             <option key={doc.code} value={doc.code}>
@@ -1058,7 +1058,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         onChange={handleInputChange}
                         className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       >
-                        {systemParameters.documentTypes
+                        {(systemParameters?.documentTypes || [])
                           .filter((d) => d.isActive)
                           .map((doc) => (
                             <option key={doc.code} value={doc.code}>
@@ -1165,7 +1165,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                     <datalist id="admin-cities-datalist">
-                      {systemParameters.cityOptions
+                      {(systemParameters?.cityOptions || [])
                         .filter((c) => c.isActive)
                         .map((c) => (
                           <option key={c.id} value={`${c.name}, ${c.department}`} />
