@@ -1392,11 +1392,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Add required category docs
     mandatoryDocCodes.forEach((code) => {
+      const docDef = documentDefinitions.find((d) => d.code === code);
       const catalog = DOCUMENT_CATALOG_INFO[code] || { name: code, description: '' };
+      const docName = docDef?.name || catalog.name || code;
       initialDocs[code] = {
         id: `doc-${newId}-${code.toLowerCase()}`,
         code,
-        name: catalog.name,
+        name: docName,
         isRequired: true,
         status: isDirectlyApproved ? 'APROBADO' : 'PENDIENTE',
         fileName: isDirectlyApproved ? `${code}_${isJuridica ? (input.basicInfo.nit || 'NIT') : (input.basicInfo.documentNumber || 'CC')}.pdf` : undefined,
@@ -1411,11 +1413,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Add optional docs as PENDIENTE
     optionalDocCodes.forEach((code) => {
       if (!initialDocs[code]) {
+        const docDef = documentDefinitions.find((d) => d.code === code);
         const catalog = DOCUMENT_CATALOG_INFO[code] || { name: code, description: '' };
+        const docName = docDef?.name || catalog.name || code;
         initialDocs[code] = {
           id: `doc-${newId}-${code.toLowerCase()}`,
           code,
-          name: catalog.name,
+          name: docName,
           isRequired: false,
           status: 'PENDIENTE',
         };
@@ -1612,6 +1616,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setDossiers((prev) =>
       prev.map((d) => {
         if (d.id === dossierId) {
+          const docDef = documentDefinitions.find((d) => d.code === docCode);
           const catalogInfo = DOCUMENT_CATALOG_INFO[docCode];
           const isInst009 = docCode === 'FS_GA_FOR_009';
           const isInst039 = docCode === 'FS_GA_FOR_039';
@@ -1620,7 +1625,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const form009Ver = institutionalForms.find((f) => f.code === 'FS.GA-FOR-009')?.currentVersion || '14.0';
           const form039Ver = institutionalForms.find((f) => f.code === 'FS.GA-FOR-039')?.currentVersion || '1.0';
 
-          const docName = catalogInfo?.name || (isInst009 ? 'Formulario FS.GA-FOR-009' : isInst039 ? 'Autorización FS.GA-FOR-039' : docCode);
+          const docName = docDef?.name || catalogInfo?.name || (isInst009 ? 'Formulario FS.GA-FOR-009' : isInst039 ? 'Autorización FS.GA-FOR-039' : docCode);
 
           const updatedDocs = {
             ...d.documents,

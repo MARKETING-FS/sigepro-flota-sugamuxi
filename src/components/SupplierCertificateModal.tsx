@@ -1,4 +1,5 @@
 import React from 'react';
+import { useApp } from '../context/AppContext';
 import {
   Award,
   Printer,
@@ -29,6 +30,7 @@ export const SupplierCertificateModal: React.FC<SupplierCertificateModalProps> =
   onClose,
   dossier,
 }) => {
+  const { documentDefinitions } = useApp();
   if (!isOpen || !dossier) return null;
 
   const isNatural = dossier.basicInfo.supplierType === 'NATURAL';
@@ -261,7 +263,7 @@ export const SupplierCertificateModal: React.FC<SupplierCertificateModalProps> =
                   {docList.map((doc, idx) => (
                     <tr key={doc.id || idx} className="hover:bg-slate-50/60">
                       <td className="px-3 py-2 text-slate-900 font-semibold">
-                        {doc.name}
+                        {documentDefinitions?.find((def) => def.code === doc.code)?.name || doc.name}
                         {doc.expirationDate && (
                           <span className="block text-[10px] text-slate-500">
                             Vence: {doc.expirationDate}

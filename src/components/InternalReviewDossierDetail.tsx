@@ -87,11 +87,20 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     sendCustomEmail,
     markEmailAsRead,
     categoriesConfig,
+    documentDefinitions,
     getRequiredDocumentsForSupplier,
     showToast,
   } = useApp();
 
   const dossier = dossiers.find((d) => d.id === dossierId);
+
+  const getDocInstitutionalName = (docCode: string, fallbackName?: string) => {
+    const docDef = (documentDefinitions || []).find((d) => d.code === docCode);
+    if (docDef && docDef.name) return docDef.name;
+    const cat = DOCUMENT_CATALOG_INFO[docCode];
+    if (cat && cat.name) return cat.name;
+    return fallbackName || docCode;
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -763,7 +772,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     Inhabilitado
                   </span>
                   <span className="text-slate-600 dark:text-blue-200/90 text-[11px] truncate max-w-md hidden md:inline">
-                    {expSummary.expiredDocs.map(d => `${d.name} (${d.daysOverdue}d)`).join(', ')}
+                    {expSummary.expiredDocs.map(d => `${getDocInstitutionalName(d.code, d.name)} (${d.daysOverdue}d)`).join(', ')}
                   </span>
                 </div>
               </div>
@@ -788,7 +797,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {expSummary.expiringSoonDocs.map((doc) => (
                       <span key={doc.code} className="inline-flex items-center gap-1 text-[11px] bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                        <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">{doc.name}</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">{getDocInstitutionalName(doc.code, doc.name)}</span>
                         <span className="text-slate-500 dark:text-slate-400">({doc.expirationDate})</span>
                         <span className="bg-blue-50 dark:bg-blue-900 text-blue-900 dark:text-cyan-300 px-1 rounded text-[10px] font-bold">
                           {doc.daysRemaining}d
@@ -1590,8 +1599,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 {(Object.entries(dossier.documents) as [string, SupplierDocument][])
                   .filter(([code]) => code !== 'FS_GA_FOR_009' && code !== 'FS_GA_FOR_039')
                   .map(([code, doc]) => {
+                    const docDef = (documentDefinitions || []).find((d) => d.code === code);
                     const catalog = DOCUMENT_CATALOG_INFO[code];
-                    const docTitle = catalog?.name || doc.name;
+                    const docTitle = docDef?.name || doc.name || catalog?.name || code;
                     const isActivityReq = supplierCategoryReqs?.activityMandatory?.includes(code) || supplierCategoryReqs?.activityOptional?.includes(code);
                     const isBaseReq = supplierCategoryReqs?.baseMandatory?.includes(code) || supplierCategoryReqs?.baseOptional?.includes(code);
                     const docExp = calculateDocumentExpiration(doc.expirationDate);
@@ -1628,6 +1638,19 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                               </span>
                             )}
                           </div>
+
+                          {docDef?.description && (
+                            <p className="text-[11px] text-slate-500 leading-snug">
+                              {docDef.description}
+                            </p>
+                          )}
+
+                          {docDef?.validityRule && (
+                            <div className="text-[10.5px] text-blue-700 font-medium flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-blue-600 shrink-0" />
+                              <span>Regla SIG: {docDef.validityRule}</span>
+                            </div>
+                          )}
                           
                           <div className="flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
                             <span>{doc.fileName ? `Archivo: ${doc.fileName} (${doc.fileSize || '1.4 MB'})` : 'Pendiente de adjuntar por el proveedor'}</span>
