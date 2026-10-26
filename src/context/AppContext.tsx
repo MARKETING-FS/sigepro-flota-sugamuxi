@@ -2954,16 +2954,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         : (catConfig.optionalForJuridica || []).filter((c) => !inactiveDocCodes.has(c))
       : [];
 
-    // 3. Union & deduplication
+    // 3. Union & deduplication ordenada según la Matriz de Requisitos y Catálogo Maestro (documentDefinitions)
     const allMandatorySet = new Set<string>();
     baseMandatory.forEach((code) => allMandatorySet.add(code));
     rawActivityMandatory.forEach((code) => allMandatorySet.add(code));
-    const allMandatory = Array.from(allMandatorySet);
 
-    // Specific to activity (excluding base already present)
-    const activityMandatory = rawActivityMandatory.filter(
-      (code) => !baseMandatory.includes(code)
+    // Helper de ordenamiento canónico según la Matriz de Requisitos y Catálogo Maestro
+    const getMatrixDocOrder = (code: string): number => {
+      // 1. Catálogo maestro de definiciones de documentos (orden en que fueron parametrizados/creados)
+      const defIdx = documentDefinitions.findIndex((d) => d.code === code);
+      if (defIdx !== -1) return defIdx;
+
+      // 2. Si es una exigencia de la actividad económica específica
+      const actMandIdx = rawActivityMandatory.indexOf(code);
+      if (actMandIdx !== -1) return 2000 + actMandIdx;
+
+      const actOptIdx = rawActivityOptional.indexOf(code);
+      if (actOptIdx !== -1) return 3000 + actOptIdx;
+
+      return 9999;
+    };
+
+    const sortByMatrixOrder = (codes: string[]): string[] => {
+      return [...codes].sort((a, b) => {
+        const orderA = getMatrixDocOrder(a);
+        const orderB = getMatrixDocOrder(b);
+        if (orderA !== orderB) return orderA - orderB;
+        return a.localeCompare(b);
+      });
+    };
+
+    const allMandatory = sortByMatrixOrder(Array.from(allMandatorySet));
+
+    // Specific to activity (excluding base already present), ordenado por la matriz
+    const activityMandatory = sortByMatrixOrder(
+      rawActivityMandatory.filter((code) => !baseMandatory.includes(code))
     );
+
+    const sortedBaseMandatory = sortByMatrixOrder(baseMandatory);
 
     const allOptionalSet = new Set<string>();
     baseOptional.forEach((code) => {
@@ -2972,18 +3000,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     rawActivityOptional.forEach((code) => {
       if (!allMandatorySet.has(code)) allOptionalSet.add(code);
     });
-    const allOptional = Array.from(allOptionalSet);
+    const allOptional = sortByMatrixOrder(Array.from(allOptionalSet));
 
-    const activityOptional = rawActivityOptional.filter(
-      (code) => !baseOptional.includes(code) && !allMandatorySet.has(code)
+    const activityOptional = sortByMatrixOrder(
+      rawActivityOptional.filter(
+        (code) => !baseOptional.includes(code) && !allMandatorySet.has(code)
+      )
     );
+
+    const sortedBaseOptional = sortByMatrixOrder(baseOptional);
 
     return {
       allMandatory,
       allOptional,
-      baseMandatory,
+      baseMandatory: sortedBaseMandatory,
       activityMandatory,
-      baseOptional,
+      baseOptional: sortedBaseOptional,
       activityOptional,
     };
   };

@@ -181,7 +181,47 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   const customSupportCodes = Object.keys(dossier.documents || {}).filter(
     (code) => !institutionalDocKeys.includes(code) && !matrixSupportCodes.includes(code)
   );
-  const allSupportCodes = Array.from(new Set([...matrixSupportCodes, ...customSupportCodes]));
+
+  // Función de ordenamiento canónico de acuerdo a la Matriz de Requisitos Específicos por Actividad Económica
+  const getMatrixDocOrderIndex = (code: string): number => {
+    // 1. Posición en el catálogo maestro de tipos documentales (orden en que fueron parametrizados/creados)
+    const defIdx = (documentDefinitions || []).findIndex((d) => d.code === code);
+    if (defIdx !== -1) return defIdx;
+
+    // 2. Posición en la matriz de la actividad económica específica
+    const catMand = isNatural
+      ? currentCatConfig?.mandatoryForNatural || []
+      : currentCatConfig?.mandatoryForJuridica || [];
+    const actIdx = catMand.indexOf(code);
+    if (actIdx !== -1) return 2000 + actIdx;
+
+    const catOpt = isNatural
+      ? currentCatConfig?.optionalForNatural || []
+      : currentCatConfig?.optionalForJuridica || [];
+    const optIdx = catOpt.indexOf(code);
+    if (optIdx !== -1) return 3000 + optIdx;
+
+    return 9999;
+  };
+
+  // Organizar obligatorios primero en el orden parametrizado en la matriz, seguidos de opcionales y adicionales
+  const sortedMandatoryCodes = [...matrixMandatoryCodes].sort((a, b) => {
+    const idxA = getMatrixDocOrderIndex(a);
+    const idxB = getMatrixDocOrderIndex(b);
+    if (idxA !== idxB) return idxA - idxB;
+    return a.localeCompare(b);
+  });
+
+  const sortedRemainingCodes = Array.from(new Set([...matrixOptionalCodes, ...customSupportCodes]))
+    .filter((code) => !sortedMandatoryCodes.includes(code))
+    .sort((a, b) => {
+      const idxA = getMatrixDocOrderIndex(a);
+      const idxB = getMatrixDocOrderIndex(b);
+      if (idxA !== idxB) return idxA - idxB;
+      return a.localeCompare(b);
+    });
+
+  const allSupportCodes = [...sortedMandatoryCodes, ...sortedRemainingCodes];
 
   const supportDocsList: [string, SupplierDocument][] = allSupportCodes.map((code) => {
     const existing = (dossier.documents || {})[code];

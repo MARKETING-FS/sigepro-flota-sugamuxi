@@ -36,7 +36,22 @@ export const SupplierCertificateModal: React.FC<SupplierCertificateModalProps> =
   const isNatural = dossier.basicInfo.supplierType === 'NATURAL';
   const supplierName = isNatural ? dossier.basicInfo.fullName : dossier.basicInfo.companyName;
   const supplierDoc = isNatural ? dossier.basicInfo.documentNumber : dossier.basicInfo.nit;
-  const docList: SupplierDocument[] = Object.values(dossier.documents || {}) as SupplierDocument[];
+  // Ordenar los documentos de acuerdo al orden parametrizado en la Matriz de Requisitos (documentDefinitions)
+  const getDocMatrixOrder = (code?: string): number => {
+    if (!code) return 9999;
+    if (code === 'FS_GA_FOR_009') return 0;
+    if (code === 'FS_GA_FOR_039') return 1;
+    const defIdx = (documentDefinitions || []).findIndex((d) => d.code === code);
+    return defIdx !== -1 ? defIdx : 9999;
+  };
+
+  const rawDocList: SupplierDocument[] = Object.values(dossier.documents || {}) as SupplierDocument[];
+  const docList: SupplierDocument[] = [...rawDocList].sort((a, b) => {
+    const ordA = getDocMatrixOrder(a.code);
+    const ordB = getDocMatrixOrder(b.code);
+    if (ordA !== ordB) return ordA - ordB;
+    return (a.name || '').localeCompare(b.name || '');
+  });
   const approvedDocs = docList.filter((d: SupplierDocument) => d.status === 'APROBADO');
   const allApproved = docList.length > 0 && docList.every((d: SupplierDocument) => d.status === 'APROBADO');
 

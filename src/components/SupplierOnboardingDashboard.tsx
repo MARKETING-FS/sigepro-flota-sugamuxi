@@ -147,13 +147,34 @@ export const SupplierOnboardingDashboard: React.FC = () => {
   const currentBaseConfig = baseRequirementsConfig[basicInfo.supplierType] || baseRequirementsConfig['NATURAL'];
 
   const {
-    allMandatory: mandatorySupportDocs = [],
-    allOptional: optionalSupportDocs = [],
+    allMandatory: rawMandatorySupportDocs = [],
+    allOptional: rawOptionalSupportDocs = [],
     baseMandatory,
     activityMandatory,
     baseOptional,
     activityOptional,
   } = getRequiredDocumentsForSupplier(basicInfo.supplierType, selectedCategory);
+
+  // Ordenar de acuerdo al orden parametrizado y creado en la Matriz de Requisitos (documentDefinitions)
+  const getMatrixDocOrder = (code: string): number => {
+    const defIdx = documentDefinitions.findIndex((d) => d.code === code);
+    if (defIdx !== -1) return defIdx;
+    return 9999;
+  };
+
+  const mandatorySupportDocs = [...rawMandatorySupportDocs].sort((a, b) => {
+    const ordA = getMatrixDocOrder(a);
+    const ordB = getMatrixDocOrder(b);
+    if (ordA !== ordB) return ordA - ordB;
+    return a.localeCompare(b);
+  });
+
+  const optionalSupportDocs = [...rawOptionalSupportDocs].sort((a, b) => {
+    const ordA = getMatrixDocOrder(a);
+    const ordB = getMatrixDocOrder(b);
+    if (ordA !== ordB) return ordA - ordB;
+    return a.localeCompare(b);
+  });
 
   // Calculate Progress %
   const totalMandatoryItems = 1 + 1 + 1 + mandatorySupportDocs.length; // Step 1 + Form 009 + Form 039 + Support docs
