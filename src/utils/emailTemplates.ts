@@ -278,7 +278,7 @@ export const generateEmailContent = (
             </div>
             <div style="display: inline-block; vertical-align: middle;">
               <span style="color: #ffffff; font-size: 15px; font-weight: 800; letter-spacing: 0.5px; display: block;">FLOTA SUGAMUXI S.A.</span>
-              <span style="color: #94a3b8; font-size: 10px; display: block;">NIT: 891.800.089-1 &bull; Sistema Integrado de Gestión (SIG)</span>
+              <span style="color: #94a3b8; font-size: 10px; display: block;">NIT: 891.800.075-8 &bull; Sistema Integrado de Gestión (SIG)</span>
             </div>
           </td>
           <td style="text-align: right;">

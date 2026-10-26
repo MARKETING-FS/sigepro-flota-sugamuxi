@@ -122,7 +122,7 @@ export const SupplierCertificateModal: React.FC<SupplierCertificateModalProps> =
                   FLOTA SUGAMUXI S.A.
                 </h1>
                 <p className="text-xs text-slate-600 font-bold">
-                  NIT: 891.800.089-1 &bull; SIG - Sistema Integrado de Gestión ISO 9001:2015
+                  NIT: 891.800.075-8 &bull; SIG - Sistema Integrado de Gestión ISO 9001:2015
                 </p>
                 <p className="text-[11px] text-slate-500">
                   Departamento de Compras, Contratación y Homologación de Proveedores

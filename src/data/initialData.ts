@@ -609,7 +609,7 @@ export const INITIAL_SYSTEM_PARAMETERS: SystemParametersState = {
     { id: 'rej-05', code: 'INCONSISTENCIA_NIT', name: 'Inconsistencia en NIT o Razón Social', category: 'LEGAL', defaultObservation: 'La razón social o número de NIT registrado no coincide con el Registro Único Tributario (RUT) o certificado de Cámara de Comercio.', isActive: true },
     { id: 'rej-06', code: 'PLANILLA_PILA_VENCIDA', name: 'Planilla PILA No Corresponde al Mes Vigente', category: 'HSEQ', defaultObservation: 'El comprobante de pago de Seguridad Social (PILA) debe corresponder al período inmediatamente vencido o mes en curso con su respectivo soporte bancario.', isActive: true },
     { id: 'rej-07', code: 'TITULAR_BANCARIO_ERRONEO', name: 'Certificación Bancaria No Coincide con el Proveedor', category: 'FINANCIERO', defaultObservation: 'La cuenta bancaria certificada debe estar a nombre exclusivo de la Persona Natural o Jurídica radicada. No se admiten cuentas de terceros.', isActive: true },
-    { id: 'rej-08', code: 'POLIZA_SIN_AMPARO', name: 'Póliza RCE No Ampara a Flota Sugamuxi S.A.', category: 'HSEQ', defaultObservation: 'La póliza de Responsabilidad Civil Extracontractual debe incluir a FLOTA SUGAMUXI S.A. (NIT: 891.800.087-1) como beneficiario / asegurado adicional.', isActive: true },
+    { id: 'rej-08', code: 'POLIZA_SIN_AMPARO', name: 'Póliza RCE No Ampara a Flota Sugamuxi S.A.', category: 'HSEQ', defaultObservation: 'La póliza de Responsabilidad Civil Extracontractual debe incluir a FLOTA SUGAMUXI S.A. (NIT: 891.800.075-8) como beneficiario / asegurado adicional.', isActive: true },
   ],
   globalSettings: {
     camaraComercioMaxDays: 30,
@@ -619,7 +619,7 @@ export const INITIAL_SYSTEM_PARAMETERS: SystemParametersState = {
     sigDepartmentName: 'Coordinación del Sistema Integrado de Gestión (SIG)',
     minCompletionForSubmit: 100,
     companyName: 'FLOTA SUGAMUXI S.A.',
-    companyNit: '891.800.087-1',
+    companyNit: '891.800.075-8',
     portalWelcomeMessage: 'Bienvenido al Portal Institucional de Registro, Homologación y Seguimiento de Proveedores y Contratistas de FLOTA SUGAMUXI S.A.',
     enableEmailAutoVerify: true,
     allowUnregisteredBidding: true,

@@ -3232,7 +3232,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addSystemAuditLog({
       dossierId: 'CONFIG-GLOBAL',
       supplierName: 'Parámetros Globales SIG',
-      supplierDoc: 'NIT: 891.800.087-1',
+      supplierDoc: 'NIT: 891.800.075-8',
       fileNumber: 'FS-PARAM-GLOBAL',
       user: 'Julian Salgado (ADMINISTRADOR GENERAL)',
       userRole: 'ADMIN',

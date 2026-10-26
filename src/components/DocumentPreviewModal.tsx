@@ -193,7 +193,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
           <div className="border border-slate-300 rounded-lg p-3 grid grid-cols-3 gap-2 bg-slate-50">
             <div>
               <span className="text-[10px] text-slate-500 font-bold block uppercase">Número de Identificación (NIT)</span>
-              <span className="font-mono font-bold text-slate-950 text-sm">{nitOrDoc || '891.800.222-3'}</span>
+              <span className="font-mono font-bold text-slate-950 text-sm">{nitOrDoc || '891.800.075-8'}</span>
             </div>
             <div>
               <span className="text-[10px] text-slate-500 font-bold block uppercase">Nombre o Razón Social</span>
@@ -498,7 +498,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                     FLOTA SUGAMUXI S.A.
                   </h3>
                   <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-1">
-                    Sistema Integrado de Gestión (SIG) &bull; NIT: 891.800.222-3
+                    Sistema Integrado de Gestión (SIG) &bull; NIT: 891.800.075-8
                   </p>
                   <p className="text-[10px] text-blue-900 font-semibold">
                     Expediente Electrónico de Proveedores y Contratistas

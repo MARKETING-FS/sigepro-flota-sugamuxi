@@ -117,7 +117,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
             </div>
 
             <p className="text-[10px] text-slate-400">
-              SIGEPRO v2.1.0 • Flota Sugamuxi S.A. • Nit 891.800.089-1
+              SIGEPRO v2.1.0 • Flota Sugamuxi S.A. • Nit 891.800.075-8
             </p>
           </div>
         </div>

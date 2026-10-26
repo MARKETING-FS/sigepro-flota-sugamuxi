@@ -310,7 +310,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   const [settingsForm, setSettingsForm] = useState<GlobalSystemSettings>(
     systemParameters.globalSettings || {
       companyName: 'Flota Sugamuxi S.A.',
-      companyNit: '891.800.087-1',
+      companyNit: '891.800.075-8',
       systemVersion: 'SIG-PROV v3.5',
       maxFileUploadSizeMB: 15,
       allowedFileExtensions: ['pdf', 'png', 'jpg', 'jpeg'],

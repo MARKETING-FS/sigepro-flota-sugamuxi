@@ -165,7 +165,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
                     <div className="font-extrabold text-[#0b1329] text-xs sm:text-sm tracking-wide">
                       FLOTA SUGAMUXI S.A.
                     </div>
-                    <div className="text-[10px] text-slate-500 font-medium">NIT 891.800.089-1</div>
+                    <div className="text-[10px] text-slate-500 font-medium">NIT 891.800.075-8</div>
                     <div className="text-[9px] text-slate-400">Sogamoso - Boyacá</div>
                   </div>
                   <div className="col-span-6 p-2.5 border-r border-slate-800 flex flex-col justify-center">
@@ -382,7 +382,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
                     </h3>
 
                     <p className="text-[11px] text-slate-700 leading-relaxed text-justify">
-                      En cumplimiento de la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes, actuando en nombre propio o en representación legal de la entidad indicada, autorizo de manera voluntaria, previa, explícita e informada a <strong>FLOTA SUGAMUXI S.A.</strong> (NIT 891.800.089-1), domiciliada en la ciudad de Sogamoso (Boyacá), en calidad de Responsable del Tratamiento, para recolectar, almacenar, usar, circular y suprimir los datos personales y comerciales suministrados en este proceso de vinculación.
+                      En cumplimiento de la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes, actuando en nombre propio o en representación legal de la entidad indicada, autorizo de manera voluntaria, previa, explícita e informada a <strong>FLOTA SUGAMUXI S.A.</strong> (NIT 891.800.075-8), domiciliada en la ciudad de Sogamoso (Boyacá), en calidad de Responsable del Tratamiento, para recolectar, almacenar, usar, circular y suprimir los datos personales y comerciales suministrados en este proceso de vinculación.
                     </p>
 
                     <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-[10px] space-y-1.5 text-slate-600">
