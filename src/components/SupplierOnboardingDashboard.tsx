@@ -159,6 +159,19 @@ export const SupplierOnboardingDashboard: React.FC = () => {
   const getMatrixDocOrder = (code: string): number => {
     const defIdx = documentDefinitions.findIndex((d) => d.code === code);
     if (defIdx !== -1) return defIdx;
+
+    const catMand = isNatural
+      ? currentCatConfig?.mandatoryForNatural || []
+      : currentCatConfig?.mandatoryForJuridica || [];
+    const actIdx = catMand.indexOf(code);
+    if (actIdx !== -1) return 2000 + actIdx;
+
+    const catOpt = isNatural
+      ? currentCatConfig?.optionalForNatural || []
+      : currentCatConfig?.optionalForJuridica || [];
+    const optIdx = catOpt.indexOf(code);
+    if (optIdx !== -1) return 3000 + optIdx;
+
     return 9999;
   };
 

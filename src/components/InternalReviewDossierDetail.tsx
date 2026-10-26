@@ -204,24 +204,15 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     return 9999;
   };
 
-  // Organizar obligatorios primero en el orden parametrizado en la matriz, seguidos de opcionales y adicionales
-  const sortedMandatoryCodes = [...matrixMandatoryCodes].sort((a, b) => {
+  // Organizar todos los soportes estrictamente en el orden parametrizado y creado en la Matriz de Requisitos (documentDefinitions)
+  const allSupportCodes = Array.from(
+    new Set([...matrixMandatoryCodes, ...matrixOptionalCodes, ...customSupportCodes])
+  ).sort((a, b) => {
     const idxA = getMatrixDocOrderIndex(a);
     const idxB = getMatrixDocOrderIndex(b);
     if (idxA !== idxB) return idxA - idxB;
     return a.localeCompare(b);
   });
-
-  const sortedRemainingCodes = Array.from(new Set([...matrixOptionalCodes, ...customSupportCodes]))
-    .filter((code) => !sortedMandatoryCodes.includes(code))
-    .sort((a, b) => {
-      const idxA = getMatrixDocOrderIndex(a);
-      const idxB = getMatrixDocOrderIndex(b);
-      if (idxA !== idxB) return idxA - idxB;
-      return a.localeCompare(b);
-    });
-
-  const allSupportCodes = [...sortedMandatoryCodes, ...sortedRemainingCodes];
 
   const supportDocsList: [string, SupplierDocument][] = allSupportCodes.map((code) => {
     const existing = (dossier.documents || {})[code];
