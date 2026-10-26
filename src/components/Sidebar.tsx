@@ -4,7 +4,6 @@ import { UserRole, AppView } from '../types';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
 import {
   Home,
-  Briefcase,
   UserPlus,
   Search,
   Users,
@@ -63,7 +62,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [isGestionOpen, setIsGestionOpen] = useState(true);
-  const [isConvocatoriasOpen, setIsConvocatoriasOpen] = useState(true);
 
   const handleRoleChange = (newRole: UserRole) => {
     setRole(newRole);
@@ -367,27 +365,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
             )}
 
-            {/* 3. Convocatorias Disponibles */}
-            <button
-              onClick={() => {
-                setActiveView('convocatorias');
-              }}
-              className={`w-full flex items-center ${
-                isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-              } rounded-lg font-medium transition-all ${
-                activeView === 'convocatorias'
-                  ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                  : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-              }`}
-              title="Convocatorias Disponibles"
-            >
-              <Briefcase
-                className={`w-4 h-4 shrink-0 ${
-                  activeView === 'convocatorias' ? 'text-cyan-400' : 'text-blue-400'
-                }`}
-              />
-              {!isCollapsed && <span className="truncate">Convocatorias Disponibles</span>}
-            </button>
+
 
             {/* 3. Registrar Proveedor (Oculto estrictamente si ya inició sesión como proveedor) */}
             {!isSupplierLoggedIn && (
@@ -582,25 +560,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {!isCollapsed && <span className="truncate">Reportes</span>}
               </button>
 
-              {/* Gestión de Convocatorias */}
-              <button
-                onClick={() => setActiveView('convocatorias')}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all text-left ${
-                  activeView === 'convocatorias'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Gestión de Convocatorias"
-              >
-                <Briefcase
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'convocatorias' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Convocatorias</span>}
-              </button>
+
             </div>
 
             {/* SISTEMA INTEGRADO SIG */}

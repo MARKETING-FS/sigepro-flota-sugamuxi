@@ -214,8 +214,8 @@ export const ExecutiveDashboardMetrics: React.FC<ExecutiveDashboardMetricsProps>
 
   return (
     <div className="space-y-4">
-      {/* 6 Grid Metric Cards - Manual de Marca Flota Sugamuxi (Azul Oscuro, Azul Claro, Gris) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+      {/* 5 Grid Metric Cards - Manual de Marca Flota Sugamuxi (Azul Oscuro, Azul Claro, Gris) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
         
         {/* Card 1: Banco de Proveedores */}
         <div
@@ -372,34 +372,7 @@ export const ExecutiveDashboardMetrics: React.FC<ExecutiveDashboardMetricsProps>
           </div>
         </div>
 
-        {/* Card 6: Licitaciones & Convocatorias Públicas */}
-        <div
-          onClick={onGoToConvocatorias}
-          className="bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800 p-3.5 shadow-xs hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
-          title="Ver Licitaciones y Convocatorias Públicas"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 group-hover:text-blue-700 dark:group-hover:text-cyan-400 tracking-wider">
-              LICITACIONES
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-cyan-300 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center transition-colors">
-              <Briefcase className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2.5">
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                {openConvocatorias.length}
-              </span>
-              <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                / {convocatorias.length} proc.
-              </span>
-            </div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-1 truncate">
-              {formatCOP(totalBudgetCOP)} presupuestado
-            </span>
-          </div>
-        </div>
+
 
       </div>
 

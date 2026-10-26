@@ -536,56 +536,7 @@ export const SupplierOnboardingDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* 3. Quick Access Cards Row (Interactive) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            <div
-              onClick={() => setSupplierPortalTab('login')}
-              className="bg-white dark:bg-[#0b1329] rounded-2xl border border-slate-200 dark:border-blue-900/50 p-5 shadow-xs hover:border-blue-400 dark:hover:border-blue-600 transition-all flex items-start gap-4 cursor-pointer group"
-            >
-              <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-cyan-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                <FileCheck className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white block">
-                    MI EXPEDIENTE SIG
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-300 transition-transform group-hover:translate-x-1" />
-                </div>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
-                  Diligencie los formatos oficiales FS.GA-FOR-009 y 039, y cargue sus soportes obligatorios.
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-cyan-400 mt-2">
-                  Abrir expediente &rarr;
-                </span>
-              </div>
-            </div>
 
-            <div
-              onClick={() => setActiveView('convocatorias')}
-              className="bg-white dark:bg-[#0b1329] rounded-2xl border border-slate-200 dark:border-blue-900/50 p-5 shadow-xs hover:border-blue-400 dark:hover:border-blue-600 transition-all flex items-start gap-4 cursor-pointer group"
-            >
-              <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-cyan-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                <Briefcase className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white block">
-                    CONVOCATORIAS VIGENTES
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-300 transition-transform group-hover:translate-x-1" />
-                </div>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
-                  Consulte términos de referencia abiertos para transporte, repuestos y logística.
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-cyan-400 mt-2">
-                  Ver convocatorias &rarr;
-                </span>
-              </div>
-            </div>
-
-          </div>
 
           {/* 4. Tarjeta Destacada de Acceso a Mi Expediente SIG */}
           <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-[#0b1329] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-blue-700/50 flex flex-col md:flex-row md:items-center justify-between gap-5">

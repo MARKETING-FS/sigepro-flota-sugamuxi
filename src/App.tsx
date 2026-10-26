@@ -4,7 +4,6 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { SupplierOnboardingDashboard } from './components/SupplierOnboardingDashboard';
 import { InternalReviewView } from './components/InternalReviewView';
-import { ConvocatoriasView } from './components/ConvocatoriasView';
 import { InstitutionalFormsAdmin } from './components/InstitutionalFormsAdmin';
 import { BancoProveedoresView } from './components/BancoProveedoresView';
 import { AuditLogView } from './components/AuditLogView';
@@ -282,7 +281,23 @@ const MainLayout: React.FC = () => {
               <BancoProveedoresView />
             )
           )}
-          {activeView === 'convocatorias' && <ConvocatoriasView />}
+          {activeView === 'convocatorias' && (
+            <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center mx-auto mb-3">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulo No Disponible</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
+                El módulo de convocatorias se encuentra temporalmente inhabilitado según directrices institucionales de Flota Sugamuxi S.A.
+              </p>
+              <button
+                onClick={() => setActiveView('onboarding')}
+                className="mt-4 px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+              >
+                Volver al Panel Principal
+              </button>
+            </div>
+          )}
           {activeView === 'revisores' && (
             role === 'PROVEEDOR' ? (
               <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">

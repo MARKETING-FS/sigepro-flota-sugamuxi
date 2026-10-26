@@ -666,7 +666,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
     { id: 'taxRegimes', label: 'Régimen Tributario', icon: ShieldCheck, count: (systemParameters?.taxRegimes || []).length },
     { id: 'cities', label: 'Ciudades y Cobertura', icon: MapPin, count: (systemParameters?.cityOptions || []).length },
     { id: 'arlRiskLevels', label: 'Niveles ARL', icon: AlertCircle, count: (systemParameters?.arlRiskLevels || []).length },
-    { id: 'convocatoriaTypes', label: 'Modalidades Convocatorias', icon: Briefcase, count: (systemParameters?.convocatoriaTypes || []).length },
+
     { id: 'rejectionReasons', label: 'Causas de Devolución / Glosas', icon: AlertTriangle, count: (systemParameters?.rejectionReasons || []).length },
   ];
 
