@@ -18,6 +18,7 @@ import {
 import { useApp } from '../context/AppContext';
 import { UserRole, AppView } from '../types';
 import { FlotaSugamuxiEmblem } from './FlotaSugamuxiLogo';
+import { PushAlertsPopover } from './notifications/PushAlertsPopover';
 
 interface Props {
   onOpenRegisterModal: () => void;
@@ -48,6 +49,7 @@ export const Header: React.FC<Props> = ({
     theme,
     toggleTheme,
     showToast,
+    setReviewSelectedDossierId,
   } = useApp();
 
   const [isDossierDropdownOpen, setIsDossierDropdownOpen] = useState(false);
@@ -153,6 +155,9 @@ export const Header: React.FC<Props> = ({
           </button>
 
 
+
+          {/* Centro de Alertas y Notificaciones Push */}
+          <PushAlertsPopover onOpenDossier={(dossierId) => setReviewSelectedDossierId(dossierId)} />
 
           {/* Módulo de Login Corporativo Button */}
           <button

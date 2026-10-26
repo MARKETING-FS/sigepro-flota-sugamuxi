@@ -538,6 +538,98 @@ export const SupplierOnboardingDashboard: React.FC = () => {
 
 
 
+          {/* Alerta Reactiva Tipo Push de Vencimientos para el Proveedor */}
+          {(expirationSummary.hasExpiredDocs || expirationSummary.hasExpiringSoonDocs) && (
+            <div
+              className={`rounded-2xl p-4 sm:p-5 border shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all animate-in fade-in ${
+                expirationSummary.hasExpiredDocs
+                  ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-900 text-rose-950 dark:text-rose-200 ring-2 ring-rose-500/20'
+                  : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-900 text-amber-950 dark:text-amber-200 ring-2 ring-amber-500/20'
+              }`}
+            >
+              <div className="flex items-start gap-3.5">
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                    expirationSummary.hasExpiredDocs
+                      ? 'bg-rose-600 text-white animate-pulse'
+                      : 'bg-amber-500 text-white'
+                  }`}
+                >
+                  {expirationSummary.hasExpiredDocs ? (
+                    <AlertCircle className="w-5 h-5" />
+                  ) : (
+                    <Clock className="w-5 h-5" />
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                        expirationSummary.hasExpiredDocs
+                          ? 'bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-100 font-mono'
+                          : 'bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 font-mono'
+                      }`}
+                    >
+                      {expirationSummary.hasExpiredDocs ? '🚨 VENCIMIENTO CRÍTICO' : '⚠️ ALERTA PREVENTIVA SIG'}
+                    </span>
+                    <span className="text-xs font-bold">
+                      {expirationSummary.hasExpiredDocs
+                        ? `${expirationSummary.expiredCount} documento(s) vencido(s)`
+                        : `${expirationSummary.expiringSoonCount} documento(s) por vencer (≤ 30 días)`}
+                    </span>
+                  </div>
+
+                  <p className="text-xs leading-relaxed opacity-90 max-w-2xl">
+                    {expirationSummary.hasExpiredDocs
+                      ? 'Uno o más documentos obligatorios han expirado. Su habilitación en compras y contratación queda inhabilitada hasta que cargue los soportes vigentes actualizados.'
+                      : 'Tiene requisitos con fecha de expiración próxima. Le recomendamos actualizar sus soportes oportunamente para evitar suspensión preventiva en el banco de proveedores.'}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {expirationSummary.expiredDocs.map((doc) => (
+                      <span
+                        key={doc.code}
+                        className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200/80 dark:bg-rose-900/60 text-rose-900 dark:text-rose-100 border border-rose-300 dark:border-rose-800"
+                      >
+                        {doc.name} (Vencido hace {doc.daysOverdue}d)
+                      </span>
+                    ))}
+                    {expirationSummary.expiringSoonDocs.map((doc) => (
+                      <span
+                        key={doc.code}
+                        className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-100 border border-amber-300 dark:border-amber-800"
+                      >
+                        {doc.name} (Vence en {doc.daysRemaining}d)
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="shrink-0 self-start md:self-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSupplierPortalTab('login');
+                    setTimeout(() => {
+                      const el = document.getElementById('alertas-vencimiento-sig');
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
+                  }}
+                  className={`px-4 py-2.5 rounded-xl font-black text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer ${
+                    expirationSummary.hasExpiredDocs
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                      : 'bg-amber-600 hover:bg-amber-700 text-white'
+                  }`}
+                >
+                  <span>Actualizar Requisitos Ahora</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* 4. Tarjeta Destacada de Acceso a Mi Expediente SIG */}
           <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-[#0b1329] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-blue-700/50 flex flex-col md:flex-row md:items-center justify-between gap-5">
             <div className="space-y-1.5 max-w-2xl">

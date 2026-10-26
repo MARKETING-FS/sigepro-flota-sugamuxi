@@ -15,6 +15,7 @@ import { AdminParametrizationView } from './components/AdminParametrizationView'
 import { SupplierEvaluationsView } from './components/evaluations/SupplierEvaluationsView';
 import { CorporateLoginView } from './components/CorporateLoginView';
 import { ToastNotification } from './components/ToastNotification';
+import { PushAlertFloatingToast } from './components/notifications/PushAlertFloatingToast';
 import {
   ShieldCheck,
   Building2,
@@ -98,6 +99,7 @@ const MainLayout: React.FC = () => {
     return (
       <div className="h-screen w-full overflow-hidden bg-slate-100 dark:bg-[#060b18] flex flex-col font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-200 dark:selection:bg-blue-900 transition-colors duration-200">
         <ToastNotification />
+        <PushAlertFloatingToast />
         <CorporateLoginView
           onOpenRegisterModal={handleOpenRegister}
           onOpenHabeasDataModal={() => setIsHabeasDataOpen(true)}
@@ -126,6 +128,7 @@ const MainLayout: React.FC = () => {
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070d1d] flex font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-200 dark:selection:bg-blue-900 transition-colors duration-200">
       {/* Fixed Global System Toast Notification (Primary Brand Blue & Fixed Top-Right) */}
       <ToastNotification />
+      <PushAlertFloatingToast />
       
       {/* 1. Left Sidebar Navigation (Desktop) - Fixed 100% Height */}
       <div className="hidden md:flex flex-col shrink-0 sticky top-0 h-screen z-30">
