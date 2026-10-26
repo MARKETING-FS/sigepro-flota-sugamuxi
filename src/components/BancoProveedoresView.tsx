@@ -39,7 +39,6 @@ import {
 import { useApp } from '../context/AppContext';
 import { SupplierDossier, ProcessStatus, SupplierType, SupplierDocument } from '../types';
 import { AdminCreateSupplierModal } from './AdminCreateSupplierModal';
-import { SendCustomEmailModal } from './SendCustomEmailModal';
 import { InternalReviewDossierDetail } from './InternalReviewDossierDetail';
 import { FlotaSugamuxiLogo, FlotaSugamuxiEmblem } from './FlotaSugamuxiLogo';
 import { SupplierCertificateModal } from './SupplierCertificateModal';
@@ -73,8 +72,6 @@ export const BancoProveedoresView: React.FC = () => {
 
   // Modals state
   const [isAdminCreateModalOpen, setIsAdminCreateModalOpen] = useState(false);
-  const [selectedDossierForEmail, setSelectedDossierForEmail] = useState<SupplierDossier | null>(null);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [selectedDossierForManualStatus, setSelectedDossierForManualStatus] = useState<SupplierDossier | null>(null);
   
   // Certificate / Supplier Sheet Modal
@@ -1277,19 +1274,6 @@ export const BancoProveedoresView: React.FC = () => {
                             </button>
                           )}
 
-                          {/* Enviar Notificación */}
-                          {(role === 'ADMIN' || role === 'REVISOR') && (
-                            <button
-                              onClick={() => {
-                                setSelectedDossierForEmail(dossier);
-                                setIsEmailModalOpen(true);
-                              }}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 hover:text-blue-900 dark:text-slate-300 dark:hover:text-cyan-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer shadow-2xs"
-                              title="Enviar Correo Institucional"
-                            >
-                              <Mail className="w-3.5 h-3.5 text-blue-700 dark:text-cyan-400" />
-                            </button>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -1637,20 +1621,6 @@ export const BancoProveedoresView: React.FC = () => {
           setIsAdminCreateModalOpen(false);
         }}
       />
-
-      {/* ========================================================================= */}
-      {/* 6. MODAL: Send Custom Email */}
-      {/* ========================================================================= */}
-      {selectedDossierForEmail && (
-        <SendCustomEmailModal
-          isOpen={isEmailModalOpen}
-          onClose={() => {
-            setIsEmailModalOpen(false);
-            setSelectedDossierForEmail(null);
-          }}
-          dossier={selectedDossierForEmail}
-        />
-      )}
 
       {/* ========================================================================= */}
       {/* 7. MODAL: Ficha Técnica & Certificado Oficial de Proveedor Habilitado */}

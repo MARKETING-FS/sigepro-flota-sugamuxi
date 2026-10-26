@@ -6,7 +6,6 @@ import {
   ChevronDown,
   Building,
   RotateCcw,
-  Mail,
   Moon,
   Sun,
   Menu,
@@ -46,7 +45,6 @@ export const Header: React.FC<Props> = ({
     currentDossier,
     setCurrentDossierId,
     resetToDefaultData,
-    emailNotifications,
     theme,
     toggleTheme,
     showToast,
@@ -54,7 +52,6 @@ export const Header: React.FC<Props> = ({
 
   const [isDossierDropdownOpen, setIsDossierDropdownOpen] = useState(false);
   const isDarkMode = theme === 'dark';
-  const unreadEmailsCount = emailNotifications.filter((e) => !e.read).length;
 
   const getUserDetails = () => {
     if (role === 'ADMIN') {
@@ -155,26 +152,7 @@ export const Header: React.FC<Props> = ({
             )}
           </button>
 
-          <div className="hidden sm:block h-5 w-px bg-slate-200 dark:bg-slate-800"></div>
 
-          {/* Simulador de Correos Button */}
-          <button
-            onClick={() => setActiveView('emails')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all shadow-2xs cursor-pointer relative ${
-              activeView === 'emails'
-                ? 'bg-blue-50 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700'
-                : 'bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
-            }`}
-            title="Centro de notificaciones y correos institucionales"
-          >
-            <Mail className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-            <span className="hidden sm:inline">Simulador de Correos</span>
-            {unreadEmailsCount > 0 && (
-              <span className="bg-[#0b1329] dark:bg-cyan-400 text-white dark:text-slate-950 text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center -ml-0.5">
-                {unreadEmailsCount}
-              </span>
-            )}
-          </button>
 
           {/* Módulo de Login Corporativo Button */}
           <button

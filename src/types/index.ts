@@ -21,7 +21,6 @@ export type AppView =
   | 'revisores'
   | 'evaluaciones'
   | 'documentMatrix'
-  | 'emails'
   | 'bancoProveedores'
   | 'auditoria'
   | 'informesExcel'

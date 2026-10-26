@@ -21,8 +21,6 @@ import {
   History,
   ArrowLeft,
   Calendar,
-  Mail,
-  Inbox,
   ExternalLink,
   Edit3,
   Plus,
@@ -43,13 +41,10 @@ import {
   ProcessStatus,
   DocumentCorrection,
   DocumentStatus,
-  EmailNotification,
 } from '../types';
 import { DOCUMENT_CATALOG_INFO } from '../data/initialData';
 import { InstitutionalFormsViewerModal } from './InstitutionalFormsViewerModal';
 import { DocumentPreviewModal } from './DocumentPreviewModal';
-import { EmailModalViewer } from './EmailModalViewer';
-import { SendCustomEmailModal } from './SendCustomEmailModal';
 import { SupplierDataEditorTab } from './SupplierDataEditorTab';
 import { DocumentEditorModal } from './DocumentEditorModal';
 import { AddCustomDocumentModal } from './AddCustomDocumentModal';
@@ -79,13 +74,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     requestDocumentCorrection,
     updateSupplierDocument,
     addCustomSupplierDocument,
-    updateInternalConcepts,
     updateDossierStatus,
     institutionalForms,
-    emailNotifications,
     systemAuditLogs,
-    sendCustomEmail,
-    markEmailAsRead,
     categoriesConfig,
     documentDefinitions,
     getRequiredDocumentsForSupplier,
@@ -106,15 +97,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [dossierId]);
 
-  const [activeTab, setActiveTab] = useState<'datos' | 'contrato' | 'documentos' | 'listas' | 'auditoria' | 'correos'>('datos');
+  const [activeTab, setActiveTab] = useState<'datos' | 'contrato' | 'documentos' | 'auditoria'>('datos');
   const [selectedFormForModal, setSelectedFormForModal] = useState<any>(null);
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
   const [isManualStatusModalOpen, setIsManualStatusModalOpen] = useState(false);
-
-  // Email Viewer & Sender Modals
-  const [selectedEmailForView, setSelectedEmailForView] = useState<EmailNotification | null>(null);
-  const [isEmailViewerOpen, setIsEmailViewerOpen] = useState(false);
-  const [isComposeEmailOpen, setIsComposeEmailOpen] = useState(false);
 
   // Document Editing & Creation Modals
   const [isDocEditorOpen, setIsDocEditorOpen] = useState(false);
@@ -542,39 +528,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     approveDocument(dossier.id, docCode, reviewerName);
   };
 
-  const handleCheckRestrictiveList = (type: 'sarlaft' | 'ofac' | 'procuraduria') => {
-    const timestamp = new Date().toISOString().split('T')[0];
-    if (type === 'sarlaft') {
-      updateInternalConcepts(dossier.id, {
-        sarlatfCheck: {
-          checked: true,
-          result: 'SIN_COINCIDENCIAS',
-          checkedBy: reviewerName,
-          checkedAt: timestamp,
-          notes: 'Consulta automática en listas vinculantes nacionales efectuada con éxito.',
-        },
-      });
-    } else if (type === 'ofac') {
-      updateInternalConcepts(dossier.id, {
-        ofacCheck: {
-          checked: true,
-          result: 'LIMPIO',
-          checkedBy: reviewerName,
-          checkedAt: timestamp,
-        },
-      });
-    } else {
-      updateInternalConcepts(dossier.id, {
-        procuraduriaPoliciaCheck: {
-          checked: true,
-          result: 'VIGENTE_SIN_ANTECEDENTES',
-          checkedBy: reviewerName,
-          checkedAt: timestamp,
-        },
-      });
-    }
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4 animate-in fade-in">
       
@@ -718,16 +671,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   <span>Gestionar Estado & Contrato</span>
                 </button>
               )}
-
-              <button
-                type="button"
-                onClick={() => setIsComposeEmailOpen(true)}
-                className="h-8 px-3 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-bold text-xs rounded-lg flex items-center gap-1.5 transition-colors border border-slate-300 cursor-pointer shadow-2xs dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700"
-                title="Redactar correo oficial al proveedor"
-              >
-                <Mail className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                <span>Redactar Correo</span>
-              </button>
             </div>
           </div>
 
@@ -882,13 +825,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setIsComposeEmailOpen(true)}
-                  className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 text-white text-[11px] font-bold rounded-lg transition-colors cursor-pointer shadow-2xs"
-                >
-                  Notificar
-                </button>
-                <button
-                  type="button"
                   onClick={() => setActiveTab('documentos')}
                   className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
                 >
@@ -969,28 +905,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           >
             <FileText className="w-3.5 h-3.5" />
             <span>Documentación ({Object.keys(dossier.documents).length})</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('listas')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'listas'
-                ? 'border-blue-600 text-blue-900 bg-white dark:bg-[#0b1329] dark:text-blue-400'
-                : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Listas Restrictivas / SARLAFT</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('correos')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'correos'
-                ? 'border-blue-600 text-blue-900 bg-white dark:bg-[#0b1329] dark:text-blue-400'
-                : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-            }`}
-          >
-            <Mail className="w-3.5 h-3.5" />
-            <span>Notificaciones ({emailNotifications.filter((e) => e.dossierId === dossier.id).length})</span>
           </button>
           <button
             onClick={() => setActiveTab('auditoria')}
@@ -1845,170 +1759,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           </div>
         )}
 
-        {/* Tab 2: Restrictive Lists Check */}
-        {activeTab === 'listas' && (
-          <div className="p-4 sm:p-5 space-y-4">
-            <div className="bg-blue-50/80 border border-blue-200 rounded-xl p-4 text-xs text-blue-950 flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="font-bold text-sm text-blue-950">
-                  Módulo de Prevención SARLAFT y Control de Riesgos
-                </h4>
-                <p className="text-blue-800 text-xs mt-0.5">
-                  Validación obligatoria de antecedentes en listas vinculantes nacionales e internacionales (OFAC, ONU, Fiscalía, Contraloría, Procuraduría y Policía Nacional).
-                </p>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              
-              {/* SARLAFT Card */}
-              <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-2xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-slate-800">Listas SARLAFT Nacionales</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    dossier.internalConcepts?.sarlatfCheck?.checked ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {dossier.internalConcepts?.sarlatfCheck?.result || 'NO_VERIFICADO'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Búsqueda por NIT / Cédula en listas de lavado de activos y financiamiento del terrorismo.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => handleCheckRestrictiveList('sarlaft')}
-                  className="w-full py-2 bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs rounded-lg shadow-2xs transition-colors flex items-center justify-center gap-1.5 border border-blue-700 cursor-pointer"
-                >
-                  <Search className="w-3.5 h-3.5 text-cyan-400" />
-                  {dossier.internalConcepts?.sarlatfCheck?.checked ? 'Revalidar SARLAFT' : 'Ejecutar Consulta SARLAFT'}
-                </button>
-              </div>
-
-              {/* OFAC / Clinton Card */}
-              <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-2xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-slate-800">Lista OFAC / ONU / Internacional</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    dossier.internalConcepts?.ofacCheck?.checked ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {dossier.internalConcepts?.ofacCheck?.result || 'NO_VERIFICADO'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Validación contra sanciones internacionales del Departamento del Tesoro de EE.UU.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => handleCheckRestrictiveList('ofac')}
-                  className="w-full py-2 bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs rounded-lg shadow-2xs transition-colors flex items-center justify-center gap-1.5 border border-blue-700 cursor-pointer"
-                >
-                  <Search className="w-3.5 h-3.5 text-cyan-400" />
-                  {dossier.internalConcepts?.ofacCheck?.checked ? 'Revalidar OFAC' : 'Ejecutar Consulta OFAC'}
-                </button>
-              </div>
-
-              {/* Procuraduria / Policía Card */}
-              <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-2xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-slate-800">Procuraduría y Policía</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    dossier.internalConcepts?.procuraduriaPoliciaCheck?.checked ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {dossier.internalConcepts?.procuraduriaPoliciaCheck?.result || 'NO_VERIFICADO'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Certificados de antecedentes fiscales, disciplinarios y medidas correctivas.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => handleCheckRestrictiveList('procuraduria')}
-                  className="w-full py-2 bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs rounded-lg shadow-2xs transition-colors flex items-center justify-center gap-1.5 border border-blue-700 cursor-pointer"
-                >
-                  <Search className="w-3.5 h-3.5 text-cyan-400" />
-                  {dossier.internalConcepts?.procuraduriaPoliciaCheck?.checked ? 'Revalidar Antecedentes' : 'Consultar Antecedentes'}
-                </button>
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* Tab 5: Emails and Notifications sent to this supplier */}
-        {activeTab === 'correos' && (
-          <div className="p-4 sm:p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
-              <div>
-                <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wide">
-                  Historial de Notificaciones y Correos Electrónicos Despachados
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Trazabilidad de todos los mensajes institucionales automáticos y personalizados enviados a {dossier.basicInfo.email}.
-                </p>
-              </div>
-              <button
-                onClick={() => setIsComposeEmailOpen(true)}
-                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
-              >
-                <Mail className="w-4 h-4" />
-                <span>Redactar Nuevo Correo</span>
-              </button>
-            </div>
-
-            {emailNotifications.filter((e) => e.dossierId === dossier.id).length === 0 ? (
-              <div className="p-8 text-center bg-slate-50 rounded-xl border border-slate-200 text-slate-500 space-y-2">
-                <Inbox className="w-8 h-8 mx-auto text-slate-400" />
-                <p className="font-semibold text-xs text-slate-700">No hay notificaciones emitidas aún para este expediente.</p>
-                <p className="text-[11px]">Los correos se generan automáticamente con cada revisión, solicitud de corrección o cambio de estado.</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white text-xs">
-                {emailNotifications
-                  .filter((e) => e.dossierId === dossier.id)
-                  .map((email) => (
-                    <div key={email.id} className="p-4 hover:bg-slate-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-slate-900">{email.subject}</span>
-                          <span className="text-[10px] font-semibold bg-blue-100 text-blue-800 px-2 py-0.2 rounded border border-blue-200">
-                            {email.templateType}
-                          </span>
-                        </div>
-                        <p className="text-slate-600 text-xs line-clamp-1">{email.previewSnippet}</p>
-                        {email.metadata?.detailedObservation && (
-                          <div className="text-[11px] text-blue-900 bg-blue-50/70 rounded px-2 py-1 font-mono border border-blue-200">
-                            <strong>Detalle:</strong> {email.metadata.detailedObservation}
-                          </div>
-                        )}
-                        <div className="text-[11px] text-slate-400 font-mono flex items-center gap-2">
-                          <span>Fecha: {email.sentAt}</span>
-                          <span>&bull;</span>
-                          <span>Destino: {email.recipientEmail}</span>
-                          <span>&bull;</span>
-                          <span className="text-blue-700 font-bold">✓ Entregado</span>
-                        </div>
-                      </div>
-
-                      <div className="shrink-0">
-                        <button
-                          onClick={() => {
-                            markEmailAsRead(email.id);
-                            setSelectedEmailForView(email);
-                            setIsEmailViewerOpen(true);
-                          }}
-                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-md flex items-center gap-1.5 border border-blue-200 text-xs transition-colors cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Ver Correo Completo</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Tab 5: Audit Trail */}
         {activeTab === 'auditoria' && (
@@ -2228,29 +1979,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         nitOrDoc={supplierDoc}
       />
 
-      {/* Email Notification Viewer Modal */}
-      <EmailModalViewer
-        email={selectedEmailForView}
-        isOpen={isEmailViewerOpen}
-        onClose={() => {
-          setIsEmailViewerOpen(false);
-          setSelectedEmailForView(null);
-        }}
-      />
 
-      {/* Send Custom Email Modal */}
-      {dossier && (
-        <SendCustomEmailModal
-          isOpen={isComposeEmailOpen}
-          onClose={() => setIsComposeEmailOpen(false)}
-          dossier={dossier}
-          initialDossierId={dossier.id}
-          dossiers={dossiers}
-          onSend={(targetId, subject, message, revName) => {
-            sendCustomEmail(targetId, subject, message, revName);
-          }}
-        />
-      )}
 
       {/* Edit Document Modal */}
       {editingDocObj && (

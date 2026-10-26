@@ -322,182 +322,146 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
 
         {/* Modal Form Body */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1">
-          {/* TAB 1: ESTADO DEL PROVEEDOR (HOMOLOGACIÓN Y CUMPLIMIENTO) */}
+          {/* TAB 1: ESTADO DEL PROVEEDOR (SIMPLIFICADO) */}
           {activeTab === 'STATUS' && (
             <div className="space-y-4">
-              {/* Concept Clarification Notice (Compact) */}
-              <div className="bg-blue-50/70 border border-blue-200/80 rounded-xl px-3.5 py-2 text-xs text-blue-950 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-[11px] text-blue-900 leading-snug">
-                  <Info className="w-4 h-4 text-blue-700 shrink-0" />
-                  <span>
-                    <strong>Concepto Normativo:</strong> El estado del proveedor define su habilitación técnica y SIG en el Banco de Proveedores, independiente de la existencia de contratos.
-                  </span>
+              
+              {/* Selector Limpio de Estado */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3.5">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <label className="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                      Estado del Proveedor *
+                    </label>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Habilitación y conformidad técnica en el banco de proveedores.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">Actual:</span>
+                    <span className="text-xs font-bold text-blue-900 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg">
+                      {getProcessStatusLabel(dossier.processStatus)}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Selector Exclusivo: Estados del Proveedor */}
-              <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-black text-slate-800 uppercase tracking-wider">
-                    Seleccione el Nuevo Estado del Proveedor *
-                  </label>
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    Actual: <strong className="text-blue-900">{getProcessStatusLabel(dossier.processStatus)}</strong>
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Grid Compacto de Estados */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {[
                     {
                       value: 'PROVEEDOR_HABILITADO' as ProcessStatus,
-                      label: 'Proveedor Habilitado (Homologado)',
-                      desc: 'Aprobado plenamente para compras y contratación. Cumple 100% de requisitos técnicos y SIG.',
+                      label: 'Habilitado / Homologado',
                       badge: 'bg-emerald-50 text-emerald-900 border-emerald-300',
+                      icon: CheckCircle2,
                     },
                     {
                       value: 'EN_REVISION' as ProcessStatus,
                       label: 'En Revisión Técnica',
-                      desc: 'Expediente en verificación documental y auditoría por revisores asignados.',
                       badge: 'bg-blue-50 text-blue-900 border-blue-300',
-                    },
-                    {
-                      value: 'CORREGIDO_EN_REVISION' as ProcessStatus,
-                      label: 'Corregido / En Revisión',
-                      desc: 'Subsanaciones radicadas por el proveedor, listas para re-evaluación técnica.',
-                      badge: 'bg-cyan-50 text-cyan-900 border-cyan-300',
+                      icon: Clock,
                     },
                     {
                       value: 'REQUIERE_CORRECCION' as ProcessStatus,
                       label: 'Requiere Corrección',
-                      desc: 'Devuelto al proveedor para subsanar inconsistencias o actualizar requisitos observados.',
                       badge: 'bg-amber-50 text-amber-900 border-amber-300',
+                      icon: AlertTriangle,
                     },
                     {
                       value: 'DOCUMENTACION_PENDIENTE' as ProcessStatus,
-                      label: 'Documentación Incompleta / Pendiente',
-                      desc: 'Expediente en trámite inicial de recolección y cargue de documentos obligatorios.',
-                      badge: 'bg-slate-100 text-slate-700 border-slate-300',
+                      label: 'Doc. Incompleta / Pendiente',
+                      badge: 'bg-slate-100 text-slate-800 border-slate-300',
+                      icon: FileText,
                     },
                     {
                       value: 'SUSPENDIDO' as ProcessStatus,
-                      label: 'Suspendido Administrativamente',
-                      desc: 'Medida cautelar preventiva por hallazgo SIG, auditoría, SARLAFT o sanción.',
+                      label: 'Suspendido Cautelar',
                       badge: 'bg-slate-800 text-slate-100 border-slate-700',
+                      icon: ShieldCheck,
                     },
                     {
                       value: 'RECHAZADO' as ProcessStatus,
-                      label: 'Rechazado / No Habilitado',
-                      desc: 'Dictamen desfavorable. No cumple con las políticas de abastecimiento ni requerimientos mínimos.',
+                      label: 'Rechazado / No Apto',
                       badge: 'bg-rose-50 text-rose-900 border-rose-300',
+                      icon: X,
                     },
                   ].map((item) => {
                     const isSelected = selectedStatus === item.value;
+                    const IconComp = item.icon;
                     return (
                       <button
                         key={item.value}
                         type="button"
                         onClick={() => setSelectedStatus(item.value)}
-                        className={`text-left p-3 rounded-xl border text-xs transition-all cursor-pointer ${
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-1.5 ${
                           isSelected
-                            ? 'bg-blue-50 border-blue-600 shadow-xs ring-2 ring-blue-500/30'
-                            : 'bg-white border-slate-200 hover:bg-slate-100/70'
+                            ? 'bg-blue-900 text-white border-blue-900 shadow-sm ring-2 ring-blue-500/40'
+                            : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-100/80'
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-1">
-                          <span
-                            className={`font-bold text-[12px] ${
-                              isSelected ? 'text-blue-950' : 'text-slate-800'
-                            }`}
-                          >
-                            {item.label}
-                          </span>
-                          {isSelected ? (
-                            <CheckCircle2 className="w-4 h-4 text-blue-700 shrink-0" />
-                          ) : (
-                            <span className={`text-[9px] px-1.5 py-0.5 rounded border font-semibold ${item.badge}`}>
-                              SIG
-                            </span>
-                          )}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <IconComp className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-cyan-400' : 'text-slate-500'}`} />
+                          <span className="font-bold text-xs truncate">{item.label}</span>
                         </div>
-                        <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                          {item.desc}
-                        </p>
+                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />}
                       </button>
                     );
                   })}
                 </div>
-
-                {/* Plantillas Rápidas para el Estado del Proveedor */}
-                <div className="pt-2 border-t border-slate-200">
-                  <span className="text-[11px] font-bold text-slate-600 block mb-1.5">
-                    Plantillas Rápidas de Justificación:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {quickSupplierReasons.map((reason, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => setReasonObservation(reason)}
-                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-900 border border-slate-200 transition-colors cursor-pointer text-left shadow-2xs"
-                      >
-                        {reason}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
 
-              {/* Formulario de Justificación y Responsable del Registro (Priorizado en tamaño) */}
-              <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
-                <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold">
-                    <FileText className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-                      Formulario de Justificación Formal & Responsable
-                    </h3>
-                    <p className="text-[10px] text-slate-400">
-                      Registro de trazabilidad auditable según estándar ISO 9001
-                    </p>
-                  </div>
-                </div>
-
-                {/* Motivo Obligatorio del Estado del Proveedor */}
+              {/* Justificación y Responsable */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-2xs">
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                    Motivo u Observación del Estado del Proveedor <span className="text-blue-700">*</span>
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold text-slate-800">
+                      Motivo u Observación del Estado <span className="text-blue-700">*</span>
+                    </label>
+                    <span className="text-[10px] text-slate-400">Auditable</span>
+                  </div>
                   <textarea
-                    rows={3}
+                    rows={2}
                     required
                     value={reasonObservation}
                     onChange={(e) => setReasonObservation(e.target.value)}
-                    placeholder="Escriba la justificación formal del estado del proveedor (número de acta, resolución de comité o motivo técnico)..."
-                    className="w-full text-sm font-medium p-3.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 bg-white text-slate-900 shadow-2xs"
+                    placeholder="Escriba la justificación formal del estado del proveedor (acta de comité, motivo técnico, etc.)..."
+                    className="w-full text-xs font-medium p-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white text-slate-900"
                   />
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1">
-                    <span>Requerido para auditoría y expediente del proveedor</span>
-                    <span className={reasonObservation.trim().length >= 8 ? 'text-blue-700 font-bold' : 'text-slate-400'}>
-                      {reasonObservation.trim().length} caracteres (mínimo 8)
-                    </span>
-                  </div>
                 </div>
 
-                {/* Responsable del Registro */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                    Funcionario / Responsable del Registro *
-                  </label>
-                  <input
-                    type="text"
-                    value={authorName}
-                    onChange={(e) => setAuthorName(e.target.value)}
-                    required
-                    className="w-full text-sm font-semibold px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Funcionario / Responsable del Registro *
+                    </label>
+                    <input
+                      type="text"
+                      value={authorName}
+                      onChange={(e) => setAuthorName(e.target.value)}
+                      required
+                      className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-blue-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                      Plantillas Rápidas:
+                    </label>
+                    <div className="flex flex-wrap gap-1">
+                      {quickSupplierReasons.slice(0, 3).map((reason, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setReasonObservation(reason)}
+                          className="text-[10px] px-2 py-1 rounded-md bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-900 border border-slate-200 transition-colors cursor-pointer truncate max-w-full"
+                          title={reason}
+                        >
+                          {reason}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
+
             </div>
           )}
 

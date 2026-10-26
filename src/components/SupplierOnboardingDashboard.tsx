@@ -19,7 +19,6 @@ import {
   AlertTriangle,
   FileCheck2,
   FileCheck,
-  Mail,
   Home,
   FileSpreadsheet,
   Layers,
@@ -537,8 +536,8 @@ export const SupplierOnboardingDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* 3. Quick Access 3-Cards Row (Interactive) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* 3. Quick Access Cards Row (Interactive) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             <div
               onClick={() => setSupplierPortalTab('login')}
@@ -582,29 +581,6 @@ export const SupplierOnboardingDashboard: React.FC = () => {
                 </span>
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-cyan-400 mt-2">
                   Ver convocatorias &rarr;
-                </span>
-              </div>
-            </div>
-
-            <div
-              onClick={() => setActiveView('emails')}
-              className="bg-white dark:bg-[#0b1329] rounded-2xl border border-slate-200 dark:border-blue-900/50 p-5 shadow-xs hover:border-blue-400 dark:hover:border-blue-600 transition-all flex items-start gap-4 cursor-pointer group"
-            >
-              <div className="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-cyan-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                <Mail className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white block">
-                    NOTIFICACIONES
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-300 transition-transform group-hover:translate-x-1" />
-                </div>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
-                  Monitoree observaciones del comité evaluador y avisos de subsanación técnica.
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-cyan-400 mt-2">
-                  Ver notificaciones &rarr;
                 </span>
               </div>
             </div>

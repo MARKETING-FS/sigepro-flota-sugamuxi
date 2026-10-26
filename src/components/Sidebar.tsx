@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   TrendingUp,
   FileText,
-  Mail,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -53,7 +52,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     allDossiers,
     activeView,
     setActiveView,
-    emailNotifications,
     currentDossier,
     isSupplierLoggedIn,
     supplierPortalTab,
@@ -66,8 +64,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [isGestionOpen, setIsGestionOpen] = useState(true);
   const [isConvocatoriasOpen, setIsConvocatoriasOpen] = useState(true);
-
-  const unreadCount = emailNotifications.filter((e) => !e.read).length;
 
   const handleRoleChange = (newRole: UserRole) => {
     setRole(newRole);
@@ -445,32 +441,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
             )}
 
-            {/* 5. Centro de Notificaciones */}
-            <button
-              onClick={() => setActiveView('emails')}
-              className={`w-full flex items-center ${
-                isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-between px-2.5 py-2'
-              } rounded-lg font-medium transition-all ${
-                activeView === 'emails'
-                  ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                  : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-              }`}
-              title="Simulador de Correos / Notificaciones"
-            >
-              <div className={`flex items-center gap-2.5 min-w-0 ${isCollapsed ? 'justify-center' : ''}`}>
-                <Mail
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'emails' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Notificaciones</span>}
-              </div>
-              {!isCollapsed && unreadCount > 0 && (
-                <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full shrink-0">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
+
 
             {/* If logged in as supplier, show quick logout / change supplier */}
             {isSupplierLoggedIn && (
@@ -703,40 +674,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </div>
 
-            {/* COMUNICACIONES */}
-            <div className="space-y-1.5">
-              {!isCollapsed && (
-                <div className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
-                  COMUNICACIONES
-                </div>
-              )}
 
-              <button
-                onClick={() => setActiveView('emails')}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-between px-2.5 py-2'
-                } rounded-lg font-medium transition-all ${
-                  activeView === 'emails'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Simulador de Correos"
-              >
-                <div className={`flex items-center gap-2.5 min-w-0 ${isCollapsed ? 'justify-center' : ''}`}>
-                  <Mail
-                    className={`w-4 h-4 shrink-0 ${
-                      activeView === 'emails' ? 'text-cyan-400' : 'text-blue-400'
-                    }`}
-                  />
-                  {!isCollapsed && <span className="truncate">Correos & Avisos</span>}
-                </div>
-                {!isCollapsed && unreadCount > 0 && (
-                  <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full shrink-0">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-            </div>
           </>
         )}
       </div>

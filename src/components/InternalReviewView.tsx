@@ -14,7 +14,6 @@ import {
   ArrowRight,
   FileCheck2,
   FileText,
-  Mail,
   Users,
   Award,
   UserPlus,
@@ -29,7 +28,6 @@ import { useApp } from '../context/AppContext';
 import { ProcessStatus, SupplierDossier, SupplierDocument, SupplierTier, SupplierBasicInfo } from '../types';
 import { getCreationStatus, getContractualStatus } from '../utils/contractValidity';
 import { InternalReviewDossierDetail } from './InternalReviewDossierDetail';
-import { SendCustomEmailModal } from './SendCustomEmailModal';
 import { AdminCreateSupplierModal } from './AdminCreateSupplierModal';
 import { ExecutiveDashboardMetrics } from './dashboard/ExecutiveDashboardMetrics';
 import { ExecutiveSIGAnalytics } from './dashboard/ExecutiveSIGAnalytics';
@@ -66,8 +64,6 @@ export const InternalReviewView: React.FC = () => {
   const [tierFilter, setTierFilter] = useState<string>('ALL');
 
   // Modales
-  const [selectedDossierForEmail, setSelectedDossierForEmail] = useState<SupplierDossier | null>(null);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isAdminCreateModalOpen, setIsAdminCreateModalOpen] = useState(false);
 
   // Si hay un expediente abierto para auditoría detallada
@@ -580,18 +576,6 @@ export const InternalReviewView: React.FC = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
-                              title="Enviar correo institucional"
-                              onClick={() => {
-                                setSelectedDossierForEmail(d);
-                                setIsEmailModalOpen(true);
-                              }}
-                              className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
-                            >
-                              <Mail className="w-3.5 h-3.5" />
-                            </button>
-
-                            <button
-                              type="button"
                               title="Calificar Evaluación SIG"
                               onClick={() => openSupplierEvaluation(d.id)}
                               className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
@@ -651,18 +635,6 @@ export const InternalReviewView: React.FC = () => {
             onOpenEvaluationForDossier={(dossierId) => openSupplierEvaluation(dossierId)}
           />
         </div>
-      )}
-
-      {/* Modal de Envío de Correo */}
-      {selectedDossierForEmail && (
-        <SendCustomEmailModal
-          isOpen={isEmailModalOpen}
-          onClose={() => {
-            setIsEmailModalOpen(false);
-            setSelectedDossierForEmail(null);
-          }}
-          dossier={selectedDossierForEmail}
-        />
       )}
 
       {/* Modal de Registro de Proveedor por Administrador */}

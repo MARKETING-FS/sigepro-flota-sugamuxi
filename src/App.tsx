@@ -10,7 +10,6 @@ import { BancoProveedoresView } from './components/BancoProveedoresView';
 import { AuditLogView } from './components/AuditLogView';
 import { SupplierRegisterModal } from './components/SupplierRegisterModal';
 import { EmailVerificationModal } from './components/EmailVerificationModal';
-import { EmailNotificationCenter } from './components/EmailNotificationCenter';
 import { ExcelReportsView } from './components/ExcelReportsView';
 import { AdminRegisterSupplierView } from './components/AdminRegisterSupplierView';
 import { AdminParametrizationView } from './components/AdminParametrizationView';
@@ -369,7 +368,6 @@ const MainLayout: React.FC = () => {
             )
           )}
           {activeView === 'auditoria' && <AuditLogView />}
-          {activeView === 'emails' && <EmailNotificationCenter />}
           {activeView === 'informesExcel' && (
             role === 'PROVEEDOR' ? (
               <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
