@@ -116,7 +116,7 @@ export const Header: React.FC<Props> = ({
           )}
 
           <div className="flex items-center gap-2 truncate">
-            <div className="w-6 h-6 shrink-0 flex items-center justify-center p-0.5 rounded-md bg-blue-50 dark:bg-slate-800 border border-blue-100 dark:border-slate-700">
+            <div className="w-8 h-8 shrink-0 flex items-center justify-center p-1 rounded-xl bg-white border border-slate-200 dark:border-slate-700 shadow-2xs">
               <FlotaSugamuxiEmblem className="w-full h-full" isDark={isDarkMode} />
             </div>
             <h1 className="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2 truncate uppercase">

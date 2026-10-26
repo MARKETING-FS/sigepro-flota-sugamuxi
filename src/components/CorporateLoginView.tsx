@@ -220,7 +220,7 @@ export const CorporateLoginView: React.FC<CorporateLoginViewProps> = ({
         {/* Top Header con Logo Institucional */}
         <div className="relative z-10 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-950/80 border border-blue-800/60 p-1.5 flex items-center justify-center shrink-0 shadow-inner">
+            <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm border border-slate-200">
               <FlotaSugamuxiEmblem className="w-full h-full" color="#38bdf8" />
             </div>
             <div>
