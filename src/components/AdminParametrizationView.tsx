@@ -83,6 +83,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
     addCategoryConfig,
     updateCategoryConfig,
     deleteCategoryConfig,
+    toggleDocumentRequirement,
     systemParameters,
     updateGlobalSettings,
     addBankParameter,
@@ -127,6 +128,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   // Matrix Modals State
   const [isNewCategoryModalOpen, setIsNewCategoryModalOpen] = useState(false);
   const [isNewDocModalOpen, setIsNewDocModalOpen] = useState(false);
+  const [targetCategoryForNewDoc, setTargetCategoryForNewDoc] = useState<string | null>(null);
   const [newCatName, setNewCatName] = useState('');
   const [newCatDescription, setNewCatDescription] = useState('');
   const [newCatRisk, setNewCatRisk] = useState<'ALTO' | 'MEDIO' | 'BAJO' | 'CRITICO'>('MEDIO');
@@ -185,8 +187,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       description: newCatDescription.trim() || 'Servicio registrado en Flota Sugamuxi S.A.',
       riskLevel: newCatRisk,
       economicCode: newCatEconomicCode.trim() || undefined,
-      mandatoryForNatural: newCatMandatoryNat,
-      mandatoryForJuridica: newCatMandatoryJur,
+      mandatoryForNatural: [],
+      mandatoryForJuridica: [],
       optionalForNatural: [],
       optionalForJuridica: [],
       isActive: true,
@@ -213,8 +215,9 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       return;
     }
 
+    const finalDocCode = newDocCode.trim().toUpperCase().replace(/\s+/g, '_');
     const res = addDocumentDefinition({
-      code: newDocCode.trim().toUpperCase().replace(/\s+/g, '_'),
+      code: finalDocCode,
       name: newDocName.trim(),
       category: newDocCategory,
       description: newDocDescription.trim() || 'Documento soporte SIG.',
@@ -225,8 +228,15 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
     });
 
     if (res.success) {
-      showToast(res.message, 'success');
+      if (targetCategoryForNewDoc) {
+        toggleDocumentRequirement(targetCategoryForNewDoc, finalDocCode, 'JURIDICA', 'MANDATORY');
+        toggleDocumentRequirement(targetCategoryForNewDoc, finalDocCode, 'NATURAL', 'MANDATORY');
+        showToast(`Documento "${newDocName.trim()}" registrado y vinculado como OBLIGATORIO a ${targetCategoryForNewDoc}.`, 'success');
+      } else {
+        showToast(res.message, 'success');
+      }
       setIsNewDocModalOpen(false);
+      setTargetCategoryForNewDoc(null);
       setIsDocCodeCustomized(false);
       setNewDocCode('');
       setNewDocName('');
@@ -1044,7 +1054,10 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
             <EconomicActivitiesTab
               onShowToast={showToast}
               onOpenNewCategoryModal={() => setIsNewCategoryModalOpen(true)}
-              onOpenNewDocModal={() => setIsNewDocModalOpen(true)}
+              onOpenNewDocModal={(categoryName?: string) => {
+                setTargetCategoryForNewDoc(categoryName || null);
+                setIsNewDocModalOpen(true);
+              }}
             />
           )}
 
@@ -2416,48 +2429,19 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 />
               </div>
 
-              {/* Document selection */}
-              <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
-                <h4 className="font-bold text-slate-800 dark:text-slate-200">
-                  Selección de Documentos Específicos Exigidos
-                </h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800">
-                  {documentDefinitions.map((doc) => {
-                    const isNat = newCatMandatoryNat.includes(doc.code);
-                    const isJur = newCatMandatoryJur.includes(doc.code);
-                    return (
-                      <div key={doc.code} className="p-2 bg-white dark:bg-[#0b1329] rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
-                        <div className="font-semibold text-slate-800 dark:text-slate-200 text-[11px] truncate">
-                          {doc.name}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleDocInNewCat(doc.code, 'NAT')}
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors ${
-                              isNat
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                            }`}
-                          >
-                            Oblig. PN
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleDocInNewCat(doc.code, 'JUR')}
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors ${
-                              isJur
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                            }`}
-                          >
-                            Oblig. PJ
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+              {/* Requisitos Base Oficiales */}
+              <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <div className="p-3.5 bg-blue-50/80 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-900 text-xs space-y-1.5">
+                  <div className="font-bold text-blue-950 dark:text-blue-100 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-cyan-400 shrink-0" />
+                    <span>Documentos Base Oficiales Preestablecidos</span>
+                  </div>
+                  <p className="text-slate-600 dark:text-slate-300 text-[11.5px] leading-relaxed">
+                    Esta nueva actividad económica iniciará automáticamente con los requisitos base oficiales de Flota Sugamuxi S.A. para Persona Natural y Persona Jurídica (RUT, Cámara de Comercio, Cédula, Seguridad Social, Certificación Bancaria, Formatos FS.GA-FOR-009 y 039, etc.).
+                  </p>
+                  <p className="text-blue-800 dark:text-cyan-300 font-medium text-[10.5px]">
+                    ℹ No se traerán campos ni requisitos específicos de otras actividades. Una vez creada, podrá parametrizar o agregar nuevos documentos técnicos directamente en la matriz de esta actividad.
+                  </p>
                 </div>
               </div>
 
@@ -2492,10 +2476,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                    Registrar Nuevo Documento en Catálogo Maestro
+                    {targetCategoryForNewDoc
+                      ? `Nuevo Requisito para ${targetCategoryForNewDoc}`
+                      : 'Registrar Nuevo Documento en Catálogo Maestro'}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Agrega un nuevo tipo de requerimiento documental al SIG
+                    {targetCategoryForNewDoc
+                      ? `Se guardará en el catálogo maestro y se vinculará a la actividad ${targetCategoryForNewDoc}`
+                      : 'Agrega un nuevo tipo de requerimiento documental al SIG'}
                   </p>
                 </div>
               </div>

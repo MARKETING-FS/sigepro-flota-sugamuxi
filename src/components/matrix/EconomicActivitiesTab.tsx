@@ -29,7 +29,7 @@ import {
 interface EconomicActivitiesTabProps {
   onShowToast: (message: string, type?: 'success' | 'error') => void;
   onOpenNewCategoryModal: () => void;
-  onOpenNewDocModal: () => void;
+  onOpenNewDocModal: (categoryName?: string) => void;
 }
 
 export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
@@ -54,6 +54,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
   const [selectedRegimenView, setSelectedRegimenView] = useState<'ALL' | 'NATURAL' | 'JURIDICA'>('ALL');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [innerDocSearch, setInnerDocSearch] = useState('');
+  const [linkingCategory, setLinkingCategory] = useState<string | null>(null);
 
   // Edit category modal state
   const [editingCategory, setEditingCategory] = useState<CategoryRequirementConfig | null>(null);
@@ -81,6 +82,31 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
   const naturalBaseConfig = baseRequirementsConfig['NATURAL'] || { mandatoryDocs: [], optionalDocs: [] };
   const juridicaBaseConfig = baseRequirementsConfig['JURIDICA'] || { mandatoryDocs: [], optionalDocs: [] };
+
+  // Códigos canónicos de requisitos base para persona natural y jurídica
+  const baseDocCodes = useMemo(() => {
+    return new Set<string>([
+      ...(naturalBaseConfig?.mandatoryDocs || []),
+      ...(naturalBaseConfig?.optionalDocs || []),
+      ...(juridicaBaseConfig?.mandatoryDocs || []),
+      ...(juridicaBaseConfig?.optionalDocs || []),
+      'PORTAFOLIO_SERVICIOS',
+      'CEDULA_NATURAL',
+      'CEDULA_REP_LEGAL',
+      'HOJA_DE_VIDA',
+      'CERTIFICADOS_ESTUDIO',
+      'CAMARA_COMERCIO',
+      'SEGURIDAD_SOCIAL',
+      'ESTADOS_FINANCIEROS',
+      'RUT',
+      'CERTIFICACION_BANCARIA',
+      'DOCUMENTACION_LEGAL_ACTIVIDAD',
+      'CERTIFICADO_CONFORMIDAD',
+      'POLIZA_RCE',
+      'SST_PLAN',
+      'CERTIFICADO_CALIDAD',
+    ]);
+  }, [naturalBaseConfig, juridicaBaseConfig]);
 
   // Filtered categories (accent-insensitive search)
   const filteredCategories = useMemo(() => {
@@ -509,7 +535,20 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                 </div>
 
                 {/* Expanded Interactive Requirements Table */}
-                {isExpanded && (
+                {isExpanded && (() => {
+                  const catSpecificCodes = new Set<string>([
+                    ...(cat.mandatoryForNatural || []),
+                    ...(cat.optionalForNatural || []),
+                    ...(cat.mandatoryForJuridica || []),
+                    ...(cat.optionalForJuridica || []),
+                  ]);
+
+                  const unlinkedCatalogDocs = documentDefinitions.filter((d) => {
+                    if (d.code === 'FS_GA_FOR_009' || d.code === 'FS_GA_FOR_039') return false;
+                    return !baseDocCodes.has(d.code) && !catSpecificCodes.has(d.code);
+                  });
+
+                  return (
                   <div className="p-4 sm:p-5 bg-white space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="text-xs text-slate-600">
@@ -528,9 +567,23 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                           />
                         </div>
 
+                        {unlinkedCatalogDocs.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setLinkingCategory(cat.category)}
+                            className="text-xs text-slate-700 hover:text-slate-900 font-bold flex items-center gap-1 cursor-pointer bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors"
+                            title="Vincular un documento técnico ya existente en el catálogo a esta actividad"
+                          >
+                            <Layers className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Vincular del Catálogo ({unlinkedCatalogDocs.length})</span>
+                          </button>
+                        )}
+
                         <button
-                          onClick={onOpenNewDocModal}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 cursor-pointer bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200"
+                          type="button"
+                          onClick={() => onOpenNewDocModal(cat.category)}
+                          className="text-xs text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 cursor-pointer bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200 transition-colors"
+                          title="Crear un nuevo tipo de documento técnico exclusivo para esta actividad"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Crear tipo documental</span>
@@ -568,6 +621,10 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                           {documentDefinitions
                             .filter((d) => {
                               if (d.code === 'FS_GA_FOR_009' || d.code === 'FS_GA_FOR_039') return false;
+                              // Solo traer los documentos base universales o los creados/configurados para esta actividad
+                              const belongsToThisActivity = baseDocCodes.has(d.code) || catSpecificCodes.has(d.code);
+                              if (!belongsToThisActivity) return false;
+
                               if (!innerDocSearch.trim()) return true;
                               const q = innerDocSearch.toLowerCase();
                               return (
@@ -580,6 +637,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                             .map((doc) => {
                               const natState = getCategoryDocState(cat, doc.code, 'NATURAL');
                               const jurState = getCategoryDocState(cat, doc.code, 'JURIDICA');
+                              const isBaseDoc = baseDocCodes.has(doc.code);
                               const isBaseNat = (naturalBaseConfig.mandatoryDocs || []).includes(doc.code);
                               const isBaseJur = (juridicaBaseConfig.mandatoryDocs || []).includes(doc.code);
                               const isInactiveDoc = doc.isActive === false;
@@ -592,8 +650,17 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                   }`}
                                 >
                                   <td className="px-4 py-3">
-                                    <div className="font-semibold text-slate-800 flex items-center gap-2">
+                                    <div className="font-semibold text-slate-800 flex items-center gap-2 flex-wrap">
                                       <span>{doc.name}</span>
+                                      {isBaseDoc ? (
+                                        <span className="px-1.5 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold rounded border border-slate-200">
+                                          Requisito Base
+                                        </span>
+                                      ) : (
+                                        <span className="px-1.5 py-0.5 bg-blue-50 text-blue-800 text-[9px] font-bold rounded border border-blue-200">
+                                          Específico Actividad
+                                        </span>
+                                      )}
                                       {isInactiveDoc && (
                                         <span className="px-1.5 py-0.5 bg-slate-200 text-slate-600 text-[9px] font-bold rounded">
                                           INACTIVO EN CATÁLOGO
@@ -764,13 +831,30 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                   </td>
 
                                   <td className="px-3 py-3 text-right">
-                                    <button
-                                      onClick={() => handleOpenDocEditor(doc)}
-                                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer border border-slate-200"
-                                      title="Editar todos los campos de este documento"
-                                    >
-                                      <Edit3 className="w-3.5 h-3.5" />
-                                    </button>
+                                    <div className="flex items-center justify-end gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenDocEditor(doc)}
+                                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                                        title="Editar todos los campos de este documento"
+                                      >
+                                        <Edit3 className="w-3.5 h-3.5" />
+                                      </button>
+                                      {!isBaseDoc && (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            toggleDocumentRequirement(cat.category, doc.code, 'JURIDICA', 'NONE');
+                                            toggleDocumentRequirement(cat.category, doc.code, 'NATURAL', 'NONE');
+                                            onShowToast(`Requisito "${doc.name}" desvinculado de la actividad ${cat.category}.`);
+                                          }}
+                                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer border border-rose-200"
+                                          title="Quitar requisito de esta actividad económica"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
+                                    </div>
                                   </td>
                                 </tr>
                               );
@@ -779,8 +863,9 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                       </table>
                     </div>
                   </div>
-                  </div>
-                )}
+                </div>
+              );
+            })()}
               </div>
             );
           })
@@ -788,6 +873,94 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
       </div>
 
       {/* Modal: Editar Actividad Económica */}
+      {/* Modal para Vincular Documento Existente del Catálogo a una Actividad */}
+      {linkingCategory && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
+            <div className="bg-[#0b1329] text-white p-5 flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-cyan-300">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">Vincular Documento del Catálogo</h3>
+                  <p className="text-[11px] text-cyan-300">Actividad: {linkingCategory}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLinkingCategory(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="p-5 space-y-3 max-h-[60vh] overflow-y-auto">
+              <p className="text-xs text-slate-500">
+                Seleccione un documento técnico existente en el catálogo maestro para exigirlo como requisito en <strong>{linkingCategory}</strong>:
+              </p>
+
+              {(() => {
+                const targetCat = categoriesConfig.find((c) => c.category === linkingCategory);
+                const currentSpecific = new Set<string>([
+                  ...(targetCat?.mandatoryForNatural || []),
+                  ...(targetCat?.optionalForNatural || []),
+                  ...(targetCat?.mandatoryForJuridica || []),
+                  ...(targetCat?.optionalForJuridica || []),
+                ]);
+                const availableToLink = documentDefinitions.filter(
+                  (d) => d.code !== 'FS_GA_FOR_009' && d.code !== 'FS_GA_FOR_039' && !baseDocCodes.has(d.code) && !currentSpecific.has(d.code)
+                );
+
+                if (availableToLink.length === 0) {
+                  return (
+                    <div className="p-4 bg-slate-50 rounded-xl text-center text-xs text-slate-500">
+                      No hay otros documentos en el catálogo maestro pendientes de vincular.
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
+                    {availableToLink.map((d) => (
+                      <div key={d.code} className="p-3 flex items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
+                        <div>
+                          <div className="font-bold text-xs text-slate-900">{d.name}</div>
+                          <div className="text-[10.5px] text-slate-500 font-mono">[{d.code}] &bull; {d.category}</div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            toggleDocumentRequirement(linkingCategory, d.code, 'JURIDICA', 'MANDATORY');
+                            toggleDocumentRequirement(linkingCategory, d.code, 'NATURAL', 'MANDATORY');
+                            onShowToast(`Documento "${d.name}" vinculado como OBLIGATORIO a ${linkingCategory}.`);
+                            setLinkingCategory(null);
+                          }}
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-xs transition-colors shrink-0 cursor-pointer shadow-2xs"
+                        >
+                          Vincular
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setLinkingCategory(null)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {editingCategory && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
