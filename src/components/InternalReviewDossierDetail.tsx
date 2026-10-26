@@ -488,6 +488,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
       status?: DocumentStatus;
       expirationDate?: string;
       notes?: string;
+      uploadedBy?: string;
+      uploadedAt?: string;
     },
     justification: string
   ) => {
@@ -1721,7 +1723,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           )}
                           
                           <div className="flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
-                            <span>{doc.fileName ? `Archivo: ${doc.fileName} (${doc.fileSize || '1.4 MB'})` : 'Pendiente de adjuntar por el proveedor'}</span>
+                            <span>{doc.fileName ? `Archivo: ${doc.fileName} (${doc.fileSize || '1.4 MB'})` : 'Pendiente de cargue de soporte por el revisor'}</span>
                             {doc.expirationDate && (
                               <span className="font-mono text-slate-700 font-semibold">
                                 • Vence: {doc.expirationDate}
@@ -1788,11 +1790,24 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                             <button
                               type="button"
                               onClick={() => handleOpenEditDocModal(code, doc, docTitle)}
-                              className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded flex items-center gap-1 border border-slate-300 cursor-pointer shadow-2xs transition-colors"
-                              title="Modificar información, vigencia o sustituir archivo"
+                              className={`px-2.5 py-1.5 text-xs font-bold rounded flex items-center gap-1 border cursor-pointer shadow-2xs transition-colors ${
+                                doc.fileName
+                                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                                  : 'bg-blue-50 hover:bg-blue-100 text-blue-800 border-blue-300'
+                              }`}
+                              title={doc.fileName ? 'Modificar información, vigencia o sustituir archivo' : 'Cargar archivo soporte por el revisor'}
                             >
-                              <Edit3 className="w-3.5 h-3.5 text-slate-600" />
-                              <span>Modificar Doc</span>
+                              {doc.fileName ? (
+                                <>
+                                  <Edit3 className="w-3.5 h-3.5 text-slate-600" />
+                                  <span>Modificar Doc</span>
+                                </>
+                              ) : (
+                                <>
+                                  <FileUp className="w-3.5 h-3.5 text-blue-700" />
+                                  <span>Cargar Doc</span>
+                                </>
+                              )}
                             </button>
                           )}
 
@@ -2244,6 +2259,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           docCode={editingDocCode}
           document={editingDocObj}
           documentTitle={editingDocTitle}
+          userRole={role}
+          reviewerName={reviewerName}
           onSave={handleSaveDocEdit}
         />
       )}

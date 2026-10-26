@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FileText,
   UploadCloud,
@@ -9,6 +9,10 @@ import {
   Calendar,
   Layers,
   FileUp,
+  Trash2,
+  AlertCircle,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
 import { SupplierDocument, DocumentStatus, UserRole } from '../types';
 
@@ -31,6 +35,8 @@ interface Props {
       status?: DocumentStatus;
       expirationDate?: string;
       notes?: string;
+      uploadedBy?: string;
+      uploadedAt?: string;
     },
     justification: string
   ) => void;
@@ -48,17 +54,24 @@ export const DocumentEditorModal: React.FC<Props> = ({
   onSave,
 }) => {
   const displayTitle = documentTitle || docTitle || docCode;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   if (!isOpen || !document) return null;
+
+  const isMandatory = Boolean(document.isRequired);
 
   const [name, setName] = useState(document.name);
   const [fileName, setFileName] = useState(document.fileName || '');
   const [fileSize, setFileSize] = useState(document.fileSize || '1.4 MB');
+  const [customUrl, setCustomUrl] = useState<string>(document.customUrl || document.previewUrl || '');
   const [fileError, setFileError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [status, setStatus] = useState<DocumentStatus>(document.status);
   const [expirationDate, setExpirationDate] = useState(document.expirationDate || '');
   const [notes, setNotes] = useState(document.notes || '');
-  const [justification, setJustification] = useState('Modificación documental autorizada por Revisor Técnico / Administrador.');
+  const [justification, setJustification] = useState('Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.');
   const [hasFile, setHasFile] = useState(Boolean(document.fileName));
+  const [isDragging, setIsDragging] = useState(false);
 
   const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -66,41 +79,122 @@ export const DocumentEditorModal: React.FC<Props> = ({
     setName(document.name);
     setFileName(document.fileName || '');
     setFileSize(document.fileSize || '1.4 MB');
+    setCustomUrl(document.customUrl || document.previewUrl || '');
     setFileError(null);
-    setStatus(document.status);
+    setFormError(null);
+
+    // Si el documento ya tiene archivo cargado y está pendiente o en revisión, precargarlo como APROBADO
+    if (document.fileName && (document.status === 'CARGADO' || document.status === 'PENDIENTE')) {
+      setStatus('APROBADO');
+    } else {
+      setStatus(document.status);
+    }
+
     setExpirationDate(document.expirationDate || '');
     setNotes(document.notes || '');
     setHasFile(Boolean(document.fileName));
+    setJustification('Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.');
   }, [document]);
 
-  const handleSimulateFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const processSelectedFile = (file: File) => {
     setFileError(null);
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      
-      // Validación de no permitir subir archivos mayores a 5 MB
-      if (file.size > MAX_FILE_SIZE_BYTES) {
-        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
-        setFileError(`El archivo "${file.name}" pesa ${sizeMb} MB y excede el límite máximo permitido de 5 MB. Por favor comprima o seleccione un archivo menor a 5 MB.`);
-        e.target.value = '';
-        return;
-      }
+    setFormError(null);
 
-      setFileName(file.name);
+    // Validación de tamaño máximo 5 MB
+    if (file.size > MAX_FILE_SIZE_BYTES) {
       const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
-      const formattedSize = file.size > 1024 * 1024 ? `${sizeMb} MB` : `${Math.round(file.size / 1024)} KB`;
-      setFileSize(formattedSize);
-      setHasFile(true);
-      if (status === 'PENDIENTE') {
-        setStatus('CARGADO');
+      setFileError(`El archivo "${file.name}" pesa ${sizeMb} MB y excede el límite máximo permitido de 5 MB. Por favor comprima o seleccione un archivo menor a 5 MB.`);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
+      return;
+    }
+
+    setFileName(file.name);
+    const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+    const formattedSize = file.size > 1024 * 1024 ? `${sizeMb} MB` : `${Math.round(file.size / 1024)} KB`;
+    setFileSize(formattedSize);
+    setHasFile(true);
+
+    // Leer Data URL para previsualización directa en el navegador
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      if (ev.target?.result) {
+        setCustomUrl(ev.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+
+    // Precarga automática del estado a APROBADO al cargar el archivo
+    setStatus('APROBADO');
+  };
+
+  const handleSimulateFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleRemoveFile = () => {
+    setFileName('');
+    setFileSize('');
+    setCustomUrl('');
+    setHasFile(false);
+    setFileError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    // Si se remueve el archivo, regresa a PENDIENTE
+    setStatus('PENDIENTE');
+  };
+
+  const handleExpirationDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setExpirationDate(val);
+    setFormError(null);
+    // Precarga automática del estado a APROBADO al ingresar o modificar la fecha de vigencia
+    if (val) {
+      setStatus('APROBADO');
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+
+    // Validación 1: Si el requisito es OBLIGATORIO, es estrictamente obligatorio adjuntar el archivo soporte
+    if (isMandatory && (!hasFile || !fileName || !fileName.trim())) {
+      setFormError('Este requisito está clasificado como OBLIGATORIO para el proveedor. El revisor técnico debe adjuntar obligatoriamente el archivo soporte (PDF, Excel o Imagen) antes de poder guardar o certificar este requisito.');
+      return;
+    }
+
+    // Validación 2: Si el estado es APROBADO, debe existir archivo soporte adjunto
+    if (status === 'APROBADO' && (!hasFile || !fileName || !fileName.trim())) {
+      setFormError('Para certificar el requisito con estado APROBADO, es indispensable adjuntar el archivo soporte correspondiente.');
+      return;
+    }
+
+    // Validación 3: Justificación de trazabilidad y auditoría
     if (!justification.trim()) {
-      alert('Por favor ingrese la justificación obligatoria para la trazabilidad y auditoría.');
+      setFormError('Por favor ingrese la justificación obligatoria para la trazabilidad y auditoría institucional.');
       return;
     }
 
@@ -108,11 +202,14 @@ export const DocumentEditorModal: React.FC<Props> = ({
       docCode,
       {
         name: name.trim(),
-        fileName: hasFile ? (fileName || `${docCode.toLowerCase()}.pdf`) : undefined,
+        fileName: hasFile ? (fileName.trim() || `${docCode.toLowerCase()}.pdf`) : undefined,
         fileSize: hasFile ? fileSize : undefined,
+        customUrl: hasFile ? customUrl : undefined,
         status,
         expirationDate: expirationDate || undefined,
         notes: notes.trim(),
+        uploadedBy: hasFile ? reviewerName : undefined,
+        uploadedAt: hasFile ? new Date().toLocaleString('es-CO') : undefined,
       },
       justification.trim()
     );
@@ -130,9 +227,20 @@ export const DocumentEditorModal: React.FC<Props> = ({
               <FileUp className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] font-extrabold uppercase bg-blue-900 text-cyan-300 px-2 py-0.5 rounded border border-blue-700">
-                Gestión Documental &bull; {userRole === 'ADMIN' ? 'Administrador' : 'Revisor Técnico'}
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-extrabold uppercase bg-blue-900 text-cyan-300 px-2 py-0.5 rounded border border-blue-700">
+                  Cargue &bull; {userRole === 'ADMIN' ? 'Administrador' : 'Revisor Técnico'}
+                </span>
+                {isMandatory ? (
+                  <span className="text-[10px] font-extrabold uppercase bg-red-900/90 text-red-200 px-2 py-0.5 rounded border border-red-600 shadow-2xs">
+                    Requisito Obligatorio
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold uppercase bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">
+                    Requisito Opcional
+                  </span>
+                )}
+              </div>
               <h3 className="text-sm font-bold text-white mt-0.5 truncate max-w-md">
                 Modificar Requisito: {displayTitle || document.name}
               </h3>
@@ -140,7 +248,8 @@ export const DocumentEditorModal: React.FC<Props> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors shrink-0 ml-2"
+            type="button"
+            className="p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors shrink-0 ml-2 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -166,23 +275,26 @@ export const DocumentEditorModal: React.FC<Props> = ({
               />
             </div>
 
-            {/* File Upload / Replace */}
+            {/* File Upload Section - Direct Reviewer Upload */}
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-800 flex items-center gap-1.5">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
                   <UploadCloud className="w-4 h-4 text-blue-600" />
-                  Archivo Adjunto / Sustituto
+                  Cargue de Documento Soporte por el Revisor Técnico
                 </span>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={hasFile}
-                    onChange={(e) => setHasFile(e.target.checked)}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-[11px] font-semibold text-slate-600">Tiene archivo cargado</span>
-                </label>
+                <span className="text-[10px] text-blue-800 font-medium bg-blue-100/70 border border-blue-200 px-2 py-0.5 rounded">
+                  Evaluador: {reviewerName}
+                </span>
               </div>
+
+              {/* Hidden file input controlled via ref or label */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.doc,.docx"
+                onChange={handleSimulateFileUpload}
+              />
 
               {fileError && (
                 <div className="p-2.5 bg-slate-900 border border-slate-700 rounded-lg flex items-start gap-2 text-white text-[11px] animate-in fade-in">
@@ -194,43 +306,81 @@ export const DocumentEditorModal: React.FC<Props> = ({
                 </div>
               )}
 
-              {hasFile && (
-                <div className="space-y-2.5">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-[11px] font-semibold text-slate-600">
-                        Nombre del Archivo
-                      </label>
-                      {fileSize && (
-                        <span className="text-[10px] font-semibold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded-md">
-                          Tamaño: {fileSize} (Máx. 5 MB)
-                        </span>
-                      )}
+              {hasFile ? (
+                <div className="bg-white border border-blue-200 rounded-xl p-3 space-y-2.5 shadow-2xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="p-2 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg shrink-0">
+                        <FileCheck className="w-5 h-5 text-blue-700" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                            Soporte Adjunto
+                          </span>
+                          {fileSize && (
+                            <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                              {fileSize}
+                            </span>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={fileName}
+                          onChange={(e) => setFileName(e.target.value)}
+                          placeholder="nombre_archivo.pdf"
+                          className="w-full mt-1 px-2.5 py-1 bg-slate-50 rounded border border-slate-300 font-mono text-[11px] text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-hidden"
+                          title="Nombre del archivo adjunto"
+                        />
+                      </div>
                     </div>
-                    <input
-                      type="text"
-                      value={fileName}
-                      onChange={(e) => setFileName(e.target.value)}
-                      placeholder="ejemplo_documento.pdf"
-                      className="w-full px-3 py-1.5 bg-white rounded-lg border border-slate-300 font-mono text-[11px] text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-hidden"
-                    />
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 pt-0.5">
-                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-900 hover:bg-blue-950 text-white text-xs font-semibold rounded-lg cursor-pointer transition-colors shadow-2xs border border-blue-700">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-900 hover:bg-blue-950 text-white text-xs font-semibold rounded-lg cursor-pointer transition-colors shadow-2xs border border-blue-700"
+                    >
                       <FileUp className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Reemplazar / Subir nuevo archivo (PDF / Excel)</span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.doc,.docx"
-                        onChange={handleSimulateFileUpload}
-                      />
-                    </label>
-                    <span className="text-[10px] text-slate-500">
-                      Límite de tamaño: <strong>5 MB</strong>
-                    </span>
+                      <span>Reemplazar Archivo Soporte</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleRemoveFile}
+                      className="inline-flex items-center gap-1 text-[11px] text-red-600 hover:text-red-700 font-semibold px-2 py-1 rounded hover:bg-red-50 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Quitar archivo</span>
+                    </button>
                   </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${
+                    isDragging
+                      ? 'border-blue-600 bg-blue-100/60'
+                      : 'border-blue-300 hover:border-blue-500 bg-blue-50/40 hover:bg-blue-50/80'
+                  }`}
+                >
+                  <UploadCloud className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-slate-800">
+                    Haga clic aquí para seleccionar o arrastre el archivo soporte
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Formatos: PDF, Excel (.xlsx, .xls), Word (.docx), Imágenes (.png, .jpg) &bull; Máx. 5 MB
+                  </p>
+                  {isMandatory && (
+                    <div className="mt-2.5 inline-flex items-center gap-1.5 text-[10.5px] font-bold text-red-800 bg-red-50 px-2.5 py-1 rounded-md border border-red-200">
+                      <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                      <span>Obligatorio: Se requiere adjuntar el soporte documental para habilitar este requisito.</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -244,13 +394,23 @@ export const DocumentEditorModal: React.FC<Props> = ({
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as DocumentStatus)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-bold text-slate-900 bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600"
+                  className={`w-full px-3 py-2 rounded-lg border font-bold text-slate-900 bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 ${
+                    status === 'APROBADO'
+                      ? 'border-blue-600 text-blue-900 bg-blue-50/30'
+                      : status === 'REQUIERE_CORRECCION'
+                      ? 'border-slate-400 text-slate-800'
+                      : 'border-slate-300'
+                  }`}
                 >
-                  <option value="APROBADO">APROBADO</option>
-                  <option value="CARGADO">CARGADO (EN REVISIÓN)</option>
-                  <option value="REQUIERE_CORRECCION">REQUIERE CORRECCIÓN</option>
-                  <option value="PENDIENTE">PENDIENTE</option>
+                  <option value="APROBADO">✅ APROBADO (Habilitado)</option>
+                  <option value="CARGADO">📄 CARGADO (En Revisión)</option>
+                  <option value="REQUIERE_CORRECCION">⚠️ REQUIERE CORRECCIÓN</option>
+                  <option value="PENDIENTE">⏳ PENDIENTE</option>
                 </select>
+                <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-blue-600 shrink-0" />
+                  <span>Se precarga en APROBADO al cargar archivo o editar vigencia.</span>
+                </p>
               </div>
 
               <div>
@@ -260,9 +420,13 @@ export const DocumentEditorModal: React.FC<Props> = ({
                 <input
                   type="date"
                   value={expirationDate}
-                  onChange={(e) => setExpirationDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-slate-900 bg-white"
+                  onChange={handleExpirationDateChange}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-slate-900 bg-white focus:ring-2 focus:ring-blue-600"
                 />
+                <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span>Al modificar la vigencia se precarga el estado como APROBADO.</span>
+                </p>
               </div>
             </div>
 
@@ -275,8 +439,8 @@ export const DocumentEditorModal: React.FC<Props> = ({
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Ej. Verificado contra cámara de comercio con código de verificación válido."
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900"
+                placeholder="Ej. Soporte revisado y verificado con código de verificación válido."
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-600"
               />
             </div>
 
@@ -289,14 +453,25 @@ export const DocumentEditorModal: React.FC<Props> = ({
                 rows={2}
                 value={justification}
                 onChange={(e) => setJustification(e.target.value)}
-                placeholder="Escriba el motivo institucional de la edición o reemplazo del documento..."
+                placeholder="Escriba el motivo institucional del cargue o certificación del documento..."
                 className="w-full px-3 py-1.5 bg-white rounded border border-blue-300 text-slate-900 text-xs focus:ring-2 focus:ring-blue-600"
                 required
               />
               <p className="text-[10px] text-blue-800">
-                Esta modificación quedará registrada con fecha, hora y firma del usuario <strong>{reviewerName}</strong>.
+                Esta acción quedará registrada con fecha, hora y firma del usuario <strong>{reviewerName}</strong>.
               </p>
             </div>
+
+            {/* Form Validation Error Banner */}
+            {formError && (
+              <div className="p-3 bg-red-50 border border-red-300 rounded-xl text-red-800 text-xs font-semibold flex items-start gap-2.5 animate-in fade-in">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <span className="font-bold block text-red-900">Validación Requerida</span>
+                  <span className="text-red-700 leading-snug">{formError}</span>
+                </div>
+              </div>
+            )}
 
           </div>
 
@@ -314,7 +489,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
               className="px-5 py-2.5 bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-colors border border-blue-700 cursor-pointer"
             >
               <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-              <span>Guardar Cambios del Documento</span>
+              <span>Guardar y Certificar Requisito</span>
             </button>
           </div>
 
