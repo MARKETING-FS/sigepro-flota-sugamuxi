@@ -126,22 +126,22 @@ export function getDossierDocumentExpirationSummary(dossier: SupplierDossier): D
   let totalWithExpiration = 0;
 
   for (const [code, doc] of docs) {
-    if (doc && doc.expirationDate && doc.status !== 'RECHAZADO') {
+    if (doc && (doc.status === 'VENCIDO' || (doc.expirationDate && doc.status !== 'RECHAZADO'))) {
       totalWithExpiration++;
       const exp = calculateDocumentExpiration(doc.expirationDate);
-      if (exp.isExpired) {
+      if (doc.status === 'VENCIDO' || exp.isExpired) {
         expiredDocs.push({
           code: doc.code || code,
           name: doc.name,
-          expirationDate: doc.expirationDate,
-          daysOverdue: Math.abs(exp.daysRemaining),
-          explanation: exp.explanation,
+          expirationDate: doc.expirationDate || 'Vencido',
+          daysOverdue: exp.daysOverdue || Math.abs(exp.daysRemaining) || 1,
+          explanation: exp.explanation || 'Documento clasificado como vencido.',
         });
-      } else if (exp.isExpiringSoon) {
+      } else if (exp.isExpiringSoon || doc.status === 'POR_VENCER') {
         expiringSoonDocs.push({
           code: doc.code || code,
           name: doc.name,
-          expirationDate: doc.expirationDate,
+          expirationDate: doc.expirationDate || 'Por vencer',
           daysRemaining: exp.daysRemaining,
           explanation: exp.explanation,
         });
@@ -284,7 +284,7 @@ export function getCreationStatus(dossier: SupplierDossier): {
   const docs = Object.values(dossier.documents || {});
   const requiredDocs = docs.filter((d) => d.isRequired !== false);
   const total = requiredDocs.length;
-  const approved = requiredDocs.filter((d) => d.status === 'APROBADO').length;
+  const approved = requiredDocs.filter((d) => d.status === 'APROBADO' || d.status === 'VIGENTE' || d.status === 'POR_VENCER').length;
   const requiresCorrection = requiredDocs.filter((d) => d.status === 'REQUIERE_CORRECCION').length;
   const inReview = requiredDocs.filter((d) => d.status === 'EN_REVISION').length;
   const is100Approved = total > 0 && approved === total;

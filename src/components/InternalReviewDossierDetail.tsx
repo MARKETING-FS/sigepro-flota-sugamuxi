@@ -171,7 +171,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   const institutionalDocKeys = ['FS_GA_FOR_009', 'FS_GA_FOR_039'];
   const doc009 = (dossier.documents || {})['FS_GA_FOR_009'];
   const doc039 = (dossier.documents || {})['FS_GA_FOR_039'];
-  const institutionalApprovedCount = [doc009, doc039].filter((d) => d && d.status === 'APROBADO').length;
+  const institutionalApprovedCount = [doc009, doc039].filter((d) => d && (d.status === 'APROBADO' || d.status === 'VIGENTE' || d.status === 'POR_VENCER')).length;
   const institutionalTotalCount = 2;
 
   // Recopilar todos los códigos exigidos por la matriz + cualquier soporte ya adjunto
@@ -246,7 +246,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   });
 
   const mandatorySupportCount = supportDocsList.filter(([_, d]) => d.isRequired).length;
-  const supportApprovedCount = supportDocsList.filter(([_, d]) => d.isRequired && d.status === 'APROBADO').length;
+  const supportApprovedCount = supportDocsList.filter(([_, d]) => d.isRequired && (d.status === 'APROBADO' || d.status === 'VIGENTE' || d.status === 'POR_VENCER')).length;
   const supportTotalCount = mandatorySupportCount;
 
   const totalMandatoryDocs = institutionalTotalCount + mandatorySupportCount;
@@ -1765,10 +1765,14 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
                         <div className="flex flex-wrap items-center gap-2 shrink-0">
                           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                            doc.status === 'APROBADO'
-                              ? 'bg-blue-50 text-blue-800 border-blue-200'
+                            doc.status === 'APROBADO' || doc.status === 'VIGENTE'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              : doc.status === 'POR_VENCER'
+                              ? 'bg-amber-50 text-amber-900 border-amber-300 font-bold'
+                              : doc.status === 'VENCIDO'
+                              ? 'bg-slate-900 text-cyan-300 border-slate-700 font-bold'
                               : doc.status === 'REQUIERE_CORRECCION'
-                              ? 'bg-slate-100 text-slate-800 border-slate-300'
+                              ? 'bg-amber-100 text-amber-900 border-amber-300'
                               : 'bg-slate-100 text-slate-800 border-slate-300'
                           }`}>
                             {doc.status}
@@ -2259,6 +2263,12 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           docCode={editingDocCode}
           document={editingDocObj}
           documentTitle={editingDocTitle}
+          requiresExpirationDate={
+            (documentDefinitions || []).find((d) => d.code === editingDocCode)?.requiresExpirationDate ?? false
+          }
+          validityRule={
+            (documentDefinitions || []).find((d) => d.code === editingDocCode)?.validityRule
+          }
           userRole={role}
           reviewerName={reviewerName}
           onSave={handleSaveDocEdit}

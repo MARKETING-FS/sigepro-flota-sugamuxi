@@ -99,7 +99,10 @@ export type DocumentStatus =
   | 'EN_REVISION'
   | 'APROBADO'
   | 'REQUIERE_CORRECCION'
-  | 'RECHAZADO';
+  | 'RECHAZADO'
+  | 'VIGENTE'
+  | 'POR_VENCER'
+  | 'VENCIDO';
 
 export type DocumentCode =
   | 'FS_GA_FOR_009'

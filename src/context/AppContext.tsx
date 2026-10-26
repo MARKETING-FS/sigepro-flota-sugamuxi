@@ -1760,7 +1760,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           };
 
           const reqDocs = Object.values(updatedDocs).filter((item: any) => item.isRequired !== false);
-          const allApproved = reqDocs.length > 0 && reqDocs.every((item: any) => item.status === 'APROBADO');
+          const allApproved = reqDocs.length > 0 && reqDocs.every((item: any) => item.status === 'APROBADO' || item.status === 'VIGENTE' || item.status === 'POR_VENCER');
           const nextProcessStatus: ProcessStatus = allApproved
             ? 'PROVEEDOR_HABILITADO'
             : (d.processStatus === 'PROVEEDOR_HABILITADO' && !allApproved
@@ -2032,7 +2032,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           // Check if ALL required documents are now approved
           const reqDocs = Object.values(updatedDocs).filter((item: any) => item.isRequired !== false);
-          const allApproved = reqDocs.length > 0 && reqDocs.every((item: any) => item.status === 'APROBADO');
+          const allApproved = reqDocs.length > 0 && reqDocs.every((item: any) => item.status === 'APROBADO' || item.status === 'VIGENTE' || item.status === 'POR_VENCER');
           becameFullyApproved = allApproved;
 
           const nextProcessStatus: ProcessStatus = allApproved
