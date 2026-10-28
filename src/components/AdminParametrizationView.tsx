@@ -776,10 +776,10 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
           El módulo de Parametrización Central está reservado exclusivamente para el perfil de <strong>Administrador General</strong> de Flota Sugamuxi S.A.
         </p>
         <button
-          onClick={() => setActiveView(role === 'PROVEEDOR' ? 'onboarding' : 'revisores')}
+          onClick={() => setActiveView('revisores')}
           className="mt-4 px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
         >
-          {role === 'PROVEEDOR' ? 'Volver a Proveedores' : 'Ir al Dashboard Ejecutivo'}
+          Ir al Dashboard Ejecutivo
         </button>
       </div>
     );

@@ -1,35 +1,28 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { SystemUser, SupplierDossier } from '../types';
+import { SystemUser } from '../types';
 import { FlotaSugamuxiEmblem } from './FlotaSugamuxiLogo';
 import {
   ShieldCheck,
-  Building2,
   Lock,
   Mail,
   Eye,
   EyeOff,
   CheckCircle2,
   AlertCircle,
-  FileText,
   Sparkles,
   ArrowLeft,
-  Search,
   ChevronRight,
-  Clock,
-  User,
   Briefcase,
   BarChart3,
 } from 'lucide-react';
 
 interface CorporateLoginViewProps {
-  onOpenRegisterModal?: () => void;
   onOpenHabeasDataModal?: () => void;
   onBackToApp?: () => void;
 }
 
 export const CorporateLoginView: React.FC<CorporateLoginViewProps> = ({
-  onOpenRegisterModal,
   onBackToApp,
 }) => {
   const {
@@ -38,18 +31,10 @@ export const CorporateLoginView: React.FC<CorporateLoginViewProps> = ({
     activeUserId,
     setActiveUserId,
     systemUsers,
-    allDossiers,
-    currentDossierId,
-    setCurrentDossierId,
-    supplierLogin,
     setActiveView,
     showToast,
     toggleTheme,
-    setSupplierPortalTab,
   } = useApp();
-
-  // Mode: 'corporate' (Personal Corporativo) or 'supplier' (Portal de Proveedores)
-  const [activePortalTab, setActivePortalTab] = useState<'corporate' | 'supplier'>('corporate');
 
   // Corporate login form state
   const [corporateEmail, setCorporateEmail] = useState('auxsistemas@flotasugamuxisa.com.co');
@@ -57,29 +42,6 @@ export const CorporateLoginView: React.FC<CorporateLoginViewProps> = ({
   const [showCorporatePassword, setShowCorporatePassword] = useState(false);
   const [corporateError, setCorporateError] = useState('');
   const [isCorporateLoading, setIsCorporateLoading] = useState(false);
-
-  // Supplier login form state
-  const [supplierSearch, setSupplierSearch] = useState('');
-  const [supplierIdentifier, setSupplierIdentifier] = useState('');
-  const [supplierCode, setSupplierCode] = useState('');
-  const [supplierError, setSupplierError] = useState('');
-  const [isSupplierLoading, setIsSupplierLoading] = useState(false);
-  const [showManualSupplierInput, setShowManualSupplierInput] = useState(false);
-
-  // Filtered suppliers for quick 1-click login
-  const filteredSuppliers = useMemo(() => {
-    if (!supplierSearch.trim()) return allDossiers;
-    const q = supplierSearch.toLowerCase().trim();
-    return allDossiers.filter((d) => {
-      const name = (
-        d.supplierType === 'NATURAL' ? d.basicInfo.fullName : d.basicInfo.companyName
-      ).toLowerCase();
-      const nit = (d.basicInfo.nit || '').toLowerCase();
-      const doc = (d.basicInfo.documentNumber || '').toLowerCase();
-      const file = (d.fileNumber || '').toLowerCase();
-      return name.includes(q) || nit.includes(q) || doc.includes(q) || file.includes(q);
-    });
-  }, [allDossiers, supplierSearch]);
 
   // Handle corporate standard login
   const handleCorporateLogin = (e: React.FormEvent) => {
@@ -130,79 +92,6 @@ export const CorporateLoginView: React.FC<CorporateLoginViewProps> = ({
       showToast(`Sesión autorizada: ${user.name} (${user.shortName})`, 'success', 'ACCESO CORPORATIVO');
       setActiveView('revisores');
     }, 200);
-  };
-
-  // 1-Click login as a specific supplier from the list
-  const handleSelectSupplierDossier = (dossier: SupplierDossier) => {
-    setCurrentDossierId(dossier.id);
-    supplierLogin(dossier.fileNumber, '123456');
-    setRole('PROVEEDOR');
-    setSupplierPortalTab('login');
-    const name =
-      dossier.supplierType === 'NATURAL'
-        ? dossier.basicInfo.fullName
-        : dossier.basicInfo.companyName;
-
-    showToast(`Expediente ${dossier.fileNumber} cargado. Bienvenido, ${name}.`, 'success', 'PORTAL PROVEEDORES');
-    setActiveView('onboarding');
-  };
-
-  // Manual supplier login
-  const handleSupplierManualLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSupplierError('');
-
-    if (!supplierIdentifier.trim()) {
-      setSupplierError('Ingrese su NIT, Cédula o Número de Radicado.');
-      return;
-    }
-
-    setIsSupplierLoading(true);
-
-    setTimeout(() => {
-      setIsSupplierLoading(false);
-      const res = supplierLogin(supplierIdentifier, supplierCode);
-      if (res.success) {
-        setRole('PROVEEDOR');
-        setSupplierPortalTab('login');
-        showToast(res.message, 'success', 'PORTAL PROVEEDORES');
-        setActiveView('onboarding');
-      } else {
-        setSupplierError(res.message);
-      }
-    }, 300);
-  };
-
-  // Render badge for supplier status
-  const renderStatusBadge = (status: string) => {
-    switch (status) {
-      case 'HABILITADO':
-        return (
-          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1 shrink-0">
-            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" /> Habilitado
-          </span>
-        );
-      case 'EN_REVISION':
-      case 'CORREGIDO_EN_REVISION':
-      case 'LISTO_PARA_ENVIO':
-        return (
-          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800 flex items-center gap-1 shrink-0">
-            <Clock className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" /> En Revisión
-          </span>
-        );
-      case 'REQUIERE_CORRECCION':
-        return (
-          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1 shrink-0">
-            <AlertCircle className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" /> Corrección
-          </span>
-        );
-      default:
-        return (
-          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 flex items-center gap-1 shrink-0">
-            <FileText className="w-2.5 h-2.5 text-slate-500" /> Trámite
-          </span>
-        );
-    }
   };
 
   return (
@@ -349,52 +238,15 @@ export const CorporateLoginView: React.FC<CorporateLoginViewProps> = ({
             {/* Title & Subtitle */}
             <div className="text-center space-y-0.5 mb-3">
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {activePortalTab === 'corporate' ? 'Acceso Corporativo' : 'Portal de Proveedores'}
+                Acceso Corporativo
               </h2>
               <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-light">
-                {activePortalTab === 'corporate'
-                  ? 'Ingrese con sus credenciales institucionales de SIGEPRO'
-                  : 'Seleccione su expediente o ingrese sus credenciales de proveedor'}
+                Ingrese con sus credenciales institucionales de SIGEPRO
               </p>
             </div>
-
-            {/* Portal Switcher Tabs (Pills style) */}
-            <div className="flex items-center justify-center gap-1.5 mb-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setActivePortalTab('corporate');
-                  setCorporateError('');
-                }}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
-                  activePortalTab === 'corporate'
-                    ? 'bg-[#0a2368] text-white shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                }`}
-              >
-                Personal Corporativo
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActivePortalTab('supplier');
-                  setSupplierError('');
-                }}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
-                  activePortalTab === 'supplier'
-                    ? 'bg-[#0a2368] text-white shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                }`}
-              >
-                Portal de Proveedores
-              </button>
-            </div>
-
             {/* ======================================================== */}
             {/* PESTAÑA 1: PERSONAL CORPORATIVO                          */}
             {/* ======================================================== */}
-            {activePortalTab === 'corporate' && (
               <div className="space-y-3">
                 
                 {/* Quick 1-Click Role Pills (like in the screenshot) */}
@@ -498,128 +350,7 @@ export const CorporateLoginView: React.FC<CorporateLoginViewProps> = ({
                 </form>
 
               </div>
-            )}
 
-            {/* ======================================================== */}
-            {/* PESTAÑA 2: PORTAL DE PROVEEDORES (LISTADO 1-CLICK)        */}
-            {/* ======================================================== */}
-            {activePortalTab === 'supplier' && (
-              <div className="space-y-2.5">
-                
-                {/* Search Bar + Register Button */}
-                <div className="flex items-center gap-1.5">
-                  <div className="relative flex-1">
-                    <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={supplierSearch}
-                      onChange={(e) => setSupplierSearch(e.target.value)}
-                      placeholder="Buscar por NIT, nombre..."
-                      className="w-full pl-8 pr-2.5 py-1.5 bg-[#edf3fc] dark:bg-slate-900/90 border border-blue-100 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-600"
-                    />
-                  </div>
-
-                  {onOpenRegisterModal && (
-                    <button
-                      onClick={onOpenRegisterModal}
-                      className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs"
-                    >
-                      + Inscribir
-                    </button>
-                  )}
-                </div>
-
-                {/* List of Registered Suppliers for 1-Click login */}
-                <div className="max-h-36 xl:max-h-44 overflow-y-auto space-y-1 pr-1 border border-slate-200 dark:border-slate-800 rounded-xl p-1 bg-slate-50/50 dark:bg-slate-900/40">
-                  {filteredSuppliers.length === 0 ? (
-                    <div className="p-4 text-center text-xs text-slate-400">
-                      No se encontraron proveedores coincidentes.
-                    </div>
-                  ) : (
-                    filteredSuppliers.map((d) => {
-                      const isNatural = d.supplierType === 'NATURAL';
-                      const name = isNatural ? d.basicInfo.fullName : d.basicInfo.companyName;
-                      const idNum = isNatural ? d.basicInfo.documentNumber : d.basicInfo.nit;
-                      const isCurrent = d.id === currentDossierId && role === 'PROVEEDOR';
-
-                      return (
-                        <button
-                          key={d.id}
-                          type="button"
-                          onClick={() => handleSelectSupplierDossier(d)}
-                          className={`w-full text-left p-2 rounded-lg transition-all flex items-center justify-between gap-2 cursor-pointer border ${
-                            isCurrent
-                              ? 'bg-blue-50 dark:bg-blue-950/70 border-blue-400 dark:border-blue-700 shadow-2xs'
-                              : 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/80 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/30'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0a2368] dark:text-[#38bdf8] border border-blue-200 dark:border-blue-800 flex items-center justify-center shrink-0">
-                              {isNatural ? <User className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                                  {name}
-                                </span>
-                                <span className="text-[9px] font-mono text-blue-700 dark:text-[#38bdf8] font-bold shrink-0">
-                                  {d.fileNumber}
-                                </span>
-                              </div>
-                              <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-mono">
-                                {isNatural ? 'CC' : 'NIT'}: {idNum}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="shrink-0 flex items-center gap-1">
-                            {renderStatusBadge(d.processStatus)}
-                            <ChevronRight className="w-3 h-3 text-slate-400" />
-                          </div>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Manual Input Toggle */}
-                <div className="pt-1.5 border-t border-slate-100 dark:border-slate-800/80">
-                  <button
-                    type="button"
-                    onClick={() => setShowManualSupplierInput(!showManualSupplierInput)}
-                    className="text-[11px] text-[#0a2368] dark:text-[#38bdf8] hover:underline font-bold cursor-pointer"
-                  >
-                    {showManualSupplierInput ? 'Ocultar ingreso manual' : '¿Ingresar con NIT o Radicado manualmente?'}
-                  </button>
-
-                  {showManualSupplierInput && (
-                    <form onSubmit={handleSupplierManualLogin} className="mt-1.5 space-y-1.5 p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
-                      {supplierError && (
-                        <div className="p-1.5 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 rounded text-[11px] text-red-700 dark:text-red-300">
-                          {supplierError}
-                        </div>
-                      )}
-                      <input
-                        type="text"
-                        value={supplierIdentifier}
-                        onChange={(e) => setSupplierIdentifier(e.target.value)}
-                        placeholder="NIT, Cédula o No. Radicado"
-                        className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-900 dark:text-white font-mono"
-                      />
-                      <button
-                        type="submit"
-                        disabled={isSupplierLoading}
-                        className="w-full py-1.5 bg-[#0a2368] hover:bg-[#07194d] text-white rounded text-xs font-bold transition-all cursor-pointer"
-                      >
-                        {isSupplierLoading ? 'Consultando...' : 'Consultar Expediente'}
-                      </button>
-                    </form>
-                  )}
-                </div>
-
-              </div>
-            )}
 
             {/* Bottom Security Guarantee (green icon like screenshot) */}
             <div className="pt-2.5 mt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400">

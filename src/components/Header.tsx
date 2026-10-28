@@ -65,34 +65,12 @@ export const Header: React.FC<Props> = ({
         tagBg: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700',
       };
     }
-    if (role === 'REVISOR') {
-      return {
-        initials: activeUser.avatarText || 'R1',
-        name: activeUser.name,
-        roleLabel: `REVISOR (${activeUser.shortName})`,
-        bg: 'bg-[#1e293b] dark:bg-blue-950 text-white dark:text-blue-200 border dark:border-blue-800/60',
-        tagBg: 'bg-blue-50 dark:bg-blue-900/40 text-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-800',
-      };
-    }
-    const name = currentDossier
-      ? currentDossier.basicInfo.supplierType === 'NATURAL'
-        ? currentDossier.basicInfo.fullName
-        : currentDossier.basicInfo.companyName
-      : 'Aspirante Público';
-    
-    const initials = name
-      .split(' ')
-      .slice(0, 2)
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase() || 'PR';
-
     return {
-      initials,
-      name,
-      roleLabel: 'PROVEEDOR',
-      bg: 'bg-blue-900 dark:bg-blue-800 text-white',
-      tagBg: 'bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+      initials: activeUser.avatarText || 'R1',
+      name: activeUser.name,
+      roleLabel: `REVISOR (${activeUser.shortName})`,
+      bg: 'bg-[#1e293b] dark:bg-blue-950 text-white dark:text-blue-200 border dark:border-blue-800/60',
+      tagBg: 'bg-blue-50 dark:bg-blue-900/40 text-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-800',
     };
   };
 

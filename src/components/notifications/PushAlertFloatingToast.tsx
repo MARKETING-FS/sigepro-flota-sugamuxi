@@ -23,7 +23,6 @@ export const PushAlertFloatingToast: React.FC = () => {
     currentDossierId,
     setActiveView,
     setReviewSelectedDossierId,
-    setSupplierPortalTab,
   } = useApp();
 
   const [isVisible, setIsVisible] = useState(false);
@@ -72,13 +71,8 @@ export const PushAlertFloatingToast: React.FC = () => {
     setIsVisible(false);
     if (!topAlert) return;
 
-    if (role === 'PROVEEDOR') {
-      setActiveView('onboarding');
-      setSupplierPortalTab('login');
-    } else {
-      setReviewSelectedDossierId(topAlert.dossierId);
-      setActiveView('revisores');
-    }
+    setReviewSelectedDossierId(topAlert.dossierId);
+    setActiveView('revisores');
   };
 
   return (

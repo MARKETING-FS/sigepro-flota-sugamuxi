@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
-import { SupplierOnboardingDashboard } from './components/SupplierOnboardingDashboard';
 import { InternalReviewView } from './components/InternalReviewView';
 import { InstitutionalFormsAdmin } from './components/InstitutionalFormsAdmin';
 import { BancoProveedoresView } from './components/BancoProveedoresView';
 import { AuditLogView } from './components/AuditLogView';
-import { SupplierRegisterModal } from './components/SupplierRegisterModal';
-import { EmailVerificationModal } from './components/EmailVerificationModal';
 import { ExcelReportsView } from './components/ExcelReportsView';
 import { AdminRegisterSupplierView } from './components/AdminRegisterSupplierView';
 import { AdminParametrizationView } from './components/AdminParametrizationView';
@@ -18,40 +15,19 @@ import { ToastNotification } from './components/ToastNotification';
 import { PushAlertFloatingToast } from './components/notifications/PushAlertFloatingToast';
 import {
   ShieldCheck,
-  Building2,
-  FileText,
-  Mail,
-  Phone,
-  MapPin,
-  CheckCircle2,
-  HelpCircle,
-  Clock,
   Lock,
   X,
-  UserPlus,
 } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const {
     activeView,
     setActiveView,
-    currentDossier,
     role,
-    isSupplierLoggedIn,
-    supplierPortalTab,
-    setSupplierPortalTab,
-    supplierLogout,
-    showToast,
   } = useApp();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-  const [isEmailVerifyModalOpen, setIsEmailVerifyModalOpen] = useState(false);
-  const [pendingVerifyDossierId, setPendingVerifyDossierId] = useState<string | null>(null);
-  const [pendingEmail, setPendingEmail] = useState('');
-  const [simulatedCode, setSimulatedCode] = useState('849201');
 
   // Habeas Data Modal
   const [isHabeasDataOpen, setIsHabeasDataOpen] = useState(false);
@@ -65,33 +41,11 @@ const MainLayout: React.FC = () => {
     if (document.body) {
       document.body.scrollTop = 0;
     }
-  }, [activeView, supplierPortalTab]);
+  }, [activeView]);
 
-  // For 'Revisor Técnico' and 'Administrador General' roles, do not show 'Inicio / Bienvenida' (onboarding); redirect directly to 'revisores' (Dashboard Ejecutivo)
-  useEffect(() => {
-    if ((role === 'REVISOR' || role === 'ADMIN') && activeView === 'onboarding') {
-      setActiveView('revisores');
-    }
-  }, [role, activeView, setActiveView]);
-
+  // Registrar proveedor: lo hace el personal interno desde su propio módulo
   const handleOpenRegister = () => {
-    if (role === 'PROVEEDOR' && isSupplierLoggedIn) {
-      showToast('Su expediente ya se encuentra registrado y activo.', 'info', 'SESIÓN INICIADA');
-      return;
-    }
-    setIsRegisterModalOpen(true);
-  };
-
-  const handleRegisteredSuccess = (dossierId: string, email: string, code: string) => {
-    setIsRegisterModalOpen(false);
-    setPendingVerifyDossierId(dossierId);
-    setPendingEmail(email);
-    setSimulatedCode(code);
-    setIsEmailVerifyModalOpen(true);
-  };
-
-  const handleVerifiedSuccess = () => {
-    setIsEmailVerifyModalOpen(false);
+    setActiveView('registrarProveedor');
   };
 
   // Full-page Corporate Login View
@@ -101,24 +55,8 @@ const MainLayout: React.FC = () => {
         <ToastNotification />
         <PushAlertFloatingToast />
         <CorporateLoginView
-          onOpenRegisterModal={handleOpenRegister}
           onOpenHabeasDataModal={() => setIsHabeasDataOpen(true)}
-          onBackToApp={() => setActiveView(role === 'PROVEEDOR' ? 'onboarding' : 'revisores')}
-        />
-        {/* Registration Modal */}
-        <SupplierRegisterModal
-          isOpen={isRegisterModalOpen}
-          onClose={() => setIsRegisterModalOpen(false)}
-          onRegisteredSuccess={handleRegisteredSuccess}
-        />
-        {/* Email Verification Modal */}
-        <EmailVerificationModal
-          isOpen={isEmailVerifyModalOpen}
-          onClose={() => setIsEmailVerifyModalOpen(false)}
-          dossierId={pendingVerifyDossierId}
-          targetEmail={pendingEmail}
-          simulatedCode={simulatedCode}
-          onVerifiedSuccess={handleVerifiedSuccess}
+          onBackToApp={() => setActiveView('revisores')}
         />
       </div>
     );
@@ -175,115 +113,10 @@ const MainLayout: React.FC = () => {
           onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
 
-        {/* Email Verification Banner if unverified */}
-        {currentDossier && !currentDossier.isEmailVerified && activeView === 'onboarding' && (role !== 'PROVEEDOR' || isSupplierLoggedIn) && (
-          <div className="bg-[#0b1329] text-cyan-300 px-4 py-2 text-xs font-semibold shadow-xs border-b border-blue-900">
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-slate-200">
-                <Mail className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>
-                  Su correo <strong className="underline font-bold text-cyan-300">{currentDossier.basicInfo.email}</strong> está pendiente de confirmación de seguridad para radicación.
-                </span>
-              </div>
-              <button
-                onClick={() => {
-                  setPendingVerifyDossierId(currentDossier.id);
-                  setPendingEmail(currentDossier.basicInfo.email);
-                  setSimulatedCode(currentDossier.emailVerificationCode || '849201');
-                  setIsEmailVerifyModalOpen(true);
-                }}
-                className="px-3 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded font-bold text-[11px] transition-colors self-start sm:self-auto cursor-pointer shadow-2xs border border-blue-500"
-              >
-                Ingresar código de verificación
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Dynamic Views */}
         <main className="flex-1 pb-10">
-          {activeView === 'onboarding' && <SupplierOnboardingDashboard />}
-          {activeView === 'registrarProveedor' && (
-            role === 'PROVEEDOR' ? (
-              isSupplierLoggedIn ? (
-                <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                    <Lock className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Sesión de Proveedor Activa</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                    Usted ya cuenta con una sesión iniciada con el expediente{' '}
-                    <strong className="text-blue-600 dark:text-cyan-400 font-mono">
-                      {currentDossier?.fileNumber || ''}
-                    </strong>
-                    . Para registrar una nueva empresa o persona natural como proveedor, debe cerrar la sesión actual.
-                  </p>
-                  <div className="mt-5 flex items-center justify-center gap-3 flex-wrap">
-                    <button
-                      onClick={() => {
-                        setActiveView('onboarding');
-                        setSupplierPortalTab('login');
-                      }}
-                      className="px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs"
-                    >
-                      Volver a Mi Expediente SIG
-                    </button>
-                    <button
-                      onClick={() => {
-                        supplierLogout();
-                        setIsRegisterModalOpen(true);
-                      }}
-                      className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-2xs"
-                    >
-                      Cerrar Sesión y Registrar Nuevo Proveedor
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                    <UserPlus className="w-6 h-6 text-blue-600 dark:text-cyan-400" />
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Registro de Proveedores - Flota Sugamuxi S.A.</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                    Inicie el proceso de vinculación oficial diligenciando el formulario de inscripción inicial para obtener su número de radicado SIG.
-                  </p>
-                  <div className="mt-5 flex items-center justify-center gap-3">
-                    <button
-                      onClick={() => setIsRegisterModalOpen(true)}
-                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
-                    >
-                      <UserPlus className="w-4 h-4" />
-                      <span>Abrir Formulario de Inscripción</span>
-                    </button>
-                  </div>
-                </div>
-              )
-            ) : (
-              <AdminRegisterSupplierView />
-            )
-          )}
-          {activeView === 'bancoProveedores' && (
-            role === 'PROVEEDOR' ? (
-              <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulo Restringido por Seguridad</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                  El Banco de Proveedores Oficiales y la información de auditoría contienen datos confidenciales protegidos bajo la Ley 1581 de 2012 y están reservados exclusivamente para el equipo evaluador interno de Flota Sugamuxi S.A.
-                </p>
-                <button
-                  onClick={() => setActiveView('onboarding')}
-                  className="mt-4 px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
-                >
-                  Volver a Proveedores
-                </button>
-              </div>
-            ) : (
-              <BancoProveedoresView />
-            )
-          )}
+          {activeView === 'registrarProveedor' && <AdminRegisterSupplierView />}
+          {activeView === 'bancoProveedores' && <BancoProveedoresView />}
           {activeView === 'convocatorias' && (
             <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
               <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center mx-auto mb-3">
@@ -294,119 +127,39 @@ const MainLayout: React.FC = () => {
                 El módulo de convocatorias se encuentra temporalmente inhabilitado según directrices institucionales de Flota Sugamuxi S.A.
               </p>
               <button
-                onClick={() => setActiveView('onboarding')}
+                onClick={() => setActiveView('revisores')}
                 className="mt-4 px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
               >
                 Volver al Panel Principal
               </button>
             </div>
           )}
-          {activeView === 'revisores' && (
-            role === 'PROVEEDOR' ? (
-              <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulo Restringido por Seguridad</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                  El módulo de Auditoría y Revisión Documental está reservado para Evaluadores Técnicos SIG y Administradores de Flota Sugamuxi S.A.
-                </p>
-                <button
-                  onClick={() => setActiveView('onboarding')}
-                  className="mt-4 px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
-                >
-                  Volver a Proveedores
-                </button>
-              </div>
-            ) : (
-              <InternalReviewView />
-            )
-          )}
-          {activeView === 'adminForms' && (
-            role === 'PROVEEDOR' ? (
-              <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulo Restringido</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                  La administración de versiones de Formatos Institucionales SIG está reservada para el personal interno de Flota Sugamuxi S.A.
-                </p>
-                <button
-                  onClick={() => setActiveView('onboarding')}
-                  className="mt-4 px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
-                >
-                  Volver a Proveedores
-                </button>
-              </div>
-            ) : (
-              <InstitutionalFormsAdmin />
-            )
-          )}
+          {activeView === 'revisores' && <InternalReviewView />}
+          {activeView === 'adminForms' && <InstitutionalFormsAdmin />}
           {(activeView === 'parametrizacion' || activeView === 'documentMatrix') && (
             role !== 'ADMIN' ? (
-              <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Acceso Exclusivo de Administrador General</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                  El proceso de parametrización del sistema y métodos de evaluación solo puede ser realizado por el Administrador General de Flota Sugamuxi S.A.
-                </p>
-                <button
-                  onClick={() => setActiveView(role === 'PROVEEDOR' ? 'onboarding' : 'revisores')}
-                  className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
-                >
-                  {role === 'PROVEEDOR' ? 'Volver a Inicio / Proveedores' : 'Ir al Dashboard Ejecutivo'}
-                </button>
+            <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
+                <Lock className="w-6 h-6" />
               </div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Acceso Exclusivo de Administrador General</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
+                El proceso de parametrización del sistema y métodos de evaluación solo puede ser realizado por el Administrador General de Flota Sugamuxi S.A.
+              </p>
+              <button
+                onClick={() => setActiveView('revisores')}
+                className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+              >
+                Ir al Dashboard Ejecutivo
+              </button>
+            </div>
             ) : (
               activeView === 'documentMatrix' ? <AdminParametrizationView initialTab="matrix_base" /> : <AdminParametrizationView />
             )
           )}
-          {activeView === 'evaluaciones' && (
-            role === 'PROVEEDOR' ? (
-              <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulo Restringido a Evaluadores SIG</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                  El Sistema de Calificación Inicial y Desempeño Anual está reservado para el cuerpo de Revisores Técnicos y Administradores de Flota Sugamuxi S.A.
-                </p>
-                <button
-                  onClick={() => setActiveView('onboarding')}
-                  className="mt-4 px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
-                >
-                  Volver a Proveedores
-                </button>
-              </div>
-            ) : (
-              <SupplierEvaluationsView />
-            )
-          )}
+          {activeView === 'evaluaciones' && <SupplierEvaluationsView />}
           {activeView === 'auditoria' && <AuditLogView />}
-          {activeView === 'informesExcel' && (
-            role === 'PROVEEDOR' ? (
-              <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulo Restringido</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                  La exportación de informes consolidados en Excel contiene datos confidenciales y está reservada para personal administrativo y evaluador de Flota Sugamuxi S.A.
-                </p>
-                <button
-                  onClick={() => setActiveView('onboarding')}
-                  className="mt-4 px-4 py-2 bg-[#0b1329] dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
-                >
-                  Volver a Proveedores
-                </button>
-              </div>
-            ) : (
-              <ExcelReportsView />
-            )
-          )}
+          {activeView === 'informesExcel' && <ExcelReportsView />}
         </main>
 
         {/* Institutional Footer */}
@@ -441,23 +194,6 @@ const MainLayout: React.FC = () => {
         </footer>
 
       </div>
-
-      {/* Registration Modal */}
-      <SupplierRegisterModal
-        isOpen={isRegisterModalOpen}
-        onClose={() => setIsRegisterModalOpen(false)}
-        onRegisteredSuccess={handleRegisteredSuccess}
-      />
-
-      {/* Email Verification Modal */}
-      <EmailVerificationModal
-        isOpen={isEmailVerifyModalOpen}
-        onClose={() => setIsEmailVerifyModalOpen(false)}
-        dossierId={pendingVerifyDossierId}
-        targetEmail={pendingEmail}
-        simulatedCode={simulatedCode}
-        onVerifiedSuccess={handleVerifiedSuccess}
-      />
 
       {/* Habeas Data Modal */}
       {isHabeasDataOpen && (

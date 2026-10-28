@@ -3,7 +3,6 @@ import { useApp } from '../context/AppContext';
 import { UserRole, AppView } from '../types';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
 import {
-  Home,
   UserPlus,
   Search,
   Users,
@@ -22,7 +21,6 @@ import {
   HelpCircle,
   ExternalLink,
   Building2,
-  FileCheck,
   LogIn,
   SlidersHorizontal,
   Award,
@@ -51,11 +49,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     allDossiers,
     activeView,
     setActiveView,
-    currentDossier,
-    isSupplierLoggedIn,
-    supplierPortalTab,
-    setSupplierPortalTab,
-    supplierLogout,
     setReviewSelectedDossierId,
     showToast,
   } = useApp();
@@ -71,17 +64,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       'info',
       'CAMBIO DE ROL'
     );
-    if (newRole === 'PROVEEDOR') {
-      setActiveView('onboarding');
-    } else {
-      setActiveView('revisores');
-    }
+    setActiveView('revisores');
   };
 
   const getRoleDisplayName = (r: UserRole) => {
     switch (r) {
-      case 'PROVEEDOR':
-        return 'Aspirante / Proveedor';
       case 'REVISOR':
         return 'Revisor Técnico Evaluador';
       case 'ADMIN':
@@ -91,15 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const getActiveEmail = () => {
     if (role === 'ADMIN') return 'auxsistemas@flotasugamuxisa.com.co';
-    if (role === 'REVISOR') return activeUser?.email || 'evaluador.sig@flotasugamuxisa.com.co';
-    if (role === 'PROVEEDOR') {
-      if (isSupplierLoggedIn && currentDossier) {
-        return currentDossier.basicInfo.email;
-      }
-      return 'Sin sesión activa';
-    }
-    if (currentDossier) return currentDossier.basicInfo.email;
-    return 'Sin sesión corporativa';
+    return activeUser?.email || 'evaluador.sig@flotasugamuxisa.com.co';
   };
 
   return (
@@ -176,15 +155,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Dropdown Options */}
             {isRoleDropdownOpen && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-[#121c38] border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50 py-1 divide-y divide-slate-800/60">
-                <button
-                  onClick={() => handleRoleChange('PROVEEDOR')}
-                  className={`w-full px-2.5 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-slate-800 transition-colors ${
-                    role === 'PROVEEDOR' ? 'bg-blue-900/40 text-cyan-300 font-bold' : 'text-slate-300'
-                  }`}
-                >
-                  <User className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Aspirante / Proveedor</span>
-                </button>
                 <button
                   onClick={() => handleRoleChange('REVISOR')}
                   className={`w-full px-2.5 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-slate-800 transition-colors ${
@@ -270,7 +240,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ) : (
         <div className="p-2 border-b border-slate-800/60 flex flex-col items-center gap-1 shrink-0">
           <button
-            onClick={() => handleRoleChange(role === 'PROVEEDOR' ? 'REVISOR' : role === 'REVISOR' ? 'ADMIN' : 'PROVEEDOR')}
+            onClick={() => handleRoleChange(role === 'REVISOR' ? 'ADMIN' : 'REVISOR')}
             className={`w-9 h-9 rounded-lg flex items-center justify-center text-white ${
               role === 'ADMIN'
                 ? 'bg-slate-800 border border-slate-700 text-cyan-300'
@@ -306,137 +276,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* 3. Navigation Links List */}
       <div className="flex-1 flex flex-col justify-start py-3 px-2 overflow-y-auto min-h-0 text-xs scrollbar-thin scrollbar-thumb-slate-800 space-y-3">
         
-        {/* === SECTION FOR PROVEEDOR === */}
-        {role === 'PROVEEDOR' && (
-          <div className="space-y-1 flex flex-col justify-start">
-            {!isCollapsed && (
-              <div className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
-                {isSupplierLoggedIn ? 'MI CUENTA DE PROVEEDOR' : 'PORTAL DE PROVEEDORES'}
-              </div>
-            )}
-
-            {/* 1. Inicio / Bienvenida */}
-            <button
-              onClick={() => {
-                setActiveView('onboarding');
-                setSupplierPortalTab('welcome');
-              }}
-              className={`w-full flex items-center ${
-                isCollapsed ? 'justify-center px-0 py-2' : 'justify-start gap-2.5 px-2.5 py-2'
-              } rounded-lg font-medium transition-all ${
-                activeView === 'onboarding' && supplierPortalTab === 'welcome'
-                  ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                  : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-              }`}
-              title="Inicio / Bienvenida"
-            >
-              <Home
-                className={`w-4 h-4 shrink-0 ${
-                  activeView === 'onboarding' && supplierPortalTab === 'welcome' ? 'text-cyan-400' : 'text-blue-400'
-                }`}
-              />
-              {!isCollapsed && <span className="truncate">Inicio / Bienvenida</span>}
-            </button>
-
-            {/* 2. Mi Expediente SIG (Añadido y separado para el proveedor autenticado) */}
-            {isSupplierLoggedIn && (
-              <button
-                onClick={() => {
-                  setActiveView('onboarding');
-                  setSupplierPortalTab('login');
-                }}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all ${
-                  activeView === 'onboarding' && supplierPortalTab !== 'welcome' && supplierPortalTab !== 'register'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Mi Expediente SIG y Radicado"
-              >
-                <FileCheck
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'onboarding' && supplierPortalTab !== 'welcome' && supplierPortalTab !== 'register'
-                      ? 'text-cyan-400'
-                      : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Mi Expediente SIG</span>}
-              </button>
-            )}
-
-
-
-            {/* 3. Registrar Proveedor (Oculto estrictamente si ya inició sesión como proveedor) */}
-            {!isSupplierLoggedIn && (
-              <button
-                onClick={() => {
-                  setActiveView('onboarding');
-                  setSupplierPortalTab('register');
-                }}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all ${
-                  activeView === 'onboarding' && supplierPortalTab === 'register'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Registrar Proveedor"
-              >
-                <UserPlus
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'onboarding' && supplierPortalTab === 'register' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Registrar Proveedor</span>}
-              </button>
-            )}
-
-            {/* 4. Ingreso / Consultar Estado Proveedor (Oculto si ya inició sesión como proveedor) */}
-            {!isSupplierLoggedIn && (
-              <button
-                onClick={() => {
-                  setActiveView('onboarding');
-                  setSupplierPortalTab('login');
-                }}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all ${
-                  activeView === 'onboarding' && supplierPortalTab !== 'welcome' && supplierPortalTab !== 'register'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Ingreso / Consultar Estado Proveedor"
-              >
-                <LogIn
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'onboarding' && supplierPortalTab !== 'welcome' && supplierPortalTab !== 'register'
-                      ? 'text-cyan-400'
-                      : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Ingreso / Consultar Proveedor</span>}
-              </button>
-            )}
-
-
-
-            {/* If logged in as supplier, show quick logout / change supplier */}
-            {isSupplierLoggedIn && (
-              <button
-                onClick={() => supplierLogout()}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 border border-slate-700/60 transition-all text-xs cursor-pointer mt-1`}
-                title="Cerrar sesión del aspirante"
-              >
-                <LogIn className="w-4 h-4 shrink-0 rotate-180 text-cyan-400" />
-                {!isCollapsed && <span className="truncate">Cerrar Sesión</span>}
-              </button>
-            )}
-          </div>
-        )}
-
         {/* === SECTION FOR REVISOR & ADMIN === */}
         {(role === 'REVISOR' || role === 'ADMIN') && (
           <>

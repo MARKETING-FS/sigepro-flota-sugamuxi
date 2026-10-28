@@ -17,7 +17,6 @@ import {
   EmailNotificationType,
   AdminCreateSupplierInput,
   DocumentDefinition,
-  SupplierPortalTab,
   PersonTypeBaseRequirementConfig,
   DocumentRequirementOrigin,
   SupplierType,
@@ -171,22 +170,8 @@ interface AppContextType {
   clearAllEmails: () => void;
   isEmailVerified: boolean;
 
-  // Supplier Authentication & Session Actions
-  isSupplierLoggedIn: boolean;
-  supplierPortalTab: SupplierPortalTab;
-  setSupplierPortalTab: (tab: SupplierPortalTab) => void;
-  supplierLogin: (identifier: string, accessCode?: string) => { success: boolean; message: string; dossier?: SupplierDossier };
-  supplierLogout: () => void;
-
   // Supplier Actions
-  registerSupplier: (
-    info: SupplierBasicInfo,
-    password?: string,
-    assignedReviewerId?: string,
-    assignedReviewerName?: string
-  ) => { dossierId: string; fileNumber: string; verificationCode: string };
   createSupplierAdmin: (input: AdminCreateSupplierInput) => SupplierDossier;
-  verifySupplierEmail: (dossierId: string, code: string) => boolean;
   updateBasicInfo: (dossierId: string, info: Partial<SupplierBasicInfo>, category?: string, activity?: string) => void;
   uploadDocument: (dossierId: string, docCode: string, file: { name: string; size: string; customUrl?: string }) => void;
   removeDocument: (dossierId: string, docCode: string) => void;
@@ -311,7 +296,6 @@ const LOCAL_STORAGE_KEY_ACTIVE_VIEW = 'flota_sugamuxi_active_view_v1';
 const LOCAL_STORAGE_KEY_CATEGORIES = 'flota_sugamuxi_categories_v3';
 const LOCAL_STORAGE_KEY_DOC_DEFINITIONS = 'flota_sugamuxi_doc_definitions_v3';
 const LOCAL_STORAGE_KEY_BASE_REQUIREMENTS = 'flota_sugamuxi_base_requirements_v3';
-const LOCAL_STORAGE_KEY_SUPPLIER_AUTH = 'flota_sugamuxi_supplier_auth_v1';
 const LOCAL_STORAGE_KEY_THEME = 'flota_sugamuxi_theme_v1';
 const LOCAL_STORAGE_KEY_SYSTEM_AUDIT_LOGS = 'flota_sugamuxi_system_audit_logs_v1';
 const LOCAL_STORAGE_KEY_REVIEW_SELECTED_ID = 'flota_sugamuxi_review_selected_id_v1';
@@ -334,7 +318,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [role, setRoleState] = useState<UserRole>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_ROLE);
-    return (saved as UserRole) || 'PROVEEDOR';
+    return saved === 'REVISOR' ? 'REVISOR' : 'ADMIN';
   });
 
   const [activeUserId, setActiveUserIdState] = useState<string>(() => {
@@ -350,20 +334,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const activeUser: SystemUser =
     INITIAL_SYSTEM_USERS.find((u) => u.id === activeUserId) || INITIAL_SYSTEM_USERS[0];
 
-  const [isSupplierLoggedIn, setIsSupplierLoggedIn] = useState<boolean>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_SUPPLIER_AUTH);
-    return saved === 'true';
-  });
-
-  const [supplierPortalTab, setSupplierPortalTabState] = useState<SupplierPortalTab>('login');
-
   const [activeView, setActiveViewState] = useState<AppView>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_ACTIVE_VIEW);
-    const savedRole = localStorage.getItem(LOCAL_STORAGE_KEY_ROLE);
-    if ((savedRole === 'ADMIN' || savedRole === 'REVISOR') && (!saved || saved === 'onboarding')) {
+    // 'onboarding' era la vista del portal de proveedores, que ya no existe
+    if (!saved || saved === 'onboarding') {
       return 'revisores';
     }
-    return (saved as AppView) || (savedRole === 'ADMIN' || savedRole === 'REVISOR' ? 'revisores' : 'onboarding');
+    return saved as AppView;
   });
 
   const [allDossiers, setAllDossiers] = useState<SupplierDossier[]>(() => {
@@ -427,9 +404,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (role === 'REVISOR') {
       const target = allDossiers.find((d) => d.id === dossierId);
       return target?.assignedReviewerId === activeUserId;
-    }
-    if (role === 'PROVEEDOR') {
-      return dossierId === currentDossierId;
     }
     return false;
   };
@@ -763,10 +737,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [currentDossierId]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_SUPPLIER_AUTH, isSupplierLoggedIn ? 'true' : 'false');
-  }, [isSupplierLoggedIn]);
-
-  useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_THEME, theme);
     if (typeof document !== 'undefined') {
       if (theme === 'dark') {
@@ -861,16 +831,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, 'admin-1');
     }
 
-    if (newRole === 'PROVEEDOR') {
-      if (activeView !== 'onboarding' && activeView !== 'convocatorias') {
-        setActiveViewState('onboarding');
-      }
-    } else {
-      // Para Revisor Técnico y Administrador General: predeterminada la entrada a Dashboard Ejecutivo
-      setIsSupplierLoggedIn(false);
-      localStorage.setItem(LOCAL_STORAGE_KEY_SUPPLIER_AUTH, 'false');
-      setActiveViewState('revisores');
-    }
+    // Predeterminada la entrada a Dashboard Ejecutivo
+    setActiveViewState('revisores');
   };
 
   const setActiveUserId = (newUserId: string) => {
@@ -881,14 +843,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, newUserId);
     setRoleState(targetUser.role);
     localStorage.setItem(LOCAL_STORAGE_KEY_ROLE, targetUser.role);
-
-    if (targetUser.role === 'ADMIN' || targetUser.role === 'REVISOR') {
-      setIsSupplierLoggedIn(false);
-      localStorage.setItem(LOCAL_STORAGE_KEY_SUPPLIER_AUTH, 'false');
-      if (activeView === 'onboarding') {
-        setActiveViewState('revisores');
-      }
-    }
 
     const assignedCount = allDossiers.filter((d) => d.assignedReviewerId === newUserId).length;
     showToast(
@@ -901,27 +855,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const setActiveView = (newView: AppView) => {
-    if (role === 'PROVEEDOR' && (newView === 'bancoProveedores' || newView === 'revisores' || newView === 'adminForms' || newView === 'documentMatrix' || newView === 'parametrizacion' || newView === 'informesExcel' || newView === 'auditoria' || newView === 'registrarProveedor')) {
-      setActiveViewState('onboarding');
-      return;
-    }
-    if ((role === 'REVISOR' || role === 'ADMIN') && newView === 'onboarding') {
-      setActiveViewState('revisores');
-      return;
-    }
-    if (newView === 'convocatorias') {
-      setSupplierPortalTabState('convocatorias');
-    }
     setActiveViewState(newView);
-  };
-
-  const setSupplierPortalTab = (tab: SupplierPortalTab) => {
-    setSupplierPortalTabState(tab);
-    if (tab === 'convocatorias') {
-      setActiveViewState('convocatorias');
-    } else {
-      setActiveViewState('onboarding');
-    }
   };
 
   const setCurrentDossierId = (id: string | null) => {
@@ -946,61 +880,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActiveViewState('revisores');
   };
 
-  // Supplier Login method
-  const supplierLogin = (identifier: string, _accessCode?: string): { success: boolean; message: string; dossier?: SupplierDossier } => {
-    const cleanQuery = identifier.trim().toLowerCase();
-    if (!cleanQuery) {
-      return { success: false, message: 'Ingrese su NIT, Cédula, Correo Electrónico o Número de Radicado.' };
-    }
-
-    const matchedDossier = allDossiers.find((d) => {
-      const email = d.basicInfo.email?.toLowerCase() || '';
-      const nit = d.basicInfo.nit?.toLowerCase().replace(/[^a-z0-9]/g, '') || '';
-      const docNum = d.basicInfo.documentNumber?.toLowerCase().replace(/[^a-z0-9]/g, '') || '';
-      const fileNum = d.fileNumber?.toLowerCase() || '';
-      const id = d.id?.toLowerCase() || '';
-      const company = d.basicInfo.companyName?.toLowerCase() || '';
-      const name = d.basicInfo.fullName?.toLowerCase() || '';
-      const repDoc = d.basicInfo.representativeLegalDocNumber?.toLowerCase() || '';
-
-      const queryClean = cleanQuery.replace(/[^a-z0-9]/g, '');
-
-      return (
-        email === cleanQuery ||
-        email.includes(cleanQuery) ||
-        fileNum === cleanQuery ||
-        fileNum.replace(/[^a-z0-9]/g, '') === queryClean ||
-        (queryClean.length > 3 && (nit.includes(queryClean) || docNum.includes(queryClean) || repDoc.includes(queryClean))) ||
-        id === cleanQuery ||
-        company.includes(cleanQuery) ||
-        name.includes(cleanQuery)
-      );
-    });
-
-    if (matchedDossier) {
-      setCurrentDossierIdState(matchedDossier.id);
-      setIsSupplierLoggedIn(true);
-      const supplierName = matchedDossier.basicInfo.supplierType === 'NATURAL'
-        ? matchedDossier.basicInfo.fullName
-        : matchedDossier.basicInfo.companyName;
-      return {
-        success: true,
-        message: `Autenticación exitosa. Bienvenido al portal de proveedores, ${supplierName}.`,
-        dossier: matchedDossier,
-      };
-    }
-
-    return {
-      success: false,
-      message: 'No se encontró un expediente registrado con los datos suministrados. Verifique el NIT, Cédula, Correo o Radicado.',
-    };
-  };
-
-  // Supplier Logout method
-  const supplierLogout = () => {
-    setIsSupplierLoggedIn(false);
-  };
-
   const currentDossier = allDossiers.find((d) => d.id === currentDossierId) || null;
   const isEmailVerified = !!currentDossier?.isEmailVerified;
 
@@ -1016,9 +895,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Helper to generate 6 digit code
-  const generateVerificationCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
 
   // Dispatch Email Notification helper — envía correo real vía Resend + registra en estado
   const sendEmailNotification = (
@@ -1104,186 +980,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         reviewerName,
       },
     });
-  };
-
-
-  // 1. Register Supplier (Simplified flow)
-  const registerSupplier = (
-    info: SupplierBasicInfo,
-    _password?: string,
-    assignedReviewerId?: string,
-    assignedReviewerName?: string
-  ) => {
-    const isJuridica = info.supplierType === 'JURIDICA';
-    const email = info.email?.trim();
-    const docId = isJuridica ? info.nit?.trim() : info.documentNumber?.trim();
-    const docLabel = isJuridica ? 'NIT' : 'Documento de Identidad';
-    const supplierName = isJuridica ? info.companyName?.trim() : info.fullName?.trim();
-
-    if (!email) {
-      const err = 'El correo electrónico corporativo es obligatorio para la inscripción.';
-      showToast(err, 'error', 'Error en Inscripción');
-      throw new Error(err);
-    }
-
-    if (!supplierName) {
-      const err = isJuridica
-        ? 'La Razón Social de la empresa es obligatoria.'
-        : 'El Nombre Completo es obligatorio.';
-      showToast(err, 'error', 'Error en Inscripción');
-      throw new Error(err);
-    }
-
-    if (!docId) {
-      const err = `El número de ${docLabel} es obligatorio.`;
-      showToast(err, 'error', 'Error en Inscripción');
-      throw new Error(err);
-    }
-
-    // Check duplicate document
-    const duplicateDoc = allDossiers.find((d) => {
-      const otherDoc = d.supplierType === 'JURIDICA' ? d.basicInfo.nit?.trim() : d.basicInfo.documentNumber?.trim();
-      return otherDoc && docId && otherDoc.toLowerCase() === docId.toLowerCase();
-    });
-
-    if (duplicateDoc) {
-      const otherName = duplicateDoc.basicInfo.companyName || duplicateDoc.basicInfo.fullName;
-      const err = `El ${docLabel} "${docId}" ya está registrado (${duplicateDoc.fileNumber} - ${otherName}).`;
-      showToast(err, 'error', 'Documento Duplicado');
-      throw new Error(err);
-    }
-
-    // Check duplicate email
-    const duplicateEmail = allDossiers.find(
-      (d) => d.basicInfo.email?.trim().toLowerCase() === email.toLowerCase()
-    );
-
-    if (duplicateEmail) {
-      const err = `El correo "${email}" ya se encuentra registrado con el expediente ${duplicateEmail.fileNumber}.`;
-      showToast(err, 'error', 'Correo Duplicado');
-      throw new Error(err);
-    }
-
-    const sequence = allDossiers.length + 1;
-    const paddedSeq = String(sequence).padStart(6, '0');
-    const fileNumber = `FS-PROV-2026-${paddedSeq}`;
-    const newId = `dossier-${Date.now()}`;
-    const verificationCode = generateVerificationCode();
-    const timestamp = getNowFormatted();
-
-    // Default category
-    const defaultCat = 'Mantenimiento Automotriz y Repuestos';
-
-    // Resolve assigned evaluator / user with access
-    const effectiveReviewerId =
-      assignedReviewerId || (role === 'REVISOR' ? activeUserId : 'revisor-1');
-    const effectiveReviewerName =
-      assignedReviewerName ||
-      INITIAL_SYSTEM_USERS.find((u) => u.id === effectiveReviewerId)?.name ||
-      (role === 'REVISOR' ? activeUser.name : 'Ing. Carlos Mendoza (Revisor 1)');
-
-    // Build initial document slots (FS.GA-FOR-009 and FS.GA-FOR-039 start as PENDIENTE)
-    const initialDocs: Record<string, any> = {
-      FS_GA_FOR_009: {
-        id: `doc-${newId}-009`,
-        code: 'FS_GA_FOR_009',
-        name: 'Formulario de Inscripción y Actualización de Proveedores y Clientes',
-        isInstitutionalForm: true,
-        formCode: 'FS.GA-FOR-009',
-        formVersion: institutionalForms.find((f) => f.code === 'FS.GA-FOR-009')?.currentVersion || '14.0',
-        isRequired: true,
-        status: 'PENDIENTE',
-      },
-      FS_GA_FOR_039: {
-        id: `doc-${newId}-039`,
-        code: 'FS_GA_FOR_039',
-        name: 'Autorización para el Tratamiento de Datos Personales',
-        isInstitutionalForm: true,
-        formCode: 'FS.GA-FOR-039',
-        formVersion: institutionalForms.find((f) => f.code === 'FS.GA-FOR-039')?.currentVersion || '1.0',
-        isRequired: true,
-        status: 'PENDIENTE',
-      },
-    };
-
-    const effectiveTier = info.supplierTier || 'B';
-    const newDossier: SupplierDossier = {
-      id: newId,
-      fileNumber,
-      supplierType: info.supplierType,
-      supplierTier: effectiveTier,
-      basicInfo: {
-        ...info,
-        supplierTier: effectiveTier,
-      },
-      isEmailVerified: false,
-      verificationCode,
-      selectedCategory: defaultCat,
-      economicActivity: 'Actividad comercial general',
-      processStatus: 'BORRADOR',
-      documents: initialDocs,
-      assignedReviewerId: effectiveReviewerId,
-      assignedReviewerName: effectiveReviewerName,
-      assignedAt: timestamp,
-      assignedBy:
-        role === 'ADMIN'
-          ? 'Administrador General'
-          : role === 'REVISOR'
-          ? activeUser.name
-          : 'Registro de Proveedor',
-      internalConcepts: {
-        sarlatfCheck: { checked: false, result: 'PENDIENTE' },
-        ofacCheck: { checked: false, result: 'PENDIENTE' },
-        procuraduriaPoliciaCheck: { checked: false, result: 'PENDIENTE' },
-        legalConcept: { status: 'PENDIENTE' },
-        financialConcept: { status: 'PENDIENTE' },
-        hseqConcept: { status: 'PENDIENTE' },
-      },
-      auditHistory: [
-        {
-          id: `aud-${Date.now()}`,
-          timestamp,
-          action: 'Creación de cuenta simplificada',
-          user: info.email,
-          role: 'PROVEEDOR',
-          notes: `Registro de proveedor ${info.supplierType === 'NATURAL' ? info.fullName : info.companyName} (${info.supplierType === 'NATURAL' ? info.documentNumber : info.nit}) con evaluación asignada a ${effectiveReviewerName}.`,
-        },
-      ],
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    };
-
-    setDossiers((prev) => [newDossier, ...prev]);
-    setCurrentDossierIdState(newId);
-
-    // Trigger Automatic Registration Code Email
-    const recipientName = info.supplierType === 'NATURAL' ? info.fullName || 'Proveedor' : info.companyName || 'Empresa';
-    const emailData = generateEmailContent('REGISTRATION_CODE', {
-      recipientName,
-      recipientEmail: info.email,
-      fileNumber,
-      dossierId: newId,
-      verificationCode,
-    });
-    sendEmailNotification({
-      dossierId: newId,
-      recipientEmail: info.email,
-      recipientName,
-      fileNumber,
-      subject: emailData.subject,
-      templateType: 'REGISTRATION_CODE',
-      previewSnippet: emailData.snippet,
-      bodyHtml: emailData.html,
-    });
-
-    // Success Toast Notification in top-right
-    showToast(
-      `Proveedor "${supplierName}" registrado exitosamente. Expediente generado: ${fileNumber}.`,
-      'success',
-      'Inscripción Exitosa'
-    );
-
-    return { dossierId: newId, fileNumber, verificationCode };
   };
 
 
@@ -1547,40 +1243,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
 
     return newDossier;
-  };
-
-  // 2. Verify Email
-  const verifySupplierEmail = (dossierId: string, code: string): boolean => {
-    let verified = false;
-    setDossiers((prev) =>
-      prev.map((d) => {
-        if (d.id === dossierId) {
-          // Allow match or '123456' as master bypass for easy testing
-          if (d.verificationCode === code.trim() || code.trim() === '123456' || code.trim().length === 6) {
-            verified = true;
-            return {
-              ...d,
-              isEmailVerified: true,
-              processStatus: d.processStatus === 'BORRADOR' ? 'DOCUMENTACION_PENDIENTE' : d.processStatus,
-              updatedAt: getNowFormatted(),
-              auditHistory: [
-                ...d.auditHistory,
-                {
-                  id: `aud-${Date.now()}`,
-                  timestamp: getNowFormatted(),
-                  action: 'Verificación de correo electrónico exitosa',
-                  user: d.basicInfo.email,
-                  role: 'PROVEEDOR',
-                  notes: 'Correo confirmado en plataforma.',
-                },
-              ],
-            };
-          }
-        }
-        return d;
-      })
-    );
-    return verified;
   };
 
   // 3. Update Basic Info & Category
@@ -3807,14 +3469,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         markEmailAsRead,
         clearAllEmails,
         isEmailVerified,
-        isSupplierLoggedIn,
-        supplierPortalTab,
-        setSupplierPortalTab,
-        supplierLogin,
-        supplierLogout,
-        registerSupplier,
         createSupplierAdmin,
-        verifySupplierEmail,
         updateBasicInfo,
         uploadDocument,
         removeDocument,

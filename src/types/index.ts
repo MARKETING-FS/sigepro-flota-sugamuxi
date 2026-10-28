@@ -1,4 +1,4 @@
-export type UserRole = 'PROVEEDOR' | 'REVISOR' | 'ADMIN';
+export type UserRole = 'REVISOR' | 'ADMIN';
 export type ThemeMode = 'light' | 'dark';
 
 export interface SystemUser {
@@ -15,7 +15,6 @@ export interface SystemUser {
 }
 
 export type AppView =
-  | 'onboarding'
   | 'convocatorias'
   | 'adminForms'
   | 'revisores'
@@ -27,8 +26,6 @@ export type AppView =
   | 'registrarProveedor'
   | 'parametrizacion'
   | 'login';
-
-export type SupplierPortalTab = 'welcome' | 'convocatorias' | 'register' | 'login';
 
 export type SupplierType = 'NATURAL' | 'JURIDICA';
 export type SupplierTier = 'A' | 'B' | 'C'; // Tipo A (Crítico/Estratégico), Tipo B (Importante/Operativo), Tipo C (Estándar/Ocasional)
