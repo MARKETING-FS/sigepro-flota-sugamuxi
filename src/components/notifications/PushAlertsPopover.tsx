@@ -36,7 +36,6 @@ export const PushAlertsPopover: React.FC<Props> = ({ onOpenDossier }) => {
     currentDossierId,
     setReviewSelectedDossierId,
     setActiveView,
-    setSupplierPortalTab,
     showToast,
   } = useApp();
 
@@ -117,15 +116,10 @@ export const PushAlertsPopover: React.FC<Props> = ({ onOpenDossier }) => {
     dismissPushAlert(alert.id);
     setDismissedVersion((v) => v + 1);
 
-    if (role === 'PROVEEDOR') {
-      setActiveView('onboarding');
-      setSupplierPortalTab('login');
-    } else {
-      setReviewSelectedDossierId(alert.dossierId);
-      setActiveView('revisores');
-      if (onOpenDossier) {
-        onOpenDossier(alert.dossierId);
-      }
+    setReviewSelectedDossierId(alert.dossierId);
+    setActiveView('revisores');
+    if (onOpenDossier) {
+      onOpenDossier(alert.dossierId);
     }
   };
 
@@ -398,32 +392,17 @@ export const PushAlertsPopover: React.FC<Props> = ({ onOpenDossier }) => {
             <span className="text-[10px] text-slate-400">
               Sistema Integrado SIG &bull; Flota Sugamuxi S.A.
             </span>
-            {role === 'PROVEEDOR' ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  setActiveView('onboarding');
-                  setSupplierPortalTab('login');
-                }}
-                className="font-bold text-blue-700 dark:text-cyan-400 hover:underline flex items-center gap-1"
-              >
-                <span>Ver Mi Expediente</span>
-                <ExternalLink className="w-3 h-3" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  setActiveView('bancoProveedores');
-                }}
-                className="font-bold text-blue-700 dark:text-cyan-400 hover:underline flex items-center gap-1"
-              >
-                <span>Banco de Proveedores</span>
-                <ExternalLink className="w-3 h-3" />
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                setActiveView('bancoProveedores');
+              }}
+              className="font-bold text-blue-700 dark:text-cyan-400 hover:underline flex items-center gap-1"
+            >
+              <span>Banco de Proveedores</span>
+              <ExternalLink className="w-3 h-3" />
+            </button>
           </div>
 
         </div>

@@ -185,7 +185,7 @@ export function computeDossierPushAlerts(dossier: SupplierDossier): PushAlert[] 
       supplierName,
       fileNumber,
       createdAt: now,
-      actionView: 'onboarding',
+      actionView: 'revisores',
     });
   }
 
@@ -202,14 +202,8 @@ export function computePushAlerts(
 ): PushAlertsSummary {
   let targetDossiers: SupplierDossier[] = [];
 
-  if (role === 'PROVEEDOR') {
-    // If supplier, only show alerts for their active dossier
-    const current = dossiers.find((d) => d.id === currentDossierId);
-    targetDossiers = current ? [current] : [];
-  } else {
-    // If Admin or Reviewer, show alerts for all dossiers
-    targetDossiers = dossiers;
-  }
+  // Admin y Revisor ven las alertas de todos los expedientes
+  targetDossiers = dossiers;
 
   const allAlerts: PushAlert[] = [];
   for (const d of targetDossiers) {
