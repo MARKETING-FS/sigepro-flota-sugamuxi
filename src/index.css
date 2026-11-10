@@ -467,3 +467,18 @@ select option, select optgroup { color: #0b1d3a; }
 /* Paleta del sistema: blanco + dos azules; rojo solo para vencimientos/errores */
 .dark .text-fs-warn { color: #69bdd7; }
 .dark .text-fs-ok { color: #69bdd7; }
+
+/* Autocompletado del navegador (correo sugerido por Google): evita el fondo blanco/vacío en modo oscuro */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active,
+.dark textarea:-webkit-autofill,
+.dark select:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px #1a2744 inset !important;
+  box-shadow: 0 0 0 1000px #1a2744 inset !important;
+  border-color: rgba(105, 189, 215, 0.45) !important;
+  transition: background-color 99999s ease-in-out 0s;
+}
