@@ -58,7 +58,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, o
 
   const handleSignOut = async () => {
     await signOut();
-    showToast('Sesión cerrada correctamente.', 'info', 'CIERRE DE SESIÓN');
   };
 
   const go = (view: AppView) => {

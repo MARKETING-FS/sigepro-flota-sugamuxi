@@ -42,7 +42,6 @@ export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, onTog
   const handleSignOut = async () => {
     setIsMenuOpen(false);
     await signOut();
-    showToast('Sesión cerrada correctamente.', 'info', 'CIERRE DE SESIÓN');
   };
 
   const iconBtn =
