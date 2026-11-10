@@ -17,12 +17,6 @@ import { BrandSwoosh } from './ui/BrandSwoosh';
 
 type LoginMode = 'login' | 'forgot';
 
-const FEATURES = [
-  { icon: FileCheck2, text: 'Documentos con alertas de vencimiento' },
-  { icon: Sparkles, text: 'Evaluación periódica con puntaje A, B y C' },
-  { icon: ShieldCheck, text: 'Auditoría de cada cambio en el sistema' },
-];
-
 const inputClass =
   'w-full h-12 pl-10 pr-3 rounded-xl border border-white/15 bg-white/5 text-[15px] text-white placeholder:text-white/35 focus:outline-hidden focus:border-[#69bdd7] focus:ring-4 focus:ring-[#69bdd7]/30 transition-all';
 
@@ -119,16 +113,6 @@ export const CorporateLoginView: React.FC = () => {
               <br />
               <span className="text-gradient-brand">Cada viaje, seguro.</span>
             </h1>
-            <ul className="mt-8 space-y-3">
-              {FEATURES.map((f, i) => (
-                <li key={f.text} className="flex items-center gap-3 text-sm text-white/85 animate-fade-up" style={{ animationDelay: `${0.4 + i * 0.12}s` }}>
-                  <span className="flex w-9 h-9 items-center justify-center rounded-xl glass-dark">
-                    <f.icon className="w-4 h-4 text-[#69bdd7]" />
-                  </span>
-                  {f.text}
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
       </section>
