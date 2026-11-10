@@ -52,6 +52,39 @@ const Gauge: React.FC<{ value: number }> = ({ value }) => {
   );
 };
 
+const HERO_SRC = '/nd/dashboard-bus.webp';
+
+// Se descarga una sola vez al cargar la app y se conserva en memoria, así la imagen
+// no desaparece ni parpadea al volver al panel desde otros módulos.
+let heroPreload: HTMLImageElement | null = null;
+if (typeof window !== 'undefined' && !heroPreload) {
+  heroPreload = new Image();
+  heroPreload.decoding = 'async';
+  heroPreload.src = HERO_SRC;
+}
+
+const HeroBackdrop: React.FC = () => {
+  const [src, setSrc] = React.useState(HERO_SRC);
+  const retries = React.useRef(0);
+  return (
+    <img
+      src={src}
+      alt=""
+      decoding="sync"
+      loading="eager"
+      fetchPriority="high"
+      onError={() => {
+        // Si la descarga falla (red lenta o caché corrupta), reintenta con otra URL
+        if (retries.current < 3) {
+          retries.current += 1;
+          setSrc(`${HERO_SRC}?r=${retries.current}-${Date.now()}`);
+        }
+      }}
+      className="absolute inset-0 w-full h-full object-cover object-[right_78%]"
+    />
+  );
+};
+
 export const DashboardHero: React.FC<{
   userName: string;
   dateLabel: string;
@@ -66,7 +99,7 @@ export const DashboardHero: React.FC<{
   onEvaluate: () => void;
 }> = ({ userName, dateLabel, scopeLabel, critical, pendingEval, health, alerts, habilitados, avg, onRegister, onEvaluate }) => (
   <section className="relative overflow-hidden rounded-[28px] bg-[#131b2e] text-white shadow-glow animate-fade-up">
-    <img src="/nd/dashboard-bus.webp" alt="" className="absolute inset-0 w-full h-full object-cover object-[right_78%]" />
+    <HeroBackdrop />
     <div className="absolute inset-0 bg-gradient-to-r from-[#131b2e]/95 via-[#131b2e]/60 to-transparent" />
     <div className="absolute inset-0 grid-pattern opacity-30 [mask-image:linear-gradient(to_right,black,transparent_60%)]" />
     <BrandSwoosh className="absolute -bottom-20 -right-16 w-[55%] opacity-100" />
