@@ -20,6 +20,7 @@ import {
   Activity,
   UserCheck,
   FileSpreadsheet,
+  Quote,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SystemAuditEntry } from '../types';
@@ -121,37 +122,35 @@ export const AuditLogView: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  const getActionBadge = (action: string) => {
-    switch (action) {
-      case 'EDICION_CAMPO':
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
-            <FileText className="w-3 h-3 text-blue-600 dark:text-cyan-400" />
-            <span>Edición de Campo</span>
-          </span>
-        );
-      case 'CAMBIO_ESTADO':
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
-            <Activity className="w-3 h-3 text-slate-700 dark:text-cyan-400" />
-            <span>Cambio de Estado</span>
-          </span>
-        );
-      case 'VALIDACION_SARLAFT':
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-cyan-200 border border-blue-300 dark:border-blue-700">
-            <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-cyan-400" />
-            <span>Debida Diligencia SARLAFT</span>
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
-            <span>{action}</span>
-          </span>
-        );
-    }
+  const ACTION_META: Record<string, { label: string; icon: React.ElementType }> = {
+    EDICION_CAMPO: { label: 'Edición de campo', icon: FileText },
+    CAMBIO_ESTADO: { label: 'Cambio de estado', icon: Activity },
+    VALIDACION_SARLAFT: { label: 'Consulta SARLAFT', icon: ShieldCheck },
   };
+
+  // Agrupa los eventos por día (la fecha viene como "06/11/2026, 05:13:07 p. m.")
+  const groups = useMemo(() => {
+    const map = new Map<string, SystemAuditEntry[]>();
+    filteredLogs.forEach((l) => {
+      const day = (l.formattedDate || '').split(',')[0].trim() || 'Sin fecha';
+      if (!map.has(day)) map.set(day, []);
+      map.get(day)!.push(l);
+    });
+    return Array.from(map.entries());
+  }, [filteredLogs]);
+
+  const hasFilters = Boolean(searchTerm) || actionFilter !== 'ALL' || roleFilter !== 'ALL' || sectionFilter !== 'ALL';
+  const fieldCls =
+    'w-full h-11 px-3.5 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30';
+  const tileCls = 'rounded-2xl bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 p-3.5';
+  const labelCls = 'text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]';
+
+  const kpis = [
+    { label: 'Total de registros', value: systemAuditLogs.length, hint: 'En la bitácora', icon: History },
+    { label: 'Ediciones de campo', value: totalEdits, hint: 'Datos modificados', icon: FileText },
+    { label: 'Cambios de estado', value: totalStatusChanges, hint: 'Habilitaciones y revisiones', icon: Activity },
+    { label: 'Consultas SARLAFT', value: totalSarlaft, hint: 'Listas restrictivas', icon: ShieldCheck },
+  ];
 
   return (
     <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1 space-y-5">
@@ -165,137 +164,74 @@ export const AuditLogView: React.FC = () => {
           </button>
         }
       />
-      <div className="h-1" />
 
-      {/* 2. KPI Metrics Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-        <div className="fs-card p-4 rounded-2xl">
-          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
-            <span>Total Registros</span>
-            <History className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-          </div>
-          <div className="text-2xl font-black text-slate-900 dark:text-slate-100">{systemAuditLogs.length}</div>
-          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">En bitácora del sistema</div>
-        </div>
-
-        <div className="fs-card p-4 rounded-2xl">
-          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
-            <span>Edición de Campos</span>
-            <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div className="text-2xl font-black text-blue-700 dark:text-cyan-400">{totalEdits}</div>
-          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Datos editados directamente</div>
-        </div>
-
-        <div className="fs-card p-4 rounded-2xl">
-          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
-            <span>Cambios de Estado</span>
-            <Activity className="w-4 h-4 text-slate-700 dark:text-cyan-400" />
-          </div>
-          <div className="text-2xl font-black text-slate-900 dark:text-slate-100">{totalStatusChanges}</div>
-          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Habilitaciones y revisiones</div>
-        </div>
-
-        <div className="fs-card p-4 rounded-2xl">
-          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
-            <span>Validaciones SARLAFT</span>
-            <ShieldCheck className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-          </div>
-          <div className="text-2xl font-black text-cyan-700 dark:text-cyan-400">{totalSarlaft}</div>
-          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Consultas de listas</div>
-        </div>
-
-        <div className="fs-card p-4 rounded-2xl col-span-2 sm:col-span-1">
-          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
-            <span>Por Rol Editor</span>
-            <UserCheck className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-          </div>
-          <div className="text-xs font-bold text-slate-800 dark:text-slate-200 space-y-0.5">
-            <div className="flex justify-between">
-              <span className="text-[#5d7392] dark:text-slate-400">Admin:</span>
-              <span className="text-blue-600 dark:text-cyan-400 font-mono">{adminEdits}</span>
+      {/* Indicadores */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        {kpis.map((k) => {
+          const Icon = k.icon;
+          return (
+            <div key={k.label} className="fs-card lift rounded-[22px] p-4 sm:p-5 animate-fade-up">
+              <div className="flex items-start justify-between gap-2">
+                <span className={labelCls}>{k.label}</span>
+                <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shrink-0 shadow-glow"><Icon className="w-4 h-4" /></span>
+              </div>
+              <div className="mt-3 font-display text-3xl font-semibold text-[#0b1d3a] dark:text-white tabular-nums">{k.value}</div>
+              <div className="text-xs text-[#3a5274] dark:text-slate-400 mt-0.5">{k.hint}</div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[#5d7392] dark:text-slate-400">Revisores:</span>
-              <span className="text-blue-700 dark:text-cyan-300 font-mono">{revisorEdits}</span>
-            </div>
+          );
+        })}
+        <div className="fs-card lift rounded-[22px] p-4 sm:p-5 col-span-2 lg:col-span-1 animate-fade-up">
+          <div className="flex items-start justify-between gap-2">
+            <span className={labelCls}>Por rol</span>
+            <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shrink-0 shadow-glow"><UserCheck className="w-4 h-4" /></span>
+          </div>
+          <div className="mt-3 space-y-1.5 text-sm">
+            <div className="flex items-center justify-between"><span className="text-[#3a5274] dark:text-slate-400">Administrador</span><span className="font-display font-semibold text-[#0b1d3a] dark:text-white tabular-nums">{adminEdits}</span></div>
+            <div className="flex items-center justify-between"><span className="text-[#3a5274] dark:text-slate-400">Revisores</span><span className="font-display font-semibold text-[#0b1d3a] dark:text-white tabular-nums">{revisorEdits}</span></div>
           </div>
         </div>
       </div>
 
-      {/* 3. Filters & Search Bar */}
-      <div className="fs-card rounded-2xl p-4 space-y-3">
+      {/* Filtros */}
+      <div className="fs-card rounded-[24px] p-4 sm:p-5 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Search */}
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-[#5d7392] dark:text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-[#6b84a3]" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar por proveedor, NIT, radicado, campo o usuario..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Buscar proveedor, NIT, radicado, campo o usuario"
+              className={`${fieldCls} pl-10`}
             />
           </div>
-
-          {/* Action Filter */}
-          <div>
-            <select
-              value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
-              className="w-full py-2 px-3 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="ALL">Todas las acciones registradas</option>
-              <option value="EDICION_CAMPO">Ediciones de Campo</option>
-              <option value="CAMBIO_ESTADO">Cambios de Estado General</option>
-              <option value="VALIDACION_SARLAFT">Consultas SARLAFT / Listas</option>
-            </select>
-          </div>
-
-          {/* Role Filter */}
-          <div>
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full py-2 px-3 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="ALL">Todos los roles de usuario</option>
-              <option value="ADMIN">Administrador General</option>
-              <option value="REVISOR">Revisor Técnico</option>
-            </select>
-          </div>
-
-          {/* Section Filter */}
-          <div>
-            <select
-              value={sectionFilter}
-              onChange={(e) => setSectionFilter(e.target.value)}
-              className="w-full py-2 px-3 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="ALL">Todas las secciones del expediente</option>
-              {uniqueSections.map((sec) => (
-                <option key={sec} value={sec}>
-                  {sec}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select value={actionFilter} onChange={(e) => setActionFilter(e.target.value)} className={fieldCls}>
+            <option value="ALL">Todas las acciones</option>
+            <option value="EDICION_CAMPO">Ediciones de campo</option>
+            <option value="CAMBIO_ESTADO">Cambios de estado</option>
+            <option value="VALIDACION_SARLAFT">Consultas SARLAFT</option>
+          </select>
+          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className={fieldCls}>
+            <option value="ALL">Todos los roles</option>
+            <option value="ADMIN">Administrador general</option>
+            <option value="REVISOR">Revisor técnico</option>
+          </select>
+          <select value={sectionFilter} onChange={(e) => setSectionFilter(e.target.value)} className={fieldCls}>
+            <option value="ALL">Todas las secciones</option>
+            {uniqueSections.map((sec) => (
+              <option key={sec} value={sec}>{sec}</option>
+            ))}
+          </select>
         </div>
-
-        {/* Counter and reset */}
-        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-between text-xs text-[#3a5274] dark:text-slate-400">
           <span>
-            Mostrando <strong>{filteredLogs.length}</strong> de <strong>{systemAuditLogs.length}</strong> eventos de auditoría.
+            Mostrando <strong className="text-[#0b1d3a] dark:text-white">{filteredLogs.length}</strong> de <strong className="text-[#0b1d3a] dark:text-white">{systemAuditLogs.length}</strong> eventos
           </span>
-          {(searchTerm || actionFilter !== 'ALL' || roleFilter !== 'ALL' || sectionFilter !== 'ALL') && (
+          {hasFilters && (
             <button
-              onClick={() => {
-                setSearchTerm('');
-                setActionFilter('ALL');
-                setRoleFilter('ALL');
-                setSectionFilter('ALL');
-              }}
-              className="text-blue-600 dark:text-cyan-400 hover:underline font-bold cursor-pointer"
+              type="button"
+              onClick={() => { setSearchTerm(''); setActionFilter('ALL'); setRoleFilter('ALL'); setSectionFilter('ALL'); }}
+              className="font-semibold text-[#2c84c4] dark:text-[#69bdd7] hover:underline cursor-pointer"
             >
               Restablecer filtros
             </button>
@@ -303,135 +239,107 @@ export const AuditLogView: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Audit Log Table */}
-      <div className="fs-card rounded-2xl overflow-hidden">
-        <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-          <span>Desliza horizontalmente para ver todos los campos</span>
-          <span className="font-bold">↔</span>
+      {/* Línea de tiempo */}
+      {filteredLogs.length === 0 ? (
+        <div className="fs-card rounded-[24px] border-dashed p-12 text-center">
+          <span className="mx-auto w-12 h-12 rounded-2xl bg-gradient-action text-white grid place-items-center shadow-glow"><History className="w-5 h-5" /></span>
+          <p className="mt-4 font-display text-lg font-semibold text-[#0b1d3a] dark:text-white">Sin registros para mostrar</p>
+          <p className="mt-1 text-sm text-[#3a5274] dark:text-slate-400">No hay eventos de auditoría que coincidan con los filtros aplicados.</p>
         </div>
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-left text-xs divide-y divide-slate-200 dark:divide-slate-800 min-w-[850px] lg:min-w-full">
-            <thead className="bg-[#0b1329] text-white select-none">
-              <tr>
-                <th className="px-3 py-3 font-bold uppercase tracking-wider text-[10px] w-[12%]">Fecha & Hora</th>
-                <th className="px-3 py-3 font-bold uppercase tracking-wider text-[10px] w-[18%]">Expediente & Proveedor</th>
-                <th className="px-3 py-3 font-bold uppercase tracking-wider text-[10px] w-[13%]">Usuario & Rol</th>
-                <th className="px-3 py-3 font-bold uppercase tracking-wider text-[10px] w-[14%]">Acción / Sección</th>
-                <th className="px-3 py-3 font-bold uppercase tracking-wider text-[10px] w-[20%]">Campo / Modificación</th>
-                <th className="px-3 py-3 font-bold uppercase tracking-wider text-[10px] w-[15%]">Justificación</th>
-                <th className="px-3 py-3 font-bold uppercase tracking-wider text-[10px] text-right w-[8%]">Acción</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-[#0f172a]">
-              {filteredLogs.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-[#5d7392] dark:text-slate-400">
-                    No se encontraron registros de auditoría que coincidan con los filtros aplicados.
-                  </td>
-                </tr>
-              ) : (
-                filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/50 transition-colors">
-                    {/* 1. Date */}
-                    <td className="px-3 py-2.5 align-top">
-                      <div className="font-mono font-semibold text-slate-900 dark:text-slate-200 text-[11px]">
-                        {log.formattedDate}
-                      </div>
-                      <div className="text-[9.5px] text-[#5d7392] dark:text-slate-400 font-mono mt-0.5 break-all">{log.id.split('-').slice(0, 3).join('-')}</div>
-                    </td>
-
-                    {/* 2. Dossier / Supplier */}
-                    <td className="px-3 py-2.5 align-top">
-                      <div className="font-bold text-slate-900 dark:text-slate-100 text-xs leading-snug break-words">
-                        {log.supplierName}
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-1 text-[10.5px] text-slate-500 dark:text-slate-400 flex-wrap">
-                        <span className="font-mono text-blue-700 dark:text-cyan-400 font-bold bg-blue-50 dark:bg-blue-950/60 px-1 py-0.2 rounded border border-blue-200 dark:border-blue-800">
-                          {log.fileNumber}
-                        </span>
-                        <span className="font-mono text-[#5d7392] dark:text-slate-400">{log.supplierDoc}</span>
-                      </div>
-                    </td>
-
-                    {/* 3. User & Role */}
-                    <td className="px-3 py-2.5 align-top">
-                      <div className="font-semibold text-slate-800 dark:text-slate-200 text-[11px] break-words">{log.user}</div>
-                      <div className="mt-0.5">
-                        <span
-                          className={`inline-block text-[8.5px] font-bold px-1.5 py-0.2 rounded ${
-                            log.userRole === 'ADMIN'
-                              ? 'bg-slate-800 text-cyan-300 border border-slate-700'
-                              : 'bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                          }`}
-                        >
-                          {log.userRole === 'ADMIN' ? 'ADMIN' : 'REVISOR'}
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* 4. Action & Section */}
-                    <td className="px-3 py-2.5 align-top">
-                      <div>{getActionBadge(log.action)}</div>
-                      {log.section && (
-                        <div className="text-[9.5px] text-slate-500 dark:text-slate-400 font-medium mt-1 leading-snug break-words">
-                          {log.section}
-                        </div>
-                      )}
-                    </td>
-
-                    {/* 5. Field & Change Details (Before vs After) */}
-                    <td className="px-3 py-2.5 align-top">
-                      <div className="font-bold text-slate-800 dark:text-slate-200 text-[11px] mb-1 break-words">
-                        {log.fieldChanged}
-                      </div>
-
-                      {log.action === 'EDICION_CAMPO' ? (
-                        <div className="text-[10.5px] space-y-0.5 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                          <div className="text-slate-500 dark:text-slate-400 line-through break-words" title={`Antes: ${log.oldValue}`}>
-                            <span className="font-semibold text-[8.5px] text-[#5d7392] dark:text-slate-400 mr-1">Antes:</span>
-                            {log.oldValue || '(Vacío)'}
+      ) : (
+        <div className="space-y-6">
+          {groups.map(([day, logs]) => (
+            <section key={day}>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full bg-gradient-action text-white text-xs font-semibold shadow-glow">
+                  <Calendar className="w-3.5 h-3.5" /> {day}
+                </span>
+                <span className="flex-1 h-px bg-gradient-to-r from-[#2c84c4]/40 to-transparent" />
+                <span className="text-xs text-[#3a5274] dark:text-slate-400">{logs.length} {logs.length === 1 ? 'evento' : 'eventos'}</span>
+              </div>
+              <ol className="relative space-y-3 pl-6 sm:pl-9">
+                <span aria-hidden="true" className="absolute left-[7px] sm:left-[10px] top-3 bottom-3 w-px bg-gradient-to-b from-[#2c84c4] via-[#69bdd7]/50 to-transparent" />
+                {logs.map((log) => {
+                  const meta = ACTION_META[log.action] || { label: log.action, icon: FileText };
+                  const Icon = meta.icon;
+                  const time = (log.formattedDate || '').split(',').slice(1).join(',').trim();
+                  const isEdit = log.action === 'EDICION_CAMPO';
+                  return (
+                    <li key={log.id} className="relative">
+                      <span aria-hidden="true" className="absolute -left-6 sm:-left-9 top-6 w-[15px] h-[15px] sm:w-5 sm:h-5 rounded-full bg-gradient-action ring-4 ring-[#2c84c4]/15" />
+                      <article className="fs-card lift rounded-[22px] p-4 sm:p-5 animate-fade-up">
+                        <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
+                          <span className="w-11 h-11 rounded-2xl bg-[#2c84c4]/10 dark:bg-[#2c84c4]/20 text-[#1d5fa8] dark:text-[#69bdd7] grid place-items-center shrink-0 border border-[#2c84c4]/20">
+                            <Icon className="w-5 h-5" />
+                          </span>
+                          <div className="min-w-0 flex-1 basis-[260px]">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="inline-flex items-center h-6 px-2.5 rounded-full bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[11px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">{meta.label}</span>
+                              {log.section && <span className="text-xs text-[#3a5274] dark:text-slate-400">{log.section}</span>}
+                            </div>
+                            <h3 className="mt-1.5 font-display text-base font-semibold text-[#0b1d3a] dark:text-white break-words">{log.fieldChanged}</h3>
+                            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#3a5274] dark:text-slate-400">
+                              <Building2 className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />
+                              <span className="font-semibold text-[#0b1d3a] dark:text-slate-100 break-words">{log.supplierName}</span>
+                              <span className="font-mono rounded-md px-1.5 py-0.5 bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7]">{log.fileNumber}</span>
+                              <span className="font-mono">{log.supplierDoc}</span>
+                            </div>
                           </div>
-                          <div className="text-blue-700 dark:text-cyan-400 font-medium break-words" title={`Ahora: ${log.newValue}`}>
-                            <span className="font-semibold text-[8.5px] text-[#5d7392] dark:text-slate-400 mr-1">Ahora:</span>
-                            {log.newValue || '(Vacío)'}
+                          <div className="flex items-center gap-3 sm:ml-auto">
+                            <div className="text-right">
+                              <div className="flex items-center justify-end gap-1.5 text-xs font-semibold text-[#0b1d3a] dark:text-slate-100"><Clock className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />{time}</div>
+                              <div className="mt-0.5 flex items-center justify-end gap-1.5 text-xs text-[#3a5274] dark:text-slate-400">
+                                <span className="truncate max-w-[200px]">{log.user}</span>
+                                <span className={`px-1.5 h-5 inline-flex items-center rounded-md text-[10px] font-bold ${log.userRole === 'ADMIN' ? 'bg-gradient-action text-white' : 'bg-[#69bdd7]/25 text-[#0e6d8a] dark:text-[#69bdd7]'}`}>{log.userRole === 'ADMIN' ? 'ADMIN' : 'REVISOR'}</span>
+                              </div>
+                            </div>
+                            {log.dossierId && (
+                              <button
+                                type="button"
+                                onClick={() => openSupplierReview(log.dossierId)}
+                                title="Abrir expediente de este proveedor"
+                                className="h-10 px-4 rounded-xl bg-gradient-action text-white text-sm font-semibold inline-flex items-center gap-2 shadow-glow cursor-pointer hover:brightness-110 transition"
+                              >
+                                <Eye className="w-4 h-4" /> Ver
+                              </button>
+                            )}
                           </div>
                         </div>
-                      ) : (
-                        <div className="text-[10.5px] font-mono text-slate-700 dark:text-slate-300 break-words">
-                          {log.oldValue} &rarr; <strong className="text-blue-600 dark:text-cyan-400">{log.newValue}</strong>
+
+                        <div className="mt-4 grid gap-3 md:grid-cols-2">
+                          <div className={tileCls}>
+                            <div className={`${labelCls} mb-2`}>{isEdit ? 'Antes y ahora' : 'Transición'}</div>
+                            {isEdit ? (
+                              <div className="space-y-1.5 text-sm">
+                                <div className="flex gap-2"><span className="w-12 shrink-0 text-xs text-[#6b84a3] pt-0.5">Antes</span><span className="text-[#3a5274] dark:text-slate-400 line-through break-words min-w-0">{log.oldValue || '(vacío)'}</span></div>
+                                <div className="flex gap-2"><span className="w-12 shrink-0 text-xs text-[#6b84a3] pt-0.5">Ahora</span><span className="font-semibold text-[#0b1d3a] dark:text-white break-words min-w-0">{log.newValue || '(vacío)'}</span></div>
+                              </div>
+                            ) : (
+                              <div className="flex flex-wrap items-center gap-2 text-sm">
+                                <span className="px-2.5 min-h-7 py-1 inline-flex items-center rounded-lg bg-black/[0.05] dark:bg-white/10 text-[#3a5274] dark:text-slate-300 break-words">{String(log.oldValue ?? '—')}</span>
+                                <ArrowRight className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" />
+                                <span className="px-2.5 min-h-7 py-1 inline-flex items-center rounded-lg bg-gradient-action text-white font-semibold break-words">{String(log.newValue ?? '—')}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className={tileCls}>
+                            <div className={`${labelCls} mb-2`}>Justificación</div>
+                            <p className="flex gap-2 text-sm text-[#3a5274] dark:text-slate-300 leading-relaxed">
+                              <Quote className="w-4 h-4 shrink-0 mt-0.5 text-[#69bdd7]" />
+                              <span className="break-words min-w-0">{log.justification || 'Sin justificación registrada.'}</span>
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </td>
-
-                    {/* 6. Justification */}
-                    <td className="px-3 py-2.5 align-top">
-                      <p className="text-slate-600 dark:text-slate-400 italic text-[10.5px] leading-relaxed break-words bg-slate-50/60 dark:bg-slate-900/40 p-1.5 rounded border border-slate-100 dark:border-slate-800" title={log.justification}>
-                        "{log.justification || 'Sin justificación registrada.'}"
-                      </p>
-                    </td>
-
-                    {/* 7. Action: Go to Dossier */}
-                    <td className="px-3 py-2.5 text-right align-top">
-                      {log.dossierId && (
-                        <button
-                          type="button"
-                          onClick={() => openSupplierReview(log.dossierId)}
-                          className="px-2 py-1 bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-700 dark:text-cyan-300 font-bold rounded-lg text-[11px] border border-blue-200 dark:border-blue-800 inline-flex items-center gap-1 cursor-pointer transition-colors"
-                          title="Abrir expediente de este proveedor"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Ver</span>
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                        <div className="mt-3 font-mono text-[10px] text-[#6b84a3] break-all">{log.id}</div>
+                      </article>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          ))}
         </div>
-      </div>
-
+      )}
     </div>
   );
 };
