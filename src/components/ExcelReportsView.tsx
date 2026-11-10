@@ -237,9 +237,190 @@ export const ExcelReportsView: React.FC = () => {
     );
   }
 
+  const labelCls = 'text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]';
+  const fieldCls =
+    'w-full h-11 px-3.5 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30 cursor-pointer';
+  const tileCls = 'rounded-2xl bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10';
+
+  const habilitados = dossiers.filter((d) => d.processStatus === 'PROVEEDOR_HABILITADO' || d.processStatus === 'APROBADO').length;
+  const stats = [
+    { label: 'Proveedores', value: dossiers.length, icon: Users },
+    { label: 'Habilitados', value: habilitados, icon: CheckCircle2 },
+    { label: 'Eventos auditados', value: systemAuditLogs.length, icon: History },
+    { label: 'Convocatorias', value: convocatorias.length, icon: Briefcase },
+  ];
+
+  const catalog: {
+    id: OfficialReportId;
+    icon: React.ElementType;
+    code: string;
+    title: string;
+    desc: string;
+    points: string[];
+    count: number;
+    direct: () => void;
+    toast: string;
+  }[] = [
+    {
+      id: 'DIRECTORIO_MAESTRO',
+      icon: Users,
+      code: 'SIG-FS-DIR-001',
+      title: 'Directorio maestro de proveedores',
+      desc: 'Listado consolidado con datos de contacto, NIT, razón social, ubicación, actividad económica y estado de proveedor y contractual.',
+      points: ['30 columnas estandarizadas', 'Filtro por estado de proveedor y contractual'],
+      count: dossiers.length,
+      direct: () => exportMasterSupplierDirectory(dossiers),
+      toast: '¡Directorio Maestro exportado en Excel!',
+    },
+    {
+      id: 'MATRIZ_DOCUMENTAL',
+      icon: FileText,
+      code: 'ISO 9001:2015',
+      title: 'Matriz de cumplimiento documental SIG',
+      desc: 'Requisitos obligatorios frente a cargados, porcentaje de avance, formatos FS.GA y pendientes por corregir.',
+      points: ['Control ISO 9001 por documento', 'Filtro por % de cumplimiento y semáforo SIG'],
+      count: dossiers.length,
+      direct: () => exportDocumentComplianceReport(dossiers),
+      toast: '¡Matriz Documental exportada en Excel!',
+    },
+    {
+      id: 'SARLAFT',
+      icon: ShieldCheck,
+      code: 'SAGRILAFT / SARLAFT',
+      title: 'Debida diligencia SARLAFT y listas',
+      desc: 'Conceptos de Oficialía de Cumplimiento, verificación en listas OFAC y antecedentes de Procuraduría y Policía Nacional.',
+      points: ['Conceptos: aprobado, observado, rechazado', 'Fechas de consulta y responsable de Oficialía'],
+      count: dossiers.length,
+      direct: () => exportSarlaftReport(dossiers),
+      toast: '¡Informe SARLAFT exportado en Excel!',
+    },
+    {
+      id: 'CUENTAS_FINANZAS',
+      icon: CreditCard,
+      code: 'Tesorería y pagos',
+      title: 'Cuentas bancarias y perfil financiero',
+      desc: 'Cuentas para dispersión de pagos, tipo de cuenta, banco, régimen tributario, retenciones y patrimonio declarado.',
+      points: ['Filtro por banco y tipo de cuenta', 'Régimen tributario e indicadores financieros'],
+      count: dossiers.length,
+      direct: () => exportFinancialBankReport(dossiers),
+      toast: '¡Informe Financiero y Bancario exportado en Excel!',
+    },
+    {
+      id: 'CONVOCATORIAS',
+      icon: Briefcase,
+      code: 'Licitaciones y FS',
+      title: 'Convocatorias y postulaciones',
+      desc: 'Histórico de convocatorias de contratación, postulantes inscritos, propuestas económicas y estado de calificación.',
+      points: ['2 hojas de cálculo (convocatorias y postulaciones)', 'Filtro por estado y categoría de contratación'],
+      count: convocatorias.length,
+      direct: () => exportConvocatoriasReport(convocatorias, dossiers),
+      toast: '¡Informe de Convocatorias exportado en Excel!',
+    },
+    {
+      id: 'AUDITORIA',
+      icon: History,
+      code: 'Forense y control',
+      title: 'Libro de auditoría y modificaciones',
+      desc: 'Registro cronológico e inmutable de modificaciones, justificaciones obligatorias, usuario responsable e IP.',
+      points: ['Control de cambios y trazabilidad', 'Comparativa de valor anterior y nuevo'],
+      count: systemAuditLogs.length,
+      direct: () => exportAuditLogsReport(systemAuditLogs),
+      toast: '¡Libro de Auditoría exportado en Excel!',
+    },
+    {
+      id: 'EVALUACIONES',
+      icon: Award,
+      code: 'SIG-FS-EVAL-007',
+      title: 'Evaluaciones y desempeño SIG',
+      desc: 'Evaluaciones periódicas de calidad: puntajes (0-100), concepto técnico, evaluador asignado, planes de mejora y fechas de corte.',
+      points: ['Filtro por evaluador, concepto y tipo', 'Planes de mejora y calificación numérica'],
+      count: supplierEvaluations.length,
+      direct: () => exportEvaluationsReport(supplierEvaluations, 'Consolidado General de Evaluaciones'),
+      toast: '¡Informe de Evaluaciones exportado en Excel!',
+    },
+  ];
+
+  const filterFields: { label: string; node: React.ReactNode }[] = [
+    {
+      label: 'Búsqueda rápida',
+      node: (
+        <div className="relative">
+          <Search className="w-4 h-4 text-[#6b84a3] absolute left-3.5 top-3.5" />
+          <input
+            type="text"
+            placeholder="Nombre, NIT, radicado…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`${fieldCls} pl-10 cursor-text`}
+          />
+        </div>
+      ),
+    },
+    {
+      label: 'Estado del proceso',
+      node: (
+        <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className={fieldCls}>
+          <option value="ALL">Todos los estados ({dossiers.length})</option>
+          <option value="PROVEEDOR_HABILITADO">Habilitado operativamente</option>
+          <option value="APROBADO">Aprobado</option>
+          <option value="EN_REVISION">En revisión</option>
+          <option value="CORREGIDO_EN_REVISION">Corregido en revisión</option>
+          <option value="REQUIERE_CORRECCION">Requiere corrección</option>
+          <option value="DOCUMENTACION_PENDIENTE">Documentación pendiente</option>
+          <option value="BORRADOR">Borrador</option>
+          <option value="RECHAZADO">Rechazado</option>
+        </select>
+      ),
+    },
+    {
+      label: 'Tipo de persona',
+      node: (
+        <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className={fieldCls}>
+          <option value="ALL">Todas las personas</option>
+          <option value="JURIDICA">Persona jurídica (empresas)</option>
+          <option value="NATURAL">Persona natural</option>
+        </select>
+      ),
+    },
+    {
+      label: 'Tipo de proveedor (A/B/C)',
+      node: (
+        <select value={selectedTier} onChange={(e) => setSelectedTier(e.target.value)} className={fieldCls}>
+          <option value="ALL">Todos los tipos (A, B, C)</option>
+          <option value="A">Tipo A - Crítico</option>
+          <option value="B">Tipo B - Operativo</option>
+          <option value="C">Tipo C - Estándar</option>
+        </select>
+      ),
+    },
+    {
+      label: 'Categoría / sector',
+      node: (
+        <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={fieldCls}>
+          <option value="ALL">Todas las categorías</option>
+          {categoriesConfig.map((cat) => (
+            <option key={cat.id} value={cat.name}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
+      label: 'Estado SARLAFT',
+      node: (
+        <select value={selectedSarlaft} onChange={(e) => setSelectedSarlaft(e.target.value)} className={fieldCls}>
+          <option value="ALL">Todos los conceptos</option>
+          <option value="SIN_COINCIDENCIAS">Sin coincidencias (limpio)</option>
+          <option value="REQUIERE_VERIFICACION">Requiere verificación</option>
+          <option value="PENDIENTE">Pendiente de consulta</option>
+        </select>
+      ),
+    },
+  ];
+
   return (
-    <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1 space-y-5 animate-in fade-in">
-      
+    <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1 space-y-6">
       <PageHeader
         icon={FileSpreadsheet}
         title="Reportes e informes"
@@ -257,669 +438,221 @@ export const ExcelReportsView: React.FC = () => {
           </button>
         }
       />
-      {/* 1. Header Banner Estandarizado Claro */}
-      <div className="fs-card rounded-2xl p-4 sm:p-5">
 
-        {/* Live Metrics Ribbon - Compact */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 mt-3 border-t border-slate-100 dark:border-slate-800/80">
-          <div className="bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 flex items-center justify-between dark:bg-slate-900/60 dark:border-slate-800">
-            <div>
-              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider block">Proveedores</span>
-              <span className="text-base font-black text-slate-900 dark:text-white">{dossiers.length}</span>
+      {/* Indicadores */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {stats.map((s) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.label} className="fs-card lift rounded-[22px] p-4 sm:p-5 animate-fade-up">
+              <div className="flex items-start justify-between gap-2">
+                <span className={labelCls}>{s.label}</span>
+                <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shrink-0 shadow-glow"><Icon className="w-4 h-4" /></span>
+              </div>
+              <div className="mt-3 font-display text-3xl font-semibold text-[#0b1d3a] dark:text-white tabular-nums">{s.value}</div>
             </div>
-            <Users className="w-4 h-4 text-blue-600 dark:text-slate-500" />
-          </div>
-          <div className="bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 flex items-center justify-between dark:bg-slate-900/60 dark:border-slate-800">
-            <div>
-              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-cyan-400 tracking-wider block">Habilitados</span>
-              <span className="text-base font-black text-blue-800 dark:text-cyan-300">
-                {dossiers.filter((d) => d.processStatus === 'PROVEEDOR_HABILITADO' || d.processStatus === 'APROBADO').length}
-              </span>
-            </div>
-            <CheckCircle2 className="w-4 h-4 text-blue-700 dark:text-cyan-400" />
-          </div>
-          <div className="bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 flex items-center justify-between dark:bg-slate-900/60 dark:border-slate-800">
-            <div>
-              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-cyan-400 tracking-wider block">Eventos Auditados</span>
-              <span className="text-base font-black text-blue-600 dark:text-cyan-300">{systemAuditLogs.length}</span>
-            </div>
-            <History className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-          </div>
-          <div className="bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 flex items-center justify-between dark:bg-slate-900/60 dark:border-slate-800">
-            <div>
-              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-blue-400 tracking-wider block">Convocatorias</span>
-              <span className="text-base font-black text-slate-900 dark:text-blue-300">{convocatorias.length}</span>
-            </div>
-            <Briefcase className="w-4 h-4 text-slate-600 dark:text-blue-400" />
-          </div>
-        </div>
+          );
+        })}
       </div>
 
-      {/* 2. Pre-Configured Official Reports Catalog */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
-              <span>Informes Oficiales Pre-configurados (Ingresar, Filtrar y Exportar)</span>
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Haga clic en <strong className="text-blue-600 dark:text-cyan-400">"Ingresar y Filtrar"</strong> en cualquiera de los 7 informes normativos para parametrizar estados de proveedor, contratos, evaluadores o fechas, visualizar los datos en vivo y generar el archivo Excel correspondiente.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          
-          {/* Card 1: Directorio Maestro */}
-          <div className="fs-card rounded-2xl p-5 hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                  <Users className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-blue-700 dark:text-cyan-300 bg-blue-50 dark:bg-blue-950/80 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                  SIG-FS-DIR-001
-                </span>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  Directorio Maestro de Proveedores
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Listado consolidado con datos de contacto, NIT, razón social, ubicación, actividad económica y discriminación entre estado de proveedor y contractual.
-                </p>
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl space-y-1">
-                <div>&bull; <strong>30 Columnas</strong> estandarizadas</div>
-                <div>&bull; Filtro por estado de proveedor y estado contractual</div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setActiveOfficialReport('DIRECTORIO_MAESTRO')}
-                className="w-full py-2.5 px-3 bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-cyan-200" />
-                <span>Ingresar y Filtrar Informe</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-auto text-cyan-200" />
-              </button>
-              <button
-                onClick={() => {
-                  exportMasterSupplierDirectory(dossiers);
-                  showToast('¡Directorio Maestro exportado en Excel!', 'success');
-                }}
-                className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-                <span>Descarga Directa ({dossiers.length})</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card 2: Matriz de Cumplimiento Documental */}
-          <div className="fs-card rounded-2xl p-5 hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-blue-700 dark:text-cyan-300 bg-blue-50 dark:bg-blue-950/80 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                  ISO 9001:2015
-                </span>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  Matriz de Cumplimiento Documental SIG
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Matriz comparativa de requisitos obligatorios vs cargados, porcentaje de avance, formatos FS.GA y pendientes por corregir.
-                </p>
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl space-y-1">
-                <div>&bull; <strong>Control ISO 9001</strong> por documento</div>
-                <div>&bull; Filtrado por % de cumplimiento y semáforo SIG</div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setActiveOfficialReport('MATRIZ_DOCUMENTAL')}
-                className="w-full py-2.5 px-3 bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-cyan-200" />
-                <span>Ingresar y Filtrar Informe</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-auto text-cyan-200" />
-              </button>
-              <button
-                onClick={() => {
-                  exportDocumentComplianceReport(dossiers);
-                  showToast('¡Matriz Documental exportada en Excel!', 'success');
-                }}
-                className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-                <span>Descarga Directa ({dossiers.length})</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card 3: SARLAFT y Listas Restrictivas */}
-          <div className="fs-card rounded-2xl p-5 hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] bg-[#2c84c4]/12 dark:bg-[#2c84c4]/80 px-2 py-0.5 rounded-full border border-[#2c84c4]/35 dark:border-[#2c84c4]/35">
-                  SAGRILAFT / SARLAFT
-                </span>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  Debida Diligencia SARLAFT & Listas
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Conceptos de Oficialía de Cumplimiento, verificación en listas OFAC, antecedentes de Procuraduría y Policía Nacional.
-                </p>
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl space-y-1">
-                <div>&bull; Conceptos: Aprobado, Observado, Rechazado</div>
-                <div>&bull; Fechas de consulta y responsable de Oficialía</div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setActiveOfficialReport('SARLAFT')}
-                className="w-full py-2.5 px-3 bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-cyan-200" />
-                <span>Ingresar y Filtrar Informe</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-auto text-cyan-200" />
-              </button>
-              <button
-                onClick={() => {
-                  exportSarlaftReport(dossiers);
-                  showToast('¡Informe SARLAFT exportado en Excel!', 'success');
-                }}
-                className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-                <span>Descarga Directa ({dossiers.length})</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card 4: Financiero & Cuentas Bancarias */}
-          <div className="fs-card rounded-2xl p-5 hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                  <CreditCard className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-blue-700 dark:text-cyan-300 bg-blue-50 dark:bg-blue-950/80 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                  Tesorería & Pagos
-                </span>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  Cuentas Bancarias y Perfil Financiero
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Cuentas bancarias para dispersión de pagos, tipo de cuenta, banco, régimen tributario, retenciones y patrimonio declarado.
-                </p>
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl space-y-1">
-                <div>&bull; Filtrar por banco y tipo de cuenta</div>
-                <div>&bull; Régimen tributario e indicadores financieros</div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setActiveOfficialReport('CUENTAS_FINANZAS')}
-                className="w-full py-2.5 px-3 bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-cyan-200" />
-                <span>Ingresar y Filtrar Informe</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-auto text-cyan-200" />
-              </button>
-              <button
-                onClick={() => {
-                  exportFinancialBankReport(dossiers);
-                  showToast('¡Informe Financiero y Bancario exportado en Excel!', 'success');
-                }}
-                className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-                <span>Descarga Directa ({dossiers.length})</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card 5: Convocatorias y Postulaciones */}
-          <div className="fs-card rounded-2xl p-5 hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
-                  <Briefcase className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/80 px-2 py-0.5 rounded-full border border-cyan-200 dark:border-cyan-800">
-                  Licitaciones & FS
-                </span>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  Convocatorias y Postulaciones
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Histórico de convocatorias de contratación, postulantes inscritos, propuestas económicas y estado de calificación.
-                </p>
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl space-y-1">
-                <div>&bull; <strong>2 Hojas de cálculo</strong> (Convocatorias + Postulaciones)</div>
-                <div>&bull; Filtro por estado y categoría de contratación</div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setActiveOfficialReport('CONVOCATORIAS')}
-                className="w-full py-2.5 px-3 bg-cyan-800 hover:bg-cyan-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-cyan-200" />
-                <span>Ingresar y Filtrar Informe</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-auto text-cyan-200" />
-              </button>
-              <button
-                onClick={() => {
-                  exportConvocatoriasReport(convocatorias, dossiers);
-                  showToast('¡Informe de Convocatorias exportado en Excel!', 'success');
-                }}
-                className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-                <span>Descarga Directa ({convocatorias.length})</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card 6: Log de Auditoría y Trazabilidad */}
-          <div className="fs-card rounded-2xl p-5 hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                  <History className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-700">
-                  Forense & Control
-                </span>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  Libro de Auditoría y Modificaciones
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Registro cronológico e inmutable de modificaciones de datos, justificaciones obligatorias, usuario responsable e IP.
-                </p>
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl space-y-1">
-                <div>&bull; Control de Cambios y Trazabilidad</div>
-                <div>&bull; Comparativa Valor Anterior vs Nuevo</div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setActiveOfficialReport('AUDITORIA')}
-                className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-slate-300" />
-                <span>Ingresar y Filtrar Informe</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-auto text-slate-300" />
-              </button>
-              <button
-                onClick={() => {
-                  exportAuditLogsReport(systemAuditLogs);
-                  showToast('¡Libro de Auditoría exportado en Excel!', 'success');
-                }}
-                className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-                <span>Descarga Directa ({systemAuditLogs.length})</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card 7: Evaluaciones de Desempeño SIG (ISO 9001:2015) */}
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-5 border border-purple-200 dark:border-purple-900/40 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 flex items-center justify-center">
-                  <Award className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/80 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
-                  SIG-FS-EVAL-007
-                </span>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  Evaluaciones y Desempeño SIG
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Evaluaciones periódicas de calidad: puntajes (0-100), concepto técnico, evaluador asignado, planes de mejora y próximas fechas de corte.
-                </p>
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl space-y-1">
-                <div>&bull; Filtro por Evaluador, Concepto y Tipo</div>
-                <div>&bull; Planes de mejora y calificación numérica</div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setActiveOfficialReport('EVALUACIONES')}
-                className="w-full py-2.5 px-3 bg-purple-700 hover:bg-purple-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-purple-200" />
-                <span>Ingresar y Filtrar Informe</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-auto text-purple-200" />
-              </button>
-              <button
-                onClick={() => {
-                  exportEvaluationsReport(supplierEvaluations, 'Consolidado General de Evaluaciones');
-                  showToast('¡Informe de Evaluaciones exportado en Excel!', 'success');
-                }}
-                className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-                <span>Descarga Directa ({supplierEvaluations.length})</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* 3. Custom Excel Report Builder */}
-      <div className="fs-card rounded-2xl p-5 sm:p-7 space-y-6">
-        
-        <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <Table className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <span>Constructor de Reportes Personalizados en Excel</span>
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Filtra los proveedores, selecciona las columnas exactas que necesitas y descarga tu archivo Excel a medida.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold px-3 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-full border border-blue-200 dark:border-blue-800">
-                {filteredDossiers.length} proveedores coincidentes
-              </span>
-              <span className="text-xs font-bold px-3 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-full border border-blue-200 dark:border-blue-800">
-                {selectedColumns.length} columnas seleccionadas
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Report Title Input */}
+      {/* Catálogo de informes oficiales */}
+      <section className="space-y-4">
         <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-            Título Personalizado del Informe (Aparecerá en el encabezado del Excel)
-          </label>
+          <div className={labelCls}>Informes oficiales</div>
+          <h3 className="mt-1 font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">Elige un informe, filtra y exporta</h3>
+          <p className="mt-1 text-sm text-[#3a5274] dark:text-slate-400 max-w-3xl">
+            Abre cualquiera de los 7 informes normativos para parametrizar estados, contratos, evaluadores o fechas, ver los datos en vivo y generar el Excel.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {catalog.map((c) => {
+            const Icon = c.icon;
+            return (
+              <article key={c.id} className="fs-card lift rounded-[24px] p-5 sm:p-6 flex flex-col justify-between animate-fade-up">
+                <div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="w-12 h-12 rounded-2xl bg-gradient-action text-white grid place-items-center shadow-glow"><Icon className="w-5 h-5" /></span>
+                    <span className="text-[10px] font-semibold tracking-wide px-2.5 h-6 inline-flex items-center rounded-full bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/25">{c.code}</span>
+                  </div>
+                  <h4 className="mt-4 font-display text-lg font-semibold text-[#0b1d3a] dark:text-white leading-snug">{c.title}</h4>
+                  <p className="mt-1.5 text-sm text-[#3a5274] dark:text-slate-400 leading-relaxed">{c.desc}</p>
+                  <ul className={`mt-4 ${tileCls} p-3.5 space-y-1.5`}>
+                    {c.points.map((pt) => (
+                      <li key={pt} className="flex items-start gap-2 text-xs text-[#3a5274] dark:text-slate-300">
+                        <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#2c84c4] dark:text-[#69bdd7]" />
+                        <span>{pt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-5 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveOfficialReport(c.id)}
+                    className="w-full h-11 px-4 rounded-xl bg-gradient-action text-white text-sm font-semibold inline-flex items-center justify-center gap-2 shadow-glow cursor-pointer hover:brightness-110 transition"
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span>Ingresar y filtrar</span>
+                    <ArrowRight className="w-4 h-4 ml-auto" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      c.direct();
+                      showToast(c.toast, 'success');
+                    }}
+                    className="w-full h-10 px-4 rounded-xl border border-[#2c84c4]/35 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Descarga directa ({c.count})</span>
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Constructor de reportes personalizados */}
+      <section className="fs-card rounded-[24px] p-5 sm:p-7 space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <span className="w-12 h-12 rounded-2xl bg-gradient-action text-white grid place-items-center shadow-glow shrink-0"><Table className="w-5 h-5" /></span>
+            <div>
+              <div className={labelCls}>Constructor</div>
+              <h3 className="font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">Reportes personalizados en Excel</h3>
+              <p className="text-sm text-[#3a5274] dark:text-slate-400">Filtra los proveedores, elige las columnas exactas y descarga tu archivo a medida.</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="h-8 px-3.5 inline-flex items-center rounded-full bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/25">{filteredDossiers.length} proveedores coincidentes</span>
+            <span className="h-8 px-3.5 inline-flex items-center rounded-full bg-[#69bdd7]/20 text-xs font-semibold text-[#0e6d8a] dark:text-[#69bdd7] border border-[#69bdd7]/35">{selectedColumns.length} columnas</span>
+          </div>
+        </div>
+
+        <div>
+          <label className={`${labelCls} block mb-2`}>Título del informe (aparece en el encabezado del Excel)</label>
           <input
             type="text"
             value={customReportTitle}
             onChange={(e) => setCustomReportTitle(e.target.value)}
-            placeholder="Ej. Informe de Proveedores Habilitados Zona Boyacá"
-            className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            placeholder="Ej. Informe de proveedores habilitados zona Boyacá"
+            className={`${fieldCls} cursor-text font-semibold`}
           />
         </div>
 
-        {/* Dynamic Filters Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 p-4 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
-          
-          {/* Search */}
-          <div className="lg:col-span-1">
-            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-              Búsqueda Rápida
-            </label>
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-2.5 top-2.5" />
-              <input
-                type="text"
-                placeholder="Nombre, NIT, radicado..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs"
-              />
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-              Estado del Proceso
-            </label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium cursor-pointer"
-            >
-              <option value="ALL">Todos los Estados ({dossiers.length})</option>
-              <option value="PROVEEDOR_HABILITADO">Habilitado Operativamente</option>
-              <option value="APROBADO">Aprobado</option>
-              <option value="EN_REVISION">En Revisión</option>
-              <option value="CORREGIDO_EN_REVISION">Corregido en Revisión</option>
-              <option value="REQUIERE_CORRECCION">Requiere Corrección</option>
-              <option value="DOCUMENTACION_PENDIENTE">Documentación Pendiente</option>
-              <option value="BORRADOR">Borrador</option>
-              <option value="RECHAZADO">Rechazado</option>
-            </select>
-          </div>
-
-          {/* Type Filter */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-              Tipo de Persona
-            </label>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium cursor-pointer"
-            >
-              <option value="ALL">Todas las Personas</option>
-              <option value="JURIDICA">Persona Jurídica (Empresas)</option>
-              <option value="NATURAL">Persona Natural</option>
-            </select>
-          </div>
-
-          {/* Tier Filter (A, B, C) */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-              Tipo Proveedor (A/B/C)
-            </label>
-            <select
-              value={selectedTier}
-              onChange={(e) => setSelectedTier(e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium cursor-pointer"
-            >
-              <option value="ALL">Todos los Tipos (A, B, C)</option>
-              <option value="A">Tipo A - Crítico</option>
-              <option value="B">Tipo B - Operativo</option>
-              <option value="C">Tipo C - Estándar</option>
-            </select>
-          </div>
-
-          {/* Category Filter */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-              Categoría / Sector
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium cursor-pointer"
-            >
-              <option value="ALL">Todas las Categorías</option>
-              {categoriesConfig.map((cat) => (
-                <option key={cat.id} value={cat.name}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* SARLAFT Filter */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-              Estado SARLAFT
-            </label>
-            <select
-              value={selectedSarlaft}
-              onChange={(e) => setSelectedSarlaft(e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium cursor-pointer"
-            >
-              <option value="ALL">Todos los Conceptos</option>
-              <option value="SIN_COINCIDENCIAS">Sin Coincidencias (Limpio)</option>
-              <option value="REQUIERE_VERIFICACION">Requiere Verificación</option>
-              <option value="PENDIENTE">Pendiente de Consulta</option>
-            </select>
-          </div>
-
-        </div>
-
-          {/* Column Selection Toolbar */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span className="text-xs font-black uppercase text-slate-700 dark:text-slate-300 tracking-wider">
-              Selección de Columnas a Incluir en el Excel:
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleSelectAllColumns}
-                className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
-              >
-                + Seleccionar Todas
-              </button>
-              <span className="text-slate-300 dark:text-slate-700">|</span>
-              <button
-                type="button"
-                onClick={handleClearColumns}
-                className="text-[11px] font-bold text-[#5d7392] dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:underline cursor-pointer"
-              >
-                Restablecer Básicas
-              </button>
-            </div>
-          </div>
-
-          {/* Checkboxes Grouped Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {columnGroups.map((group) => (
-              <div
-                key={group.groupName}
-                className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5"
-              >
-                <span className="text-[11px] font-extrabold uppercase text-slate-500 dark:text-slate-400 block tracking-wider">
-                  {group.groupName}
-                </span>
-                <div className="space-y-1.5">
-                  {group.columns.map((col) => {
-                    const isChecked = selectedColumns.includes(col.id);
-                    return (
-                      <label
-                        key={col.id}
-                        className={`flex items-center gap-2 p-1.5 rounded-lg text-xs cursor-pointer transition-colors ${
-                          isChecked
-                            ? 'bg-blue-50/80 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 font-semibold'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => handleToggleColumn(col.id)}
-                          className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7] rounded border-black/10 dark:border-white/10 focus:ring-blue-500 cursor-pointer"
-                        />
-                        <span>{col.label}</span>
-                      </label>
-                    );
-                  })}
-                </div>
+        {/* Filtros */}
+        <div className={`${tileCls} p-4 sm:p-5`}>
+          <div className={`${labelCls} mb-3`}>Filtros</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filterFields.map((f) => (
+              <div key={f.label}>
+                <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-slate-200 mb-1.5">{f.label}</label>
+                {f.node}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Live Preview Table */}
-        <div className="space-y-2 pt-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              Vista Previa de Datos (Primeros 5 de {filteredDossiers.length} registros)
-            </span>
+        {/* Columnas */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span className={labelCls}>Columnas a incluir en el Excel</span>
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={handleSelectAllColumns} className="text-xs font-semibold text-[#2c84c4] dark:text-[#69bdd7] hover:underline cursor-pointer">
+                Seleccionar todas
+              </button>
+              <span className="h-4 w-px bg-black/15 dark:bg-white/20" />
+              <button type="button" onClick={handleClearColumns} className="text-xs font-semibold text-[#3a5274] dark:text-slate-400 hover:underline cursor-pointer">
+                Restablecer básicas
+              </button>
+            </div>
           </div>
 
-          <div>
-            <div className="sm:hidden px-3 py-1 bg-blue-50/60 dark:bg-blue-950/40 border border-b-0 border-slate-200 dark:border-slate-800 rounded-t-xl text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-              <span>Desliza horizontalmente para ver todas las columnas</span>
-              <span className="font-bold">↔</span>
-            </div>
-            <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-b-xl sm:rounded-t-xl bg-slate-50 dark:bg-slate-900">
-              <table className="w-full text-[11px] text-left border-collapse min-w-[760px] lg:min-w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {columnGroups.map((group) => {
+              const selectedInGroup = group.columns.filter((c) => selectedColumns.includes(c.id)).length;
+              return (
+                <div key={group.groupName} className={`${tileCls} p-4`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{group.groupName}</span>
+                    <span className="text-[11px] font-semibold text-[#2c84c4] dark:text-[#69bdd7] tabular-nums">{selectedInGroup}/{group.columns.length}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {group.columns.map((col) => {
+                      const isChecked = selectedColumns.includes(col.id);
+                      return (
+                        <label
+                          key={col.id}
+                          className={`flex items-center gap-3 px-2.5 h-10 rounded-xl text-sm cursor-pointer transition-colors ${
+                            isChecked
+                              ? 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/20 text-[#0b1d3a] dark:text-white font-semibold'
+                              : 'text-[#3a5274] dark:text-slate-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+                          }`}
+                        >
+                          <input type="checkbox" checked={isChecked} onChange={() => handleToggleColumn(col.id)} className="sr-only peer" />
+                          <span
+                            className={`w-5 h-5 rounded-md grid place-items-center shrink-0 border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#2c84c4]/50 ${
+                              isChecked ? 'bg-gradient-action border-transparent text-white' : 'border-[#6b84a3]/60 bg-transparent'
+                            }`}
+                          >
+                            {isChecked && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+                          </span>
+                          <span className="truncate">{col.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Vista previa */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className={labelCls}>Vista previa (primeros 5 de {filteredDossiers.length})</span>
+          </div>
+          <div className="overflow-x-auto rounded-2xl border border-black/[0.08] dark:border-white/10">
+            <table className="w-full text-xs text-left border-collapse min-w-[760px] lg:min-w-full">
               <thead>
-                <tr className="bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-300 dark:border-slate-700">
-                  <th className="p-2.5">No. Expediente</th>
-                  <th className="p-2.5">Proveedor</th>
-                  <th className="p-2.5">NIT / Cédula</th>
-                  <th className="p-2.5">Tipo Persona</th>
-                  <th className="p-2.5">Tipo (A/B/C)</th>
-                  <th className="p-2.5">Ciudad</th>
-                  <th className="p-2.5">Categoría</th>
-                  <th className="p-2.5">Estado</th>
-                  <th className="p-2.5">SARLAFT</th>
+                <tr className="bg-[#2c84c4]/12 dark:bg-[#2c84c4]/20 text-[#1d5fa8] dark:text-[#69bdd7]">
+                  {['No. Expediente', 'Proveedor', 'NIT / Cédula', 'Tipo persona', 'Tipo', 'Ciudad', 'Categoría', 'Estado', 'SARLAFT'].map((h) => (
+                    <th key={h} className="px-3 py-3 text-[10px] font-semibold uppercase tracking-[0.12em]">{h}</th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+              <tbody className="divide-y divide-black/[0.06] dark:divide-white/10">
+                {filteredDossiers.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="px-3 py-10 text-center text-sm text-[#3a5274] dark:text-slate-400">Ningún proveedor coincide con los filtros.</td>
+                  </tr>
+                )}
                 {filteredDossiers.slice(0, 5).map((d) => {
                   const isNat = d.basicInfo?.supplierType === 'NATURAL';
                   const name = isNat ? d.basicInfo?.fullName : d.basicInfo?.companyName;
                   const doc = isNat ? d.basicInfo?.documentNumber : d.basicInfo?.nit;
                   const tier = d.supplierTier || d.basicInfo?.supplierTier || 'B';
-
+                  const sarlaft = d.internalConcepts?.sarlatfCheck?.result;
                   return (
-                    <tr key={d.id} className="hover:bg-white dark:hover:bg-slate-800/50">
-                      <td className="p-2.5 font-bold text-blue-700 dark:text-cyan-400">{d.fileNumber}</td>
-                      <td className="p-2.5 font-medium text-slate-900 dark:text-slate-100">{name}</td>
-                      <td className="p-2.5 text-slate-600 dark:text-slate-400">{doc}</td>
-                      <td className="p-2.5 text-slate-600 dark:text-slate-400">{isNat ? 'Natural' : 'Jurídica'}</td>
-                      <td className="p-2.5">
-                        <span
-                          className={`text-[10px] font-black px-1.5 py-0.5 rounded border ${
-                            tier === 'A'
-                              ? 'bg-slate-900 text-white border-slate-700 dark:bg-slate-800 dark:text-cyan-300'
-                              : tier === 'B'
-                              ? 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-cyan-300'
-                              : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300'
-                          }`}
-                        >
-                          Tipo {tier}
-                        </span>
+                    <tr key={d.id} className="hover:bg-[#2c84c4]/[0.06] transition-colors">
+                      <td className="px-3 py-3 font-mono font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">{d.fileNumber}</td>
+                      <td className="px-3 py-3 font-semibold text-[#0b1d3a] dark:text-white">{name}</td>
+                      <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{doc}</td>
+                      <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{isNat ? 'Natural' : 'Jurídica'}</td>
+                      <td className="px-3 py-3">
+                        <span className={`px-2 h-6 inline-flex items-center rounded-md text-[10px] font-bold ${tier === 'A' ? 'bg-gradient-action text-white' : 'bg-[#69bdd7]/25 text-[#0e6d8a] dark:text-[#69bdd7]'}`}>Tipo {tier}</span>
                       </td>
-                      <td className="p-2.5 text-slate-600 dark:text-slate-400">{d.basicInfo?.city || 'Sogamoso'}</td>
-                      <td className="p-2.5 text-slate-600 dark:text-slate-400">{d.selectedCategory}</td>
-                      <td className="p-2.5">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">
-                          {d.processStatus}
-                        </span>
+                      <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{d.basicInfo?.city || 'Sogamoso'}</td>
+                      <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{d.selectedCategory}</td>
+                      <td className="px-3 py-3">
+                        <span className="px-2.5 h-6 inline-flex items-center rounded-full text-[10px] font-bold bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]">{d.processStatus}</span>
                       </td>
-                      <td className="p-2.5">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          d.internalConcepts?.sarlatfCheck?.result === 'SIN_COINCIDENCIAS'
-                            ? 'bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300'
-                            : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                        }`}>
-                          {d.internalConcepts?.sarlatfCheck?.result || 'PENDIENTE'}
+                      <td className="px-3 py-3">
+                        <span className={`px-2.5 h-6 inline-flex items-center rounded-full text-[10px] font-bold ${sarlaft === 'SIN_COINCIDENCIAS' ? 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]' : 'bg-black/[0.06] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'}`}>
+                          {sarlaft || 'PENDIENTE'}
                         </span>
                       </td>
                     </tr>
@@ -929,22 +662,19 @@ export const ExcelReportsView: React.FC = () => {
             </table>
           </div>
         </div>
-        </div>
 
-        {/* Main Export Button */}
-        <div className="pt-4 flex justify-end">
+        <div className="pt-1 flex justify-end">
           <button
+            type="button"
             onClick={handleCustomExport}
             disabled={filteredDossiers.length === 0 || selectedColumns.length === 0}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-400 text-white font-bold text-sm rounded-xl shadow-lg shadow-slate-950/30 flex items-center gap-2.5 transition-all cursor-pointer disabled:cursor-not-allowed"
+            className="h-12 px-6 rounded-xl bg-gradient-action text-white font-semibold text-sm shadow-glow inline-flex items-center gap-2.5 transition cursor-pointer hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
           >
             <Download className="w-5 h-5" />
-            <span>Generar y Descargar Informe Personalizado ({filteredDossiers.length} Registros)</span>
+            <span>Generar y descargar informe ({filteredDossiers.length} registros)</span>
           </button>
         </div>
-
-      </div>
-
+      </section>
     </div>
   );
 };
