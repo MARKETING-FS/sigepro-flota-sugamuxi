@@ -45,6 +45,7 @@ const toProfile = (session: Session | null): AuthProfile | null => {
 const translateAuthError = (message: string): string => {
   const m = message.toLowerCase();
   if (m.includes('invalid login credentials')) return 'Correo o contraseña incorrectos.';
+  if (m.includes('does not support password')) return 'Esta cuenta aún no tiene contraseña. Use "¿Olvidó su contraseña?" para crearla.';
   if (m.includes('email not confirmed')) return 'Su correo aún no ha sido confirmado. Revise su bandeja de entrada.';
   if (m.includes('rate limit') || m.includes('too many') || m.includes('security purposes')) {
     return 'Demasiados intentos. Espere unos minutos e intente de nuevo.';
