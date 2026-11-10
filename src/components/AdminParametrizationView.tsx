@@ -49,7 +49,6 @@ import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
 import { BaseRequirementsTab } from './matrix/BaseRequirementsTab';
 import { EconomicActivitiesTab } from './matrix/EconomicActivitiesTab';
 import { DocumentCatalogTab } from './matrix/DocumentCatalogTab';
-import { MatrixSimulatorTab } from './matrix/MatrixSimulatorTab';
 import { PageHeader, heroPrimaryBtn, heroSecondaryBtn } from './ui/archive';
 
 export type ParamTab =
@@ -57,7 +56,6 @@ export type ParamTab =
   | 'matrix_base'
   | 'matrix_activities'
   | 'matrix_documents'
-  | 'matrix_simulator'
   // Catálogos y Listas Maestras
   | 'categories'
   | 'banks'
@@ -655,7 +653,6 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
     { id: 'matrix_base', label: '1. Requisitos Base (Natural / Jurídica)', icon: User },
     { id: 'matrix_activities', label: '2. Requisitos por Actividad Económica', icon: Briefcase, count: categoriesConfig.length },
     { id: 'matrix_documents', label: '3. Catálogo Maestro de Documentos', icon: FileText, count: documentDefinitions.length },
-    { id: 'matrix_simulator', label: '4. Simulador de Requisitos en Vivo', icon: Sparkles },
   ];
 
   const catalogTabs: Array<{ id: ParamTab; label: string; icon: React.FC<any>; count?: number }> = [
@@ -1036,10 +1033,6 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
             />
           )}
 
-          {/* MATRIX TAB 4: SIMULADOR DE REQUISITOS */}
-          {activeTab === 'matrix_simulator' && (
-            <MatrixSimulatorTab />
-          )}
           
           {/* TAB 1: CATEGORIAS DE SUMINISTRO / SERVICIO */}
           {activeTab === 'categories' && (
