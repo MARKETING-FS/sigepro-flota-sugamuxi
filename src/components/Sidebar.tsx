@@ -54,19 +54,12 @@ const GROUPS: Array<{ title: string; items: NavItem[] }> = [
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, onOpenHabeasDataModal }) => {
-  const { role, setRole, activeUserId, setActiveUserId, systemUsers, activeView, setActiveView, setReviewSelectedDossierId, showToast } = useApp();
+  const { role, activeUser, signOut, activeView, setActiveView, setReviewSelectedDossierId, showToast } = useApp();
 
-  const handleRoleChange = (newRole: 'ADMIN' | 'REVISOR') => {
-    if (newRole === role) return;
-    setRole(newRole);
-    showToast(
-      `Perfil cambiado a ${newRole === 'ADMIN' ? 'Administrador General' : 'Revisor Técnico Evaluador'}. Vista actualizada.`,
-      'info',
-      'CAMBIO DE ROL'
-    );
-    setActiveView('revisores');
+  const handleSignOut = async () => {
+    await signOut();
+    showToast('Sesión cerrada correctamente.', 'info', 'CIERRE DE SESIÓN');
   };
-  const reviewers = systemUsers.filter((u) => u.role === 'REVISOR');
 
   const go = (view: AppView) => {
     if (view === 'revisores') setReviewSelectedDossierId(null);
@@ -111,42 +104,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, o
           </div>
         )}
       </div>
-
-      {!isCollapsed && (
-        <div className="relative shrink-0 px-4 pt-1 pb-3">
-          <div className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">Rol de acceso</div>
-          <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/[0.06] p-1">
-            {([['ADMIN', 'Administrador'], ['REVISOR', 'Revisor']] as const).map(([r, label]) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => handleRoleChange(r)}
-                aria-pressed={role === r}
-                className={`h-9 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  role === r ? 'bg-gradient-action text-white shadow-glow' : 'text-white/65 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {role === 'REVISOR' && reviewers.length > 0 && (
-            <select
-              value={activeUserId}
-              onChange={(e) => {
-                setActiveUserId(e.target.value);
-                setActiveView('revisores');
-              }}
-              aria-label="Evaluador activo"
-              className="mt-2 w-full h-10 rounded-xl bg-white/[0.06] border border-white/10 px-3 text-xs font-semibold text-white outline-none focus:border-[#69bdd7]"
-            >
-              {reviewers.map((u) => (
-                <option key={u.id} value={u.id}>{u.name}</option>
-              ))}
-            </select>
-          )}
-        </div>
-      )}
 
       <nav className="relative flex-1 overflow-y-auto min-h-0 px-4 pb-3 pt-2" aria-label="Menú principal">
         {GROUPS.map((group, gi) => {

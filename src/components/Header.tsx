@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Moon, Sun, Menu, ChevronDown, ChevronRight, Users, UserPlus, Home } from 'lucide-react';
+import { Moon, Sun, Menu, ChevronDown, ChevronRight, LogOut, UserPlus, Home } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { AppView } from '../types';
 import { PushAlertsPopover } from './notifications/PushAlertsPopover';
@@ -24,8 +24,8 @@ const SECTION_TITLE: Partial<Record<AppView, string>> = {
   convocatorias: 'Convocatorias',
 };
 
-export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, setActiveView, onToggleSidebar }) => {
-  const { role, activeUser, theme, toggleTheme, showToast, setReviewSelectedDossierId } = useApp();
+export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, onToggleSidebar }) => {
+  const { role, activeUser, signOut, theme, toggleTheme, showToast, setReviewSelectedDossierId } = useApp();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isDarkMode = theme === 'dark';
@@ -39,9 +39,10 @@ export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, setAc
     return () => document.removeEventListener('mousedown', close);
   }, [isMenuOpen]);
 
-  const handleSwitchAccount = () => {
+  const handleSignOut = async () => {
     setIsMenuOpen(false);
-    setActiveView('login');
+    await signOut();
+    showToast('Sesión cerrada correctamente.', 'info', 'CIERRE DE SESIÓN');
   };
 
   const iconBtn =
@@ -87,17 +88,17 @@ export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, setAc
               className="flex items-center gap-3 py-1 pl-1 pr-2 rounded-xl hover:bg-[#2c84c4]/10 dark:hover:bg-white/10 transition-colors cursor-pointer"
               aria-expanded={isMenuOpen}
             >
-              <span className="relative w-9 h-9 rounded-xl bg-gradient-brand text-white text-sm font-display font-semibold grid place-items-center shadow-glow">{role === 'ADMIN' ? 'JS' : activeUser.avatarText}<span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-[#131b2e] bg-[#2c84c4]" /></span>
-              <span className="hidden sm:block text-sm font-semibold text-[#0b1d3a] dark:text-white max-w-[240px] truncate">{role === 'ADMIN' ? 'Julian Salgado' : activeUser.name}</span>
+              <span className="relative w-9 h-9 rounded-xl bg-gradient-brand text-white text-sm font-display font-semibold grid place-items-center shadow-glow">{activeUser.avatarText}<span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-[#131b2e] bg-[#2c84c4]" /></span>
+              <span className="hidden sm:block text-sm font-semibold text-[#0b1d3a] dark:text-white max-w-[240px] truncate">{activeUser.name}</span>
               <ChevronDown className="w-4 h-4 text-[#0b1d3a] dark:text-slate-300" />
             </button>
 
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-72 !bg-white dark:!bg-[#061330] border border-fs-line dark:!border-[#24437f] rounded-2xl shadow-[0_18px_40px_-12px_rgba(0,0,0,0.65)] p-2 z-50 backdrop-blur-none">
                 <div className="px-3 py-2 border-b border-fs-line dark:border-slate-800 mb-1">
-                  <div className="text-sm font-semibold text-fs-navy dark:text-white truncate">{role === 'ADMIN' ? 'Julian Salgado' : activeUser.name}</div>
+                  <div className="text-sm font-semibold text-fs-navy dark:text-white truncate">{activeUser.name}</div>
                   <div className="text-xs text-fs-muted dark:!text-[#a9c3e0] truncate">
-                    {role === 'ADMIN' ? 'Administrador general' : 'Revisor técnico'} · {role === 'ADMIN' ? 'auxsistemas@flotasugamuxisa.com.co' : activeUser.email}
+                    {role === 'ADMIN' ? 'Administrador general' : 'Revisor técnico'} · {activeUser.email}
                   </div>
                 </div>
                 <button
@@ -111,8 +112,8 @@ export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, setAc
                   <UserPlus className="w-4 h-4 text-fs-muted" /> Registrar proveedor
                 </button>
                 <div className="border-t border-fs-line dark:border-slate-800 mt-1 pt-1">
-                  <button type="button" className={menuItem} onClick={handleSwitchAccount}>
-                    <Users className="w-4 h-4 text-fs-muted" /> Cambiar de cuenta o rol
+                  <button type="button" className={menuItem} onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 text-fs-muted" /> Cerrar sesión
                   </button>
                 </div>
               </div>

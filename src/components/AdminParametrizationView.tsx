@@ -78,7 +78,6 @@ export interface AdminParametrizationViewProps {
 export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> = ({ initialTab }) => {
   const {
     role,
-    setRole,
     setActiveView,
     categoriesConfig,
     addCategoryConfig,

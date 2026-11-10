@@ -13,6 +13,8 @@ import { SupplierEvaluationsView } from './components/evaluations/SupplierEvalua
 import { CorporateLoginView } from './components/CorporateLoginView';
 import { ToastNotification } from './components/ToastNotification';
 import { PushAlertFloatingToast } from './components/notifications/PushAlertFloatingToast';
+import { ResetPasswordView } from './components/auth/ResetPasswordView';
+import { AuthLoadingScreen, NoRoleScreen } from './components/auth/AuthStatusScreens';
 import {
   ShieldCheck,
   Lock,
@@ -47,20 +49,6 @@ const MainLayout: React.FC = () => {
   const handleOpenRegister = () => {
     setActiveView('registrarProveedor');
   };
-
-  // Full-page Corporate Login View
-  if (activeView === 'login') {
-    return (
-      <div className="h-screen w-full overflow-hidden bg-slate-100 dark:bg-[#060b18] flex flex-col font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-200 dark:selection:bg-blue-900 transition-colors duration-200">
-        <ToastNotification />
-        <PushAlertFloatingToast />
-        <CorporateLoginView
-          onOpenHabeasDataModal={() => setIsHabeasDataOpen(true)}
-          onBackToApp={() => setActiveView('revisores')}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="fs-page min-h-screen flex font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-200 dark:selection:bg-blue-900 transition-colors duration-200">
@@ -233,10 +221,39 @@ const MainLayout: React.FC = () => {
   );
 };
 
+// Sin sesión válida de Supabase no se muestra ninguna parte del sistema
+const AuthGate: React.FC = () => {
+  const { authLoading, authProfile, isPasswordRecovery } = useApp();
+
+  let screen: React.ReactNode;
+  if (authLoading) {
+    screen = <AuthLoadingScreen />;
+  } else if (isPasswordRecovery) {
+    screen = <ResetPasswordView />;
+  } else if (!authProfile) {
+    screen = (
+      <div className="min-h-screen w-full bg-slate-100 dark:bg-[#060b18] flex flex-col font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-200 dark:selection:bg-blue-900 transition-colors duration-200">
+        <CorporateLoginView />
+      </div>
+    );
+  } else if (!authProfile.role) {
+    screen = <NoRoleScreen />;
+  } else {
+    return <MainLayout />;
+  }
+
+  return (
+    <>
+      <ToastNotification />
+      {screen}
+    </>
+  );
+};
+
 export default function App() {
   return (
     <AppProvider>
-      <MainLayout />
+      <AuthGate />
     </AppProvider>
   );
 }

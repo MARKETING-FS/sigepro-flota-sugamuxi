@@ -11,6 +11,7 @@ interface ImportMetaEnv {
   readonly VITE_ONEDRIVE_CLIENT_SECRET?: string;
   readonly VITE_ONEDRIVE_DRIVE_ID?: string;
   readonly VITE_ONEDRIVE_ROOT_FOLDER?: string;
+  readonly VITE_DEMO_MODE?: string;
 }
 
 interface ImportMeta {

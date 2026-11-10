@@ -59,10 +59,22 @@ import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/initialEmails';
 import { generateEmailContent } from '../utils/emailTemplates';
 import { supabaseService } from '../services/supabaseService';
 import { sendEmail } from '../services/emailService';
+import { useSupabaseAuth, AuthProfile, AuthResult } from '../auth/useSupabaseAuth';
+import { IS_DEMO_MODE, buildDemoData } from '../dev/demoData';
 
 interface AppContextType {
+  // Autenticación real (Supabase Auth)
+  isAuthConfigured: boolean;
+  authLoading: boolean;
+  authProfile: AuthProfile | null;
+  isPasswordRecovery: boolean;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
+  signOut: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<AuthResult>;
+  updatePassword: (password: string) => Promise<AuthResult>;
+  cancelPasswordRecovery: () => Promise<void>;
+
   role: UserRole;
-  setRole: (role: UserRole) => void;
   activeView: AppView;
   setActiveView: (view: AppView) => void;
   theme: ThemeMode;
@@ -72,7 +84,6 @@ interface AppContextType {
   allDossiers: SupplierDossier[];
   activeUserId: string;
   activeUser: SystemUser;
-  setActiveUserId: (id: string) => void;
   systemUsers: SystemUser[];
   canEditDossier: (dossierId: string) => boolean;
   assignSupplierReviewer: (dossierId: string, reviewerId: string, reviewerName: string, assignedBy?: string) => void;
@@ -316,34 +327,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return 'light';
   });
 
-  const [role, setRoleState] = useState<UserRole>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_ROLE);
-    return saved === 'REVISOR' ? 'REVISOR' : 'ADMIN';
-  });
+  // Sesión real: el rol y el usuario salen de Supabase Auth, no de localStorage
+  const auth = useSupabaseAuth();
+  const authProfile = auth.authProfile;
 
-  const [activeUserId, setActiveUserIdState] = useState<string>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_ACTIVE_USER);
-    if (saved && INITIAL_SYSTEM_USERS.some((u) => u.id === saved)) {
-      return saved;
-    }
-    const savedRole = localStorage.getItem(LOCAL_STORAGE_KEY_ROLE);
-    if (savedRole === 'REVISOR') return 'revisor-1';
-    return 'admin-1';
-  });
+  // Sin sesión o sin rol se usa el menor privilegio; la app no se muestra en ese caso
+  const role: UserRole = authProfile?.role ?? 'REVISOR';
 
-  const activeUser: SystemUser =
-    INITIAL_SYSTEM_USERS.find((u) => u.id === activeUserId) || INITIAL_SYSTEM_USERS[0];
+  const activeUserId: string = authProfile ? authProfile.sigeproUserId || authProfile.id : '';
+
+  const activeUser: SystemUser = React.useMemo(() => {
+    const linked = INITIAL_SYSTEM_USERS.find((u) => u.id === activeUserId);
+    const name = authProfile?.name || linked?.name || 'Usuario';
+    const initials =
+      name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase() || 'US';
+    return {
+      id: activeUserId,
+      name,
+      shortName: linked?.shortName || (role === 'ADMIN' ? 'Admin General' : 'Revisor'),
+      role,
+      email: authProfile?.email || '',
+      avatarText: initials,
+      department: linked?.department || (role === 'ADMIN' ? 'Administración' : 'Evaluación de Proveedores'),
+      color: linked?.color,
+      description: linked?.description,
+    };
+  }, [authProfile, activeUserId, role]);
 
   const [activeView, setActiveViewState] = useState<AppView>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_ACTIVE_VIEW);
-    // 'onboarding' era la vista del portal de proveedores, que ya no existe
-    if (!saved || saved === 'onboarding') {
+    // 'onboarding' (portal de proveedores) y 'login' ya no son vistas de la app
+    if (!saved || saved === 'onboarding' || saved === 'login') {
       return 'revisores';
     }
     return saved as AppView;
   });
 
   const [allDossiers, setAllDossiers] = useState<SupplierDossier[]>(() => {
+    if (import.meta.env.DEV && IS_DEMO_MODE) return buildDemoData().dossiers;
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_DOSSIERS);
     if (saved) {
       try {
@@ -547,6 +574,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Supplier Evaluation & Grading SIG State (Revisores & Admins)
   const [supplierEvaluations, setSupplierEvaluations] = useState<SupplierEvaluation[]>(() => {
+    if (import.meta.env.DEV && IS_DEMO_MODE) return buildDemoData().evaluations;
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS);
     if (saved) {
       try {
@@ -727,10 +755,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [reviewSelectedDossierId]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_ROLE, role);
-  }, [role]);
-
-  useEffect(() => {
     if (currentDossierId) {
       localStorage.setItem(LOCAL_STORAGE_KEY_CURRENT_DOSSIER, currentDossierId);
     }
@@ -749,9 +773,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const isSupabaseConnected = supabaseService.isConfigured();
 
-  // Carga asíncrona y sincronización de datos con Supabase
+  // Carga asíncrona y sincronización de datos con Supabase (solo con sesión iniciada)
+  const authUserKey = authProfile?.id || '';
   useEffect(() => {
-    if (supabaseService.isConfigured()) {
+    if (supabaseService.isConfigured() && authUserKey) {
       supabaseService.getDossiers().then((remoteDossiers) => {
         if (remoteDossiers !== null) {
           setAllDossiers(remoteDossiers);
@@ -809,7 +834,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       });
     }
-  }, []);
+  }, [authUserKey]);
 
   const toggleTheme = () => {
     setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -817,41 +842,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const setTheme = (newTheme: ThemeMode) => {
     setThemeState(newTheme);
-  };
-
-  const setRole = (newRole: UserRole) => {
-    setRoleState(newRole);
-    localStorage.setItem(LOCAL_STORAGE_KEY_ROLE, newRole);
-
-    if (newRole === 'REVISOR' && activeUser.role !== 'REVISOR') {
-      setActiveUserIdState('revisor-1');
-      localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, 'revisor-1');
-    } else if (newRole === 'ADMIN' && activeUser.role !== 'ADMIN') {
-      setActiveUserIdState('admin-1');
-      localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, 'admin-1');
-    }
-
-    // Predeterminada la entrada a Dashboard Ejecutivo
-    setActiveViewState('revisores');
-  };
-
-  const setActiveUserId = (newUserId: string) => {
-    const targetUser = INITIAL_SYSTEM_USERS.find((u) => u.id === newUserId);
-    if (!targetUser) return;
-
-    setActiveUserIdState(newUserId);
-    localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, newUserId);
-    setRoleState(targetUser.role);
-    localStorage.setItem(LOCAL_STORAGE_KEY_ROLE, targetUser.role);
-
-    const assignedCount = allDossiers.filter((d) => d.assignedReviewerId === newUserId).length;
-    showToast(
-      targetUser.role === 'ADMIN'
-        ? `Sesión activa: ${targetUser.shortName} (${targetUser.name}) — Control Total del Sistema.`
-        : `Sesión activa: ${targetUser.shortName} (${targetUser.name}) — ${assignedCount} proveedores asignados a tu cartera.`,
-      'info',
-      'CAMBIO DE USUARIO'
-    );
   };
 
   const setActiveView = (newView: AppView) => {
@@ -3412,16 +3402,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSupplierEvaluations(INITIAL_SUPPLIER_EVALUATIONS);
     setEvaluationMethod(INITIAL_EVALUATION_METHOD);
     setSelectedEvaluationDossierIdState(null);
-    setActiveUserIdState('admin-1');
-    setRoleState('ADMIN');
     setCurrentDossierIdState('dossier-002');
   };
 
   return (
     <AppContext.Provider
       value={{
+        isAuthConfigured: auth.isAuthConfigured,
+        authLoading: auth.authLoading,
+        authProfile,
+        isPasswordRecovery: auth.isPasswordRecovery,
+        signIn: auth.signIn,
+        signOut: auth.signOut,
+        sendPasswordReset: auth.sendPasswordReset,
+        updatePassword: auth.updatePassword,
+        cancelPasswordRecovery: auth.cancelPasswordRecovery,
         role,
-        setRole,
         activeView,
         setActiveView,
         theme,
@@ -3431,7 +3427,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         allDossiers,
         activeUserId,
         activeUser,
-        setActiveUserId,
         systemUsers: INITIAL_SYSTEM_USERS,
         canEditDossier,
         assignSupplierReviewer,

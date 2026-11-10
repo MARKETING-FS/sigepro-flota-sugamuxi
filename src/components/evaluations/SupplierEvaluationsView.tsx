@@ -40,7 +40,6 @@ export const SupplierEvaluationsView: React.FC = () => {
     role,
     activeUser,
     activeUserId,
-    setActiveUserId,
     systemUsers,
     supplierEvaluations,
     evaluationMethod,
@@ -73,7 +72,6 @@ export const SupplierEvaluationsView: React.FC = () => {
   const handleEvaluatorChange = (newEvaluatorId: string) => {
     setSelectedEvaluatorId(newEvaluatorId);
     if (newEvaluatorId !== 'ALL') {
-      setActiveUserId(newEvaluatorId);
       const targetUser = systemUsers.find((u) => u.id === newEvaluatorId);
       const count = allDossiers.filter((d) => {
         if (d.assignedReviewerId === newEvaluatorId) return true;

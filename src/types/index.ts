@@ -24,8 +24,7 @@ export type AppView =
   | 'auditoria'
   | 'informesExcel'
   | 'registrarProveedor'
-  | 'parametrizacion'
-  | 'login';
+  | 'parametrizacion';
 
 export type SupplierType = 'NATURAL' | 'JURIDICA';
 export type SupplierTier = 'A' | 'B' | 'C'; // Tipo A (Crítico/Estratégico), Tipo B (Importante/Operativo), Tipo C (Estándar/Ocasional)
