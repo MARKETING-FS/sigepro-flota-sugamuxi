@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrandSwoosh } from './ui/BrandSwoosh';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -137,8 +138,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
   if (!dossier) {
     return (
-      <div className="p-8 text-center bg-white rounded-xl border border-slate-200">
-        <p className="text-slate-600">Expediente no encontrado.</p>
+      <div className="fs-card p-8 text-center rounded-2xl">
+        <p className="text-[#3a5274] dark:text-slate-300">Expediente no encontrado.</p>
         <button onClick={onBack} className="mt-3 px-4 py-2 bg-slate-800 text-white rounded text-xs">
           Volver a la lista
         </button>
@@ -258,8 +259,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         );
       case 'DOCUMENTACION_POR_VENCER':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-900 border border-blue-300 shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-blue-700" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>Habilitado ({creationStatus.expiringSoonCount} por vencer ≤30d)</span>
           </span>
         );
@@ -273,8 +274,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         );
       case 'EN_REVISION':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-900 border border-blue-200">
-            <Clock className="w-3.5 h-3.5 text-blue-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
+            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>En Revisión Técnica</span>
           </span>
         );
@@ -287,22 +288,22 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         );
       case 'REQUIERE_CORRECCION':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-300">
-            <AlertCircle className="w-3.5 h-3.5 text-blue-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
+            <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>Requiere Corrección</span>
           </span>
         );
       case 'RECHAZADO':
         return (
           <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-100 border border-slate-700">
-            <ShieldAlert className="w-3.5 h-3.5 text-slate-400" />
+            <ShieldAlert className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
             <span>Rechazado (No Conforme)</span>
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
+            <FileText className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
             <span>Documentación Pendiente</span>
           </span>
         );
@@ -335,7 +336,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
       case 'SUSPENDIDO':
         return (
           <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-200 border border-slate-700">
-            <ShieldAlert className="w-3.5 h-3.5 text-slate-400" />
+            <ShieldAlert className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
             <span>Contrato Suspendido</span>
           </span>
         );
@@ -352,50 +353,50 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     switch (status) {
       case 'CONTRATO_VIGENTE':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-950 border border-blue-200 shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-700" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>Contrato Vigente (Activo)</span>
           </span>
         );
       case 'CONTRATO_POR_VENCER':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-300 shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-blue-700" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10 shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>Contrato Próximo a Vencer (≤30d)</span>
           </span>
         );
       case 'CONTRATO_VENCIDO':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300">
-            <AlertCircle className="w-3.5 h-3.5 text-slate-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
+            <AlertCircle className="w-3.5 h-3.5 text-[#3a5274] dark:text-slate-300" />
             <span>Contrato Vencido</span>
           </span>
         );
       case 'SUSPENDIDO':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-800 border border-slate-300">
-            <ShieldAlert className="w-3.5 h-3.5 text-slate-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.08] dark:bg-white/10 text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
+            <ShieldAlert className="w-3.5 h-3.5 text-[#3a5274] dark:text-slate-300" />
             <span>Suspendido</span>
           </span>
         );
       case 'PROVEEDOR_HABILITADO':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-950 border border-blue-200 shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>Proveedor Habilitado (Homologado)</span>
           </span>
         );
       case 'APROBADO':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-900 border border-blue-200">
-            <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>Aprobado</span>
           </span>
         );
       case 'EN_REVISION':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-300">
-            <Clock className="w-3.5 h-3.5 text-blue-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
+            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>En Revisión Técnica</span>
           </span>
         );
@@ -408,15 +409,15 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         );
       case 'REQUIERE_CORRECCION':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-300">
-            <AlertCircle className="w-3.5 h-3.5 text-blue-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
+            <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>Requiere Corrección</span>
           </span>
         );
       case 'DOCUMENTACION_PENDIENTE':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
+            <FileText className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
             <span>Documentación Pendiente</span>
           </span>
         );
@@ -429,21 +430,21 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         );
       case 'DOCUMENTACION_POR_VENCER':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-900 border border-blue-300 shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-blue-700" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             <span>Documentación Próxima a Vencer (≤30d)</span>
           </span>
         );
       case 'RECHAZADO':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300">
-            <ShieldAlert className="w-3.5 h-3.5 text-slate-500" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
+            <ShieldAlert className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
             <span>No Habilitado</span>
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
             {getProcessStatusLabel(status)}
           </span>
         );
@@ -531,70 +532,63 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4 animate-in fade-in">
       
-      {/* 1. Header Banner Estandarizado y Limpio */}
-      <div className="bg-white text-slate-900 rounded-xl p-3 sm:p-4 border border-slate-200 shadow-xs relative dark:bg-[#0b1329] dark:text-white dark:border-slate-800">
-        {/* Top Control Bar: Navigation + Meta Information + Reviewer */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800/80">
-          <div className="flex items-center gap-2.5 flex-wrap text-xs text-slate-500 dark:text-slate-400">
+      {/* ENCABEZADO DEL EXPEDIENTE — banner de marca */}
+      <section className="fs-hero relative overflow-hidden rounded-[28px] px-5 sm:px-8 py-6 text-white shadow-glow animate-fade-up">
+        <BrandSwoosh className="absolute -right-16 -bottom-14 w-[48%] opacity-100" />
+
+        {/* Barra superior: volver, expediente y revisor */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 text-xs">
             <button
               onClick={onBack}
-              className="font-bold text-slate-700 hover:text-slate-900 flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-lg border border-slate-200 transition-colors cursor-pointer dark:text-slate-300 dark:hover:text-white dark:bg-slate-800/90 dark:hover:bg-slate-700 dark:border-slate-700"
+              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold backdrop-blur-sm transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+              <ArrowLeft className="w-4 h-4" />
               <span>Volver</span>
             </button>
-
-            <span className="h-4 w-px bg-slate-200 dark:bg-slate-700 hidden sm:inline-block" />
-
-            <span className="font-semibold text-slate-600 dark:text-slate-300">
-              Expediente:
+            <span className="inline-flex items-center gap-2 h-9 px-3 rounded-xl bg-black/20 border border-white/15 backdrop-blur-sm">
+              <span className="text-white/60 uppercase tracking-[0.16em] text-[10px] font-semibold">Expediente</span>
+              <span className="font-mono font-bold text-white">{dossier.fileNumber}</span>
             </span>
-            <span className="font-mono font-bold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-xs">
-              {dossier.fileNumber}
-            </span>
-
-            <span className="hidden md:inline-flex items-center gap-1 text-slate-500 dark:text-slate-400">
-              <span>•</span>
-              <span>Radicado:</span>
-              <span className="font-medium text-slate-700 dark:text-slate-300">{dossier.submittedAt || dossier.createdAt}</span>
+            <span className="hidden md:inline-flex items-center gap-1.5 text-white/70">
+              <Clock className="w-3.5 h-3.5" />
+              <span>Radicado {dossier.submittedAt || dossier.createdAt}</span>
             </span>
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <label htmlFor="reviewerInput" className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-              Revisor:
+            <label htmlFor="reviewerInput" className="text-[10px] uppercase tracking-[0.16em] font-semibold text-white/60">
+              Revisor
             </label>
             <input
               id="reviewerInput"
               type="text"
               value={reviewerName}
               onChange={(e) => setReviewerName(e.target.value)}
-              className="text-xs font-medium px-2.5 py-1 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white w-44 sm:w-56 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              className="text-xs font-medium px-3 h-9 rounded-xl bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#69bdd7]/60 w-44 sm:w-56"
               title="Nombre del revisor para auditoría y trazabilidad"
             />
           </div>
         </div>
 
-        {/* Main Header Content: Full Supplier Title & Clear Metadata + Action Toolbar + Organized Status Cards */}
-        <div className="pt-1.5 space-y-2.5">
-          {/* Row 1: Company Title, Badges & Action Toolbar */}
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-            <div className="space-y-1">
-              <h1 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-tight break-words tracking-tight">
+        {/* Identidad del proveedor + acciones */}
+        <div className="mt-6 flex flex-col xl:flex-row xl:items-end justify-between gap-5">
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="shrink-0 w-16 h-16 rounded-2xl bg-white/15 border border-white/30 backdrop-blur-sm grid place-items-center font-display text-2xl font-semibold shadow-glow">
+              {(supplierName || '?')
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w: string) => w[0])
+                .join('')
+                .toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <h1 className="font-display text-2xl sm:text-4xl font-semibold leading-tight tracking-tight break-words">
                 {supplierName}
               </h1>
-              
-              {/* Clean, Non-saturated Metadata line with Icons */}
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span
-                  className={`inline-flex items-center gap-1 font-bold text-[11px] px-2.5 py-0.5 rounded-full border ${
-                    (dossier.supplierTier || dossier.basicInfo.supplierTier || 'B') === 'A'
-                      ? 'bg-blue-950 text-white border-blue-900 dark:bg-blue-900 dark:text-cyan-300 dark:border-blue-700'
-                      : (dossier.supplierTier || dossier.basicInfo.supplierTier || 'B') === 'B'
-                      ? 'bg-blue-50 text-blue-900 border-blue-200 dark:bg-blue-950/40 dark:text-cyan-300 dark:border-blue-900/60'
-                      : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
-                  }`}
-                >
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white text-[#131b2e] font-bold shadow-card">
                   Tipo {dossier.supplierTier || dossier.basicInfo.supplierTier || 'B'} &bull;{' '}
                   {(dossier.supplierTier || dossier.basicInfo.supplierTier || 'B') === 'A'
                     ? 'Crítico'
@@ -602,321 +596,298 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     ? 'Operativo'
                     : 'Estándar'}
                 </span>
-
-                <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 font-medium text-[11px]">
-                  {isNatural ? <User className="w-3 h-3 text-slate-500" /> : <Building2 className="w-3 h-3 text-slate-500" />}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-medium">
+                  {isNatural ? <User className="w-3.5 h-3.5" /> : <Building2 className="w-3.5 h-3.5" />}
                   <span>{isNatural ? 'Persona Natural' : 'Persona Jurídica'}</span>
                 </span>
-
-                <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 font-mono font-semibold text-[11px]">
-                  <span className="text-slate-400 font-sans font-normal">NIT:</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-mono font-semibold">
+                  <span className="font-sans font-normal text-white/60">NIT</span>
                   <span>{supplierDoc}</span>
                 </span>
-
                 {dossier.basicInfo.city && (
-                  <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 font-medium text-[11px]">
-                    <MapPin className="w-3 h-3 text-slate-400" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-medium">
+                    <MapPin className="w-3.5 h-3.5" />
                     <span>{dossier.basicInfo.city}</span>
                   </span>
                 )}
-
                 {dossier.selectedCategory && (
-                  <span className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-900/60 font-semibold text-[11px]">
-                    <Tag className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#69bdd7]/25 border border-[#69bdd7]/50 backdrop-blur-sm font-semibold">
+                    <Tag className="w-3.5 h-3.5" />
                     <span>{dossier.selectedCategory}</span>
                   </span>
                 )}
               </div>
             </div>
-
-            {/* Primary Actions: Grouped, Aligned Toolbar with Consistent Height and Hierarchy */}
-            <div className="flex flex-wrap items-center gap-2 shrink-0 self-start xl:self-center">
-              {allDocumentsApproved && !expSummary.hasExpiredDocs ? (
-                <button
-                  type="button"
-                  onClick={() => setIsCertificateModalOpen(true)}
-                  className="h-8 px-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all shadow-xs hover:shadow cursor-pointer"
-                  title="Ficha Oficial & Certificado de Proveedor Habilitado disponible (100% documentos aprobados y vigentes)"
-                >
-                  <Award className="w-3.5 h-3.5 text-cyan-300" />
-                  <span>Ficha Oficial & Certificado</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="h-8 px-3 bg-slate-100 text-slate-400 font-medium text-xs rounded-lg flex items-center gap-1.5 border border-slate-200 cursor-not-allowed dark:bg-slate-800/60 dark:text-slate-500 dark:border-slate-700 opacity-85"
-                  title={
-                    expSummary.hasExpiredDocs
-                      ? `Certificado bloqueado: El proveedor posee ${expSummary.expiredCount} documento(s) vencido(s). Debe actualizar soportes para rehabilitarse.`
-                      : `Certificado bloqueado: Requiere que todos los documentos (${approvedDocsCount}/${totalDocs}) estén en estado APROBADO.`
-                  }
-                >
-                  <Award className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                  <span>
-                    Ficha & Certificado{' '}
-                    {expSummary.hasExpiredDocs ? '(Bloqueado)' : `(${approvedDocsCount}/${totalDocs})`}
-                  </span>
-                </button>
-              )}
-
-              {(role === 'ADMIN' || role === 'REVISOR') && (
-                <button
-                  type="button"
-                  onClick={() => setIsManualStatusModalOpen(true)}
-                  className="h-8 px-3 bg-[#0b1329] hover:bg-slate-800 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all shadow-xs hover:shadow cursor-pointer border border-blue-900 dark:border-slate-700"
-                  title="Gestionar estado por vigencia de contrato o registrar cambio manual con motivo / observación"
-                >
-                  <Briefcase className="w-3.5 h-3.5 text-cyan-300" />
-                  <span>Gestionar Estado & Contrato</span>
-                </button>
-              )}
-            </div>
           </div>
 
-          {/* Row 2: Status & Contractual Intelligence Panel - Compact Balanced 2 Columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-            {/* Dimensión 1: Estado de Creación (Homologación Documental) */}
-            <div className="bg-slate-50/90 dark:bg-slate-800/50 border border-slate-200/90 dark:border-slate-700/80 rounded-xl px-3 py-2 flex flex-col justify-between gap-1.5 transition-all">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-cyan-300 text-[10px] font-black flex items-center justify-center shrink-0">
-                    1
-                  </span>
-                  <span className="text-[11px] uppercase tracking-wider text-slate-800 dark:text-slate-200 font-extrabold truncate">
-                    Estado de Creación
-                  </span>
-                  <span className="hidden sm:inline text-[10px] text-slate-400 dark:text-slate-500 truncate">
-                    &bull; Homologación SIG
-                  </span>
-                </div>
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 shrink-0">
-                  {approvedDocsCount}/{totalDocs} Aprobados ({Math.round((approvedDocsCount / (totalDocs || 1)) * 100)}%)
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div>
-                  {renderCreationBadge()}
-                </div>
-                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  {expSummary.hasExpiredDocs ? (
-                    <span className="text-slate-900 dark:text-slate-100 font-bold flex items-center gap-1 text-[11px]">
-                      <ShieldAlert className="w-3.5 h-3.5 text-slate-700 dark:text-cyan-300" />
-                      Inhabilitado preventivamente
-                    </span>
-                  ) : allDocumentsApproved ? (
-                    <span className="text-blue-900 dark:text-cyan-300 font-semibold flex items-center gap-1 text-[11px]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-blue-700 dark:text-cyan-400" />
-                      Expediente 100% conforme
-                    </span>
-                  ) : (
-                    <span className="text-[11px]">
-                      {totalDocs - approvedDocsCount} soporte(s) pendiente(s)
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Dimensión 2: Vinculación Contractual por Objeto del Contrato */}
-            <div className="bg-slate-50/90 dark:bg-slate-800/50 border border-slate-200/90 dark:border-slate-700/80 rounded-xl px-3 py-2 flex flex-col justify-between gap-1.5 transition-all">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-cyan-300 text-[10px] font-black flex items-center justify-center shrink-0">
-                    2
-                  </span>
-                  <span className="text-[11px] uppercase tracking-wider text-slate-800 dark:text-slate-200 font-extrabold truncate">
-                    Vinculación Contractual
-                  </span>
-                  <span className="hidden sm:inline text-[10px] text-slate-400 dark:text-slate-500 truncate">
-                    &bull; Vigencia de Contrato
-                  </span>
-                </div>
-
-                {(role === 'ADMIN' || role === 'REVISOR') && (
-                  <button
-                    type="button"
-                    onClick={() => setIsManualStatusModalOpen(true)}
-                    className="text-[10px] text-blue-700 dark:text-cyan-400 hover:text-blue-900 dark:hover:text-cyan-300 font-bold flex items-center gap-1 cursor-pointer bg-white dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs shrink-0"
-                    title="Gestionar vigencia de contrato u observación de estado manual"
-                  >
-                    <Calendar className="w-3 h-3 text-blue-600 dark:text-cyan-400" />
-                    <span>{dossier.contractInfo?.contractNumber ? 'Editar Contrato' : '+ Vincular Contrato'}</span>
-                  </button>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
-                <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                  {renderContractualBadge()}
-                  {dossier.contractInfo?.contractNumber && (
-                    <span className="font-mono text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 shrink-0">
-                      No. {dossier.contractInfo.contractNumber}
-                    </span>
-                  )}
-                </div>
-
-                {dossier.contractInfo?.objectDescription ? (
-                  <div
-                    className="text-[11px] text-slate-600 dark:text-slate-400 max-w-[280px] sm:max-w-[340px] truncate"
-                    title={`Objeto completo: ${dossier.contractInfo.objectDescription}`}
-                  >
-                    <span className="font-bold text-slate-800 dark:text-slate-200 mr-1">Objeto:</span>
-                    <span className="italic">{dossier.contractInfo.objectDescription}</span>
-                  </div>
-                ) : (
-                  <span className="text-[10px] text-slate-400 italic">
-                    Sin contrato marco vinculado
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Alertas Críticas y Preventivas de Vencimiento de Documentación - Compactadas */}
-          {expSummary.hasExpiredDocs && (
-            <div className="mt-2 bg-slate-50 dark:bg-[#0b1329] text-slate-900 dark:text-white border border-slate-300 dark:border-blue-900 rounded-xl px-3 py-2 text-xs flex items-center justify-between gap-3 shadow-xs flex-wrap sm:flex-nowrap">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <ShieldAlert className="w-4 h-4 text-blue-700 dark:text-cyan-300 shrink-0" />
-                <div className="flex items-center gap-2 flex-wrap min-w-0">
-                  <span className="text-xs font-black text-slate-900 dark:text-white shrink-0">
-                    ALERTA: Requisitos Vencidos ({expSummary.expiredCount})
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-800 border border-slate-300 dark:bg-blue-900 dark:text-cyan-200 dark:border-blue-700 font-bold text-[9px] uppercase tracking-wider shrink-0">
-                    Inhabilitado
-                  </span>
-                  <span className="text-slate-600 dark:text-blue-200/90 text-[11px] truncate max-w-md hidden md:inline">
-                    {expSummary.expiredDocs.map(d => `${getDocInstitutionalName(d.code, d.name)} (${d.daysOverdue}d)`).join(', ')}
-                  </span>
-                </div>
-              </div>
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {allDocumentsApproved && !expSummary.hasExpiredDocs ? (
               <button
                 type="button"
-                onClick={() => setActiveTab('documentos')}
-                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold rounded-lg shrink-0 transition-colors cursor-pointer shadow-xs"
+                onClick={() => setIsCertificateModalOpen(true)}
+                className="shimmer h-11 px-5 rounded-xl bg-white text-[#131b2e] font-semibold text-sm flex items-center gap-2 shadow-glow hover:opacity-95 transition-opacity cursor-pointer"
+                title="Ficha Oficial & Certificado de Proveedor Habilitado disponible (100% documentos aprobados y vigentes)"
               >
-                Revisar Documentos
+                <Award className="w-4 h-4 text-[#2c84c4]" />
+                <span>Ficha Oficial & Certificado</span>
               </button>
-            </div>
-          )}
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="h-11 px-5 rounded-xl bg-white/10 border border-white/20 text-white/60 font-medium text-sm flex items-center gap-2 cursor-not-allowed"
+                title={
+                  expSummary.hasExpiredDocs
+                    ? `Certificado bloqueado: El proveedor posee ${expSummary.expiredCount} documento(s) vencido(s). Debe actualizar soportes para rehabilitarse.`
+                    : `Certificado bloqueado: Requiere que todos los documentos (${approvedDocsCount}/${totalDocs}) estén en estado APROBADO.`
+                }
+              >
+                <Award className="w-4 h-4" />
+                <span>
+                  Ficha & Certificado{' '}
+                  {expSummary.hasExpiredDocs ? '(Bloqueado)' : `(${approvedDocsCount}/${totalDocs})`}
+                </span>
+              </button>
+            )}
 
-          {!expSummary.hasExpiredDocs && expSummary.hasExpiringSoonDocs && (
-            <div className="mt-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs flex items-center justify-between gap-3 shadow-xs text-slate-900 dark:text-slate-100 flex-wrap sm:flex-nowrap">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Clock className="w-4 h-4 text-blue-700 dark:text-cyan-400 shrink-0" />
-                <div className="flex items-center gap-2 flex-wrap min-w-0">
-                  <span className="text-xs font-black text-slate-900 dark:text-white shrink-0">
-                    ALERTA PREVENTIVA (≤30 días):
-                  </span>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {expSummary.expiringSoonDocs.map((doc) => (
-                      <span key={doc.code} className="inline-flex items-center gap-1 text-[11px] bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                        <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">{getDocInstitutionalName(doc.code, doc.name)}</span>
-                        <span className="text-slate-500 dark:text-slate-400">({doc.expirationDate})</span>
-                        <span className="bg-blue-50 dark:bg-blue-900 text-blue-900 dark:text-cyan-300 px-1 rounded text-[10px] font-bold">
-                          {doc.daysRemaining}d
-                        </span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('documentos')}
-                  className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
-                >
-                  Ver Documentos
-                </button>
+            {(role === 'ADMIN' || role === 'REVISOR') && (
+              <button
+                type="button"
+                onClick={() => setIsManualStatusModalOpen(true)}
+                className="h-11 px-5 rounded-xl bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-sm text-white font-semibold text-sm flex items-center gap-2 transition-colors cursor-pointer"
+                title="Gestionar estado por vigencia de contrato o registrar cambio manual con motivo / observación"
+              >
+                <Briefcase className="w-4 h-4" />
+                <span>Gestionar Estado & Contrato</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* TARJETAS DE ESTADO */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* 1. Homologación documental */}
+        <div className="fs-card lift rounded-[24px] p-5 animate-fade-up">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-action text-white grid place-items-center shadow-glow">
+                <ShieldCheck className="w-5 h-5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2c84c4] dark:text-[#69bdd7]">Estado de creación</p>
+                <p className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white truncate">Homologación SIG</p>
               </div>
             </div>
-          )}
+            <div className="text-right shrink-0">
+              <p className="font-display text-3xl font-semibold leading-none text-[#0b1d3a] dark:text-white tabular-nums">
+                {Math.round((approvedDocsCount / (totalDocs || 1)) * 100)}%
+              </p>
+              <p className="mt-1 text-[11px] text-[#3a5274] dark:text-slate-400">
+                {approvedDocsCount}/{totalDocs} aprobados
+              </p>
+            </div>
+          </div>
 
-          {/* Institutional Alert: Manual Status Override Active */}
-          {dossier.manualStatusOverride && (
-            <div className="mt-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 rounded-xl p-3 text-xs flex items-start justify-between gap-3 text-blue-950 dark:text-blue-200">
-              <div className="flex items-start gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-blue-700 dark:text-cyan-300 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-bold flex items-center gap-2 flex-wrap">
-                    <span>Estado Establecido Manualmente:</span>
-                    <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-cyan-300 font-mono text-[11px] font-extrabold">
-                      {getProcessStatusLabel(dossier.processStatus)}
-                    </span>
-                    {dossier.manualStatusChangedBy && (
-                      <span className="text-[11px] font-normal text-slate-600 dark:text-slate-400">
-                        por <strong>{dossier.manualStatusChangedBy}</strong> {dossier.manualStatusChangedAt && `el ${dossier.manualStatusChangedAt}`}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-slate-700 dark:text-slate-300 text-[11px] bg-white/80 dark:bg-slate-900/60 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30">
-                    <span className="font-semibold text-slate-500">Motivo / Observación Registrada:</span> "{dossier.manualStatusReason || 'Sin observación registrada'}"
-                  </p>
-                </div>
-              </div>
-              {(role === 'ADMIN' || role === 'REVISOR') && (
-                <button
-                  type="button"
-                  onClick={() => setIsManualStatusModalOpen(true)}
-                  className="text-[11px] font-bold text-blue-700 dark:text-cyan-400 hover:underline shrink-0 cursor-pointer"
-                >
-                  Cambiar Estado
-                </button>
+          <div className="mt-4 h-2 rounded-full bg-[#e3eaf3] dark:bg-white/10 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-action transition-all duration-700"
+              style={{ width: `${Math.round((approvedDocsCount / (totalDocs || 1)) * 100)}%` }}
+            />
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-2 flex-wrap">
+            <div>{renderCreationBadge()}</div>
+            <div className="text-xs text-[#3a5274] dark:text-slate-400 font-medium">
+              {expSummary.hasExpiredDocs ? (
+                <span className="text-red-500 font-semibold flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4" />
+                  Inhabilitado preventivamente
+                </span>
+              ) : allDocumentsApproved ? (
+                <span className="text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] font-semibold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Expediente 100% conforme
+                </span>
+              ) : (
+                <span>{totalDocs - approvedDocsCount} soporte(s) pendiente(s)</span>
               )}
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* 2. Vinculación contractual */}
+        <div className="fs-card lift rounded-[24px] p-5 animate-fade-up" style={{ animationDelay: '80ms' }}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-[#69bdd7] to-[#2c84c4] text-white grid place-items-center shadow-glow">
+                <Briefcase className="w-5 h-5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2c84c4] dark:text-[#69bdd7]">Vinculación contractual</p>
+                <p className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white truncate">Vigencia de contrato</p>
+              </div>
+            </div>
+
+            {(role === 'ADMIN' || role === 'REVISOR') && (
+              <button
+                type="button"
+                onClick={() => setIsManualStatusModalOpen(true)}
+                className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-[#2c84c4]/40 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-xs font-semibold transition-colors cursor-pointer"
+                title="Gestionar vigencia de contrato u observación de estado manual"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{dossier.contractInfo?.contractNumber ? 'Editar contrato' : 'Vincular contrato'}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="mt-5 flex items-center gap-2 flex-wrap">
+            {renderContractualBadge()}
+            {dossier.contractInfo?.contractNumber && (
+              <span className="font-mono text-[11px] font-bold text-[#0b1d3a] dark:text-slate-200 bg-black/[0.04] dark:bg-white/[0.08] px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10">
+                No. {dossier.contractInfo.contractNumber}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-4 text-xs">
+            {dossier.contractInfo?.objectDescription ? (
+              <p className="text-[#3a5274] dark:text-slate-300 leading-relaxed line-clamp-2" title={`Objeto completo: ${dossier.contractInfo.objectDescription}`}>
+                <span className="font-semibold text-[#0b1d3a] dark:text-white">Objeto: </span>
+                {dossier.contractInfo.objectDescription}
+              </p>
+            ) : (
+              <p className="italic text-[#5d7392] dark:text-slate-400">Sin contrato marco vinculado</p>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden dark:bg-[#0b1329] dark:border-slate-800">
-        <div className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 px-3 flex flex-wrap items-center gap-1">
+      {/* Alertas de vencimiento */}
+      {expSummary.hasExpiredDocs && (
+        <div className="relative overflow-hidden rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap animate-fade-up">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-400 text-white grid place-items-center shadow-[0_8px_20px_-8px_rgba(248,113,113,0.7)]">
+              <ShieldAlert className="w-4.5 h-4.5" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">
+                Requisitos vencidos ({expSummary.expiredCount}) · <span className="text-red-500">Inhabilitado</span>
+              </p>
+              <p className="text-[11px] text-[#3a5274] dark:text-slate-300 truncate max-w-xl hidden md:block">
+                {expSummary.expiredDocs.map((d) => `${getDocInstitutionalName(d.code, d.name)} (${d.daysOverdue}d)`).join(', ')}
+              </p>
+            </div>
+          </div>
           <button
-            onClick={() => setActiveTab('datos')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'datos'
-                ? 'border-blue-600 text-blue-900 bg-white dark:bg-[#0b1329] dark:text-blue-400'
-                : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-            }`}
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>Información del Proveedor</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('contrato')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'contrato'
-                ? 'border-blue-600 text-blue-900 bg-white dark:bg-[#0b1329] dark:text-blue-400'
-                : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Vigencia & Contrato</span>
-          </button>
-          <button
+            type="button"
             onClick={() => setActiveTab('documentos')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'documentos'
-                ? 'border-blue-600 text-blue-900 bg-white dark:bg-[#0b1329] dark:text-blue-400'
-                : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-            }`}
+            className="h-9 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-semibold shrink-0 hover:opacity-95 transition-opacity cursor-pointer"
           >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Documentación ({Object.keys(dossier.documents).length})</span>
+            Revisar documentos
           </button>
+        </div>
+      )}
+
+      {!expSummary.hasExpiredDocs && expSummary.hasExpiringSoonDocs && (
+        <div className="rounded-2xl border border-[#2c84c4]/35 bg-[#2c84c4]/10 px-4 py-3 text-xs flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap animate-fade-up">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[#2c84c4] to-[#69bdd7] text-white grid place-items-center">
+              <Clock className="w-4.5 h-4.5" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Alerta preventiva (≤30 días)</p>
+              <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                {expSummary.expiringSoonDocs.map((doc) => (
+                  <span key={doc.code} className="inline-flex items-center gap-1.5 text-[11px] bg-white/70 dark:bg-white/[0.06] px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10">
+                    <span className="font-semibold text-[#0b1d3a] dark:text-white truncate max-w-[200px]">{getDocInstitutionalName(doc.code, doc.name)}</span>
+                    <span className="text-[#5d7392] dark:text-slate-400">({doc.expirationDate})</span>
+                    <span className="bg-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] px-1.5 rounded text-[10px] font-bold">{doc.daysRemaining}d</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
           <button
-            onClick={() => setActiveTab('auditoria')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'auditoria'
-                ? 'border-blue-600 text-blue-900 bg-white dark:bg-[#0b1329] dark:text-blue-400'
-                : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-            }`}
+            type="button"
+            onClick={() => setActiveTab('documentos')}
+            className="h-9 px-4 rounded-xl border border-black/15 dark:border-white/20 text-[#0b1d3a] dark:text-white text-xs font-semibold shrink-0 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
-            <History className="w-3.5 h-3.5" />
-            <span>Auditoría ({(systemAuditLogs || []).filter((l) => l.dossierId === dossier.id).length || (dossier.auditHistory || []).length})</span>
+            Ver documentos
           </button>
+        </div>
+      )}
+
+      {dossier.manualStatusOverride && (
+        <div className="rounded-2xl border border-[#2c84c4]/35 bg-[#2c84c4]/10 p-4 text-xs flex items-start justify-between gap-3 animate-fade-up">
+          <div className="flex items-start gap-3">
+            <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center">
+              <ShieldCheck className="w-4.5 h-4.5" />
+            </span>
+            <div>
+              <div className="font-semibold flex items-center gap-2 flex-wrap text-[#0b1d3a] dark:text-white">
+                <span>Estado establecido manualmente:</span>
+                <span className="px-2.5 py-0.5 rounded-lg bg-[#2c84c4]/20 text-[#1d5fa8] dark:text-[#69bdd7] font-mono text-[11px] font-bold">
+                  {getProcessStatusLabel(dossier.processStatus)}
+                </span>
+                {dossier.manualStatusChangedBy && (
+                  <span className="text-[11px] font-normal text-[#3a5274] dark:text-slate-400">
+                    por <strong>{dossier.manualStatusChangedBy}</strong> {dossier.manualStatusChangedAt && `el ${dossier.manualStatusChangedAt}`}
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-[11px] text-[#3a5274] dark:text-slate-300 bg-white/60 dark:bg-white/[0.05] p-2.5 rounded-xl border border-black/10 dark:border-white/10">
+                <span className="font-semibold text-[#5d7392] dark:text-slate-400">Motivo / observación registrada:</span> "{dossier.manualStatusReason || 'Sin observación registrada'}"
+              </p>
+            </div>
+          </div>
+          {(role === 'ADMIN' || role === 'REVISOR') && (
+            <button
+              type="button"
+              onClick={() => setIsManualStatusModalOpen(true)}
+              className="text-[11px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline shrink-0 cursor-pointer"
+            >
+              Cambiar estado
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* PESTAÑAS */}
+      <div className="fs-card rounded-[24px] overflow-hidden">
+        <div className="px-4 pt-4 pb-3 border-b border-black/[0.07] dark:border-white/10">
+          <div className="inline-flex flex-wrap items-center gap-1 p-1 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/10">
+            {(
+              [
+                { id: 'datos', label: 'Información del Proveedor', icon: User },
+                { id: 'contrato', label: 'Vigencia & Contrato', icon: Calendar },
+                { id: 'documentos', label: `Documentación (${Object.keys(dossier.documents).length})`, icon: FileText },
+                {
+                  id: 'auditoria',
+                  label: `Auditoría (${(systemAuditLogs || []).filter((l) => l.dossierId === dossier.id).length || (dossier.auditHistory || []).length})`,
+                  icon: History,
+                },
+              ] as const
+            ).map((t) => {
+              const TabIcon = t.icon;
+              const on = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTab(t.id)}
+                  className={`h-10 px-4 rounded-xl text-[13px] font-semibold flex items-center gap-2 transition-all duration-300 cursor-pointer ${
+                    on
+                      ? 'bg-gradient-action text-white shadow-glow'
+                      : 'text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
+                  }`}
+                >
+                  <TabIcon className="w-4 h-4" />
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Tab 0: Supplier Data & Full Editing */}
@@ -928,42 +899,46 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
         {/* Tab Contrato & Vigencia */}
         {activeTab === 'contrato' && (
-          <div className="p-4 sm:p-5 space-y-5">
-            {/* Header section with Actions */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
-              <div>
-                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-blue-700 dark:text-cyan-400" />
-                  <span>Control de Vigencia Contractual y Estado Operativo</span>
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Gestión del estado del proveedor según vigencia de contrato o mediante cambio manual motivado con observación registrada (ISO 9001 / SARLAFT).
-                </p>
+          <div className="p-4 sm:p-6 space-y-5">
+            {/* Encabezado de la sección */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <span className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-action text-white grid place-items-center shadow-glow">
+                  <Calendar className="w-6 h-6" />
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">
+                    Vigencia contractual y estado operativo
+                  </h3>
+                  <p className="text-xs text-[#3a5274] dark:text-slate-400 mt-1 max-w-2xl">
+                    Gestión del estado del proveedor según vigencia de contrato o mediante cambio manual motivado con observación registrada (ISO 9001 / SARLAFT).
+                  </p>
+                </div>
               </div>
 
               {(role === 'ADMIN' || role === 'REVISOR') && (
                 <button
                   type="button"
                   onClick={() => setIsManualStatusModalOpen(true)}
-                  className="px-4 py-2 bg-[#0b1329] hover:bg-slate-800 text-white font-bold text-xs rounded-lg shadow-sm flex items-center gap-2 transition-colors border border-blue-900 self-start sm:self-auto cursor-pointer"
+                  className="h-11 px-5 bg-gradient-action text-white font-semibold text-sm rounded-xl shadow-glow flex items-center gap-2 hover:opacity-95 transition-opacity self-start sm:self-auto cursor-pointer shrink-0"
                 >
-                  <Briefcase className="w-3.5 h-3.5 text-cyan-300" />
-                  <span>Actualizar Contrato / Modificar Estado</span>
+                  <Briefcase className="w-4 h-4" />
+                  <span>Actualizar contrato / estado</span>
                 </button>
               )}
             </div>
 
-            {/* Status Overview Grid */}
+            {/* Resumen de estado */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Card 1: Estado Efectivo */}
-              <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Estado Operativo Actual
-                </span>
-                <div className="pt-1">
-                  {getStatusBadge(effectiveStatus)}
+              <div className="fs-card lift rounded-[22px] p-5 space-y-3 animate-fade-up">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center">
+                    <ShieldCheck className="w-[18px] h-[18px]" />
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">Estado operativo actual</span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1">
+                <div>{getStatusBadge(effectiveStatus)}</div>
+                <p className="text-[12px] text-[#3a5274] dark:text-slate-400 leading-relaxed">
                   {dossier.manualStatusOverride
                     ? 'Determinado manualmente por el comité con justificación registrada.'
                     : dossier.contractInfo?.contractNumber
@@ -972,47 +947,49 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 </p>
               </div>
 
-              {/* Card 2: Vigencia de Contrato */}
-              <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Vigencia Contractual
-                </span>
-                <div className="flex items-center gap-2 pt-1">
-                  <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${contractValidity.badgeClass}`}>
+              <div className="fs-card lift rounded-[22px] p-5 space-y-3 animate-fade-up" style={{ animationDelay: '70ms' }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#69bdd7] to-[#2c84c4] text-white grid place-items-center">
+                    <Clock className="w-[18px] h-[18px]" />
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">Vigencia contractual</span>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${contractValidity.badgeClass}`}>
                     {contractValidity.label}
                   </span>
                   {contractValidity.daysRemaining !== null && (
-                    <span className="text-xs text-slate-600 dark:text-slate-300 font-mono font-bold">
+                    <span className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white tabular-nums">
                       {contractValidity.daysRemaining > 0
                         ? `${contractValidity.daysRemaining} días restantes`
                         : `${Math.abs(contractValidity.daysRemaining)} días vencido`}
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1">
-                  {contractValidity.description}
-                </p>
+                <p className="text-[12px] text-[#3a5274] dark:text-slate-400 leading-relaxed">{contractValidity.description}</p>
               </div>
 
-              {/* Card 3: Modo de Operación */}
-              <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Control de Modificación
-                </span>
-                <div className="pt-1">
+              <div className="fs-card lift rounded-[22px] p-5 space-y-3 animate-fade-up" style={{ animationDelay: '140ms' }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2c84c4] to-[#1d6fb8] text-white grid place-items-center">
+                    <RefreshCw className="w-[18px] h-[18px]" />
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">Control de modificación</span>
+                </div>
+                <div>
                   {dossier.manualStatusOverride ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-900 dark:text-cyan-300 bg-blue-100 dark:bg-blue-950 px-2.5 py-1 rounded-md border border-blue-300 dark:border-blue-900">
-                      <ShieldAlert className="w-3.5 h-3.5 text-blue-700 dark:text-cyan-400" />
-                      <span>Modo Manual Activo</span>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/15 px-3 py-1 rounded-lg border border-[#2c84c4]/30">
+                      <ShieldAlert className="w-3.5 h-3.5" />
+                      <span>Modo manual activo</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-300 dark:border-slate-700">
-                      <RefreshCw className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
-                      <span>Modo Automático</span>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#3a5274] dark:text-slate-200 bg-black/[0.05] dark:bg-white/10 px-3 py-1 rounded-lg border border-black/10 dark:border-white/15">
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Modo automático</span>
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1">
+                <p className="text-[12px] text-[#3a5274] dark:text-slate-400 leading-relaxed">
                   {dossier.manualStatusOverride
                     ? 'El estado manual prevalece sobre el cálculo automático hasta ser restablecido.'
                     : 'El estado se actualiza dinámicamente según la fecha de terminación del contrato.'}
@@ -1020,103 +997,88 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               </div>
             </div>
 
-            {/* Manual Override Log (if active) */}
+            {/* Registro de cambio manual */}
             {dossier.manualStatusOverride && (
-              <div className="bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl p-4 space-y-2">
+              <div className="rounded-[22px] border border-[#2c84c4]/35 bg-[#2c84c4]/10 p-5 space-y-3 animate-fade-up">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <h4 className="font-bold text-xs text-blue-950 dark:text-blue-200 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-blue-700 dark:text-cyan-400" />
-                    <span>Registro Oficial de Cambio de Estado Manual (ISO 9001 / SARLAFT)</span>
+                  <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7]" />
+                    <span>Registro oficial de cambio de estado manual (ISO 9001 / SARLAFT)</span>
                   </h4>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <span className="text-[11px] text-[#3a5274] dark:text-slate-400">
                     Modificado por: <strong>{dossier.manualStatusChangedBy || 'Revisor'}</strong> el {dossier.manualStatusChangedAt || 'Reciente'}
                   </span>
                 </div>
-                <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30 text-xs text-slate-700 dark:text-slate-300">
-                  <span className="font-semibold text-slate-500 block mb-0.5">Motivo / Observación Registrada Obligatoria:</span>
+                <div className="bg-white/60 dark:bg-white/[0.05] p-3.5 rounded-xl border border-black/10 dark:border-white/10 text-xs text-[#3a5274] dark:text-slate-300">
+                  <span className="font-semibold text-[#5d7392] dark:text-slate-400 block mb-1">Motivo / observación registrada obligatoria:</span>
                   <p className="italic">"{dossier.manualStatusReason || 'Sin observación registrada'}"</p>
                 </div>
               </div>
             )}
 
-            {/* Contract Detailed Information Card */}
+            {/* Datos del contrato */}
             {dossier.contractInfo?.contractNumber ? (
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 space-y-4">
-                <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-                  <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-blue-700 dark:text-cyan-400" />
-                    <span>Datos Contractuales Registrados</span>
-                  </h4>
-                  <span className="font-mono text-xs font-bold text-blue-900 dark:text-cyan-300 bg-blue-50 dark:bg-blue-950 px-2.5 py-1 rounded border border-blue-200 dark:border-blue-900">
+              <div className="fs-card rounded-[24px] overflow-hidden animate-fade-up">
+                <div className="flex items-center justify-between gap-3 flex-wrap bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10">
+                  <div className="flex items-center gap-3">
+                    <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow">
+                      <Briefcase className="w-[18px] h-[18px]" />
+                    </span>
+                    <h4 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">Datos contractuales registrados</h4>
+                  </div>
+                  <span className="font-mono text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 px-3 py-1 rounded-full border border-[#2c84c4]/30">
                     {dossier.contractInfo.contractNumber}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                  <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-[11px] font-medium">Tipo de Contrato</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
-                      {dossier.contractInfo.contractType || 'Contrato de Suministro / Servicios'}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-[11px] font-medium">Fecha de Inicio</span>
-                    <span className="font-semibold font-mono text-slate-800 dark:text-slate-200">
-                      {dossier.contractInfo.startDate || 'No registrada'}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-[11px] font-medium">Fecha de Vencimiento</span>
-                    <span className="font-semibold font-mono text-slate-800 dark:text-slate-200">
-                      {dossier.contractInfo.endDate || 'No registrada'}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-[11px] font-medium">Valor Total (COP)</span>
-                    <span className="font-bold font-mono text-slate-900 dark:text-white">
-                      {dossier.contractInfo.contractValue != null
-                        ? `$ ${dossier.contractInfo.contractValue.toLocaleString('es-CO')}`
-                        : 'A convenir'}
-                    </span>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <span className="text-slate-500 dark:text-slate-400 block text-[11px] font-medium">Supervisor Flota Sugamuxi</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
-                      {dossier.contractInfo.supervisor || 'Coordinación Administrativa y de Compras'}
-                    </span>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <span className="text-slate-500 dark:text-slate-400 block text-[11px] font-medium">Sincronización Automática de Estado</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-300">
-                      {dossier.contractInfo.autoSyncStatus !== false
-                        ? 'Habilitada (Actualiza a Vigente / Por Vencer / Vencido)'
-                        : 'Deshabilitada'}
-                    </span>
-                  </div>
+                <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  {[
+                    { label: 'Tipo de contrato', value: dossier.contractInfo.contractType || 'Contrato de Suministro / Servicios', mono: false, span: '' },
+                    { label: 'Fecha de inicio', value: dossier.contractInfo.startDate || 'No registrada', mono: true, span: '' },
+                    { label: 'Fecha de vencimiento', value: dossier.contractInfo.endDate || 'No registrada', mono: true, span: '' },
+                    {
+                      label: 'Valor total (COP)',
+                      value: dossier.contractInfo.contractValue != null ? `$ ${dossier.contractInfo.contractValue.toLocaleString('es-CO')}` : 'A convenir',
+                      mono: true,
+                      span: '',
+                    },
+                    { label: 'Supervisor Flota Sugamuxi', value: dossier.contractInfo.supervisor || 'Coordinación Administrativa y de Compras', mono: false, span: 'sm:col-span-2' },
+                    {
+                      label: 'Sincronización automática de estado',
+                      value: dossier.contractInfo.autoSyncStatus !== false ? 'Habilitada (Actualiza a Vigente / Por Vencer / Vencido)' : 'Deshabilitada',
+                      mono: false,
+                      span: 'sm:col-span-2',
+                    },
+                  ].map((f) => (
+                    <div
+                      key={f.label}
+                      className={`rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 ${f.span}`}
+                    >
+                      <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">{f.label}</span>
+                      <span className={`block mt-1 text-[15px] font-semibold text-[#0b1d3a] dark:text-white ${f.mono ? 'font-mono' : 'font-display'}`}>
+                        {f.value}
+                      </span>
+                    </div>
+                  ))}
 
                   {dossier.contractInfo.objectDescription && (
-                    <div className="sm:col-span-2 lg:col-span-4 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                      <span className="text-slate-500 dark:text-slate-400 block text-[11px] font-medium mb-0.5">Objeto Contractual</span>
-                      <p className="text-slate-800 dark:text-slate-200 text-xs">
-                        {dossier.contractInfo.objectDescription}
-                      </p>
+                    <div className="sm:col-span-2 lg:col-span-4 rounded-2xl p-4 bg-[#2c84c4]/[0.07] border border-[#2c84c4]/20">
+                      <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-1">Objeto contractual</span>
+                      <p className="text-[#0b1d3a] dark:text-white text-[13px] leading-relaxed">{dossier.contractInfo.objectDescription}</p>
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center space-y-3">
-                <Calendar className="w-8 h-8 text-slate-400 mx-auto" />
+              <div className="rounded-[24px] border-2 border-dashed border-[#2c84c4]/40 bg-[#2c84c4]/[0.04] p-8 text-center space-y-4 animate-fade-up">
+                <span className="w-14 h-14 rounded-2xl bg-gradient-action text-white grid place-items-center mx-auto shadow-glow">
+                  <Calendar className="w-7 h-7" />
+                </span>
                 <div>
-                  <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200">
+                  <h4 className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white">
                     No se ha vinculado contrato formal a este expediente
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1">
+                  <p className="text-xs text-[#3a5274] dark:text-slate-400 max-w-md mx-auto mt-1.5 leading-relaxed">
                     El proveedor está operando actualmente bajo el esquema de habilitación documental. Puede registrar los datos contractuales y su fecha de vigencia para control automático.
                   </p>
                 </div>
@@ -1124,10 +1086,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   <button
                     type="button"
                     onClick={() => setIsManualStatusModalOpen(true)}
-                    className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-lg shadow-xs inline-flex items-center gap-2 cursor-pointer transition-colors"
+                    className="h-11 px-5 bg-gradient-action text-white font-semibold text-sm rounded-xl shadow-glow inline-flex items-center gap-2 cursor-pointer hover:opacity-95 transition-opacity"
                   >
-                    <Plus className="w-3.5 h-3.5 text-cyan-300" />
-                    <span>Vincular y Registrar Contrato</span>
+                    <Plus className="w-4 h-4" />
+                    <span>Vincular y registrar contrato</span>
                   </button>
                 )}
               </div>
@@ -1135,16 +1097,15 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           </div>
         )}
 
-
         {/* Tab 1: Documents Review */}
         {activeTab === 'documentos' && (
           <div className="p-4 sm:p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-black/10 dark:border-white/10">
               <div>
-                <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wide">
+                <h3 className="font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">
                   Documentos y Requisitos Obligatorios del Proveedor
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[#5d7392] dark:text-slate-400 mt-0.5">
                   Los revisores técnicos y administradores pueden validar, aprobar, pedir corrección, o modificar y reemplazar directamente los archivos cargados.
                 </p>
               </div>
@@ -1153,28 +1114,28 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 <button
                   type="button"
                   onClick={() => setIsAddDocOpen(true)}
-                  className="px-3.5 py-2 bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-colors border border-cyan-500/50 self-start sm:self-auto cursor-pointer"
+                  className="h-11 px-5 bg-gradient-action text-white font-semibold text-sm rounded-xl shadow-glow flex items-center gap-2 hover:opacity-95 transition-opacity self-start sm:self-auto cursor-pointer"
                 >
-                  <Plus className="w-4 h-4 text-cyan-400" />
-                  <span>+ Anexar Documento</span>
+                  <Plus className="w-4 h-4" />
+                  <span>Anexar Documento</span>
                 </button>
               )}
             </div>
 
             {/* Banner Informativo / Habilitación Ficha & Certificado Oficial */}
             <div
-              className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+              className={`p-5 rounded-[22px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-up ${
                 allDocumentsApproved
-                  ? 'bg-blue-50/90 border-blue-200 text-blue-950'
-                  : 'bg-slate-50 border-slate-200 text-slate-800'
+                  ? 'bg-[#2c84c4]/10 border-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7]'
+                  : 'bg-black/[0.04] dark:bg-white/[0.06] border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white'
               }`}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
                     allDocumentsApproved
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-slate-200 text-slate-600'
+                      ? 'bg-gradient-action text-white shadow-glow'
+                      : 'bg-black/[0.08] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
                   }`}
                 >
                   <Award className="w-5 h-5" />
@@ -1183,34 +1144,34 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   <div className="text-xs font-black uppercase flex items-center gap-2 flex-wrap">
                     <span>Ficha Oficial & Certificado de Habilitación</span>
                     {allDocumentsApproved ? (
-                      <span className="px-2 py-0.5 bg-blue-700 text-white rounded-full text-[10px] font-bold">
+                      <span className="px-2.5 py-0.5 bg-gradient-action text-white rounded-full text-[10px] font-bold shadow-glow">
                         100% APROBADO &bull; DISPONIBLE
                       </span>
                     ) : (
-                      <span className="px-2.5 py-0.5 bg-slate-200 text-slate-700 rounded-full text-[10px] font-extrabold tracking-wide">
+                      <span className="px-2.5 py-0.5 bg-black/[0.08] dark:bg-white/10 text-[#3a5274] dark:text-slate-300 rounded-full text-[10px] font-extrabold tracking-wide">
                         Total Expediente: {approvedDocsCount} de {totalDocs} Aprobados ({Math.round((approvedDocsCount / (totalDocs || 1)) * 100)}%)
                       </span>
                     )}
                   </div>
 
                   {/* Coherent Breakdown between Forms and Support Documents */}
-                  <div className="flex items-center gap-2 text-[11px] font-medium text-slate-600 mt-1 flex-wrap">
-                    <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-2xs">
-                      <FileText className="w-3 h-3 text-blue-600" />
-                      Formatos Oficiales: <strong className="text-slate-900">{institutionalApprovedCount} de {institutionalTotalCount}</strong>
+                  <div className="flex items-center gap-2 text-[11px] font-medium text-[#3a5274] dark:text-slate-300 mt-1 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 bg-white/70 dark:bg-white/[0.08] px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10">
+                      <FileText className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                      Formatos Oficiales: <strong className="text-[#0b1d3a] dark:text-white">{institutionalApprovedCount} de {institutionalTotalCount}</strong>
                     </span>
-                    <span className="text-slate-400 font-bold">+</span>
-                    <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-2xs">
-                      <Briefcase className="w-3 h-3 text-blue-600" />
-                      Soportes & Anexos: <strong className="text-slate-900">{supportApprovedCount} de {supportTotalCount}</strong>
+                    <span className="text-[#5d7392] dark:text-slate-400 font-bold">+</span>
+                    <span className="inline-flex items-center gap-1.5 bg-white/70 dark:bg-white/[0.08] px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10">
+                      <Briefcase className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                      Soportes & Anexos: <strong className="text-[#0b1d3a] dark:text-white">{supportApprovedCount} de {supportTotalCount}</strong>
                     </span>
-                    <span className="text-slate-400 font-bold">=</span>
-                    <span className="font-bold text-blue-900">
+                    <span className="text-[#5d7392] dark:text-slate-400 font-bold">=</span>
+                    <span className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">
                       {approvedDocsCount} de {totalDocs} Total Requisitos
                     </span>
                   </div>
 
-                  <p className="text-[11px] text-slate-600 mt-1.5 leading-snug">
+                  <p className="text-[11px] text-[#3a5274] dark:text-slate-300 mt-1.5 leading-snug">
                     {allDocumentsApproved
                       ? 'Todos los requisitos del expediente (formatos institucionales y soportes tributarios) se encuentran en estado APROBADO. Puede generar la Ficha Oficial y Certificado de Habilitación para imprimir o exportar a PDF.'
                       : `La Ficha Oficial y Certificado se habilitará automáticamente cuando todos los requisitos se encuentren en estado APROBADO (${totalDocs - approvedDocsCount} pendientes en total: ${institutionalTotalCount - institutionalApprovedCount > 0 ? `${institutionalTotalCount - institutionalApprovedCount} formato(s) oficial(es) y ` : ''}${supportTotalCount - supportApprovedCount} soporte(s) y anexo(s)).`}
@@ -1222,19 +1183,19 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 <button
                   type="button"
                   onClick={() => setIsCertificateModalOpen(true)}
-                  className="px-4 py-2 bg-blue-800 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
+                  className="h-11 px-5 bg-gradient-action text-white font-semibold text-sm rounded-xl shadow-glow flex items-center gap-2 hover:opacity-95 transition-opacity shrink-0 cursor-pointer self-start sm:self-auto"
                 >
-                  <Award className="w-4 h-4 text-cyan-300" />
+                  <Award className="w-4 h-4" />
                   <span>Generar Ficha & Certificado</span>
                 </button>
               ) : allDocumentsApproved && expSummary.hasExpiredDocs ? (
                 <button
                   type="button"
                   disabled
-                  className="px-4 py-2 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 shrink-0 cursor-not-allowed border border-slate-200 opacity-60 self-start sm:self-auto"
+                  className="px-4 py-2 bg-black/[0.04] dark:bg-white/[0.06] text-[#5d7392] dark:text-slate-400 font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 shrink-0 cursor-not-allowed border border-black/10 dark:border-white/10 opacity-60 self-start sm:self-auto"
                   title="Bloqueado: El proveedor posee documentos vencidos"
                 >
-                  <Award className="w-4 h-4 text-slate-400" />
+                  <Award className="w-4 h-4 text-[#5d7392] dark:text-slate-400" />
                   <span>Ficha Bloqueada ({expSummary.expiredCount} doc vencido)</span>
                 </button>
               ) : null}
@@ -1242,16 +1203,16 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             
             {/* Resumen de Vigencias Documentales en Tab Documentos */}
             {expSummary.totalWithExpiration > 0 && (
-              <div className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs shadow-2xs ${
+              <div className={`px-4 py-3 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
                 expSummary.hasExpiredDocs
-                  ? 'bg-[#0b1329] text-white border-blue-900'
+                  ? 'bg-red-500/10 text-[#0b1d3a] border-red-500/40 dark:text-white'
                   : expSummary.hasExpiringSoonDocs
-                  ? 'bg-slate-50 text-slate-900 border-slate-300 dark:bg-slate-800 dark:text-white dark:border-slate-700'
-                  : 'bg-blue-50/70 text-blue-950 border-blue-200 dark:bg-blue-950/40 dark:text-blue-100 dark:border-blue-900'
+                  ? 'bg-[#2c84c4]/10 text-[#0b1d3a] border-[#2c84c4]/35 dark:text-white'
+                  : 'bg-[#2c84c4]/10 text-[#0b1d3a] border-[#2c84c4]/30 dark:text-white'
               }`}>
                 <div className="flex items-center gap-2">
                   {expSummary.hasExpiredDocs ? (
-                    <ShieldAlert className="w-4 h-4 text-cyan-300 shrink-0" />
+                    <ShieldAlert className="w-4 h-4 text-red-500 shrink-0" />
                   ) : expSummary.hasExpiringSoonDocs ? (
                     <Clock className="w-4 h-4 text-blue-700 dark:text-cyan-400 shrink-0" />
                   ) : (
@@ -1267,16 +1228,16 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 text-[11px] font-mono font-bold">
                   {expSummary.hasExpiredDocs && (
-                    <span className="bg-blue-900 text-cyan-200 border border-blue-700 px-2 py-0.5 rounded">
+                    <span className="bg-red-500/15 text-red-600 dark:text-red-300 border border-red-500/40 px-2 py-0.5 rounded">
                       {expSummary.expiredCount} Vencido(s)
                     </span>
                   )}
                   {expSummary.hasExpiringSoonDocs && (
-                    <span className="bg-blue-100 text-blue-900 border border-blue-200 px-2 py-0.5 rounded">
+                    <span className="bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 px-2 py-0.5 rounded">
                       {expSummary.expiringSoonCount} Por Vencer (≤30d)
                     </span>
                   )}
-                  <span className={expSummary.hasExpiredDocs ? 'text-blue-200' : expSummary.hasExpiringSoonDocs ? 'text-slate-600' : 'text-blue-800'}>
+                  <span className={expSummary.hasExpiredDocs ? 'text-[#3a5274] dark:text-slate-300' : expSummary.hasExpiringSoonDocs ? 'text-[#3a5274] dark:text-slate-300' : 'text-[#1d5fa8] dark:text-[#69bdd7]'}>
                     {expSummary.validCount} Vigente(s)
                   </span>
                 </div>
@@ -1285,40 +1246,40 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             
             {/* BLOQUE 1: FORMULARIOS INSTITUCIONALES OFICIALES */}
             <div className="space-y-3">
-              <div className="bg-slate-100/90 p-3.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
+              <div className="bg-[#2c84c4]/[0.07] p-4 rounded-2xl border border-[#2c84c4]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11px] font-extrabold uppercase bg-blue-900 text-white px-2.5 py-0.5 rounded-full tracking-wider flex items-center gap-1.5 shadow-2xs">
+                  <span className="text-[11px] font-semibold uppercase bg-gradient-action text-white px-3 py-1 rounded-full tracking-wider flex items-center gap-1.5 shadow-glow">
                     <FileText className="w-3.5 h-3.5 text-cyan-300" />
                     <span>1. Formularios Institucionales Oficiales</span>
                   </span>
-                  <span className="text-xs font-semibold text-slate-700">
+                  <span className="text-xs font-semibold text-[#3a5274] dark:text-slate-300">
                     Formatos FS.GA-FOR-009 y FS.GA-FOR-039
                   </span>
                 </div>
-                <span className="text-xs font-bold text-blue-900 bg-white px-3 py-1 rounded-lg border border-blue-200 shadow-2xs flex items-center gap-1.5 self-start sm:self-auto">
-                  <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                <span className="text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-white/70 dark:bg-white/[0.08] px-3 py-1.5 rounded-xl border border-[#2c84c4]/30 flex items-center gap-1.5 self-start sm:self-auto">
+                  <CheckCircle2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                   <span>Formatos Oficiales: {institutionalApprovedCount} de {institutionalTotalCount} aprobados</span>
                 </span>
               </div>
 
               {/* Institutional Form Form 009 Row */}
-            <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <div className="fs-card lift rounded-[22px] p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase bg-blue-50 text-blue-800 px-2.5 py-0.5 rounded border border-blue-200">
+                  <span className="text-[10px] font-bold uppercase bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] px-2.5 py-0.5 rounded border border-[#2c84c4]/30">
                     Formato Oficial
                   </span>
-                  <h3 className="font-extrabold text-sm text-slate-900">
+                  <h3 className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white">
                     FS.GA-FOR-009 &bull; Formulario de Inscripción y Actualización de Proveedores
                   </h3>
                 </div>
                 <div>
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                     dossier.documents['FS_GA_FOR_009']?.status === 'APROBADO'
-                      ? 'bg-blue-50 text-blue-800 border-blue-200'
+                      ? 'bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
                       : dossier.documents['FS_GA_FOR_009']?.status === 'REQUIERE_CORRECCION'
-                      ? 'bg-slate-100 text-slate-800 border-slate-300'
-                      : 'bg-slate-100 text-slate-800 border-slate-300'
+                      ? 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
+                      : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
                   }`}>
                     {dossier.documents['FS_GA_FOR_009']?.status || 'PENDIENTE'}
                   </span>
@@ -1326,14 +1287,14 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               </div>
 
               {dossier.documents['FS_GA_FOR_009']?.fileName ? (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-lg border border-slate-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-black/[0.03] dark:bg-white/[0.05] p-4 rounded-2xl border border-black/[0.06] dark:border-white/10">
                   <div>
-                    <div className="font-bold text-xs text-slate-900">{dossier.documents['FS_GA_FOR_009'].fileName}</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
+                    <div className="font-bold text-xs text-[#0b1d3a] dark:text-white">{dossier.documents['FS_GA_FOR_009'].fileName}</div>
+                    <div className="text-[11px] text-[#5d7392] dark:text-slate-400 mt-0.5">
                       Tamaño: {dossier.documents['FS_GA_FOR_009'].fileSize} &bull; Cargado por: {dossier.documents['FS_GA_FOR_009'].uploadedBy} &bull; Versión: {dossier.documents['FS_GA_FOR_009'].formVersion}
                     </div>
                     {dossier.documents['FS_GA_FOR_009'].correction && (
-                      <div className="text-[11px] text-slate-800 bg-slate-100 p-2 rounded mt-2 border border-slate-200 font-mono">
+                      <div className="text-[11px] text-[#0b1d3a] dark:text-white bg-black/[0.04] dark:bg-white/[0.06] p-2 rounded mt-2 border border-black/10 dark:border-white/10 font-mono">
                         ℹ Corrección solicitada: "{dossier.documents['FS_GA_FOR_009'].correction?.detailedObservation}"
                       </div>
                     )}
@@ -1343,10 +1304,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <button
                       type="button"
                       onClick={() => handleOpenDocPreview(dossier.documents['FS_GA_FOR_009'], 'Formulario de Inscripción FS.GA-FOR-009', 'FS_GA_FOR_009')}
-                      className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded flex items-center gap-1 border border-blue-200 cursor-pointer shadow-2xs transition-colors"
+                      className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer shadow-2xs transition-colors"
                       title="Visualizar documento cargado"
                     >
-                      <Eye className="w-3.5 h-3.5 text-blue-600" />
+                      <Eye className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       <span>Ver Documento</span>
                     </button>
 
@@ -1357,9 +1318,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           setSelectedFormForModal(form009);
                           setIsViewerModalOpen(true);
                         }}
-                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center gap-1 border border-slate-300 cursor-pointer transition-colors"
+                        className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#3a5274] dark:text-slate-300 text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors"
                       >
-                        <FileText className="w-3.5 h-3.5 text-blue-600" />
+                        <FileText className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                         Formato Blanco
                       </button>
                     )}
@@ -1368,10 +1329,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                       <button
                         type="button"
                         onClick={() => handleOpenEditDocModal('FS_GA_FOR_009', dossier.documents['FS_GA_FOR_009'], 'Formulario FS.GA-FOR-009')}
-                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded flex items-center gap-1 border border-slate-300 cursor-pointer shadow-2xs transition-colors"
+                        className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer shadow-2xs transition-colors"
                         title="Modificar o reemplazar este archivo y sus campos"
                       >
-                        <Edit3 className="w-3.5 h-3.5 text-slate-600" />
+                        <Edit3 className="w-3.5 h-3.5 text-[#3a5274] dark:text-slate-300" />
                         <span>Modificar / Reemplazar</span>
                       </button>
                     )}
@@ -1379,15 +1340,15 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <button
                       type="button"
                       onClick={() => handleOpenCorrectionModal('FS_GA_FOR_009', 'Formulario FS.GA-FOR-009')}
-                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded flex items-center gap-1 border border-slate-300 cursor-pointer transition-colors shadow-2xs"
+                      className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors shadow-2xs"
                     >
-                      <AlertCircle className="w-3.5 h-3.5 text-blue-600" />
+                      <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       Pedir Corrección
                     </button>
                     <button
                       type="button"
                       onClick={() => handleApproveDoc('FS_GA_FOR_009')}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-2xs flex items-center gap-1 border border-blue-600 cursor-pointer transition-colors"
+                      className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                       Aprobar
@@ -1395,8 +1356,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200">
-                  <span className="text-xs text-slate-500 italic">Documento no cargado aún.</span>
+                <div className="flex items-center justify-between bg-black/[0.03] dark:bg-white/[0.05] p-4 rounded-2xl border border-black/[0.06] dark:border-white/10">
+                  <span className="text-xs text-[#5d7392] dark:text-slate-400 italic">Documento no cargado aún.</span>
                   {(role === 'ADMIN' || role === 'REVISOR') && (
                     <button
                       type="button"
@@ -1408,9 +1369,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         isInstitutionalForm: true,
                         status: 'PENDIENTE',
                       }, 'Formulario FS.GA-FOR-009')}
-                      className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded flex items-center gap-1 border border-blue-200 cursor-pointer transition-colors"
+                      className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer transition-colors"
                     >
-                      <FileUp className="w-3.5 h-3.5 text-blue-600" />
+                      <FileUp className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       <span>Cargar / Asignar Archivo</span>
                     </button>
                   )}
@@ -1419,21 +1380,21 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             </div>
 
             {/* Institutional Form Form 039 Row */}
-            <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <div className="fs-card lift rounded-[22px] p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase bg-blue-50 text-blue-800 px-2.5 py-0.5 rounded border border-blue-200">
+                  <span className="text-[10px] font-bold uppercase bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] px-2.5 py-0.5 rounded border border-[#2c84c4]/30">
                     Formato Oficial
                   </span>
-                  <h3 className="font-extrabold text-sm text-slate-900">
+                  <h3 className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white">
                     FS.GA-FOR-039 &bull; Autorización para el Tratamiento de Datos Personales
                   </h3>
                 </div>
                 <div>
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                     dossier.documents['FS_GA_FOR_039']?.status === 'APROBADO'
-                      ? 'bg-blue-50 text-blue-800 border-blue-200'
-                      : 'bg-slate-100 text-slate-800 border-slate-300'
+                      ? 'bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
+                      : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
                   }`}>
                     {dossier.documents['FS_GA_FOR_039']?.status || 'PENDIENTE'}
                   </span>
@@ -1441,10 +1402,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               </div>
 
               {dossier.documents['FS_GA_FOR_039']?.fileName ? (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-lg border border-slate-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-black/[0.03] dark:bg-white/[0.05] p-4 rounded-2xl border border-black/[0.06] dark:border-white/10">
                   <div>
-                    <div className="font-bold text-xs text-slate-900">{dossier.documents['FS_GA_FOR_039'].fileName}</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
+                    <div className="font-bold text-xs text-[#0b1d3a] dark:text-white">{dossier.documents['FS_GA_FOR_039'].fileName}</div>
+                    <div className="text-[11px] text-[#5d7392] dark:text-slate-400 mt-0.5">
                       Tamaño: {dossier.documents['FS_GA_FOR_039'].fileSize} &bull; Versión: {dossier.documents['FS_GA_FOR_039'].formVersion}
                     </div>
                   </div>
@@ -1453,10 +1414,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <button
                       type="button"
                       onClick={() => handleOpenDocPreview(dossier.documents['FS_GA_FOR_039'], 'Autorización FS.GA-FOR-039', 'FS_GA_FOR_039')}
-                      className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded flex items-center gap-1 border border-blue-200 cursor-pointer shadow-2xs transition-colors"
+                      className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer shadow-2xs transition-colors"
                       title="Visualizar documento cargado"
                     >
-                      <Eye className="w-3.5 h-3.5 text-blue-600" />
+                      <Eye className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       <span>Ver Documento</span>
                     </button>
 
@@ -1467,9 +1428,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           setSelectedFormForModal(form039);
                           setIsViewerModalOpen(true);
                         }}
-                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center gap-1 border border-slate-300 cursor-pointer transition-colors"
+                        className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#3a5274] dark:text-slate-300 text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors"
                       >
-                        <FileText className="w-3.5 h-3.5 text-blue-600" />
+                        <FileText className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                         Formato Blanco
                       </button>
                     )}
@@ -1478,9 +1439,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                       <button
                         type="button"
                         onClick={() => handleOpenEditDocModal('FS_GA_FOR_039', dossier.documents['FS_GA_FOR_039'], 'Autorización FS.GA-FOR-039')}
-                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded flex items-center gap-1 border border-slate-300 cursor-pointer shadow-2xs transition-colors"
+                        className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer shadow-2xs transition-colors"
                       >
-                        <Edit3 className="w-3.5 h-3.5 text-slate-600" />
+                        <Edit3 className="w-3.5 h-3.5 text-[#3a5274] dark:text-slate-300" />
                         <span>Modificar / Reemplazar</span>
                       </button>
                     )}
@@ -1488,15 +1449,15 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <button
                       type="button"
                       onClick={() => handleOpenCorrectionModal('FS_GA_FOR_039', 'Autorización FS.GA-FOR-039')}
-                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded flex items-center gap-1 border border-slate-300 cursor-pointer transition-colors shadow-2xs"
+                      className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors shadow-2xs"
                     >
-                      <AlertCircle className="w-3.5 h-3.5 text-blue-600" />
+                      <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       Pedir Corrección
                     </button>
                     <button
                       type="button"
                       onClick={() => handleApproveDoc('FS_GA_FOR_039')}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-2xs flex items-center gap-1 border border-blue-600 cursor-pointer transition-colors"
+                      className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                       Aprobar
@@ -1504,8 +1465,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200">
-                  <span className="text-xs text-slate-500 italic">Documento no cargado aún.</span>
+                <div className="flex items-center justify-between bg-black/[0.03] dark:bg-white/[0.05] p-4 rounded-2xl border border-black/[0.06] dark:border-white/10">
+                  <span className="text-xs text-[#5d7392] dark:text-slate-400 italic">Documento no cargado aún.</span>
                   {(role === 'ADMIN' || role === 'REVISOR') && (
                     <button
                       type="button"
@@ -1517,9 +1478,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         isInstitutionalForm: true,
                         status: 'PENDIENTE',
                       }, 'Autorización FS.GA-FOR-039')}
-                      className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded flex items-center gap-1 border border-blue-200 cursor-pointer transition-colors"
+                      className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer transition-colors"
                     >
-                      <FileUp className="w-3.5 h-3.5 text-blue-600" />
+                      <FileUp className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       <span>Cargar / Asignar Archivo</span>
                     </button>
                   )}
@@ -1531,34 +1492,34 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           {/* BLOQUE 2: DOCUMENTOS SOPORTE Y ANEXOS TRIBUTARIOS */}
           <div className="space-y-3">
             {/* Category / Service Assigned Header Callout in Light Tone */}
-            <div className="bg-gradient-to-r from-blue-50/80 via-slate-50 to-blue-50/60 p-4 rounded-xl border border-blue-200/80 shadow-2xs space-y-2.5">
+            <div className="bg-[#2c84c4]/[0.07] p-4 rounded-xl border border-[#2c84c4]/30 shadow-2xs space-y-2.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[11px] font-extrabold uppercase bg-blue-900 text-white px-2.5 py-0.5 rounded-full tracking-wider flex items-center gap-1.5 shadow-2xs">
+                    <span className="text-[11px] font-semibold uppercase bg-gradient-action text-white px-3 py-1 rounded-full tracking-wider flex items-center gap-1.5 shadow-glow">
                       <Briefcase className="w-3.5 h-3.5 text-blue-200" />
                       <span>2. Documentos Soporte y Anexos Tributarios</span>
                     </span>
-                    <span className="text-[11px] font-bold text-slate-700 bg-white px-2.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                    <span className="text-[11px] font-bold text-[#3a5274] dark:text-slate-300 bg-white px-2.5 py-0.5 rounded-full border border-black/10 dark:border-white/10 shadow-2xs">
                       {isNatural ? 'Régimen: Persona Natural' : 'Régimen: Persona Jurídica'}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap pt-1">
-                    <span className="text-xs font-semibold text-slate-600">
+                    <span className="text-xs font-semibold text-[#3a5274] dark:text-slate-300">
                       Categoría / Servicio Asignado:
                     </span>
-                    <span className="text-xs font-black text-blue-950 bg-blue-100/90 px-2.5 py-0.5 rounded-md border border-blue-300/80 inline-flex items-center gap-1.5 shadow-2xs">
-                      <Layers className="w-3.5 h-3.5 text-blue-700" />
+                    <span className="text-xs font-black text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-2.5 py-0.5 rounded-md border border-[#2c84c4]/30 inline-flex items-center gap-1.5 shadow-2xs">
+                      <Layers className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       <span>{dossier.selectedCategory}</span>
                     </span>
                     {currentCatConfig?.economicCode && (
-                      <span className="text-[11px] font-mono font-bold text-blue-800 bg-white px-2 py-0.5 rounded border border-blue-200 shadow-2xs">
+                      <span className="text-[11px] font-mono font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-white px-2 py-0.5 rounded border border-[#2c84c4]/30 shadow-2xs">
                         Código: {currentCatConfig.economicCode}
                       </span>
                     )}
                     {currentCatConfig?.riskLevel && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-slate-100 text-slate-800 border-slate-300">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10">
                         Riesgo: {currentCatConfig.riskLevel}
                       </span>
                     )}
@@ -1566,22 +1527,22 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 </div>
 
                 <div className="flex flex-col sm:items-end gap-1 shrink-0">
-                  <span className="text-xs font-bold text-blue-800 bg-white px-3 py-1.5 rounded-lg border border-blue-200 shadow-2xs flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                  <span className="text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-white px-3 py-1.5 rounded-lg border border-[#2c84c4]/30 shadow-2xs flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Soportes y Anexos: {supportApprovedCount} de {supportTotalCount} aprobados</span>
                   </span>
-                  <span className="text-[10.5px] text-slate-500 font-medium">
+                  <span className="text-[10.5px] text-[#5d7392] dark:text-slate-400 font-medium">
                     (+ {institutionalApprovedCount} formatos oficiales = {approvedDocsCount} de {totalDocs} total expediente)
                   </span>
                 </div>
               </div>
 
-              <p className="text-[11.5px] text-slate-600 leading-relaxed border-t border-blue-100/80 pt-2">
+              <p className="text-[11.5px] text-[#3a5274] dark:text-slate-300 leading-relaxed border-t border-[#2c84c4]/30 pt-2">
                 ℹ Los requerimientos documentales y anexos tributarios de este bloque se parametrizan dinámicamente según la <strong>Categoría o Servicio Asignado ({dossier.selectedCategory})</strong> y la naturaleza jurídica del postulante para el Sistema Integrado de Gestión de Flota Sugamuxi S.A.
               </p>
             </div>
 
-              <div className="divide-y divide-slate-200 border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
+              <div className="fs-card divide-y divide-black/10 dark:divide-white/10 rounded-2xl overflow-hidden">
                 {supportDocsList.map(([code, doc]) => {
                     const docDef = (documentDefinitions || []).find((d) => d.code === code);
                     const catalog = DOCUMENT_CATALOG_INFO[code];
@@ -1597,49 +1558,49 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           docExp.status === 'VENCIDO'
                             ? 'bg-slate-900/5 border-l-4 border-l-slate-900 dark:border-l-cyan-400'
                             : docExp.status === 'POR_VENCER'
-                            ? 'bg-blue-50/50 border-l-4 border-l-blue-600'
+                            ? 'bg-[#2c84c4]/10 border-l-4 border-l-blue-600'
                             : doc.status === 'REQUIERE_CORRECCION'
-                            ? 'bg-slate-50/90 border-l-4 border-l-slate-400'
-                            : 'hover:bg-slate-50/60'
+                            ? 'bg-black/[0.04] dark:bg-white/[0.06] border-l-4 border-l-slate-400'
+                            : 'hover:bg-black/5 dark:hover:bg-white/10'
                         }`}
                       >
                         <div className="space-y-1.5 max-w-lg">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-xs text-slate-900">
+                            <span className="font-bold text-xs text-[#0b1d3a] dark:text-white">
                               {docTitle}
                             </span>
-                            <span className="font-mono text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                            <span className="font-mono text-[10px] text-[#5d7392] dark:text-slate-400 bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 rounded border border-black/10 dark:border-white/10">
                               [{code}]
                             </span>
                             {isActivityReq && (
-                              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                              <span className="text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-2 py-0.5 rounded border border-[#2c84c4]/30">
                                 Exigencia por Actividad
                               </span>
                             )}
                             {isBaseReq && !isActivityReq && (
-                              <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                              <span className="text-[10px] font-medium text-[#3a5274] dark:text-slate-300 bg-black/[0.04] dark:bg-white/[0.06] px-2 py-0.5 rounded border border-black/10 dark:border-white/10">
                                 Requisito Base
                               </span>
                             )}
                           </div>
 
                           {docDef?.description && (
-                            <p className="text-[11px] text-slate-500 leading-snug">
+                            <p className="text-[11px] text-[#5d7392] dark:text-slate-400 leading-snug">
                               {docDef.description}
                             </p>
                           )}
 
                           {docDef?.validityRule && (
-                            <div className="text-[10.5px] text-blue-700 font-medium flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-blue-600 shrink-0" />
+                            <div className="text-[10.5px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0" />
                               <span>Regla SIG: {docDef.validityRule}</span>
                             </div>
                           )}
                           
-                          <div className="flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
+                          <div className="flex items-center gap-2 flex-wrap text-[11px] text-[#5d7392] dark:text-slate-400">
                             <span>{doc.fileName ? `Archivo: ${doc.fileName} (${doc.fileSize || '1.4 MB'})` : 'Pendiente de cargue de soporte por el revisor'}</span>
                             {doc.expirationDate && (
-                              <span className="font-mono text-slate-700 font-semibold">
+                              <span className="font-mono text-[#3a5274] dark:text-slate-300 font-semibold">
                                 • Vence: {doc.expirationDate}
                               </span>
                             )}
@@ -1653,25 +1614,25 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                             </div>
                           )}
                           {docExp.status === 'POR_VENCER' && (
-                            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-900 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-300 shadow-2xs">
-                              <Clock className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-2.5 py-0.5 rounded border border-[#2c84c4]/30 shadow-2xs">
+                              <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0" />
                               <span>POR VENCER: Restan {docExp.daysRemaining} días para vencer ({doc.expirationDate})</span>
                             </div>
                           )}
                           {docExp.status === 'VIGENTE' && (
-                            <div className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                              <CheckCircle2 className="w-3 h-3 text-blue-700 shrink-0" />
+                            <div className="inline-flex items-center gap-1 text-[10px] font-medium text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-2 py-0.5 rounded border border-[#2c84c4]/30">
+                              <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0" />
                               <span>Vigente (restan {docExp.daysRemaining} días)</span>
                             </div>
                           )}
 
                           {doc.notes && (
-                            <p className="text-[11px] text-slate-600 italic">
+                            <p className="text-[11px] text-[#3a5274] dark:text-slate-300 italic">
                               Nota: {doc.notes}
                             </p>
                           )}
                           {doc.correction && (
-                            <div className="text-[11px] text-slate-800 bg-slate-100 p-2 rounded mt-1 border border-slate-200 font-mono">
+                            <div className="text-[11px] text-[#0b1d3a] dark:text-white bg-black/[0.04] dark:bg-white/[0.06] p-2 rounded mt-1 border border-black/10 dark:border-white/10 font-mono">
                               ℹ Observación: "{doc.correction.detailedObservation}"
                             </div>
                           )}
@@ -1680,14 +1641,14 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         <div className="flex flex-wrap items-center gap-2 shrink-0">
                           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                             doc.status === 'APROBADO' || doc.status === 'VIGENTE'
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35'
                               : doc.status === 'POR_VENCER'
-                              ? 'bg-amber-50 text-amber-900 border-amber-300 font-bold'
+                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35 font-bold'
                               : doc.status === 'VENCIDO'
                               ? 'bg-slate-900 text-cyan-300 border-slate-700 font-bold'
                               : doc.status === 'REQUIERE_CORRECCION'
-                              ? 'bg-amber-100 text-amber-900 border-amber-300'
-                              : 'bg-slate-100 text-slate-800 border-slate-300'
+                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35'
+                              : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
                           }`}>
                             {doc.status}
                           </span>
@@ -1696,10 +1657,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                             <button
                               type="button"
                               onClick={() => handleOpenDocPreview(doc, docTitle, code)}
-                              className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded flex items-center gap-1 border border-blue-200 cursor-pointer shadow-2xs transition-colors"
+                              className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer shadow-2xs transition-colors"
                               title="Visualizar documento cargado"
                             >
-                              <Eye className="w-3.5 h-3.5 text-blue-600" />
+                              <Eye className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                               <span>Ver Documento</span>
                             </button>
                           )}
@@ -1708,21 +1669,21 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                             <button
                               type="button"
                               onClick={() => handleOpenEditDocModal(code, doc, docTitle)}
-                              className={`px-2.5 py-1.5 text-xs font-bold rounded flex items-center gap-1 border cursor-pointer shadow-2xs transition-colors ${
+                              className={`h-9 px-3 text-xs font-bold rounded-xl flex items-center gap-1.5 border cursor-pointer shadow-2xs transition-colors ${
                                 doc.fileName
-                                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
-                                  : 'bg-blue-50 hover:bg-blue-100 text-blue-800 border-blue-300'
+                                  ? 'bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
+                                  : 'bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
                               }`}
                               title={doc.fileName ? 'Modificar información, vigencia o sustituir archivo' : 'Cargar archivo soporte por el revisor'}
                             >
                               {doc.fileName ? (
                                 <>
-                                  <Edit3 className="w-3.5 h-3.5 text-slate-600" />
+                                  <Edit3 className="w-3.5 h-3.5 text-[#3a5274] dark:text-slate-300" />
                                   <span>Modificar Doc</span>
                                 </>
                               ) : (
                                 <>
-                                  <FileUp className="w-3.5 h-3.5 text-blue-700" />
+                                  <FileUp className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                                   <span>Cargar Doc</span>
                                 </>
                               )}
@@ -1734,15 +1695,15 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                               <button
                                 type="button"
                                 onClick={() => handleOpenCorrectionModal(code, docTitle)}
-                                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded flex items-center gap-1 border border-slate-300 cursor-pointer transition-colors shadow-2xs"
+                                className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors shadow-2xs"
                               >
-                                <AlertCircle className="w-3.5 h-3.5 text-blue-600" />
+                                <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                                 Corrección
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleApproveDoc(code)}
-                                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-2xs flex items-center gap-1 border border-blue-600 cursor-pointer transition-colors"
+                                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                                 Aprobar
@@ -1763,113 +1724,126 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
         {/* Tab 5: Audit Trail */}
         {activeTab === 'auditoria' && (
-          <div className="p-4 sm:p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <div>
-                <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wide">
-                  Historial y Trazabilidad Completa del Proveedor
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Registro inmutable de todas las modificaciones y acciones auditables para {supplierName} ({dossier.fileNumber}).
-                </p>
+          <div className="p-4 sm:p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <span className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-action text-white grid place-items-center shadow-glow">
+                  <History className="w-6 h-6" />
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">
+                    Historial y trazabilidad del proveedor
+                  </h3>
+                  <p className="text-xs text-[#3a5274] dark:text-slate-400 mt-1">
+                    Registro inmutable de todas las modificaciones y acciones auditables para {supplierName} ({dossier.fileNumber}).
+                  </p>
+                </div>
               </div>
-              <span className="text-xs font-mono font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg border border-blue-200">
-                {systemAuditLogs.filter((l) => l.dossierId === dossier.id).length} Eventos Registrados
+              <span className="self-start sm:self-auto shrink-0 text-xs font-semibold bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] px-3.5 py-1.5 rounded-full border border-[#2c84c4]/30">
+                {systemAuditLogs.filter((l) => l.dossierId === dossier.id).length} eventos registrados
               </span>
             </div>
 
-            {/* System Audit Logs for this Dossier */}
+            {/* Eventos de modificación de datos */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Eventos de Auditoría y Modificaciones de Datos
+              <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2c84c4] dark:text-[#69bdd7]">
+                Eventos de auditoría y modificaciones de datos
               </h4>
 
               {systemAuditLogs.filter((l) => l.dossierId === dossier.id).length > 0 ? (
-                <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white text-xs">
+                <ol className="relative space-y-3 pl-7 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-[#2c84c4] before:to-transparent">
                   {systemAuditLogs
                     .filter((l) => l.dossierId === dossier.id)
                     .map((log) => (
-                      <div key={log.id} className="p-4 space-y-2 hover:bg-slate-50/70 transition-colors">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-900">{log.fieldChanged}</span>
-                            <span
-                              className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                                log.action === 'EDICION_CAMPO'
-                                  ? 'bg-blue-100 text-blue-800'
-                                  : log.action === 'CAMBIO_ESTADO'
-                                  ? 'bg-slate-200 text-slate-800'
-                                  : 'bg-blue-100 text-blue-800'
-                              }`}
-                            >
-                              {log.action}
-                            </span>
-                            <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
-                              {log.userRole === 'ADMIN' ? 'ADMINISTRADOR' : 'REVISOR TÉCNICO'}
+                      <li key={log.id} className="relative">
+                        <span className="absolute -left-7 top-4 w-[23px] h-[23px] rounded-full bg-gradient-action grid place-items-center ring-4 ring-[#2c84c4]/15">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                        </span>
+                        <div className="fs-card rounded-2xl p-4 space-y-2.5 text-xs">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{log.fieldChanged}</span>
+                              <span
+                                className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                                  log.action === 'CAMBIO_ESTADO'
+                                    ? 'bg-[#2c84c4]/20 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]'
+                                    : 'bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7]'
+                                }`}
+                              >
+                                {log.action}
+                              </span>
+                              <span className="text-[10px] font-semibold text-[#5d7392] dark:text-slate-400 bg-black/[0.05] dark:bg-white/10 px-2 py-0.5 rounded-full">
+                                {log.userRole === 'ADMIN' ? 'ADMINISTRADOR' : 'REVISOR TÉCNICO'}
+                              </span>
+                            </div>
+                            <span className="font-mono text-[11px] text-[#5d7392] dark:text-slate-400 flex items-center gap-1">
+                              <Calendar className="w-3 h-3" /> {log.formattedDate}
                             </span>
                           </div>
-                          <span className="font-mono text-[11px] text-slate-400 flex items-center gap-1">
-                            <Calendar className="w-3 h-3" /> {log.formattedDate}
-                          </span>
-                        </div>
 
-                        {log.action === 'EDICION_CAMPO' && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px]">
-                            <div className="text-slate-500 line-through">
-                              <span className="font-semibold text-slate-400 mr-1">Valor Anterior:</span>
-                              {log.oldValue || '(Vacío)'}
+                          {log.action === 'EDICION_CAMPO' && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                              <div className="rounded-xl p-2.5 bg-red-500/[0.07] border border-red-500/20 text-[#5d7392] dark:text-slate-400 line-through">
+                                <span className="font-semibold no-underline mr-1">Anterior:</span>
+                                {log.oldValue || '(Vacío)'}
+                              </div>
+                              <div className="rounded-xl p-2.5 bg-[#2c84c4]/[0.08] border border-[#2c84c4]/35 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] font-medium">
+                                <span className="font-semibold text-[#5d7392] dark:text-slate-400 mr-1">Nuevo:</span>
+                                {log.newValue || '(Vacío)'}
+                              </div>
                             </div>
-                            <div className="text-blue-900 font-medium">
-                              <span className="font-semibold text-slate-400 mr-1">Nuevo Valor:</span>
-                              {log.newValue || '(Vacío)'}
-                            </div>
+                          )}
+
+                          {log.justification && (
+                            <p className="text-[#3a5274] dark:text-slate-300 text-xs italic bg-black/[0.04] dark:bg-white/[0.06] p-2.5 rounded-xl border border-black/10 dark:border-white/10">
+                              <strong>Motivo / justificación:</strong> "{log.justification}"
+                            </p>
+                          )}
+
+                          <div className="text-[10px] text-[#5d7392] dark:text-slate-400">
+                            Responsable: <strong className="text-[#3a5274] dark:text-slate-300">{log.user}</strong> &bull; Sección: {log.section}
                           </div>
-                        )}
-
-                        {log.justification && (
-                          <p className="text-slate-600 text-xs italic bg-slate-50 p-2 rounded border border-slate-200">
-                            <strong>Motivo / Justificación:</strong> "{log.justification}"
-                          </p>
-                        )}
-
-                        <div className="text-[10px] text-slate-400">
-                          Usuario Responsable: <strong className="text-slate-700">{log.user}</strong> &bull; Sección: {log.section}
                         </div>
-                      </div>
+                      </li>
                     ))}
-                </div>
+                </ol>
               ) : (
-                <div className="p-4 text-center text-slate-400 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                <div className="p-6 text-center text-[#5d7392] dark:text-slate-400 rounded-2xl border border-dashed border-[#2c84c4]/35 bg-[#2c84c4]/[0.04] text-xs">
                   No hay modificaciones de campos registradas para este expediente.
                 </div>
               )}
             </div>
 
-            {/* General Workflow Audit History */}
-            <div className="space-y-3 pt-4 border-t border-slate-200">
-              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Línea de Tiempo del Flujo de Revisión
+            {/* Línea de tiempo del flujo de revisión */}
+            <div className="space-y-3 pt-5 border-t border-black/[0.07] dark:border-white/10">
+              <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2c84c4] dark:text-[#69bdd7]">
+                Línea de tiempo del flujo de revisión
               </h4>
 
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white text-xs">
+              <ol className="relative space-y-3 pl-7 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-[#69bdd7] before:to-transparent">
                 {(dossier.auditHistory || []).map((aud) => (
-                  <div key={aud.id} className="p-3.5 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">{aud.action}</span>
-                        <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
-                          {aud.role}
+                  <li key={aud.id} className="relative">
+                    <span className="absolute -left-7 top-3.5 w-[23px] h-[23px] rounded-full bg-gradient-to-br from-[#69bdd7] to-[#2c84c4] grid place-items-center ring-4 ring-[#69bdd7]/15">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    </span>
+                    <div className="fs-card rounded-2xl p-3.5 space-y-1 text-xs">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <span className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{aud.action}</span>
+                          <span className="text-[10px] font-semibold text-[#5d7392] dark:text-slate-400 bg-black/[0.05] dark:bg-white/10 px-2 py-0.5 rounded-full">
+                            {aud.role}
+                          </span>
+                        </div>
+                        <span className="font-mono text-[11px] text-[#5d7392] dark:text-slate-400 flex items-center gap-1">
+                          <Calendar className="w-3 h-3" /> {aud.timestamp}
                         </span>
                       </div>
-                      <span className="font-mono text-[11px] text-slate-400 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> {aud.timestamp}
-                      </span>
+                      {aud.notes && <p className="text-[#3a5274] dark:text-slate-300 text-[11px] font-mono">{aud.notes}</p>}
+                      <div className="text-[10px] text-[#5d7392] dark:text-slate-400">Usuario: {aud.user}</div>
                     </div>
-                    {aud.notes && <p className="text-slate-600 text-[11px] font-mono">{aud.notes}</p>}
-                    <div className="text-[10px] text-slate-400">Usuario: {aud.user}</div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ol>
             </div>
           </div>
         )}
@@ -1880,7 +1854,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
       {/* Modal for Requesting Granular Correction */}
       {isCorrectionModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
             <div className="shrink-0 bg-slate-900 text-white px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-800 flex items-center justify-between shadow-xs">
               <div>
                 <span className="text-[10px] font-bold uppercase bg-blue-900 text-blue-200 px-2 py-0.5 rounded">
@@ -1900,9 +1874,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             </div>
 
             <form onSubmit={handleConfirmCorrection} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-slate-700 scrollbar-thin scrollbar-thumb-slate-300">
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-[#3a5274] dark:text-slate-300 scrollbar-thin scrollbar-thumb-slate-300">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-800 mb-1">
+                  <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white mb-1">
                     Motivo Principal de Corrección
                   </label>
                   <input
@@ -1910,13 +1884,13 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     value={correctionReason}
                     onChange={(e) => setCorrectionReason(e.target.value)}
                     placeholder="Ej. Información bancaria incompleta"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 font-semibold text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 font-semibold text-[#0b1d3a] dark:text-white"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-800 mb-1">
+                  <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white mb-1">
                     Página o Sección Específica Observada
                   </label>
                   <input
@@ -1924,37 +1898,37 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     value={correctionSection}
                     onChange={(e) => setCorrectionSection(e.target.value)}
                     placeholder="Ej. Numeral III (Información Bancaria) o Página 2"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 font-semibold text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 font-semibold text-[#0b1d3a] dark:text-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-800 mb-1">
-                    Observación Detallada para el Proveedor <span className="text-blue-600">*</span>
+                  <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white mb-1">
+                    Observación Detallada para el Proveedor <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
                   </label>
                   <textarea
                     rows={4}
                     value={correctionDetail}
                     onChange={(e) => setCorrectionDetail(e.target.value)}
                     placeholder="Escriba la instrucción clara y detallada para que el proveedor subsane el documento..."
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-mono text-xs"
+                    className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-mono text-xs"
                     required
                   />
                 </div>
 
-                <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-[11px] text-slate-800">
-                  <p className="font-semibold text-slate-900">Principio de No Rechazo Total:</p>
-                  <p className="text-slate-600">
+                <div className="bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 p-3 rounded-lg text-[11px] text-[#0b1d3a] dark:text-white">
+                  <p className="font-semibold text-[#0b1d3a] dark:text-white">Principio de No Rechazo Total:</p>
+                  <p className="text-[#3a5274] dark:text-slate-300">
                     El expediente pasará a estado <strong>REQUIERE CORRECCIÓN</strong> permitiendo al proveedor reemplazar únicamente este requisito sin reiniciar todo su proceso.
                   </p>
                 </div>
               </div>
 
-              <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+              <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-black/[0.04] dark:bg-white/[0.06] border-t border-black/10 dark:border-white/10 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setIsCorrectionModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer rounded-lg hover:bg-slate-200/60"
+                  className="px-4 py-2 text-xs font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white cursor-pointer rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
                 >
                   Cancelar
                 </button>

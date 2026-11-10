@@ -153,35 +153,35 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
 
       {/* 2. ALERTA PREVENTIVA: DOCUMENTOS PRÓXIMOS A VENCER (0 a 30 días según política SIG) */}
       {hasExpiringSoonDocs && (
-        <div className="bg-amber-50/90 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-800/80 rounded-2xl p-4 sm:p-5 shadow-xs transition-all">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-amber-200 dark:border-amber-900/60 pb-3">
+        <div className="bg-[#2c84c4]/12 dark:bg-[#2c84c4]/30 border-2 border-[#2c84c4]/35 dark:border-[#2c84c4]/35 rounded-2xl p-4 sm:p-5 shadow-xs transition-all">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#2c84c4]/35 dark:border-[#2c84c4]/35 pb-3">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-[#2c84c4] text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Clock className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 px-2 py-0.5 rounded-md">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#69bdd7]/25 dark:bg-[#2c84c4] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] px-2 py-0.5 rounded-md">
                     Alerta Preventiva SIG
                   </span>
-                  <span className="text-xs font-black text-amber-900 dark:text-amber-200 font-mono">
+                  <span className="text-xs font-black text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] font-mono">
                     {expiringSoonCount} {expiringSoonCount === 1 ? 'Documento Próximo a Vencer' : 'Documentos Próximos a Vencer'}
                   </span>
                 </div>
-                <h3 className="text-sm sm:text-base font-black text-amber-950 dark:text-amber-100 mt-0.5">
+                <h3 className="text-sm sm:text-base font-black text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] mt-0.5">
                   Notificación de Vencimiento Próximo (&le; 30 días)
                 </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-2 self-start md:self-center">
-              <span className="text-[11px] font-bold text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-900/70 px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-800">
+              <span className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] bg-[#2c84c4]/12 dark:bg-[#2c84c4]/70 px-2.5 py-1 rounded-lg border border-[#2c84c4]/35 dark:border-[#2c84c4]/35">
                 Renovación Oportuna Requerida
               </span>
             </div>
           </div>
 
-          <p className="text-xs text-amber-900 dark:text-amber-200/90 mt-2.5 leading-relaxed">
+          <p className="text-xs text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] mt-2.5 leading-relaxed">
             Las políticas del <strong>Sistema Integrado de Gestión (SIG)</strong> establecen una alerta preventiva de <strong>30 días de antelación</strong> para tramitar la renovación de documentos periódicos (como pagos de Seguridad Social, Cámaras de Comercio o Pólizas), asegurando la continuidad ininterrumpida de sus operaciones comerciales.
           </p>
 
@@ -194,10 +194,10 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
               return (
                 <div
                   key={item.code}
-                  className="bg-white dark:bg-slate-900 rounded-xl border border-amber-200 dark:border-amber-900/80 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
+                  className="bg-white dark:bg-slate-900 rounded-xl border border-[#2c84c4]/35 dark:border-[#2c84c4]/35 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
                 >
                   <div className="flex items-start gap-2.5">
-                    <span className="mt-0.5 w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 flex items-center justify-center shrink-0">
+                    <span className="mt-0.5 w-7 h-7 rounded-lg bg-[#2c84c4]/12 dark:bg-[#2c84c4] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] flex items-center justify-center shrink-0">
                       <Clock className="w-4 h-4" />
                     </span>
                     <div>
@@ -209,8 +209,8 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
                           {item.code}
                         </span>
                       </div>
-                      <div className="text-[11px] text-amber-800 dark:text-amber-300 font-semibold flex items-center gap-1.5 mt-0.5">
-                        <Calendar className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                      <div className="text-[11px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] font-semibold flex items-center gap-1.5 mt-0.5">
+                        <Calendar className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]" />
                         <span>Vence: {item.expirationDate}</span>
                         <span>&bull;</span>
                         <span className="font-bold underline">
@@ -236,7 +236,7 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
                     <button
                       type="button"
                       onClick={() => onTriggerUpload(item.code)}
-                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-3 py-1.5 bg-[#2c84c4] hover:bg-[#2c84c4] text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                       <span>Actualizar soporte</span>
@@ -251,16 +251,16 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
 
       {/* 3. ESTADO DE CONFORMIDAD GENERAL: Todos los documentos vigentes */}
       {!hasExpiredDocs && !hasExpiringSoonDocs && totalWithExpiration > 0 && (
-        <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-xl p-3.5 flex items-center justify-between gap-3">
+        <div className="bg-[#2c84c4]/12 dark:bg-[#2c84c4]/20 border border-[#2c84c4]/35 dark:border-[#2c84c4]/35 rounded-xl p-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#2c84c4] text-white flex items-center justify-center shrink-0">
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-bold text-emerald-950 dark:text-emerald-200">
+              <div className="text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]">
                 Vigencia Documental al Día (Políticas SIG Cumplidas)
               </div>
-              <div className="text-[11px] text-emerald-800 dark:text-emerald-300">
+              <div className="text-[11px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]">
                 Los {validCount} documentos periódicos registrados cuentan con más de 30 días de vigencia activa.
               </div>
             </div>
@@ -269,7 +269,7 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
           <button
             type="button"
             onClick={() => setIsMatrixOpen(!isMatrixOpen)}
-            className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 hover:underline flex items-center gap-1 cursor-pointer shrink-0"
+            className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] hover:underline flex items-center gap-1 cursor-pointer shrink-0"
           >
             <span>{isMatrixOpen ? 'Ocultar Matriz' : 'Ver Matriz de Vigencia'}</span>
             {isMatrixOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -299,7 +299,7 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
               <Calendar className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
               <span>Matriz de Vigencia Documental - Políticas SIG Flota Sugamuxi S.A.</span>
             </h4>
-            <span className="text-[10px] text-slate-500 font-medium">
+            <span className="text-[10px] text-[#5d7392] dark:text-slate-400 font-medium">
               Criterio de alerta preventiva: &le; 30 días
             </span>
           </div>
@@ -307,7 +307,7 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 text-[10px] uppercase font-bold text-slate-400">
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-[10px] uppercase font-bold text-[#5d7392] dark:text-slate-400">
                   <th className="py-2 pr-3">Documento / Código</th>
                   <th className="py-2 px-3">Fecha Vencimiento</th>
                   <th className="py-2 px-3">Días Restantes</th>
@@ -324,20 +324,20 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
                       <tr key={doc.id || doc.code} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50">
                         <td className="py-2.5 pr-3 font-semibold text-slate-900 dark:text-white">
                           <div>{doc.name}</div>
-                          <span className="text-[10px] font-mono text-slate-400">{doc.code}</span>
+                          <span className="text-[10px] font-mono text-[#5d7392] dark:text-slate-400">{doc.code}</span>
                         </td>
                         <td className="py-2.5 px-3 font-mono text-slate-600 dark:text-slate-300">
                           {doc.expirationDate || 'Permanente'}
                         </td>
                         <td className="py-2.5 px-3 font-mono font-bold">
                           {exp.status === 'NO_APLICA' ? (
-                            <span className="text-slate-400 font-normal">&infin;</span>
+                            <span className="text-[#5d7392] dark:text-slate-400 font-normal">&infin;</span>
                           ) : exp.status === 'VENCIDO' ? (
                             <span className="text-rose-600 dark:text-rose-400">-{exp.daysOverdue}d</span>
                           ) : exp.status === 'POR_VENCER' ? (
-                            <span className="text-amber-600 dark:text-amber-400">{exp.daysRemaining}d</span>
+                            <span className="text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]">{exp.daysRemaining}d</span>
                           ) : (
-                            <span className="text-emerald-600 dark:text-emerald-400">{exp.daysRemaining}d</span>
+                            <span className="text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]">{exp.daysRemaining}d</span>
                           )}
                         </td>
                         <td className="py-2.5 px-3">
@@ -346,12 +346,12 @@ export const DocumentExpirationAlertBanner: React.FC<DocumentExpirationAlertBann
                               <AlertOctagon className="w-3 h-3 text-rose-600" /> Vencido (Inhabilita)
                             </span>
                           ) : exp.status === 'POR_VENCER' ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                              <Clock className="w-3 h-3 text-amber-600" /> Por Vencer (&le; 30d)
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7] border border-[#2c84c4]/35 dark:border-[#2c84c4]/35">
+                              <Clock className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> Por Vencer (&le; 30d)
                             </span>
                           ) : exp.status === 'VIGENTE' ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                              <ShieldCheck className="w-3 h-3 text-emerald-600" /> Vigente
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7] border border-[#2c84c4]/35 dark:border-[#2c84c4]/35">
+                              <ShieldCheck className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> Vigente
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">

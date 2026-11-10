@@ -35,6 +35,7 @@ import {
 import { useApp } from '../context/AppContext';
 import { SupplierType, SupplierTier, ProcessStatus, AdminCreateSupplierInput } from '../types';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
+import { PageHeader, heroPrimaryBtn, heroSecondaryBtn } from './ui/archive';
 
 const getCategoryIcon = (categoryName: string) => {
   const lower = categoryName.toLowerCase();
@@ -366,63 +367,17 @@ export const AdminRegisterSupplierView: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
+    <div className="reg-new w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1 space-y-5">
+      <PageHeader
+        icon={ShieldCheck}
+        title="Registrar proveedor"
+        subtitle="Alta oficial, creación del expediente y asignación de radicado"
+      />
       {/* 1. Header Banner Estandarizado Claro */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 text-slate-900 border border-slate-200 shadow-xs relative overflow-hidden dark:bg-[#0b1329] dark:text-white dark:border-blue-900/60">
-        <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1 w-full">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 p-1.5 dark:bg-slate-900/80 dark:border-blue-800 shadow-2xs">
-              <ShieldCheck className="w-5 h-5 text-blue-700 dark:text-cyan-400" />
-            </div>
-            <div className="space-y-1 min-w-0 flex-1">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <button
-                  onClick={() => setActiveView('bancoProveedores')}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-700/80"
-                  title="Regresar a Banco de Proveedores"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-300" />
-                  <span>Volver</span>
-                </button>
-                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[10px] font-bold text-blue-800 dark:bg-blue-500/20 dark:text-cyan-300">
-                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-300" />
-                  <span>SIGEPRO &bull; Registro Integral de Proveedores</span>
-                </div>
-              </div>
-
-              <h1 className="text-base sm:text-lg lg:text-xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
-                Inscripción & Alta Oficial de Proveedor
-              </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-                Matriculación directa, creación de expediente homologado y asignación de radicado para <strong>Flota Sugamuxi S.A.</strong>
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Demo Fill Buttons */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto shrink-0 pt-2.5 xl:pt-0 border-t xl:border-t-0 border-slate-100 dark:border-slate-800/80">
-            <button
-              type="button"
-              onClick={handleFillDemoJuridica}
-              className="flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 shadow-2xs text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer dark:bg-slate-800/90 dark:hover:bg-slate-700/90 dark:border-blue-700/60 dark:text-white"
-            >
-              <Building2 className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-300" />
-              <span>Demo Jurídica</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleFillDemoNatural}
-              className="flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 shadow-2xs text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer dark:bg-slate-800/90 dark:hover:bg-slate-700/90 dark:border-blue-700/60 dark:text-white"
-            >
-              <User className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-300" />
-              <span>Demo Natural</span>
-            </button>
-          </div>
-        </div>
+      <div className="fs-card rounded-[24px] p-4 sm:p-5 animate-fade-up">
 
         {/* Steps Progress Bar - Compact */}
-        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {steps.map((step) => {
             const Icon = step.icon;
             const isCompleted = currentStep > step.id;
@@ -437,38 +392,30 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     setCurrentStep(step.id);
                   }
                 }}
-                className={`p-3 rounded-xl border text-left transition-all flex items-center gap-3 cursor-pointer ${
+                className={`group p-3 rounded-2xl border text-left transition-all duration-300 flex items-center gap-3 cursor-pointer ${
                   isCurrent
-                    ? 'bg-blue-50/90 border-blue-400 text-blue-950 shadow-xs ring-2 ring-blue-500/25 dark:bg-blue-900/90 dark:border-cyan-400 dark:text-white'
+                    ? 'bg-gradient-action text-white border-transparent shadow-glow'
                     : isCompleted
-                    ? 'bg-blue-50/40 border-blue-200 text-[#0b1329] hover:bg-blue-50/80 dark:bg-slate-800/60 dark:border-blue-800/60 dark:text-cyan-300'
-                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-900 dark:bg-slate-900/40 dark:border-slate-800/60 dark:text-slate-400'
+                    ? 'bg-[#2c84c4]/10 border-[#2c84c4]/40 text-[#0b1d3a] dark:text-white hover:bg-[#2c84c4]/15'
+                    : 'bg-white/50 border-black/10 text-[#3a5274] hover:border-[#2c84c4]/50 dark:bg-white/5 dark:border-white/10 dark:text-slate-300'
                 }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 transition-colors ${
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-display font-semibold text-sm shrink-0 transition-colors ${
                     isCurrent
-                      ? 'bg-blue-600 text-white shadow-xs'
+                      ? 'bg-white/20 text-white ring-1 ring-white/40'
                       : isCompleted
-                      ? 'bg-[#0b1329] text-cyan-300 shadow-2xs dark:bg-cyan-500/20 dark:text-cyan-300 dark:border dark:border-cyan-500/40'
-                      : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                      ? 'bg-gradient-action text-white shadow-glow'
+                      : 'bg-[#e3eaf3] text-[#3a5274] dark:bg-white/10 dark:text-slate-300'
                   }`}
                 >
                   {isCompleted ? <Check className="w-4 h-4 stroke-[3]" /> : step.id}
                 </div>
                 <div className="min-w-0">
-                  <div
-                    className={`text-[10px] font-bold uppercase tracking-wider ${
-                      isCurrent
-                        ? 'text-blue-700 dark:text-cyan-400'
-                        : isCompleted
-                        ? 'text-blue-900/70 dark:text-cyan-300/70'
-                        : 'text-slate-500 dark:text-slate-400'
-                    }`}
-                  >
+                  <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${isCurrent ? 'text-white/75' : 'text-[#2c84c4] dark:text-[#69bdd7]'}`}>
                     Paso {step.id} {isCompleted ? '• Listo' : ''}
                   </div>
-                  <div className="text-xs font-extrabold truncate text-slate-900 dark:text-white">
+                  <div className={`text-xs font-bold truncate ${isCurrent ? 'text-white' : 'text-[#0b1d3a] dark:text-white'}`}>
                     {step.label}
                   </div>
                 </div>
@@ -480,8 +427,8 @@ export const AdminRegisterSupplierView: React.FC = () => {
 
       {/* Error Alert */}
       {errorMessage && (
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold flex items-center gap-3 animate-in fade-in">
-          <AlertCircle className="w-5 h-5 text-cyan-300 shrink-0" />
+        <div className="p-4 rounded-2xl glass-dark text-white text-sm font-semibold flex items-center gap-3 animate-in fade-in">
+          <AlertCircle className="w-5 h-5 text-[#69bdd7] shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
@@ -499,7 +446,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
         }}
         className="space-y-6"
       >
-        <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-6 sm:p-8">
+        <div className="fs-card rounded-[24px] overflow-hidden p-6 sm:p-8 animate-fade-up">
           
           {/* STEP 1: Tipo de Proveedor y Categoría */}
           {currentStep === 1 && (
@@ -508,7 +455,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div>
                   <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <Layers className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
+                    <Layers className="w-5 h-5 text-[#2c84c4] dark:text-[#69bdd7]" />
                     Paso 1: Modalidad, Criticidad SIG y Asignación Operativa
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -519,15 +466,15 @@ export const AdminRegisterSupplierView: React.FC = () => {
                   <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
                     Configuración:
                   </span>
-                  <span className="text-[11px] font-black px-2.5 py-0.5 rounded-md border bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700">
+                  <span className="text-[11px] font-black px-2.5 py-0.5 rounded-md border bg-white/70 text-[#0b1d3a] border-black/10 dark:bg-white/10 dark:text-white dark:border-white/15">
                     {supplierType === 'JURIDICA' ? 'Persona Jurídica' : 'Persona Natural'}
                   </span>
                   <span className={`text-[11px] font-black px-2.5 py-0.5 rounded-md border ${
                     supplierTier === 'A'
-                      ? 'bg-blue-950 text-white border-blue-900 dark:bg-blue-900 dark:text-cyan-300'
+                      ? 'bg-gradient-action text-white border-transparent'
                       : supplierTier === 'B'
-                      ? 'bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-950/60 dark:text-cyan-300'
-                      : 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-300'
+                      ? 'bg-[#2c84c4]/15 text-[#1d5fa8] border-[#2c84c4]/30 dark:text-[#69bdd7]'
+                      : 'bg-black/5 text-[#3a5274] border-black/10 dark:bg-white/10 dark:text-slate-300'
                   }`}>
                     Tipo {supplierTier} &bull; {supplierTier === 'A' ? 'Crítico' : supplierTier === 'B' ? 'Importante' : 'Estándar'}
                   </span>
@@ -535,20 +482,20 @@ export const AdminRegisterSupplierView: React.FC = () => {
               </div>
 
               {/* BLOQUE 1: Naturaleza Jurídica y Criticidad SIG */}
-              <div className="bg-slate-50/60 dark:bg-slate-900/30 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-5">
+              <div className="bg-[#2c84c4]/[0.04] dark:bg-white/[0.03] rounded-2xl p-5 border border-black/[0.07] dark:border-white/10 space-y-5">
                 {/* 1.1 Persona Jurídica vs Natural Selection */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
+                    <Building2 className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />
                     <span>1. Naturaleza Jurídica del Tercero *</span>
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div
                       onClick={() => setSupplierType('JURIDICA')}
-                      className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                      className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 ${
                         supplierType === 'JURIDICA'
-                          ? 'border-blue-600 bg-white dark:bg-blue-950/40 dark:border-cyan-400 shadow-sm ring-1 ring-blue-500/20'
-                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/50'
+                          ? 'border-[#2c84c4] bg-[#2c84c4]/10 shadow-glow ring-1 ring-[#2c84c4]/30'
+                          : 'border-black/10 dark:border-white/10 hover:border-[#2c84c4]/50 hover:-translate-y-0.5 bg-white/60 dark:bg-white/[0.03]'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -556,8 +503,8 @@ export const AdminRegisterSupplierView: React.FC = () => {
                           <div
                             className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                               supplierType === 'JURIDICA'
-                                ? 'bg-blue-600 text-white shadow-xs'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                ? 'bg-gradient-action text-white shadow-glow'
+                                : 'bg-[#e3eaf3] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
                             }`}
                           >
                             <Building2 className="w-5 h-5" />
@@ -573,11 +520,11 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         </div>
                         <div className="shrink-0">
                           {supplierType === 'JURIDICA' ? (
-                            <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                            <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow">
                               <Check className="w-3 h-3 stroke-[3]" />
                             </div>
                           ) : (
-                            <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                            <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25" />
                           )}
                         </div>
                       </div>
@@ -585,10 +532,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
 
                     <div
                       onClick={() => setSupplierType('NATURAL')}
-                      className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                      className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 ${
                         supplierType === 'NATURAL'
-                          ? 'border-blue-600 bg-white dark:bg-blue-950/40 dark:border-cyan-400 shadow-sm ring-1 ring-blue-500/20'
-                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/50'
+                          ? 'border-[#2c84c4] bg-[#2c84c4]/10 shadow-glow ring-1 ring-[#2c84c4]/30'
+                          : 'border-black/10 dark:border-white/10 hover:border-[#2c84c4]/50 hover:-translate-y-0.5 bg-white/60 dark:bg-white/[0.03]'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -596,8 +543,8 @@ export const AdminRegisterSupplierView: React.FC = () => {
                           <div
                             className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                               supplierType === 'NATURAL'
-                                ? 'bg-blue-600 text-white shadow-xs'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                ? 'bg-gradient-action text-white shadow-glow'
+                                : 'bg-[#e3eaf3] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
                             }`}
                           >
                             <User className="w-5 h-5" />
@@ -613,11 +560,11 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         </div>
                         <div className="shrink-0">
                           {supplierType === 'NATURAL' ? (
-                            <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                            <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow">
                               <Check className="w-3 h-3 stroke-[3]" />
                             </div>
                           ) : (
-                            <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                            <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25" />
                           )}
                         </div>
                       </div>
@@ -629,7 +576,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                 <div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
                     <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
+                      <Award className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />
                       <span>2. Clasificación de Criticidad SIG (Flota Sugamuxi) *</span>
                     </label>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -641,25 +588,25 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     {/* TIPO A - Crítico (Corporate Deep Navy Blue) */}
                     <div
                       onClick={() => setSupplierTier('A')}
-                      className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                      className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col justify-between ${
                         supplierTier === 'A'
-                          ? 'border-blue-900 bg-blue-50/70 dark:bg-blue-950/60 dark:border-blue-600 shadow-sm ring-1 ring-blue-900/20'
-                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/50'
+                          ? 'border-[#2c84c4] bg-[#2c84c4]/10 shadow-glow ring-1 ring-[#2c84c4]/30'
+                          : 'border-black/10 dark:border-white/10 hover:border-[#2c84c4]/50 hover:-translate-y-0.5 bg-white/60 dark:bg-white/[0.03]'
                       }`}
                     >
                       <div>
                         <div className="flex items-center justify-between gap-1.5 mb-2">
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-md bg-[#0b1329] text-white dark:bg-blue-900 dark:text-cyan-300 border border-blue-950 dark:border-blue-700 shadow-2xs">
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-md bg-gradient-action text-white shadow-glow">
                             <Award className="w-3.5 h-3.5 text-cyan-400" />
                             Tipo A - Crítico
                           </span>
                           <div className="shrink-0">
                             {supplierTier === 'A' ? (
-                              <div className="w-5 h-5 rounded-full bg-blue-900 text-white flex items-center justify-center shadow-xs">
+                              <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow">
                                 <Check className="w-3 h-3 stroke-[3]" />
                               </div>
                             ) : (
-                              <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                              <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25" />
                             )}
                           </div>
                         </div>
@@ -670,7 +617,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                           Combustibles, llantas, mantenimiento mayor de chasises/motores y pólizas de seguros RCE/RCC.
                         </p>
                       </div>
-                      <span className="inline-block text-[10px] font-bold text-blue-950 dark:text-cyan-300 bg-blue-100/90 dark:bg-blue-900/40 px-2 py-0.5 rounded-md mt-3 self-start border border-blue-200/80 dark:border-blue-800/60">
+                      <span className="inline-block text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 px-2 py-0.5 rounded-md mt-3 self-start border border-[#2c84c4]/25">
                         Control documental riguroso
                       </span>
                     </div>
@@ -678,25 +625,25 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     {/* TIPO B - Importante (Corporate Blue) */}
                     <div
                       onClick={() => setSupplierTier('B')}
-                      className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                      className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col justify-between ${
                         supplierTier === 'B'
-                          ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/40 dark:border-cyan-400 shadow-sm ring-1 ring-blue-500/20'
-                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/50'
+                          ? 'border-[#2c84c4] bg-[#2c84c4]/10 shadow-glow ring-1 ring-[#2c84c4]/30'
+                          : 'border-black/10 dark:border-white/10 hover:border-[#2c84c4]/50 hover:-translate-y-0.5 bg-white/60 dark:bg-white/[0.03]'
                       }`}
                     >
                       <div>
                         <div className="flex items-center justify-between gap-1.5 mb-2">
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-md bg-blue-700 text-white border border-blue-800 shadow-2xs">
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-md bg-[#2c84c4] text-white shadow-glow">
                             <ShieldCheck className="w-3.5 h-3.5 text-white" />
                             Tipo B - Importante
                           </span>
                           <div className="shrink-0">
                             {supplierTier === 'B' ? (
-                              <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                              <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow">
                                 <Check className="w-3 h-3 stroke-[3]" />
                               </div>
                             ) : (
-                              <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                              <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25" />
                             )}
                           </div>
                         </div>
@@ -707,7 +654,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                           Dotaciones EPP, monitoreo GPS satelital, telecomunicaciones y software de despacho de flota.
                         </p>
                       </div>
-                      <span className="inline-block text-[10px] font-bold text-blue-800 dark:text-blue-300 bg-blue-100/70 dark:bg-blue-950/50 px-2 py-0.5 rounded-md mt-3 self-start border border-blue-200 dark:border-blue-900">
+                      <span className="inline-block text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 px-2 py-0.5 rounded-md mt-3 self-start border border-[#2c84c4]/25">
                         Homologación periódica
                       </span>
                     </div>
@@ -715,25 +662,25 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     {/* TIPO C - Estándar (Slate) */}
                     <div
                       onClick={() => setSupplierTier('C')}
-                      className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                      className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col justify-between ${
                         supplierTier === 'C'
-                          ? 'border-slate-700 bg-slate-100/90 dark:bg-slate-800/90 dark:border-slate-400 shadow-sm ring-1 ring-slate-400/20'
-                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/50'
+                          ? 'border-[#2c84c4] bg-[#2c84c4]/10 shadow-glow ring-1 ring-[#2c84c4]/30'
+                          : 'border-black/10 dark:border-white/10 hover:border-[#2c84c4]/50 hover:-translate-y-0.5 bg-white/60 dark:bg-white/[0.03]'
                       }`}
                     >
                       <div>
                         <div className="flex items-center justify-between gap-1.5 mb-2">
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-md bg-slate-700 text-white border border-slate-800 shadow-2xs">
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-md bg-[#131b2e] text-white dark:bg-white/15 shadow-card">
                             <Layers className="w-3.5 h-3.5 text-slate-300" />
                             Tipo C - Estándar
                           </span>
                           <div className="shrink-0">
                             {supplierTier === 'C' ? (
-                              <div className="w-5 h-5 rounded-full bg-slate-800 text-white flex items-center justify-center shadow-xs">
+                              <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow">
                                 <Check className="w-3 h-3 stroke-[3]" />
                               </div>
                             ) : (
-                              <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                              <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25" />
                             )}
                           </div>
                         </div>
@@ -744,7 +691,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                           Papelería institucional, útiles de oficina e insumos sin impacto directo en rodamiento vehicular.
                         </p>
                       </div>
-                      <span className="inline-block text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-slate-200/80 dark:bg-slate-800 px-2 py-0.5 rounded-md mt-3 self-start border border-slate-300 dark:border-slate-700">
+                      <span className="inline-block text-[10px] font-bold text-[#3a5274] dark:text-slate-300 bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded-md mt-3 self-start border border-black/10 dark:border-white/15">
                         Requisitos simplificados
                       </span>
                     </div>
@@ -755,16 +702,16 @@ export const AdminRegisterSupplierView: React.FC = () => {
               {/* BLOQUE 2: Dos Columnas Simétricas - Categoría Técnica (Izquierda) y Evaluador Asignado (Derecha) */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
                 {/* 2.1 Categoría de Suministro (Panel Izquierdo) */}
-                <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/50 overflow-hidden flex flex-col shadow-xs">
+                <div className="fs-card rounded-2xl overflow-hidden flex flex-col">
                   {/* Header Categoría */}
-                  <div className="bg-slate-50 dark:bg-slate-900/80 px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+                  <div className="bg-[#2c84c4]/[0.06] dark:bg-white/5 px-4 py-3 border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
+                      <Briefcase className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7]" />
                       <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                         3. Categoría de Suministro / Servicio *
                       </h4>
                     </div>
-                    <span className="text-[11px] font-bold text-blue-900 dark:text-cyan-300 bg-blue-100/80 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-900">
+                    <span className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 px-2.5 py-0.5 rounded-md border border-[#2c84c4]/25">
                       {categoriesConfig.length} Categorías
                     </span>
                   </div>
@@ -778,7 +725,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         <div
                           key={cat.id}
                           onClick={() => setSelectedCategory(cat.category)}
-                          className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between gap-3 ${
+                          className={`p-3 rounded-2xl border cursor-pointer transition-all duration-300 flex items-center justify-between gap-3 ${
                             isSelected
                               ? 'border-blue-600 dark:border-cyan-400 bg-blue-50/70 dark:bg-blue-950/60 shadow-xs ring-1 ring-blue-500/20'
                               : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/40'
@@ -788,8 +735,8 @@ export const AdminRegisterSupplierView: React.FC = () => {
                             <div
                               className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
                                 isSelected
-                                  ? 'bg-blue-600 text-white shadow-xs'
-                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                  ? 'bg-gradient-action text-white shadow-glow'
+                                  : 'bg-[#e3eaf3] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
                               }`}
                             >
                               <CatIcon className="w-4 h-4" />
@@ -813,11 +760,11 @@ export const AdminRegisterSupplierView: React.FC = () => {
 
                           <div className="shrink-0 pl-1">
                             {isSelected ? (
-                              <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                              <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow">
                                 <Check className="w-3 h-3 stroke-[3]" />
                               </div>
                             ) : (
-                              <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                              <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25" />
                             )}
                           </div>
                         </div>
@@ -827,18 +774,18 @@ export const AdminRegisterSupplierView: React.FC = () => {
                 </div>
 
                 {/* 2.2 Evaluador Asignado (Panel Derecho) */}
-                <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/50 overflow-hidden flex flex-col justify-between shadow-xs">
+                <div className="fs-card rounded-2xl overflow-hidden flex flex-col justify-between">
                   <div>
                     {/* Header Evaluador */}
-                    <div className="bg-slate-50 dark:bg-slate-900/80 px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+                    <div className="bg-[#2c84c4]/[0.06] dark:bg-white/5 px-4 py-3 border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <UserCheck className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
+                        <UserCheck className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7]" />
                         <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                           4. Evaluador Asignado *
                         </h4>
                       </div>
                       {role === 'REVISOR' ? (
-                        <span className="text-[11px] font-bold text-blue-900 dark:text-cyan-300 bg-blue-100/80 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-900">
+                        <span className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 px-2.5 py-0.5 rounded-md border border-[#2c84c4]/25">
                           Revisor Activo ({activeUser.shortName})
                         </span>
                       ) : (
@@ -857,7 +804,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                           <div
                             key={user.id}
                             onClick={() => setAssignedReviewerId(user.id)}
-                            className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between gap-3 ${
+                            className={`p-3 rounded-2xl border cursor-pointer transition-all duration-300 flex items-center justify-between gap-3 ${
                               isSelected
                                 ? 'border-blue-600 dark:border-cyan-400 bg-blue-50/70 dark:bg-blue-950/60 shadow-xs ring-1 ring-blue-500/20'
                                 : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/40'
@@ -867,7 +814,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                               <div
                                 className={`w-9 h-9 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
                                   isSelected
-                                    ? 'bg-blue-600 text-white shadow-xs'
+                                    ? 'bg-gradient-action text-white shadow-glow'
                                     : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                                 }`}
                               >
@@ -896,11 +843,11 @@ export const AdminRegisterSupplierView: React.FC = () => {
 
                             <div className="shrink-0 pl-1">
                               {isSelected ? (
-                                <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                                <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow">
                                   <Check className="w-3 h-3 stroke-[3]" />
                                 </div>
                               ) : (
-                                <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                                <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25" />
                               )}
                             </div>
                           </div>
@@ -943,7 +890,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
             <div className="space-y-6 animate-in fade-in duration-200">
               <div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
+                  <Building2 className="w-5 h-5 text-[#2c84c4] dark:text-[#69bdd7]" />
                   Paso 2: Identificación Tributaria y Legal
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -963,7 +910,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={formData.companyName}
                       onChange={handleInputChange}
                       placeholder="Ej. Distribuidora Sugamuxi de Boyacá S.A.S."
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                     />
                   </div>
 
@@ -977,7 +924,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={formData.nit}
                       onChange={handleInputChange}
                       placeholder="Ej. 900892410-4"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                     />
                   </div>
 
@@ -991,7 +938,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={formData.representativeLegalName}
                       onChange={handleInputChange}
                       placeholder="Ej. Hernando Rojas Villamil"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                     />
                   </div>
 
@@ -1004,7 +951,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         name="representativeLegalDocType"
                         value={formData.representativeLegalDocType}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="fs-card w-full px-3 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                       >
                         {(systemParameters?.documentTypes || [])
                           .filter((d) => d.isActive)
@@ -1026,7 +973,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         value={formData.representativeLegalDocNumber}
                         onChange={handleInputChange}
                         placeholder="Ej. 74.312.809"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                       />
                     </div>
                   </div>
@@ -1043,7 +990,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={formData.fullName}
                       onChange={handleInputChange}
                       placeholder="Ej. Dra. Claudia Patricia Becerra Silva"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                     />
                   </div>
 
@@ -1056,7 +1003,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         name="documentType"
                         value={formData.documentType}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="fs-card w-full px-3 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                       >
                         {(systemParameters?.documentTypes || [])
                           .filter((d) => d.isActive)
@@ -1078,7 +1025,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         value={formData.documentNumber}
                         onChange={handleInputChange}
                         placeholder="Ej. 40.045.678"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                       />
                     </div>
                   </div>
@@ -1093,7 +1040,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={formData.professionOrTrade}
                       onChange={handleInputChange}
                       placeholder="Ej. Ingeniero Mecánico / Auditor Vial"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                     />
                   </div>
                 </div>
@@ -1106,7 +1053,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
             <div className="space-y-6 animate-in fade-in duration-200">
               <div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
+                  <MapPin className="w-5 h-5 text-[#2c84c4] dark:text-[#69bdd7]" />
                   Paso 3: Datos de Contacto, Ubicación y Actividad Económica
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -1127,7 +1074,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="comercial@proveedor.com"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                     />
                   </div>
                 </div>
@@ -1144,7 +1091,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={formData.phone}
                       onChange={handleInputChange}
                       placeholder="(608) 770-1234 / 310 555 6789"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                     />
                   </div>
                 </div>
@@ -1162,7 +1109,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={formData.city}
                       onChange={handleInputChange}
                       placeholder="Sogamoso, Boyacá"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                     />
                     <datalist id="admin-cities-datalist">
                       {(systemParameters?.cityOptions || [])
@@ -1184,7 +1131,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     value={formData.address}
                     onChange={handleInputChange}
                     placeholder="Carrera 11 # 24-80, Sector Industrial"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                   />
                 </div>
               </div>
@@ -1196,7 +1143,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
             <div className="space-y-6 animate-in fade-in duration-200">
               <div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
+                  <ShieldCheck className="w-5 h-5 text-[#2c84c4] dark:text-[#69bdd7]" />
                   Paso 4: Validación de Cumplimiento & Alta de Registro
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -1288,7 +1235,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       value={assignedReviewerId}
                       onChange={(e) => setAssignedReviewerId(e.target.value)}
                       disabled={role === 'REVISOR'}
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed"
+                      className="fs-card w-full px-3 py-2 border-slate-300 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed"
                     >
                       {systemUsers.map((u) => (
                         <option key={u.id} value={u.id}>
@@ -1347,7 +1294,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     value={formData.notes}
                     onChange={handleInputChange}
                     placeholder="Indique los motivos de la inclusión directa o antecedentes del proveedor..."
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
                   />
                 </div>
               </div>

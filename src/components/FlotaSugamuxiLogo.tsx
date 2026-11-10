@@ -73,9 +73,9 @@ export const FlotaSugamuxiEmblem: React.FC<{
 
   return (
     <img
-      src="/logo-flota.png"
+      src="/logo-fs.png"
       alt="Flota Sugamuxi S.A."
-      className={`${className} object-contain select-none`}
+      className={`${className} object-cover select-none rounded-[22%]`}
       onError={() => setImageError(true)}
       loading="eager"
     />
@@ -94,54 +94,34 @@ export const FlotaSugamuxiLogo: React.FC<LogoProps> = ({
   const isDark = variant === 'dark';
 
   const sizeContainerClasses = {
-    xs: 'w-7 h-7 p-0.5',
-    sm: 'w-9 h-9 p-1',
-    md: 'w-11 h-11 p-1.5',
-    lg: 'w-14 h-14 p-2',
-    xl: 'w-20 h-20 p-2.5',
+    xs: 'w-7 h-7',
+    sm: 'w-9 h-9',
+    md: 'w-10 h-10',
+    lg: 'w-[58px] h-[58px]',
+    xl: 'w-20 h-20',
   }[size];
 
   const sizeTextClasses = {
     xs: 'text-xs',
     sm: 'text-sm',
     md: 'text-base',
-    lg: 'text-xl',
+    lg: 'text-[22px]',
     xl: 'text-2xl',
   }[size];
 
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      {/* Contenedor oficial para el logo con fondo blanco que garantiza máximo contraste */}
-      <div
-        className={`relative flex items-center justify-center shrink-0 rounded-xl overflow-hidden transition-all bg-white shadow-2xs border ${
-          isDark
-            ? 'border-blue-900/60 shadow-inner'
-            : 'border-slate-200/90 shadow-2xs'
-        } ${sizeContainerClasses}`}
-      >
+      <div className={`shrink-0 ${sizeContainerClasses}`}>
         <FlotaSugamuxiEmblem className="w-full h-full" isDark={isDark} />
       </div>
 
       {variant !== 'icon-only' && (
-        <div className="flex flex-col">
-          <div className="flex items-center gap-1.5 leading-none">
-            <span
-              className={`font-black tracking-tight ${
-                isDark ? 'text-white' : 'text-slate-900'
-              } ${sizeTextClasses}`}
-            >
-              SIGEPRO
-            </span>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-600 dark:text-cyan-400 border border-blue-300/40 dark:border-blue-400/30">
-              v2.1
-            </span>
-          </div>
+        <div className="flex flex-col leading-tight">
+          <span className={`font-bold tracking-tight leading-none ${isDark ? 'text-white' : 'text-fs-navy'} ${sizeTextClasses}`}>
+            SIGEPRO
+          </span>
           {showSubtitle && (
-            <span
-              className={`font-extrabold tracking-wider uppercase text-[10px] mt-0.5 ${
-                isDark ? 'text-cyan-300' : 'text-blue-700'
-              }`}
-            >
+            <span className={`mt-1 font-medium ${size === 'lg' || size === 'xl' ? 'text-[13px]' : 'text-[11px]'} ${isDark ? 'text-[#7fc7ee]' : 'text-fs-blue'}`}>
               Flota Sugamuxi S.A.
             </span>
           )}

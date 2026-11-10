@@ -41,6 +41,7 @@ import {
   exportAuditLogsReport,
   exportEvaluationsReport,
 } from '../../utils/excelExport';
+import { PageHeader, heroSecondaryBtn } from '../ui/archive';
 
 export type OfficialReportId =
   | 'DIRECTORIO_MAESTRO'
@@ -775,100 +776,37 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5 animate-in fade-in">
-      {/* 1. Breadcrumbs & Report Navigator Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onBackToCatalog}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Volver al Catálogo</span>
-          </button>
-          <span className="text-slate-300 dark:text-slate-700">/</span>
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            Filtrado y Emisión Oficial
-          </span>
-          <span className="text-slate-300 dark:text-slate-700">/</span>
-          <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
-            {meta.title}
-          </span>
-        </div>
+    <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1 space-y-5 animate-in fade-in">
+      <button
+        type="button"
+        onClick={onBackToCatalog}
+        className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-[#d9e3ef] dark:border-white/15 bg-white dark:bg-white/5 text-sm font-semibold text-[#1c3354] dark:text-white hover:bg-[#eef5fc] dark:hover:bg-white/10 transition-colors cursor-pointer"
+      >
+        <ArrowLeft className="w-4 h-4" /> Volver al catálogo
+      </button>
+      <PageHeader
+        icon={Icon}
+        title={meta.title}
+        subtitle={meta.normativeCode}
+      />
 
-        {/* Quick Report Switcher Dropdown */}
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider hidden sm:inline">
-            Cambiar Informe:
-          </span>
-          <select
-            value={reportId}
-            onChange={(e) => onSelectReport(e.target.value as OfficialReportId)}
-            className="px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer focus:ring-2 focus:ring-blue-500"
-          >
-            {Object.values(OFFICIAL_REPORTS_METADATA).map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.title}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      <p className="text-[15px] text-[#3a5274] max-w-4xl">{meta.description}</p>
 
-      {/* 2. Report Header Information Card - Estandarizado Claro */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 text-slate-900 border border-slate-200 shadow-xs relative overflow-hidden dark:bg-[#0b1329] dark:text-white dark:border-blue-900/60">
-        <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4">
-          <div className="space-y-1 min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-500/20 dark:text-cyan-300 dark:border-blue-400/30 tracking-wider">
-                {meta.normativeCode}
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-white/10 dark:text-slate-200 dark:border-white/10">
-                Formato Institucional Excel (.xlsx)
-              </span>
-            </div>
-            <h2 className="text-base sm:text-lg lg:text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2 sm:gap-2.5 leading-snug">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 dark:bg-white/10 dark:text-cyan-300 dark:border-white/10 flex items-center justify-center shrink-0">
-                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <span className="break-words">{meta.title}</span>
-            </h2>
-            <p className="text-xs text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-              {meta.description}
-            </p>
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Total base', value: totalCount },
+          { label: 'Filtrados', value: filteredCount },
+          { label: 'Proporción', value: `${Math.round((filteredCount / (totalCount || 1)) * 100)} %` },
+        ].map((k) => (
+          <div key={k.label} className="fs-card rounded-2xl px-5 py-4">
+            <div className="text-[13px] font-bold uppercase tracking-wide text-[#3a5274]">{k.label}</div>
+            <div className="text-[34px] font-bold leading-tight text-[#0b1d3a]">{k.value}</div>
           </div>
-
-          {/* Real-time counters block */}
-          <div className="flex items-center justify-around sm:justify-start gap-3 bg-slate-50 dark:bg-slate-900/80 p-2.5 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 self-stretch sm:self-start xl:self-center">
-            <div className="text-center px-2">
-              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider block">
-                Total Base
-              </span>
-              <span className="text-base sm:text-lg lg:text-xl font-black text-slate-900 dark:text-white">{totalCount}</span>
-            </div>
-            <div className="w-px h-7 sm:h-8 bg-slate-200 dark:bg-slate-700" />
-            <div className="text-center px-2">
-              <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-cyan-400 tracking-wider block">
-                Filtrados
-              </span>
-              <span className="text-base sm:text-lg lg:text-xl font-black text-blue-700 dark:text-cyan-300">{filteredCount}</span>
-            </div>
-            <div className="w-px h-7 sm:h-8 bg-slate-200 dark:bg-slate-700" />
-            <div className="text-center px-2">
-              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider block">
-                Proporción
-              </span>
-              <span className="text-sm sm:text-base font-black text-slate-800 dark:text-blue-200">
-                {Math.round((filteredCount / (totalCount || 1)) * 100)}%
-              </span>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* 3. Specialized Filter Panel */}
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-5 space-y-4">
+      <div className="fs-card rounded-2xl p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -904,7 +842,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                 Búsqueda General
               </label>
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+                <Search className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-2.5 top-2.5" />
                 <input
                   type="text"
                   placeholder="Razón social, NIT, radicado, ciudad..."
@@ -1027,7 +965,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                 Búsqueda Proveedor
               </label>
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+                <Search className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-2.5 top-2.5" />
                 <input
                   type="text"
                   placeholder="Nombre, NIT, expediente..."
@@ -1544,7 +1482,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
           <span className="text-xs font-black text-slate-800 dark:text-slate-200">
             {filteredCount} {filteredCount === 1 ? 'registro listo' : 'registros listos'} para exportar
           </span>
-          <span className="text-slate-400">|</span>
+          <span className="text-[#5d7392] dark:text-slate-400">|</span>
           <span className="text-[11px] text-slate-500 dark:text-slate-400">
             Formato: <strong>Libro Oficial Excel (.xlsx)</strong>
           </span>
@@ -1556,7 +1494,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
             onClick={handleExportAllWithoutFilters}
             className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-slate-500" />
+            <Download className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
             <span>Descargar Todo ({totalCount})</span>
           </button>
 
@@ -1573,20 +1511,20 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
       </div>
 
       {/* 5. Live Data Preview Table */}
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-5 space-y-3">
+      <div className="fs-card rounded-2xl p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="text-xs font-black uppercase text-slate-700 dark:text-slate-300 tracking-wider flex items-center gap-2">
             <Eye className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
             <span>Previsualización de Datos en Tiempo Real ({filteredCount} Registros)</span>
           </h4>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-[#5d7392] dark:text-slate-400">
             Mostrando primeros registros según filtros activos
           </span>
         </div>
 
         {filteredCount === 0 ? (
           <div className="text-center py-12 px-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 space-y-3">
-            <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto" />
+            <AlertTriangle className="w-8 h-8 text-[#1d5fa8] dark:text-[#69bdd7] mx-auto" />
             <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
               No se encontraron registros que coincidan con los filtros aplicados.
             </p>
@@ -1669,8 +1607,8 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               d.internalConcepts?.sarlatfCheck?.result === 'SIN_COINCIDENCIAS'
-                                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                                : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
+                                ? 'bg-[#2c84c4]/12 dark:bg-[#2c84c4] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]'
+                                : 'bg-[#2c84c4]/12 dark:bg-[#2c84c4] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]'
                             }`}
                           >
                             {d.internalConcepts?.sarlatfCheck?.result || 'PENDIENTE'}
@@ -1713,10 +1651,10 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                         <span
                           className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                             st === 'APROBADO'
-                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4]/60 dark:text-[#69bdd7]'
                               : st === 'EN_REVISION'
                               ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300'
-                              : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                              : 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4]/60 dark:text-[#69bdd7]'
                           }`}
                         >
                           {st === 'APROBADO' ? '✓ OK' : st === 'EN_REVISION' ? 'EN REV.' : 'FALTA'}
@@ -1739,7 +1677,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                             <div className="w-16 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
                               <div
                                 className={`h-full ${
-                                  pct === 100 ? 'bg-emerald-500' : pct >= 70 ? 'bg-blue-500' : 'bg-amber-500'
+                                  pct === 100 ? 'bg-[#2c84c4]' : pct >= 70 ? 'bg-blue-500' : 'bg-[#2c84c4]'
                                 }`}
                                 style={{ width: `${pct}%` }}
                               />
@@ -1790,8 +1728,8 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               sarl?.result === 'SIN_COINCIDENCIAS'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                                ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7]'
+                                : 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7]'
                             }`}
                           >
                             {sarl?.result || 'PENDIENTE'}
@@ -1854,8 +1792,8 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                           <span
                             className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                               certValid
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                                ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7]'
+                                : 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7]'
                             }`}
                           >
                             {certValid ? 'VALIDADA' : 'PENDIENTE'}
@@ -1866,7 +1804,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                           {tax?.isGranContribuyente ? (
                             <span className="text-purple-600 dark:text-purple-400">SÍ</span>
                           ) : (
-                            <span className="text-slate-400">NO</span>
+                            <span className="text-[#5d7392] dark:text-slate-400">NO</span>
                           )}
                         </td>
                       </tr>
@@ -1950,7 +1888,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                       <td className="p-2.5 text-slate-500 dark:text-slate-400 line-through text-[10px]">
                         {l.oldValue || '-'}
                       </td>
-                      <td className="p-2.5 font-bold text-emerald-600 dark:text-emerald-400 text-[10px]">
+                      <td className="p-2.5 font-bold text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] text-[10px]">
                         {l.newValue || '-'}
                       </td>
                       <td className="p-2.5 text-slate-600 dark:text-slate-400 max-w-xs truncate">
@@ -1993,11 +1931,11 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
                             ev.concept === 'SOBRESALIENTE'
-                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7]'
                               : ev.concept === 'CONFORME'
                               ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
                               : ev.concept === 'CONDICIONAL_MEJORA'
-                              ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7]'
                               : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
                           }`}
                         >
@@ -2007,7 +1945,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                       <td className="p-2.5 text-slate-600 dark:text-slate-400">{ev.evaluatorName}</td>
                       <td className="p-2.5">
                         {ev.hasImprovementPlan ? (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] dark:bg-[#2c84c4] dark:text-[#69bdd7]">
                             REQUERIDO
                           </span>
                         ) : (

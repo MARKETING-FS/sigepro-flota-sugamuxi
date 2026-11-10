@@ -63,7 +63,7 @@ const MainLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070d1d] flex font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-200 dark:selection:bg-blue-900 transition-colors duration-200">
+    <div className="fs-page min-h-screen flex font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-200 dark:selection:bg-blue-900 transition-colors duration-200">
       {/* Fixed Global System Toast Notification (Primary Brand Blue & Fixed Top-Right) */}
       <ToastNotification />
       <PushAlertFloatingToast />
@@ -119,7 +119,7 @@ const MainLayout: React.FC = () => {
           {activeView === 'bancoProveedores' && <BancoProveedoresView />}
           {activeView === 'convocatorias' && (
             <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#2c84c4]/12 dark:bg-[#2c84c4]/60 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] flex items-center justify-center mx-auto mb-3">
                 <Lock className="w-6 h-6" />
               </div>
               <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulo No Disponible</h3>
@@ -162,34 +162,16 @@ const MainLayout: React.FC = () => {
           {activeView === 'informesExcel' && <ExcelReportsView />}
         </main>
 
-        {/* Institutional Footer */}
-        <footer className="bg-white dark:bg-[#0b1329] border-t border-slate-200 dark:border-slate-800/80 mt-auto transition-colors duration-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-[10px] italic shadow-xs">
-                  FS
-                </div>
-                <span className="font-bold text-slate-800 dark:text-slate-200">FLOTA SUGAMUXI S.A.</span>
-                <span className="text-slate-300 dark:text-slate-700">|</span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400">NIT: 891.800.089-1 &bull; Sogamoso, Boyacá</span>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px]">
-                <div className="text-slate-600 dark:text-slate-300 font-semibold bg-slate-100 dark:bg-[#121c38] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
-                  Desarrollado por <span className="text-blue-600 dark:text-cyan-400 font-bold">Julian Salgado</span> | Flota Sugamuxi S.A
-                </div>
-                <span className="hidden sm:inline text-slate-300 dark:text-slate-700">|</span>
-                <button
-                  onClick={() => setIsHabeasDataOpen(true)}
-                  className="text-blue-600 dark:text-cyan-400 hover:text-blue-800 dark:hover:text-cyan-300 font-semibold underline cursor-pointer"
-                >
-                  Tratamiento de Datos
-                </button>
-                <span className="text-slate-300 dark:text-slate-700">|</span>
-                <span className="text-slate-400 dark:text-slate-500">SIGEPRO v2.1.0 &copy; {new Date().getFullYear()}</span>
-              </div>
-            </div>
+        {/* Pie institucional */}
+        <footer className="mt-auto border-t border-fs-line dark:border-slate-800">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-fs-muted">
+            <span>Flota Sugamuxi S.A. · NIT 891.800.089-1 · Sogamoso, Boyacá</span>
+            <span>
+              SIGEPRO v2.1 · Desarrollado por Julian Salgado ·{' '}
+              <button type="button" onClick={() => setIsHabeasDataOpen(true)} className="underline underline-offset-2 hover:text-fs-blue cursor-pointer">
+                Tratamiento de datos
+              </button>
+            </span>
           </div>
         </footer>
 

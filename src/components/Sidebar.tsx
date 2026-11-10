@@ -1,29 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
-import { UserRole, AppView } from '../types';
+import { AppView } from '../types';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
 import {
-  UserPlus,
-  Search,
+  Home,
   Users,
+  Star,
+  UserPlus,
+  BarChart3,
+  Layers,
+  Settings,
   ShieldCheck,
-  TrendingUp,
-  FileText,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  Layers,
-  FileSpreadsheet,
-  Lock,
+  LogOut,
   User,
-  Settings,
-  ShieldAlert,
-  HelpCircle,
-  ExternalLink,
-  Building2,
-  LogIn,
-  SlidersHorizontal,
-  Award,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -33,483 +24,192 @@ interface SidebarProps {
   onOpenHabeasDataModal?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  isCollapsed,
-  setIsCollapsed,
-  onOpenRegisterModal,
-  onOpenHabeasDataModal,
-}) => {
-  const {
-    role,
-    setRole,
-    activeUserId,
-    setActiveUserId,
-    activeUser,
-    systemUsers,
-    allDossiers,
-    activeView,
-    setActiveView,
-    setReviewSelectedDossierId,
-    showToast,
-  } = useApp();
+interface NavItem {
+  view: AppView;
+  label: string;
+  icon: React.ElementType;
+  adminOnly?: boolean;
+  alsoActiveOn?: AppView[];
+}
 
-  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
-  const [isGestionOpen, setIsGestionOpen] = useState(true);
+const GROUPS: Array<{ title: string; items: NavItem[] }> = [
+  {
+    title: 'Proveedores',
+    items: [
+      { view: 'revisores', label: 'Resumen', icon: Home },
+      { view: 'bancoProveedores', label: 'Banco de proveedores', icon: Users },
+      { view: 'evaluaciones', label: 'Evaluaciones', icon: Star },
+      { view: 'registrarProveedor', label: 'Registrar proveedor', icon: UserPlus },
+      { view: 'informesExcel', label: 'Reportes', icon: BarChart3 },
+    ],
+  },
+  {
+    title: 'Configuración',
+    items: [
+      { view: 'adminForms', label: 'Formatos SIG', icon: Layers },
+      { view: 'parametrizacion', label: 'Parametrización', icon: Settings, adminOnly: true, alsoActiveOn: ['documentMatrix'] },
+      { view: 'auditoria', label: 'Auditoría', icon: ShieldCheck, adminOnly: true },
+    ],
+  },
+];
 
-  const handleRoleChange = (newRole: UserRole) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, onOpenHabeasDataModal }) => {
+  const { role, setRole, activeUserId, setActiveUserId, systemUsers, activeView, setActiveView, setReviewSelectedDossierId, showToast } = useApp();
+
+  const handleRoleChange = (newRole: 'ADMIN' | 'REVISOR') => {
+    if (newRole === role) return;
     setRole(newRole);
-    setIsRoleDropdownOpen(false);
     showToast(
-      `Perfil cambiado a ${getRoleDisplayName(newRole)}. Vista actualizada.`,
+      `Perfil cambiado a ${newRole === 'ADMIN' ? 'Administrador General' : 'Revisor Técnico Evaluador'}. Vista actualizada.`,
       'info',
       'CAMBIO DE ROL'
     );
     setActiveView('revisores');
   };
+  const reviewers = systemUsers.filter((u) => u.role === 'REVISOR');
 
-  const getRoleDisplayName = (r: UserRole) => {
-    switch (r) {
-      case 'REVISOR':
-        return 'Revisor Técnico Evaluador';
-      case 'ADMIN':
-        return 'Administrador General';
-    }
-  };
-
-  const getActiveEmail = () => {
-    if (role === 'ADMIN') return 'auxsistemas@flotasugamuxisa.com.co';
-    return activeUser?.email || 'evaluador.sig@flotasugamuxisa.com.co';
+  const go = (view: AppView) => {
+    if (view === 'revisores') setReviewSelectedDossierId(null);
+    setActiveView(view);
   };
 
   return (
     <aside
-      className={`bg-[#0b1329] text-slate-200 transition-all duration-300 flex flex-col shrink-0 border-r border-slate-800/80 z-30 select-none h-screen sticky top-0 ${
-        isCollapsed ? 'w-16' : 'w-56 lg:w-60'
+      className={`relative overflow-hidden text-sidebar flex flex-col shrink-0 z-30 select-none h-screen sticky top-0 transition-[width] duration-300 bg-gradient-sidebar text-[#d5e3f3] ${
+        isCollapsed ? 'w-[84px]' : 'w-[264px]'
       }`}
     >
-      {/* 1. Header Logo & Collapse Toggle */}
-      <div className="h-14 px-3 flex items-center justify-between border-b border-slate-800/80 bg-[#090f20] shrink-0">
-        {!isCollapsed ? (
-          <FlotaSugamuxiLogo variant="dark" size="sm" />
-        ) : (
-          <FlotaSugamuxiLogo variant="icon-only" size="sm" />
-        )}
+      {/* Trazos del logo y cuadrícula de fondo */}
+      <svg aria-hidden="true" viewBox="0 0 800 600" fill="none" className="pointer-events-none absolute -bottom-10 -left-24 w-[200%] opacity-30">
+        <defs>
+          <linearGradient id="sbA" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#fff" stopOpacity="0" />
+            <stop offset="0.5" stopColor="#fff" stopOpacity="0.9" />
+            <stop offset="1" stopColor="#69bdd7" stopOpacity="0.2" />
+          </linearGradient>
+          <linearGradient id="sbB" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#69bdd7" stopOpacity="0" />
+            <stop offset="0.6" stopColor="#69bdd7" stopOpacity="0.8" />
+            <stop offset="1" stopColor="#2c84c4" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M-40 470 C 180 330, 420 250, 840 120" stroke="url(#sbA)" strokeWidth="3" strokeLinecap="round" />
+        <path d="M-40 520 C 220 400, 500 330, 840 230" stroke="url(#sbB)" strokeWidth="2" strokeLinecap="round" />
+        <path d="M60 600 C 300 460, 560 380, 840 340" stroke="url(#sbA)" strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+      </svg>
+      <div className="absolute inset-0 grid-pattern opacity-30 [mask-image:linear-gradient(to_bottom,black,transparent_40%)] pointer-events-none" />
 
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
-          title={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="w-4 h-4 text-cyan-400" />
-          ) : (
-            <ChevronLeft className="w-4 h-4 text-slate-400" />
-          )}
-        </button>
+      <div className={`relative h-[92px] flex items-center shrink-0 gap-3 ${isCollapsed ? 'justify-center' : 'px-5'}`}>
+        <div className="relative shrink-0">
+          <div className="absolute inset-0 rounded-2xl bg-[#69bdd7]/40 blur-md" />
+          <img src="/nd/flotasugamuxi_logo.png" alt="Flota Sugamuxi" className="relative w-11 h-11 rounded-2xl ring-1 ring-white/20 object-cover" />
+        </div>
+        {!isCollapsed && (
+          <div className="leading-tight min-w-0">
+            <p className="font-display text-base font-semibold text-white truncate">Flota Sugamuxi</p>
+            <p className="text-[11px] uppercase tracking-[0.18em] text-[#69bdd7]/80">Proveedores</p>
+          </div>
+        )}
       </div>
 
-      {/* 2. ROL DE ACCESO Card */}
-      {!isCollapsed ? (
-        <div className="p-2.5 border-b border-slate-800/60 shrink-0">
-          <div className="text-[9px] font-bold tracking-wider text-slate-400 uppercase mb-1 flex items-center gap-1.5">
-            <ShieldCheck className="w-3 h-3 text-blue-400" />
-            <span>ROL DE ACCESO</span>
-          </div>
-
-          <div className="relative">
-            <button
-              onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-              className="w-full flex items-center justify-between px-2.5 py-1.5 bg-[#121c38] hover:bg-[#162347] border border-slate-700/80 rounded-lg text-left transition-all shadow-inner cursor-pointer"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div
-                  className={`w-6 h-6 rounded-md flex items-center justify-center text-white shrink-0 ${
-                    role === 'ADMIN'
-                      ? 'bg-slate-800 border border-slate-700 text-cyan-300'
-                      : role === 'REVISOR'
-                      ? 'bg-blue-900 border border-blue-700 text-blue-200'
-                      : 'bg-blue-600'
-                  }`}
-                >
-                  {role === 'ADMIN' ? (
-                    <Settings className="w-3.5 h-3.5" />
-                  ) : role === 'REVISOR' ? (
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                  ) : (
-                    <User className="w-3.5 h-3.5" />
-                  )}
-                </div>
-                <div className="truncate">
-                  <div className="text-[11px] font-bold text-white truncate">
-                    {getRoleDisplayName(role)}
-                  </div>
-                </div>
-              </div>
-              <ChevronDown
-                className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${
-                  isRoleDropdownOpen ? 'rotate-180' : ''
+      {!isCollapsed && (
+        <div className="relative shrink-0 px-4 pt-1 pb-3">
+          <div className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">Rol de acceso</div>
+          <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/[0.06] p-1">
+            {([['ADMIN', 'Administrador'], ['REVISOR', 'Revisor']] as const).map(([r, label]) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => handleRoleChange(r)}
+                aria-pressed={role === r}
+                className={`h-9 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  role === r ? 'bg-gradient-action text-white shadow-glow' : 'text-white/65 hover:bg-white/10 hover:text-white'
                 }`}
-              />
-            </button>
-
-            {/* Dropdown Options */}
-            {isRoleDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-[#121c38] border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50 py-1 divide-y divide-slate-800/60">
-                <button
-                  onClick={() => handleRoleChange('REVISOR')}
-                  className={`w-full px-2.5 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-slate-800 transition-colors ${
-                    role === 'REVISOR' ? 'bg-blue-900/40 text-cyan-300 font-bold' : 'text-slate-300'
-                  }`}
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Revisor Técnico</span>
-                </button>
-                <button
-                  onClick={() => handleRoleChange('ADMIN')}
-                  className={`w-full px-2.5 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-slate-800 transition-colors ${
-                    role === 'ADMIN' ? 'bg-blue-900/40 text-cyan-300 font-bold' : 'text-slate-300'
-                  }`}
-                >
-                  <Settings className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Administrador General</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-1.5 text-[9px] text-slate-400 flex items-center gap-1 truncate px-0.5">
-            <span className="text-slate-500">Email:</span>
-            <span className="font-mono text-slate-300 truncate">{getActiveEmail()}</span>
-          </div>
-
-          {/* Selector de Revisor Específico (Revisor 1, 2, 3) */}
-          {role === 'REVISOR' && (
-            <div className="mt-2.5 pt-2 border-t border-slate-800/80">
-              <div className="flex items-center justify-between text-[9px] font-bold text-cyan-400 uppercase tracking-wider mb-1">
-                <span>EVALUADOR ACTIVO</span>
-                <span className="font-mono text-cyan-300 bg-cyan-950/90 px-1.5 py-0.5 rounded border border-cyan-800/60 text-[9px]">
-                  {allDossiers.filter((d) => d.assignedReviewerId === activeUserId).length} Prov.
-                </span>
-              </div>
-              <select
-                id="sidebarActiveReviewerSelect"
-                value={activeUserId}
-                onChange={(e) => {
-                  setActiveUserId(e.target.value);
-                  const sel = systemUsers.find((u) => u.id === e.target.value);
-                  if (sel) {
-                    const count = allDossiers.filter((d) => d.assignedReviewerId === sel.id).length;
-                    showToast(
-                      `Evaluador cambiado a ${sel.name}. Mostrando sus ${count} proveedores asignados.`,
-                      'info',
-                      'CAMBIO DE EVALUADOR'
-                    );
-                  }
-                }}
-                className="w-full text-[11px] font-semibold px-2 py-1.5 bg-[#090f20] border border-blue-900/80 rounded-lg text-slate-100 focus:outline-none focus:ring-1 focus:ring-cyan-400 cursor-pointer"
-                title="Seleccionar el usuario revisor para ver su cartera asignada"
               >
-                {systemUsers
-                  .filter((u) => u.role === 'REVISOR')
-                  .map((u) => {
-                    const count = allDossiers.filter((d) => d.assignedReviewerId === u.id).length;
-                    return (
-                      <option key={u.id} value={u.id}>
-                        {u.shortName}: {u.name.split(' ')[0]} {u.name.split(' ')[1] || ''} ({count})
-                      </option>
-                    );
-                  })}
-              </select>
-            </div>
+                {label}
+              </button>
+            ))}
+          </div>
+          {role === 'REVISOR' && reviewers.length > 0 && (
+            <select
+              value={activeUserId}
+              onChange={(e) => {
+                setActiveUserId(e.target.value);
+                setActiveView('revisores');
+              }}
+              aria-label="Evaluador activo"
+              className="mt-2 w-full h-10 rounded-xl bg-white/[0.06] border border-white/10 px-3 text-xs font-semibold text-white outline-none focus:border-[#69bdd7]"
+            >
+              {reviewers.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
           )}
-
-          {/* Direct link to Corporate Login view */}
-          <button
-            onClick={() => setActiveView('login')}
-            className={`mt-2.5 w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all border cursor-pointer ${
-              activeView === 'login'
-                ? 'bg-blue-600 text-white border-blue-500 shadow-xs'
-                : 'bg-[#090f20] hover:bg-blue-950/80 text-cyan-300 border-blue-900/80'
-            }`}
-            title="Módulo de Login Corporativo y Gestión de Cuentas"
-          >
-            <LogIn className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Módulo Login Corporativo</span>
-          </button>
-        </div>
-      ) : (
-        <div className="p-2 border-b border-slate-800/60 flex flex-col items-center gap-1 shrink-0">
-          <button
-            onClick={() => handleRoleChange(role === 'REVISOR' ? 'ADMIN' : 'REVISOR')}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center text-white ${
-              role === 'ADMIN'
-                ? 'bg-slate-800 border border-slate-700 text-cyan-300'
-                : role === 'REVISOR'
-                ? 'bg-blue-900 border border-blue-700 text-blue-200'
-                : 'bg-blue-600'
-            }`}
-            title={`Rol actual: ${getRoleDisplayName(role)} (Click para cambiar)`}
-          >
-            {role === 'ADMIN' ? (
-              <Settings className="w-4 h-4" />
-            ) : role === 'REVISOR' ? (
-              <ShieldCheck className="w-4 h-4" />
-            ) : (
-              <User className="w-4 h-4" />
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveView('login')}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
-              activeView === 'login'
-                ? 'bg-blue-600 text-white border border-blue-400'
-                : 'bg-[#090f20] hover:bg-blue-950 text-cyan-300 border border-blue-900/80'
-            }`}
-            title="Módulo Login Corporativo"
-          >
-            <LogIn className="w-4 h-4 text-cyan-400" />
-          </button>
         </div>
       )}
 
-      {/* 3. Navigation Links List */}
-      <div className="flex-1 flex flex-col justify-start py-3 px-2 overflow-y-auto min-h-0 text-xs scrollbar-thin scrollbar-thumb-slate-800 space-y-3">
-        
-        {/* === SECTION FOR REVISOR & ADMIN === */}
-        {(role === 'REVISOR' || role === 'ADMIN') && (
-          <>
-            {/* INFORMACIÓN EJECUTIVA */}
-            <div className="space-y-1">
+      <nav className="relative flex-1 overflow-y-auto min-h-0 px-4 pb-3 pt-2" aria-label="Menú principal">
+        {GROUPS.map((group, gi) => {
+          const items = group.items.filter((it) => !it.adminOnly || role === 'ADMIN');
+          if (items.length === 0) return null;
+          return (
+            <div key={group.title} className={gi > 0 ? 'mt-6' : ''}>
               {!isCollapsed && (
-                <div className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
-                  INFORMACIÓN EJECUTIVA
-                </div>
+                <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">{group.title}</div>
               )}
-
-              {/* Dashboard Ejecutivo */}
-              <button
-                onClick={() => {
-                  setReviewSelectedDossierId(null);
-                  setActiveView('revisores');
-                }}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2' : 'justify-start gap-2.5 px-2.5 py-1.5'
-                } rounded-lg font-medium transition-all ${
-                  activeView === 'revisores'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Dashboard Ejecutivo y Revisión de Proveedores"
-              >
-                <TrendingUp
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'revisores' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Dashboard Ejecutivo</span>}
-              </button>
+              <ul className="space-y-1">
+                {items.map((it) => {
+                  const Icon = it.icon;
+                  const active = activeView === it.view || (it.alsoActiveOn || []).includes(activeView);
+                  return (
+                    <li key={it.view}>
+                      <button
+                        type="button"
+                        onClick={() => go(it.view)}
+                        title={isCollapsed ? it.label : undefined}
+                        aria-current={active ? 'page' : undefined}
+                        className={`group relative w-full flex items-center rounded-xl text-sm font-medium transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-[#69bdd7] ${
+                          isCollapsed ? 'justify-center h-12' : 'gap-3 px-3 h-12'
+                        } ${
+                          active
+                            ? 'text-white shadow-glow bg-gradient-to-r from-[#2c84c4]/90 to-[#2c84c4]/40'
+                            : 'text-white/70 hover:bg-white/[0.07] hover:text-white'
+                        }`}
+                      >
+                        {active && <span className="absolute -left-4 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-[#69bdd7] shadow-glow" />}
+                        <span className={`flex w-8 h-8 shrink-0 items-center justify-center rounded-lg transition-colors ${active ? 'bg-white/15' : 'bg-white/[0.06] group-hover:bg-white/10'}`}>
+                          <Icon className="w-4 h-4" strokeWidth={1.9} />
+                        </span>
+                        {!isCollapsed && <span className="truncate text-left flex-1">{it.label}</span>}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
+          );
+        })}
+      </nav>
 
-            {/* GESTIÓN DE PROVEEDORES */}
-            <div className="space-y-1.5">
-              {!isCollapsed && (
-                <div className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
-                  GESTIÓN PROVEEDORES
-                </div>
-              )}
-
-              {/* Registrar Proveedor (Alta Directa / Inscripción) */}
-              <button
-                onClick={() => setActiveView('registrarProveedor')}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all text-left cursor-pointer ${
-                  activeView === 'registrarProveedor'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Registrar / Alta Oficial de Proveedor (Ventana Completa)"
-              >
-                <UserPlus
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'registrarProveedor' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate font-semibold">Registrar Proveedor</span>}
-              </button>
-
-              {/* Banco Proveedores */}
-              <button
-                onClick={() => setActiveView('bancoProveedores')}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all text-left ${
-                  activeView === 'bancoProveedores'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Banco de Proveedores y Contratistas"
-              >
-                <Users
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'bancoProveedores' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Banco Proveedores</span>}
-              </button>
-
-              {/* Evaluaciones de Proveedores (Revisor & Admin) */}
-              <button
-                onClick={() => setActiveView('evaluaciones')}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all text-left cursor-pointer ${
-                  activeView === 'evaluaciones'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Módulo de Evaluaciones de Proveedores (Inicial y Anual a 1 Año)"
-              >
-                <Award
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'evaluaciones' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate font-semibold">Evaluaciones</span>}
-              </button>
-
-              {/* Informes y Reportes Excel */}
-              <button
-                onClick={() => setActiveView('informesExcel')}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all text-left ${
-                  activeView === 'informesExcel'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Centro de Reportes y Exportación en Excel"
-              >
-                <FileSpreadsheet
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'informesExcel' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Reportes</span>}
-              </button>
-
-
-            </div>
-
-            {/* SISTEMA INTEGRADO SIG */}
-            <div className="space-y-1.5">
-              {!isCollapsed && (
-                <div className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
-                  SISTEMA INTEGRADO SIG
-                </div>
-              )}
-
-              <button
-                onClick={() => setActiveView('adminForms')}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                } rounded-lg font-medium transition-all ${
-                  activeView === 'adminForms'
-                    ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                    : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                }`}
-                title="Formatos Oficiales SIG"
-              >
-                <Layers
-                  className={`w-4 h-4 shrink-0 ${
-                    activeView === 'adminForms' ? 'text-cyan-400' : 'text-blue-400'
-                  }`}
-                />
-                {!isCollapsed && <span className="truncate">Formatos SIG</span>}
-              </button>
-
-              {/* Parametrización de Requisitos y Documentos (Only Admin General) */}
-              {role === 'ADMIN' && (
-                <>
-                  <button
-                    onClick={() => setActiveView('parametrizacion')}
-                    className={`w-full flex items-center ${
-                      isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                    } rounded-lg font-medium transition-all ${
-                      activeView === 'parametrizacion' || activeView === 'documentMatrix'
-                        ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                    }`}
-                    title="Módulo de Parametrización General, Catálogos Maestros y Matriz de Requisitos SIG"
-                  >
-                    <SlidersHorizontal
-                      className={`w-4 h-4 shrink-0 ${
-                        activeView === 'parametrizacion' || activeView === 'documentMatrix' ? 'text-cyan-400' : 'text-blue-400'
-                      }`}
-                    />
-                    {!isCollapsed && <span className="truncate font-semibold">Parametrización</span>}
-                  </button>
-
-                  <button
-                    onClick={() => setActiveView('auditoria')}
-                    className={`w-full flex items-center ${
-                      isCollapsed ? 'justify-center px-0 py-2.5' : 'justify-start gap-2.5 px-2.5 py-2'
-                    } rounded-lg font-medium transition-all ${
-                      activeView === 'auditoria'
-                        ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white border border-blue-500/80 shadow-md shadow-blue-950/50'
-                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                    }`}
-                    title="Módulo de Auditoría y Trazabilidad General"
-                  >
-                    <ShieldAlert
-                      className={`w-4 h-4 shrink-0 ${
-                        activeView === 'auditoria' ? 'text-cyan-400' : 'text-blue-400'
-                      }`}
-                    />
-                    {!isCollapsed && <span className="truncate font-semibold">Módulo Auditoría</span>}
-                  </button>
-                </>
-              )}
-            </div>
-
-
-          </>
+      <div className="relative shrink-0 px-4 pb-4 pt-2 flex items-center justify-between gap-2">
+        {!isCollapsed && onOpenHabeasDataModal && (
+          <button
+            type="button"
+            onClick={onOpenHabeasDataModal}
+            className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs text-white/60 hover:bg-white/[0.07] hover:text-white cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 shrink-0" />
+            Tratamiento de datos (Ley 1581)
+          </button>
         )}
-      </div>
-
-      {/* 4. Bottom Footer: Colapsar Menú & Habeas Data & Developer Credit */}
-      <div className="p-2.5 border-t border-slate-800/80 bg-[#090f20] space-y-1.5 shrink-0">
         <button
+          type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors text-xs cursor-pointer"
+          title={isCollapsed ? 'Expandir menú' : 'Contraer menú'}
+          className={`w-8 h-8 grid place-items-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer ${isCollapsed ? 'mx-auto' : ''}`}
         >
-          {isCollapsed ? (
-            <ChevronRight className="w-4 h-4 text-cyan-400 mx-auto" />
-          ) : (
-            <>
-              <ChevronLeft className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-[11px]">Colapsar Menú</span>
-            </>
-          )}
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
-
-        {!isCollapsed && (
-          <div className="px-1 text-[9px] text-slate-400 space-y-1">
-            <div className="space-y-0.5">
-              <div className="font-bold text-slate-400 uppercase tracking-wider text-[8px]">HABEAS DATA</div>
-              <div>
-                <button
-                  onClick={onOpenHabeasDataModal}
-                  className="text-blue-400 hover:text-blue-300 underline font-semibold transition-colors cursor-pointer text-[10px]"
-                >
-                  Tratamiento de Datos
-                </button>
-              </div>
-              <div className="text-[8px] text-slate-500">Ley 1581 de 2012</div>
-            </div>
-          </div>
-        )}
       </div>
     </aside>
   );

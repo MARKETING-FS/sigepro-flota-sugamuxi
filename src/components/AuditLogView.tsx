@@ -24,6 +24,7 @@ import {
 import { useApp } from '../context/AppContext';
 import { SystemAuditEntry } from '../types';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
+import { PageHeader, heroPrimaryBtn, heroSecondaryBtn } from './ui/archive';
 
 export const AuditLogView: React.FC = () => {
   const { systemAuditLogs, role, openSupplierReview } = useApp();
@@ -153,50 +154,23 @@ export const AuditLogView: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-[1700px] mx-auto px-2 sm:px-4 lg:px-6 py-4 space-y-4">
-      {/* 1. Header Banner Estandarizado Claro */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 text-slate-900 border border-slate-200 shadow-xs relative overflow-hidden dark:bg-[#0b1329] dark:text-white dark:border-blue-900/60">
-        <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1 w-full">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 p-1.5 dark:bg-slate-900/80 dark:border-blue-800 shadow-2xs">
-              <ShieldAlert className="w-5 h-5 text-blue-700 dark:text-cyan-400" />
-            </div>
-
-            <div className="space-y-1 min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-0.5 bg-blue-50 border border-blue-200 rounded-full text-blue-800 font-bold text-[10px] flex items-center gap-1.5 font-mono dark:bg-blue-500/20 dark:border-blue-400/40 dark:text-cyan-300">
-                  <ShieldAlert className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-300" />
-                  <span>CONTROL INTERNO & AUDITORÍA SIG</span>
-                </span>
-                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                  Trazabilidad Oficial Inmutable
-                </span>
-              </div>
-              <h1 className="text-base sm:text-lg lg:text-xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
-                Auditoría y Bitácora de Trazabilidad
-              </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-                Registro inmutable de intervenciones, modificaciones a campos, cambios de estados y consultas SARLAFT para <strong>Flota Sugamuxi S.A.</strong>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 w-full xl:w-auto shrink-0 pt-2.5 xl:pt-0 border-t xl:border-t-0 border-slate-100 dark:border-slate-800/80">
-            <button
-              onClick={handleExportCSV}
-              className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer border border-blue-600"
-            >
-              <Download className="w-4 h-4 text-white" />
-              <span>Descargar CSV</span>
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1 space-y-5">
+      <PageHeader
+        icon={ShieldAlert}
+        title="Auditoría y bitácora"
+        subtitle="Registro inmutable de intervenciones, cambios de estado y consultas SARLAFT"
+        actions={
+          <button type="button" className={heroPrimaryBtn} onClick={handleExportCSV}>
+            <Download className="w-5 h-5" /> Descargar CSV
+          </button>
+        }
+      />
+      <div className="h-1" />
 
       {/* 2. KPI Metrics Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-        <div className="bg-white dark:bg-[#0f172a] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="fs-card p-4 rounded-2xl">
+          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
             <span>Total Registros</span>
             <History className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
           </div>
@@ -204,8 +178,8 @@ export const AuditLogView: React.FC = () => {
           <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">En bitácora del sistema</div>
         </div>
 
-        <div className="bg-white dark:bg-[#0f172a] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="fs-card p-4 rounded-2xl">
+          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
             <span>Edición de Campos</span>
             <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
@@ -213,8 +187,8 @@ export const AuditLogView: React.FC = () => {
           <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Datos editados directamente</div>
         </div>
 
-        <div className="bg-white dark:bg-[#0f172a] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="fs-card p-4 rounded-2xl">
+          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
             <span>Cambios de Estado</span>
             <Activity className="w-4 h-4 text-slate-700 dark:text-cyan-400" />
           </div>
@@ -222,8 +196,8 @@ export const AuditLogView: React.FC = () => {
           <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Habilitaciones y revisiones</div>
         </div>
 
-        <div className="bg-white dark:bg-[#0f172a] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="fs-card p-4 rounded-2xl">
+          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
             <span>Validaciones SARLAFT</span>
             <ShieldCheck className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
           </div>
@@ -231,18 +205,18 @@ export const AuditLogView: React.FC = () => {
           <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Consultas de listas</div>
         </div>
 
-        <div className="bg-white dark:bg-[#0f172a] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs col-span-2 sm:col-span-1">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="fs-card p-4 rounded-2xl col-span-2 sm:col-span-1">
+          <div className="flex items-center justify-between text-[#5d7392] dark:text-slate-400 text-xs mb-1">
             <span>Por Rol Editor</span>
             <UserCheck className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
           </div>
           <div className="text-xs font-bold text-slate-800 dark:text-slate-200 space-y-0.5">
             <div className="flex justify-between">
-              <span className="text-slate-500">Admin:</span>
+              <span className="text-[#5d7392] dark:text-slate-400">Admin:</span>
               <span className="text-blue-600 dark:text-cyan-400 font-mono">{adminEdits}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Revisores:</span>
+              <span className="text-[#5d7392] dark:text-slate-400">Revisores:</span>
               <span className="text-blue-700 dark:text-cyan-300 font-mono">{revisorEdits}</span>
             </div>
           </div>
@@ -250,11 +224,11 @@ export const AuditLogView: React.FC = () => {
       </div>
 
       {/* 3. Filters & Search Bar */}
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs space-y-3">
+      <div className="fs-card rounded-2xl p-4 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Search */}
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-[#5d7392] dark:text-slate-400" />
             <input
               type="text"
               value={searchTerm}
@@ -330,7 +304,7 @@ export const AuditLogView: React.FC = () => {
       </div>
 
       {/* 4. Audit Log Table */}
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+      <div className="fs-card rounded-2xl overflow-hidden">
         <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
           <span>Desliza horizontalmente para ver todos los campos</span>
           <span className="font-bold">↔</span>
@@ -351,7 +325,7 @@ export const AuditLogView: React.FC = () => {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-[#0f172a]">
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                  <td colSpan={7} className="px-4 py-12 text-center text-[#5d7392] dark:text-slate-400">
                     No se encontraron registros de auditoría que coincidan con los filtros aplicados.
                   </td>
                 </tr>
@@ -363,7 +337,7 @@ export const AuditLogView: React.FC = () => {
                       <div className="font-mono font-semibold text-slate-900 dark:text-slate-200 text-[11px]">
                         {log.formattedDate}
                       </div>
-                      <div className="text-[9.5px] text-slate-400 font-mono mt-0.5 break-all">{log.id.split('-').slice(0, 3).join('-')}</div>
+                      <div className="text-[9.5px] text-[#5d7392] dark:text-slate-400 font-mono mt-0.5 break-all">{log.id.split('-').slice(0, 3).join('-')}</div>
                     </td>
 
                     {/* 2. Dossier / Supplier */}
@@ -375,7 +349,7 @@ export const AuditLogView: React.FC = () => {
                         <span className="font-mono text-blue-700 dark:text-cyan-400 font-bold bg-blue-50 dark:bg-blue-950/60 px-1 py-0.2 rounded border border-blue-200 dark:border-blue-800">
                           {log.fileNumber}
                         </span>
-                        <span className="font-mono text-slate-500">{log.supplierDoc}</span>
+                        <span className="font-mono text-[#5d7392] dark:text-slate-400">{log.supplierDoc}</span>
                       </div>
                     </td>
 
@@ -414,11 +388,11 @@ export const AuditLogView: React.FC = () => {
                       {log.action === 'EDICION_CAMPO' ? (
                         <div className="text-[10.5px] space-y-0.5 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
                           <div className="text-slate-500 dark:text-slate-400 line-through break-words" title={`Antes: ${log.oldValue}`}>
-                            <span className="font-semibold text-[8.5px] text-slate-400 mr-1">Antes:</span>
+                            <span className="font-semibold text-[8.5px] text-[#5d7392] dark:text-slate-400 mr-1">Antes:</span>
                             {log.oldValue || '(Vacío)'}
                           </div>
                           <div className="text-blue-700 dark:text-cyan-400 font-medium break-words" title={`Ahora: ${log.newValue}`}>
-                            <span className="font-semibold text-[8.5px] text-slate-400 mr-1">Ahora:</span>
+                            <span className="font-semibold text-[8.5px] text-[#5d7392] dark:text-slate-400 mr-1">Ahora:</span>
                             {log.newValue || '(Vacío)'}
                           </div>
                         </div>

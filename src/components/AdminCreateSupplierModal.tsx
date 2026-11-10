@@ -254,7 +254,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-hidden">
-      <div className="bg-white rounded-2xl max-w-4xl w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 flex flex-col max-h-[94vh]">
+      <div className="bg-white rounded-2xl max-w-4xl w-full border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 flex flex-col max-h-[94vh]">
         
         {/* Compact Modal Header */}
         <div className="bg-[#0b1329] text-white px-4 sm:px-5 py-3 flex items-center justify-between border-b border-slate-800 shrink-0">
@@ -287,7 +287,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               >
                 Jurídica
               </button>
-              <span className="text-slate-600">|</span>
+              <span className="text-[#3a5274] dark:text-slate-300">|</span>
               <button
                 type="button"
                 onClick={handleFillDemoNatural}
@@ -309,13 +309,13 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
         </div>
 
         {/* Mobile-only Demo Fill Bar */}
-        <div className="sm:hidden bg-slate-100 border-b border-slate-200 px-4 py-1.5 flex items-center justify-between text-xs shrink-0">
-          <span className="text-[11px] text-slate-600 font-medium">Autocompletar prueba:</span>
+        <div className="sm:hidden bg-black/[0.04] dark:bg-white/[0.06] border-b border-black/10 dark:border-white/10 px-4 py-1.5 flex items-center justify-between text-xs shrink-0">
+          <span className="text-[11px] text-[#3a5274] dark:text-slate-300 font-medium">Autocompletar prueba:</span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={handleFillDemoJuridica}
-              className="text-[11px] font-bold text-blue-700 hover:underline"
+              className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline"
             >
               Jurídica
             </button>
@@ -323,7 +323,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
             <button
               type="button"
               onClick={handleFillDemoNatural}
-              className="text-[11px] font-bold text-blue-700 hover:underline"
+              className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline"
             >
               Natural
             </button>
@@ -344,8 +344,8 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                  Naturaleza Jurídica <span className="text-blue-600 font-bold">*</span>
+                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1.5 uppercase tracking-wider">
+                  Naturaleza Jurídica <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -353,11 +353,11 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     onClick={() => setSupplierType('JURIDICA')}
                     className={`p-2.5 rounded-xl border flex items-center justify-center gap-2 font-bold text-xs transition-all cursor-pointer ${
                       supplierType === 'JURIDICA'
-                        ? 'bg-blue-50 border-blue-600 text-blue-950 shadow-xs ring-1 ring-blue-600'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-[#2c84c4]/10 border-blue-600 text-[#1d5fa8] dark:text-[#69bdd7] shadow-xs ring-1 ring-blue-600'
+                        : 'bg-white border-black/10 dark:border-white/10 text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
                     }`}
                   >
-                    <Building2 className="w-4 h-4 text-blue-600" />
+                    <Building2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Jurídica</span>
                   </button>
 
@@ -366,19 +366,19 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     onClick={() => setSupplierType('NATURAL')}
                     className={`p-2.5 rounded-xl border flex items-center justify-center gap-2 font-bold text-xs transition-all cursor-pointer ${
                       supplierType === 'NATURAL'
-                        ? 'bg-blue-50 border-blue-600 text-blue-950 shadow-xs ring-1 ring-blue-600'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-[#2c84c4]/10 border-blue-600 text-[#1d5fa8] dark:text-[#69bdd7] shadow-xs ring-1 ring-blue-600'
+                        : 'bg-white border-black/10 dark:border-white/10 text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
                     }`}
                   >
-                    <User className="w-4 h-4 text-blue-600" />
+                    <User className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Natural</span>
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                  Categoría Económica <span className="text-blue-600 font-bold">*</span>
+                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1.5 uppercase tracking-wider">
+                  Categoría Económica <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                 </label>
                 <select
                   value={selectedCategory}
@@ -408,7 +408,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                       setSupplierTier('B');
                     }
                   }}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 font-medium focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-hidden"
+                  className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white font-medium focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-hidden"
                 >
                   {categoriesConfig.map((cat) => (
                     <option key={cat.category} value={cat.category}>
@@ -419,15 +419,15 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider flex items-center justify-between">
+                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1.5 uppercase tracking-wider flex items-center justify-between">
                   <span>Avaluador / Usuario con Acceso</span>
-                  <span className="text-[10px] text-blue-600 font-bold">Custodia y Evaluación</span>
+                  <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-bold">Custodia y Evaluación</span>
                 </label>
                 <select
                   value={assignedReviewerId}
                   onChange={(e) => setAssignedReviewerId(e.target.value)}
                   disabled={role === 'REVISOR'}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 font-medium focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-hidden disabled:bg-slate-100 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white font-medium focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-hidden disabled:bg-slate-100 disabled:cursor-not-allowed"
                 >
                   {systemUsers.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -436,7 +436,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   ))}
                 </select>
                 {role === 'REVISOR' && (
-                  <p className="text-[10px] text-slate-500 mt-1">
+                  <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1">
                     Asignado a su usuario ({activeUser.shortName}).
                   </p>
                 )}
@@ -444,16 +444,16 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
             </div>
 
             {/* Selector de Tipo de Proveedor (A, B y C) */}
-            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+            <div className="bg-black/[0.04] dark:bg-white/[0.06] p-3.5 rounded-xl border border-black/10 dark:border-white/10 space-y-2">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-blue-600" />
+                <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                   <span>Tipo de Proveedor (A, B y C) - Nivel de Criticidad SIG</span>
-                  <span className="text-blue-600">*</span>
+                  <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
                 </label>
-                <span className="text-[11px] font-bold text-slate-500">
+                <span className="text-[11px] font-bold text-[#5d7392] dark:text-slate-400">
                   Seleccionado:{' '}
-                  <strong className={supplierTier === 'A' ? 'text-blue-950 font-black' : supplierTier === 'B' ? 'text-blue-700 font-black' : 'text-slate-700 font-black'}>
+                  <strong className={supplierTier === 'A' ? 'text-[#1d5fa8] dark:text-[#69bdd7] font-black' : supplierTier === 'B' ? 'text-[#1d5fa8] dark:text-[#69bdd7] font-black' : 'text-[#3a5274] dark:text-slate-300 font-black'}>
                     Tipo {supplierTier}
                   </strong>
                 </span>
@@ -465,8 +465,8 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   onClick={() => setSupplierTier('A')}
                   className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
                     supplierTier === 'A'
-                      ? 'border-blue-900 bg-blue-50/80 shadow-xs ring-1 ring-blue-900'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                      ? 'border-blue-900 bg-[#2c84c4]/10 shadow-xs ring-1 ring-blue-900'
+                      : 'border-black/10 dark:border-white/10 bg-white hover:border-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1 mb-1">
@@ -475,15 +475,15 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                       Tipo A - Crítico
                     </span>
                     {supplierTier === 'A' && (
-                      <span className="text-[10px] font-bold text-blue-900 bg-blue-100 px-1.5 py-0.5 rounded shadow-2xs">
+                      <span className="text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-1.5 py-0.5 rounded shadow-2xs">
                         Activo
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] font-semibold text-slate-800 leading-tight">
+                  <p className="text-[11px] font-semibold text-[#0b1d3a] dark:text-white leading-tight">
                     Estratégico / Alto Impacto
                   </p>
-                  <p className="text-[10px] text-slate-500 mt-1 leading-snug">
+                  <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1 leading-snug">
                     Combustibles, repuestos críticos de motor/frenos, carrocerías, llantas y seguros obligatorios.
                   </p>
                 </div>
@@ -493,25 +493,25 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   onClick={() => setSupplierTier('B')}
                   className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
                     supplierTier === 'B'
-                      ? 'border-blue-600 bg-blue-50/80 shadow-xs ring-1 ring-blue-600'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                      ? 'border-blue-600 bg-[#2c84c4]/10 shadow-xs ring-1 ring-blue-600'
+                      : 'border-black/10 dark:border-white/10 bg-white hover:border-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 border border-blue-200">
-                      <ShieldAlert className="w-3 h-3 text-blue-600" />
+                    <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
+                      <ShieldAlert className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       Tipo B - Importante
                     </span>
                     {supplierTier === 'B' && (
-                      <span className="text-[10px] font-bold text-blue-700 bg-white px-1.5 py-0.5 rounded shadow-2xs">
+                      <span className="text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-white px-1.5 py-0.5 rounded shadow-2xs">
                         Activo
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] font-semibold text-slate-800 leading-tight">
+                  <p className="text-[11px] font-semibold text-[#0b1d3a] dark:text-white leading-tight">
                     Soporte Operativo
                   </p>
-                  <p className="text-[10px] text-slate-500 mt-1 leading-snug">
+                  <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1 leading-snug">
                     Dotaciones EPP, telecomunicaciones, GPS, software, lubricantes menores y servicios técnicos.
                   </p>
                 </div>
@@ -521,25 +521,25 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   onClick={() => setSupplierTier('C')}
                   className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
                     supplierTier === 'C'
-                      ? 'border-slate-700 bg-slate-100 shadow-xs ring-1 ring-slate-700'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                      ? 'border-slate-700 bg-black/[0.04] dark:bg-white/[0.06] shadow-xs ring-1 ring-slate-700'
+                      : 'border-black/10 dark:border-white/10 bg-white hover:border-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-slate-200 text-slate-800 border border-slate-300">
-                      <Layers className="w-3 h-3 text-slate-600" />
+                    <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-black/[0.08] dark:bg-white/10 text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
+                      <Layers className="w-3 h-3 text-[#3a5274] dark:text-slate-300" />
                       Tipo C - Estándar
                     </span>
                     {supplierTier === 'C' && (
-                      <span className="text-[10px] font-bold text-slate-800 bg-white px-1.5 py-0.5 rounded shadow-2xs">
+                      <span className="text-[10px] font-bold text-[#0b1d3a] dark:text-white bg-white px-1.5 py-0.5 rounded shadow-2xs">
                         Activo
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] font-semibold text-slate-800 leading-tight">
+                  <p className="text-[11px] font-semibold text-[#0b1d3a] dark:text-white leading-tight">
                     Menor / Ocasional
                   </p>
-                  <p className="text-[10px] text-slate-500 mt-1 leading-snug">
+                  <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1 leading-snug">
                     Papelería general, suministros de cafetería, aseo de oficinas y compras puntuales no críticas.
                   </p>
                 </div>
@@ -548,17 +548,17 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
           </div>
 
           {/* Section 2: Datos de Identificación y Razón Social */}
-          <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-4 space-y-3">
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-blue-600" />
+          <div className="bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl p-4 space-y-3">
+            <h4 className="text-xs font-bold text-[#0b1d3a] dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
               <span>Identificación Legal del Proveedor</span>
             </h4>
 
             {supplierType === 'JURIDICA' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Razón Social / Nombre Comercial <span className="text-blue-600 font-bold">*</span>
+                  <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
+                    Razón Social / Nombre Comercial <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <input
                     type="text"
@@ -566,14 +566,14 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     value={formData.companyName}
                     onChange={handleInputChange}
                     placeholder="Ej. Comercializadora de Boyacá S.A.S."
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
+                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    NIT con Dígito de Verificación <span className="text-blue-600 font-bold">*</span>
+                  <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
+                    NIT con Dígito de Verificación <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <input
                     type="text"
@@ -581,14 +581,14 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     value={formData.nit}
                     onChange={handleInputChange}
                     placeholder="Ej. 901234567-8"
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-600 outline-hidden"
+                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-600 outline-hidden"
                     required
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Nombre del Representante Legal <span className="text-blue-600 font-bold">*</span>
+                  <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
+                    Nombre del Representante Legal <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <input
                     type="text"
@@ -596,19 +596,19 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     value={formData.representativeLegalName}
                     onChange={handleInputChange}
                     placeholder="Ej. Carlos Alberto Morales Rodríguez"
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
+                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-3 gap-1.5">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Tipo</label>
+                    <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">Tipo</label>
                     <select
                       name="representativeLegalDocType"
                       value={formData.representativeLegalDocType}
                       onChange={handleInputChange}
-                      className="w-full px-2 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+                      className="w-full px-2 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
                     >
                       <option value="CC">CC</option>
                       <option value="CE">CE</option>
@@ -616,14 +616,14 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     </select>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Doc. Rep. Legal</label>
+                    <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">Doc. Rep. Legal</label>
                     <input
                       type="text"
                       name="representativeLegalDocNumber"
                       value={formData.representativeLegalDocNumber}
                       onChange={handleInputChange}
                       placeholder="74.123.456"
-                      className="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+                      className="w-full px-2.5 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
                     />
                   </div>
                 </div>
@@ -631,8 +631,8 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Nombre Completo del Postulante <span className="text-blue-600 font-bold">*</span>
+                  <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
+                    Nombre Completo del Postulante <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <input
                     type="text"
@@ -640,19 +640,19 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     value={formData.fullName}
                     onChange={handleInputChange}
                     placeholder="Ej. Ing. Juan Fernando Silva Gómez"
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
+                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-3 gap-1.5">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Tipo Doc.</label>
+                    <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">Tipo Doc.</label>
                     <select
                       name="documentType"
                       value={formData.documentType}
                       onChange={handleInputChange}
-                      className="w-full px-2 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+                      className="w-full px-2 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
                     >
                       <option value="CC">CC</option>
                       <option value="CE">CE</option>
@@ -660,8 +660,8 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     </select>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                      No. Documento <span className="text-blue-600 font-bold">*</span>
+                    <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
+                      No. Documento <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                     </label>
                     <input
                       type="text"
@@ -669,14 +669,14 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                       value={formData.documentNumber}
                       onChange={handleInputChange}
                       placeholder="Ej. 74.281.990"
-                      className="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-lg text-xs font-mono"
+                      className="w-full px-2.5 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-mono"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                     Profesión, Oficio o Especialidad Técnica
                   </label>
                   <input
@@ -685,7 +685,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     value={formData.professionOrTrade}
                     onChange={handleInputChange}
                     placeholder="Ej. Técnico en Inyección Diésel y Mantenimiento de Flotas"
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
                   />
                 </div>
               </div>
@@ -695,59 +695,59 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
           {/* Section 3: Contacto y Ubicación */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                Correo Electrónico Notificaciones <span className="text-blue-600 font-bold">*</span>
+              <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
+                Correo Electrónico Notificaciones <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
               </label>
               <div className="relative">
-                <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                <Mail className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="proveedor@empresa.com"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                 Teléfono / Celular de Contacto
               </label>
               <div className="relative">
-                <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                <Phone className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="310 000 0000"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                 Ciudad / Municipio Sede
               </label>
               <div className="relative">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                <MapPin className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
                   name="city"
                   value={formData.city}
                   onChange={handleInputChange}
                   placeholder="Sogamoso, Boyacá"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                 Dirección Comercial / Taller
               </label>
               <input
@@ -756,25 +756,25 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                 value={formData.address}
                 onChange={handleInputChange}
                 placeholder="Calle 11 # 20-30"
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs"
+                className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
               />
             </div>
           </div>
 
           {/* Section 4: Estado Inicial de Homologación & Compliance */}
-          <div className="bg-blue-50/50 border border-blue-200 rounded-xl p-4 space-y-4">
+          <div className="bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-xl p-4 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h4 className="text-xs font-bold text-blue-950 uppercase tracking-wider flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-blue-700" />
+              <h4 className="text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7] uppercase tracking-wider flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                 <span>Asignación de Estado y Debida Diligencia (SARLAFT/OFAC)</span>
               </h4>
 
-              <label className="flex items-center gap-2 text-xs font-semibold text-blue-900 cursor-pointer">
+              <label className="flex items-center gap-2 text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isEmailVerified}
                   onChange={(e) => setIsEmailVerified(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                  className="rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
                 <span>Marcar correo como verificado</span>
               </label>
@@ -782,25 +782,25 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                <label className="block text-[11px] font-bold text-[#0b1d3a] dark:text-white mb-1">
                   Estado Inicial Asignado
                 </label>
-                <div className="w-full px-3 py-2 bg-blue-100/60 border border-blue-300 rounded-lg text-xs font-bold text-blue-950 flex items-center justify-between">
+                <div className="w-full px-3 py-2 bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-lg text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7] flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
                     <span>DOCUMENTACIÓN PENDIENTE</span>
                   </div>
-                  <span className="text-[9px] bg-blue-200 text-blue-900 px-1.5 py-0.5 rounded font-bold">
+                  <span className="text-[9px] bg-blue-200 text-[#1d5fa8] dark:text-[#69bdd7] px-1.5 py-0.5 rounded font-bold">
                     Automático
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1">
+                <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1">
                   Registro inicial para posterior cargue de documentos por el proveedor o revisor.
                 </p>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                <label className="block text-[11px] font-bold text-[#0b1d3a] dark:text-white mb-1">
                   Validación SARLAFT / Listas
                 </label>
                 <select
@@ -808,7 +808,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   onChange={(e) =>
                     setCompliance((p) => ({ ...p, sarlaftResult: e.target.value as any }))
                   }
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
+                  className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-medium"
                 >
                   <option value="SIN_COINCIDENCIAS">Sin Coincidencias (Limpio)</option>
                   <option value="REQUIERE_VERIFICACION">Requiere Verificación Adicional</option>
@@ -817,7 +817,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                <label className="block text-[11px] font-bold text-[#0b1d3a] dark:text-white mb-1">
                   Lista OFAC / Clinton
                 </label>
                 <select
@@ -825,7 +825,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   onChange={(e) =>
                     setCompliance((p) => ({ ...p, ofacResult: e.target.value as any }))
                   }
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
+                  className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-medium"
                 >
                   <option value="LIMPIO">Limpio (Sin registros)</option>
                   <option value="ALERTA">Alerta / Coincidencia</option>
@@ -834,7 +834,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                <label className="block text-[11px] font-bold text-[#0b1d3a] dark:text-white mb-1">
                   Antecedentes Procuraduría / Policía
                 </label>
                 <select
@@ -842,7 +842,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   onChange={(e) =>
                     setCompliance((p) => ({ ...p, procuraduriaResult: e.target.value as any }))
                   }
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
+                  className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-medium"
                 >
                   <option value="VIGENTE_SIN_ANTECEDENTES">Vigente Sin Antecedentes</option>
                   <option value="CON_ANTECEDENTES">Con Antecedentes</option>
@@ -853,7 +853,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
 
             {/* Internal Audit Notes */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-800 mb-1">
+              <label className="block text-[11px] font-bold text-[#0b1d3a] dark:text-white mb-1">
                 Justificación de la Inscripción / Observaciones de Auditoría Interna
               </label>
               <textarea
@@ -862,25 +862,25 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                 onChange={handleInputChange}
                 rows={2}
                 placeholder="Indique motivo de alta directa, número de contrato, histórico de servicio o acuerdo comercial..."
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
+                className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
               />
             </div>
           </div>
 
           {/* Institutional Formats Note */}
-          <div className="p-3 bg-blue-50/80 border border-blue-200 rounded-xl text-blue-950 text-xs flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
+          <div className="p-3 bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-xl text-[#1d5fa8] dark:text-[#69bdd7] text-xs flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0 mt-0.5" />
             <div>
               <strong>Formatos Institucionales Automáticos:</strong> Al crear este proveedor, el sistema vinculará automáticamente el formulario oficial <strong>FS.GA-FOR-009 (v14.0)</strong> y la autorización Habeas Data <strong>FS.GA-FOR-039 (v1.0)</strong> con su respectivo número de radicación institucional.
             </div>
           </div>
 
           {/* Footer Actions */}
-          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-3 border-t border-slate-200">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-3 border-t border-black/10 dark:border-white/10">
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#3a5274] dark:text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
             >
               Cancelar
             </button>

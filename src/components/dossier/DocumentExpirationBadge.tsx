@@ -74,14 +74,14 @@ export const DocumentExpirationBadge: React.FC<DocumentExpirationBadgeProps> = (
     return (
       <div className={`inline-flex flex-col ${className}`}>
         <span
-          className="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 shadow-2xs"
+          className="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-md bg-[#2c84c4]/12 dark:bg-[#2c84c4]/80 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] border border-[#2c84c4]/35 dark:border-[#2c84c4]/35 shadow-2xs"
           title={`ALERTA PREVENTIVA SIG: Vence el ${exp.formattedDate} (${exp.daysRemaining} días restantes). Requiere renovación oportuna.`}
         >
-          <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0 animate-spin-slow" />
+          <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] shrink-0 animate-spin-slow" />
           <span>POR VENCER: {exp.label}</span>
         </span>
         {showDetails && (
-          <span className="text-[9px] text-amber-700 dark:text-amber-400 mt-0.5 font-medium">
+          <span className="text-[9px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] mt-0.5 font-medium">
             Vence el {exp.formattedDate} &bull; Renovar oportunamente
           </span>
         )}
@@ -93,14 +93,14 @@ export const DocumentExpirationBadge: React.FC<DocumentExpirationBadgeProps> = (
   return (
     <div className={`inline-flex flex-col ${className}`}>
       <span
-        className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+        className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#2c84c4]/12 dark:bg-[#2c84c4]/60 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] border border-[#2c84c4]/35 dark:border-[#2c84c4]/35"
         title={`Vigente hasta el ${exp.formattedDate} (${exp.daysRemaining} días restantes)`}
       >
-        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+        <ShieldCheck className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] shrink-0" />
         <span>Vigente: {exp.formattedDate}</span>
       </span>
       {showDetails && (
-        <span className="text-[9px] text-emerald-700 dark:text-emerald-400 mt-0.5 font-medium">
+        <span className="text-[9px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] mt-0.5 font-medium">
           {exp.daysRemaining} días restantes de vigencia
         </span>
       )}

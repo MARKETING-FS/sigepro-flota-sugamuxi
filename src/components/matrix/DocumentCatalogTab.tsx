@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useConfirm } from '../ui/ConfirmDialog';
 import { DocumentDefinition } from '../../types';
 import {
   FileText,
@@ -107,8 +108,10 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
     setEditingDoc(null);
   };
 
+  const { ask, dialog } = useConfirm();
+
   // Quick toggle active / inactive
-  const handleToggleDocActive = (doc: DocumentDefinition) => {
+  const doToggleDocActive = (doc: DocumentDefinition) => {
     const newStatus = !(doc.isActive !== false);
     updateDocumentDefinition(doc.code, { isActive: newStatus });
     onShowToast(
@@ -118,27 +121,41 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
     );
   };
 
+  const handleToggleDocActive = (doc: DocumentDefinition) => {
+    if (doc.isActive === false) {
+      doToggleDocActive(doc);
+      return;
+    }
+    ask({
+      title: `¿Inactivar «${doc.name}»?`,
+      message: 'Se omitirá de los nuevos checklists de radicación. Los expedientes ya radicados no se borran.',
+      hint: 'Podrá volver a activarlo cuando quiera con el botón «Activar» de esta misma fila (filtro «Inactivos»).',
+      onConfirm: () => doToggleDocActive(doc),
+    });
+  };
+
   return (
     <div className="space-y-6">
+      {dialog}
       {/* Top Header & Stats */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+      <div className="fs-card p-4 sm:p-5 rounded-2xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-600" />
+            <h2 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white flex items-center gap-2">
+              <FileText className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7]" />
               <span>Catálogo Maestro de Tipos Documentales SIG</span>
-              <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
+              <span className="text-[10px] bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] font-bold px-2 py-0.5 rounded-full">
                 Control Total de Administrador
               </span>
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#3a5274] dark:text-slate-400">
               Gestione, active, inactive o modifique las reglas, descripciones y tipos de soporte documental reconocidos por Flota Sugamuxi S.A.
             </p>
           </div>
 
           <button
             onClick={onOpenNewDocModal}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer shrink-0"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-action text-white text-xs font-semibold rounded-xl shadow-glow hover:opacity-95 transition-all cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Registrar Nuevo Documento</span>
@@ -146,27 +163,27 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
         </div>
 
         {/* Status Counters */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100">
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-            <span className="text-[10px] font-bold text-slate-500 uppercase block">Total Catálogo</span>
-            <strong className="text-lg font-black text-slate-900">{totalCount}</strong>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-black/[0.07] dark:border-white/10">
+          <div className="p-3 bg-black/[0.03] dark:bg-white/[0.04] rounded-xl border border-black/10 dark:border-white/10">
+            <span className="text-[10px] font-semibold text-[#3a5274] dark:text-slate-400 uppercase tracking-wider block">Total Catálogo</span>
+            <strong className="font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">{totalCount}</strong>
           </div>
-          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
-            <span className="text-[10px] font-bold text-blue-700 uppercase block">Documentos Activos</span>
-            <strong className="text-lg font-black text-blue-800">{activeCount}</strong>
+          <div className="p-3 bg-[#2c84c4]/10 rounded-xl border border-[#2c84c4]/30">
+            <span className="text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] uppercase tracking-wider block">Documentos Activos</span>
+            <strong className="font-display text-xl font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">{activeCount}</strong>
           </div>
-          <div className="p-3 bg-slate-100 rounded-xl border border-slate-300">
-            <span className="text-[10px] font-bold text-slate-600 uppercase block">Documentos Inactivos</span>
-            <strong className="text-lg font-black text-slate-700">{inactiveCount}</strong>
+          <div className="p-3 bg-black/[0.05] dark:bg-white/[0.06] rounded-xl border border-black/10 dark:border-white/15">
+            <span className="text-[10px] font-semibold text-[#3a5274] dark:text-slate-400 uppercase tracking-wider block">Documentos Inactivos</span>
+            <strong className="font-display text-xl font-semibold text-[#3a5274] dark:text-slate-300">{inactiveCount}</strong>
           </div>
-          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
-            <span className="text-[10px] font-bold text-blue-700 uppercase block">Formatos SIG Fijos</span>
-            <strong className="text-lg font-black text-blue-800">2</strong>
+          <div className="p-3 bg-[#2c84c4]/10 rounded-xl border border-[#2c84c4]/30">
+            <span className="text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] uppercase tracking-wider block">Formatos SIG Fijos</span>
+            <strong className="font-display text-xl font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">2</strong>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
+        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-black/[0.07] dark:border-white/10">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -174,17 +191,17 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
               placeholder="Buscar documento por código, nombre o pauta..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+              className="w-full pl-9 pr-3 py-2 bg-white dark:bg-white/5 border border-[#d9e3ef] dark:border-white/15 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-[#2c84c4]"
             />
           </div>
 
           {/* Category SIG Filter */}
-          <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 text-xs">
-            <span className="text-slate-400 font-bold px-2 text-[10px]">CATEGORÍA:</span>
+          <div className="flex items-center gap-1 bg-white dark:bg-white/5 p-1 rounded-xl border border-[#d9e3ef] dark:border-white/15 text-xs">
+            <span className="text-[#5d7392] dark:text-slate-400 font-semibold px-2 text-[10px]">CATEGORÍA:</span>
             <select
               value={selectedCategoryFilter}
               onChange={(e) => setSelectedCategoryFilter(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer pr-2"
+              className="bg-transparent text-xs font-semibold text-[#0b1d3a] dark:text-white focus:outline-none cursor-pointer pr-2"
             >
               <option value="ALL">Todas las Categorías</option>
               <option value="LEGAL">Legal / Estatutaria</option>
@@ -197,16 +214,16 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 text-xs">
-            <span className="text-slate-400 font-bold px-2 text-[10px]">ESTADO:</span>
+          <div className="flex items-center gap-1 bg-white dark:bg-white/5 p-1 rounded-xl border border-[#d9e3ef] dark:border-white/15 text-xs">
+            <span className="text-[#5d7392] dark:text-slate-400 font-semibold px-2 text-[10px]">ESTADO:</span>
             {(['ALL', 'ACTIVE', 'INACTIVE'] as const).map((st) => (
               <button
                 key={st}
                 onClick={() => setSelectedStatusFilter(st)}
                 className={`px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer ${
                   selectedStatusFilter === st
-                    ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-gradient-action text-white shadow-glow'
+                    : 'text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white'
                 }`}
               >
                 {st === 'ALL' ? 'Todos' : st === 'ACTIVE' ? 'Activos' : 'Inactivos'}
@@ -219,7 +236,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
       {/* Grid of Documents */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredDocs.length === 0 ? (
-          <div className="col-span-full bg-white p-12 rounded-2xl border border-slate-200 text-center text-slate-500 text-xs">
+          <div className="fs-card col-span-full p-12 rounded-2xl text-center text-[#3a5274] dark:text-slate-400 text-xs">
             No se encontraron documentos en el catálogo con los filtros especificados.
           </div>
         ) : (
@@ -228,83 +245,81 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
             const isAct = doc.isActive !== false;
 
             const categoryColors: Record<string, string> = {
-              LEGAL: 'bg-blue-50 text-blue-800 border-blue-200',
-              FINANCIERO: 'bg-blue-50 text-blue-700 border-blue-200',
-              TECNICO: 'bg-slate-100 text-slate-800 border-slate-200',
-              HSEQ: 'bg-cyan-50 text-cyan-800 border-cyan-200',
-              SARLAFT: 'bg-blue-50 text-blue-800 border-blue-200',
-              OPERATIVO: 'bg-slate-100 text-slate-700 border-slate-200',
+              LEGAL: 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30',
+              FINANCIERO: 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30',
+              TECNICO: 'bg-black/5 dark:bg-white/10 text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/15',
+              HSEQ: 'bg-[#69bdd7]/15 text-[#0e6d8a] dark:text-[#69bdd7] border-[#69bdd7]/40',
+              SARLAFT: 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30',
+              OPERATIVO: 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-300 border-black/10 dark:border-white/15',
             };
 
             return (
               <div
                 key={doc.code}
-                className={`bg-white p-4 rounded-2xl border flex flex-col justify-between space-y-3 transition-all ${
-                  !isAct
-                    ? 'border-slate-200 bg-slate-50/60 opacity-70'
-                    : 'border-slate-200 shadow-2xs hover:shadow-xs'
+                className={`fs-card lift p-4 rounded-2xl flex flex-col justify-between space-y-3 transition-all ${
+                  !isAct ? 'opacity-60' : ''
                 }`}
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-300 tabular-nums">
                       {doc.code}
                     </span>
                     <span
-                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                      className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
                         isAct
-                          ? 'bg-blue-50 text-blue-800 border-blue-200'
-                          : 'bg-slate-200 text-slate-600 border-slate-300'
+                          ? 'bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
+                          : 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-400 border-black/10 dark:border-white/15'
                       }`}
                     >
                       {isAct ? 'ACTIVO' : 'INACTIVO'}
                     </span>
                   </div>
 
-                  <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                  <h4 className="font-display text-[13px] font-semibold text-[#0b1d3a] dark:text-white leading-snug">
                     {doc.name}
                   </h4>
 
-                  <p className="text-[11px] text-slate-500 line-clamp-2">
+                  <p className="text-[11px] text-[#3a5274] dark:text-slate-400 line-clamp-2">
                     {doc.description}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 space-y-1.5 text-[10px] text-slate-500">
+                <div className="pt-3 border-t border-black/[0.07] dark:border-white/10 space-y-1.5 text-[10px] text-[#3a5274] dark:text-slate-400">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Categoría SIG:</span>
+                    <span className="text-[#5d7392] dark:text-slate-500">Categoría SIG:</span>
                     <span
-                      className={`font-bold px-1.5 py-0.5 rounded border text-[9px] ${
-                        categoryColors[doc.category] || 'bg-slate-100 text-slate-700'
+                      className={`font-bold px-1.5 py-0.5 rounded border text-xs ${
+                        categoryColors[doc.category] || 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
                       }`}
                     >
                       {doc.category}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Regla Vigencia:</span>
-                    <span className="font-semibold text-slate-700 truncate max-w-[170px]" title={doc.validityRule}>
+                    <span className="text-[#5d7392] dark:text-slate-500">Regla Vigencia:</span>
+                    <span className="font-semibold text-[#0b1d3a] dark:text-slate-200 truncate max-w-[170px]" title={doc.validityRule}>
                       {doc.validityRule || 'No especificada'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Fecha Vencimiento:</span>
-                    <span className="font-semibold text-slate-700">
+                    <span className="text-[#5d7392] dark:text-slate-500">Fecha Vencimiento:</span>
+                    <span className="font-semibold text-[#0b1d3a] dark:text-slate-200">
                       {doc.requiresExpirationDate ? 'Exigida al radicar' : 'No requerida'}
                     </span>
                   </div>
                 </div>
 
                 {/* Actions Bar */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div className="pt-3 border-t border-black/[0.07] dark:border-white/10 flex items-center justify-between text-xs">
                   {isInstitutional ? (
                     <div className="flex items-center justify-between w-full">
-                      <span className="text-[10px] text-blue-700 font-bold flex items-center gap-1">
+                      <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-bold flex items-center gap-1">
                         <Lock className="w-3 h-3" /> Formato Institucional SIG
                       </span>
                       <button
                         onClick={() => handleOpenEdit(doc)}
-                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer border border-blue-200"
+                        className="p-1.5 text-[#2c84c4] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 rounded-lg transition-colors cursor-pointer border border-[#2c84c4]/30"
                         title="Editar parámetros del formato institucional"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -317,8 +332,8 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
                         onClick={() => handleToggleDocActive(doc)}
                         className={`text-[11px] font-bold px-2 py-1 rounded-lg border transition-colors cursor-pointer ${
                           isAct
-                            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-300'
-                            : 'bg-blue-600 text-white hover:bg-blue-500 border-blue-600'
+                            ? 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/15 border-black/10 dark:border-white/15'
+                            : 'bg-gradient-action text-white border-transparent shadow-glow'
                         }`}
                         title={isAct ? 'Inactivar documento' : 'Activar documento'}
                       >
@@ -329,7 +344,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
                         {/* Edit button */}
                         <button
                           onClick={() => handleOpenEdit(doc)}
-                          className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                          className="p-1.5 text-[#2c84c4] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/15"
                           title="Editar todos los campos del documento"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
@@ -348,7 +363,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
                               else onShowToast(res.message, 'error');
                             }
                           }}
-                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                          className="p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/15"
                           title="Eliminar documento"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -366,7 +381,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
       {/* Modal: Editar Documento */}
       {editingDoc && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
+          <div className="fs-card rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
             <div className="bg-[#0b1329] text-white p-5 flex items-center justify-between border-b border-slate-800">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-cyan-300">
@@ -374,7 +389,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
                 </div>
                 <div>
                   <h3 className="font-bold text-sm">Editar Tipo de Documento</h3>
-                  <p className="text-[11px] text-cyan-300 font-mono">{editingDoc.code}</p>
+                  <p className="text-[11px] text-cyan-300 tabular-nums">{editingDoc.code}</p>
                 </div>
               </div>
               <button

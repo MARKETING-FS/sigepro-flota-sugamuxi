@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { SupplierDocument, DocumentStatus, UserRole } from '../types';
 import { useApp } from '../context/AppContext';
+import { BrandSwoosh } from './ui/BrandSwoosh';
 import { calculateDocumentExpiration } from '../utils/contractValidity';
 
 interface Props {
@@ -312,87 +313,117 @@ export const DocumentEditorModal: React.FC<Props> = ({
   // Cálculo en tiempo real de semáforo de expiración para renderizar alerta
   const currentExp = expirationDate ? calculateDocumentExpiration(expirationDate) : null;
 
+  const STATUS_OPTIONS: { value: DocumentStatus; label: string }[] = isExpirationRequired
+    ? [
+        { value: 'VIGENTE', label: 'VIGENTE (aprobado y en vigencia)' },
+        { value: 'POR_VENCER', label: 'POR VENCER (alerta preventiva)' },
+        { value: 'VENCIDO', label: 'VENCIDO (expirado, inhabilita al proveedor)' },
+        { value: 'APROBADO', label: 'APROBADO (habilitado)' },
+        { value: 'CARGADO', label: 'CARGADO (en revisión)' },
+        { value: 'REQUIERE_CORRECCION', label: 'REQUIERE CORRECCIÓN' },
+        { value: 'PENDIENTE', label: 'PENDIENTE' },
+        { value: 'RECHAZADO', label: 'RECHAZADO' },
+      ]
+    : [
+        { value: 'APROBADO', label: 'APROBADO (habilitado)' },
+        { value: 'VIGENTE', label: 'VIGENTE' },
+        { value: 'POR_VENCER', label: 'POR VENCER' },
+        { value: 'VENCIDO', label: 'VENCIDO (expirado)' },
+        { value: 'CARGADO', label: 'CARGADO (en revisión)' },
+        { value: 'REQUIERE_CORRECCION', label: 'REQUIERE CORRECCIÓN' },
+        { value: 'PENDIENTE', label: 'PENDIENTE' },
+        { value: 'RECHAZADO', label: 'RECHAZADO' },
+      ];
+
+  const labelCls = 'block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-1.5';
+  const stepNum = (n: number) => (
+    <span className="w-6 h-6 rounded-lg bg-gradient-action text-white text-[11px] font-semibold grid place-items-center shrink-0">{n}</span>
+  );
+
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 max-w-xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
-        
-        {/* Header */}
-        <div className="shrink-0 bg-gradient-to-r from-blue-950 to-blue-900 text-white px-5 sm:px-6 py-3.5 sm:py-4 border-b border-blue-800 flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="p-2 bg-blue-900/90 border border-cyan-500/40 rounded-lg text-cyan-400 shrink-0">
-              <FileUp className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] font-extrabold uppercase bg-blue-900 text-cyan-300 px-2 py-0.5 rounded border border-blue-700">
-                  Gestión Documental &bull; {userRole === 'ADMIN' ? 'Administrador' : 'Revisor Técnico'}
-                </span>
-                {isMandatory ? (
-                  <span className="text-[10px] font-extrabold uppercase bg-red-900/90 text-red-200 px-2 py-0.5 rounded border border-red-600 shadow-2xs">
-                    Requisito Obligatorio
+    <div className="fixed inset-0 z-50 bg-[#131b2e]/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
+      <div className="fs-card rounded-[28px] max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-fade-up">
+
+        {/* Encabezado */}
+        <div className="relative shrink-0 overflow-hidden bg-gradient-brand text-white px-6 py-5">
+          <BrandSwoosh className="absolute -right-10 -bottom-10 w-72 opacity-60" />
+          <div className="relative flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3.5 min-w-0">
+              <span className="shrink-0 w-12 h-12 rounded-2xl bg-white/15 border border-white/30 backdrop-blur-sm grid place-items-center">
+                <FileUp className="w-6 h-6" />
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider bg-white/15 border border-white/25 px-2.5 py-0.5 rounded-full">
+                    Gestión documental &bull; {userRole === 'ADMIN' ? 'Administrador' : 'Revisor técnico'}
                   </span>
-                ) : (
-                  <span className="text-[10px] font-bold uppercase bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">
-                    Requisito Opcional
+                  {isMandatory ? (
+                    <span className="text-[10px] font-semibold uppercase tracking-wider bg-red-500/90 text-white px-2.5 py-0.5 rounded-full">
+                      Obligatorio
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-semibold uppercase tracking-wider bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-full">
+                      Opcional
+                    </span>
+                  )}
+                  <span className="text-[10px] font-semibold uppercase tracking-wider bg-[#69bdd7]/30 border border-[#69bdd7]/60 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    {isExpirationRequired ? (
+                      <>
+                        <Clock className="w-3 h-3" /> Control de vigencia SIG
+                      </>
+                    ) : (
+                      'Permanente'
+                    )}
                   </span>
-                )}
-                {isExpirationRequired ? (
-                  <span className="text-[10px] font-bold uppercase bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded border border-amber-700/80 flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-amber-400" /> Control Vigencia SIG
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-medium text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                    Permanente
-                  </span>
-                )}
+                </div>
+                <h3 className="font-display text-xl font-semibold mt-2 leading-tight truncate max-w-md">
+                  {displayTitle || document.name}
+                </h3>
+                <p className="text-xs text-white/70 mt-0.5">Modificar requisito</p>
               </div>
-              <h3 className="text-sm font-bold text-white mt-0.5 truncate max-w-md">
-                Modificar Requisito: {displayTitle || document.name}
-              </h3>
             </div>
+            <button
+              onClick={onClose}
+              type="button"
+              aria-label="Cerrar"
+              className="shrink-0 w-9 h-9 grid place-items-center rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            type="button"
-            className="p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors shrink-0 ml-2 cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
         </div>
 
-        {/* Form Container with Flex and Scroll */}
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          
-          {/* Scrollable Form Body */}
-          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-slate-700 scrollbar-thin scrollbar-thumb-slate-300">
-            
-            {/* Document Name */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1">
-                Nombre Oficial del Requisito / Documento
-              </label>
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 text-xs text-[#3a5274] dark:text-slate-300">
+
+            {/* 1. Nombre */}
+            <section>
+              <div className="flex items-center gap-2.5 mb-2.5">
+                {stepNum(1)}
+                <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Documento</h4>
+              </div>
+              <label className={labelCls}>Nombre oficial del requisito</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3.5 h-11 rounded-xl border border-black/10 dark:border-white/10 font-medium text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#2c84c4]"
                 required
               />
-            </div>
+            </section>
 
-            {/* File Upload Section - Direct Reviewer Upload */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <span className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
-                  <UploadCloud className="w-4 h-4 text-blue-600" />
-                  Cargue de Documento Soporte por el Revisor Técnico
-                </span>
-                <span className="text-[10px] text-blue-800 font-medium bg-blue-100/70 border border-blue-200 px-2 py-0.5 rounded">
+            {/* 2. Soporte */}
+            <section>
+              <div className="flex items-center justify-between gap-2 flex-wrap mb-2.5">
+                <div className="flex items-center gap-2.5">
+                  {stepNum(2)}
+                  <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Documento soporte</h4>
+                </div>
+                <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-semibold bg-[#2c84c4]/10 border border-[#2c84c4]/30 px-2.5 py-0.5 rounded-full">
                   Evaluador: {reviewerName}
                 </span>
               </div>
 
-              {/* Hidden file input controlled via ref */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -402,59 +433,51 @@ export const DocumentEditorModal: React.FC<Props> = ({
               />
 
               {fileError && (
-                <div className="p-2.5 bg-slate-900 border border-slate-700 rounded-lg flex items-start gap-2 text-white text-[11px] animate-in fade-in">
-                  <AlertTriangle className="w-4 h-4 text-cyan-300 shrink-0 mt-0.5" />
+                <div className="mb-2.5 p-3 bg-red-500/10 border border-red-500/40 rounded-xl flex items-start gap-2 text-[11px] animate-fade-up">
+                  <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold block">Archivo no permitido (Máximo 5 MB)</span>
-                    <span className="text-slate-300">{fileError}</span>
+                    <span className="font-semibold block text-red-600 dark:text-red-300">Archivo no permitido (máximo 5 MB)</span>
+                    <span className="text-[#3a5274] dark:text-slate-300">{fileError}</span>
                   </div>
                 </div>
               )}
 
               {hasFile ? (
-                <div className="bg-white border border-blue-200 rounded-xl p-3 space-y-2.5 shadow-2xs">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="p-2 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg shrink-0">
-                        <FileCheck className="w-5 h-5 text-blue-700" />
+                <div className="rounded-2xl border border-[#2c84c4]/30 bg-[#2c84c4]/[0.07] p-4 space-y-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="shrink-0 w-11 h-11 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow">
+                      <FileCheck className="w-5 h-5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/15 px-2 py-0.5 rounded-full border border-[#2c84c4]/30">
+                          Soporte adjunto
+                        </span>
+                        {fileSize && <span className="text-[10px] font-semibold text-[#5d7392] dark:text-slate-400">{fileSize}</span>}
                       </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                            Soporte Adjunto
-                          </span>
-                          {fileSize && (
-                            <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                              {fileSize}
-                            </span>
-                          )}
-                        </div>
-                        <input
-                          type="text"
-                          value={fileName}
-                          onChange={(e) => setFileName(e.target.value)}
-                          placeholder="nombre_archivo.pdf"
-                          className="w-full mt-1 px-2.5 py-1 bg-slate-50 rounded border border-slate-300 font-mono text-[11px] text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-hidden"
-                          title="Nombre del archivo adjunto"
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        value={fileName}
+                        onChange={(e) => setFileName(e.target.value)}
+                        placeholder="nombre_archivo.pdf"
+                        className="w-full mt-1.5 px-3 h-9 rounded-lg border border-black/10 dark:border-white/10 font-mono text-[11px] text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#2c84c4] focus:outline-hidden"
+                        title="Nombre del archivo adjunto"
+                      />
                     </div>
                   </div>
-
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-900 hover:bg-blue-950 text-white text-xs font-semibold rounded-lg cursor-pointer transition-colors shadow-2xs border border-blue-700"
+                      className="inline-flex items-center gap-1.5 h-9 px-4 bg-gradient-action text-white text-xs font-semibold rounded-xl shadow-glow cursor-pointer hover:opacity-95 transition-opacity"
                     >
-                      <FileUp className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Reemplazar Archivo Soporte</span>
+                      <FileUp className="w-3.5 h-3.5" />
+                      <span>Reemplazar archivo</span>
                     </button>
-
                     <button
                       type="button"
                       onClick={handleRemoveFile}
-                      className="inline-flex items-center gap-1 text-[11px] text-red-600 hover:text-red-700 font-semibold px-2 py-1 rounded hover:bg-red-50 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1 text-[11px] text-red-500 hover:text-red-600 font-semibold px-2.5 h-9 rounded-xl hover:bg-red-500/10 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Quitar archivo</span>
@@ -467,255 +490,228 @@ export const DocumentEditorModal: React.FC<Props> = ({
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
-                  className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${
+                  className={`rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-300 ${
                     isDragging
-                      ? 'border-blue-600 bg-blue-100/60'
-                      : 'border-blue-300 hover:border-blue-500 bg-blue-50/40 hover:bg-blue-50/80'
+                      ? 'border-[#2c84c4] bg-[#2c84c4]/15 scale-[1.01]'
+                      : 'border-[#2c84c4]/40 bg-[#2c84c4]/[0.05] hover:bg-[#2c84c4]/10 hover:border-[#2c84c4]'
                   }`}
                 >
-                  <UploadCloud className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-xs font-bold text-slate-800">
-                    Haga clic aquí para seleccionar o arrastre el archivo soporte
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Formatos: PDF, Excel (.xlsx, .xls), Word (.docx), Imágenes (.png, .jpg) &bull; Máx. 5 MB
+                  <span className="w-14 h-14 rounded-2xl bg-gradient-action text-white grid place-items-center mx-auto mb-3 shadow-glow">
+                    <UploadCloud className="w-7 h-7" />
+                  </span>
+                  <p className="text-sm font-semibold text-[#0b1d3a] dark:text-white">Haga clic para seleccionar o arrastre el archivo</p>
+                  <p className="text-[11px] text-[#5d7392] dark:text-slate-400 mt-1">
+                    PDF, Excel (.xlsx, .xls), Word (.docx), imágenes (.png, .jpg) &bull; máx. 5 MB
                   </p>
                   {isMandatory && (
-                    <div className="mt-2.5 inline-flex items-center gap-1.5 text-[10.5px] font-bold text-red-800 bg-red-50 px-2.5 py-1 rounded-md border border-red-200">
-                      <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                      <span>Obligatorio: Se requiere adjuntar el soporte documental para habilitar este requisito.</span>
+                    <div className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold text-red-600 dark:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/30">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>Obligatorio: adjunte el soporte para habilitar este requisito.</span>
                     </div>
                   )}
                 </div>
               )}
-            </div>
+            </section>
 
-            {/* Status & Expiration Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              
-              {/* Estado del Documento */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-slate-800">
-                    Estado del Documento
-                  </label>
-                  {isExpirationRequired && (
-                    <span className="text-[9.5px] font-bold text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded">
-                      Sujeto a Vigencia
-                    </span>
-                  )}
-                </div>
-                <select
-                  value={status}
-                  onChange={handleStatusChange}
-                  className={`w-full px-3 py-2 rounded-lg border font-bold text-slate-900 bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 ${
-                    status === 'VIGENTE' || status === 'APROBADO'
-                      ? 'border-emerald-500 text-emerald-900 bg-emerald-50/30'
-                      : status === 'POR_VENCER'
-                      ? 'border-amber-500 text-amber-900 bg-amber-50/40'
-                      : status === 'VENCIDO'
-                      ? 'border-red-500 text-red-900 bg-red-50/50'
-                      : status === 'REQUIERE_CORRECCION'
-                      ? 'border-slate-400 text-slate-800'
-                      : 'border-slate-300'
-                  }`}
-                >
-                  {/* Si el documento tiene control de vigencia, se destacan prioritariamente VIGENTE, POR VENCER y VENCIDO */}
-                  {isExpirationRequired ? (
-                    <>
-                      <option value="VIGENTE">✅ VIGENTE (Aprobado y en Vigencia)</option>
-                      <option value="POR_VENCER">⚠️ POR VENCER (Vigente &bull; Alerta Preventiva)</option>
-                      <option value="VENCIDO">❌ VENCIDO (Expirado &bull; Inhabilita Proveedor)</option>
-                      <option value="APROBADO">✅ APROBADO (Habilitado)</option>
-                      <option value="CARGADO">📄 CARGADO (En Revisión)</option>
-                      <option value="REQUIERE_CORRECCION">✏️ REQUIERE CORRECCIÓN</option>
-                      <option value="PENDIENTE">⏳ PENDIENTE</option>
-                      <option value="RECHAZADO">🚫 RECHAZADO</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="APROBADO">✅ APROBADO (Habilitado)</option>
-                      <option value="VIGENTE">✅ VIGENTE (Vigente)</option>
-                      <option value="POR_VENCER">⚠️ POR VENCER (Por Vencer)</option>
-                      <option value="VENCIDO">❌ VENCIDO (Expirado)</option>
-                      <option value="CARGADO">📄 CARGADO (En Revisión)</option>
-                      <option value="REQUIERE_CORRECCION">✏️ REQUIERE CORRECCIÓN</option>
-                      <option value="PENDIENTE">⏳ PENDIENTE</option>
-                      <option value="RECHAZADO">🚫 RECHAZADO</option>
-                    </>
-                  )}
-                </select>
-                <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-blue-600 shrink-0" />
-                  <span>Sincronizado automáticamente al evaluar o ingresar vigencia.</span>
-                </p>
+            {/* 3. Estado y vigencia */}
+            <section>
+              <div className="flex items-center gap-2.5 mb-2.5">
+                {stepNum(3)}
+                <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Estado y vigencia</h4>
               </div>
-
-              {/* Fecha de Vigencia / Expiración */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-slate-800">
-                    Fecha de Vigencia / Expiración {isExpirationRequired ? <span className="text-amber-700 font-bold">*</span> : <span className="text-slate-400 font-normal">(Opcional)</span>}
-                  </label>
-                  {isExpirationRequired && (
-                    <span className="text-[9.5px] font-bold text-amber-800 bg-amber-100/80 px-1.5 py-0.2 rounded border border-amber-300">
-                      Exigida por Matriz SIG
-                    </span>
-                  )}
-                </div>
-                <input
-                  type="date"
-                  value={expirationDate}
-                  onChange={handleExpirationDateChange}
-                  className={`w-full px-3 py-2 rounded-lg border font-mono text-slate-900 bg-white focus:ring-2 focus:ring-blue-600 ${
-                    currentExp?.status === 'VENCIDO'
-                      ? 'border-red-500 bg-red-50/20 text-red-950 font-bold'
-                      : currentExp?.status === 'POR_VENCER'
-                      ? 'border-amber-500 bg-amber-50/20'
-                      : 'border-slate-300'
-                  }`}
-                />
-                
-                {currentValidityRule && (
-                  <p className="text-[10px] text-blue-700 font-medium flex items-center gap-1 mt-1 truncate" title={currentValidityRule}>
-                    <Clock className="w-3 h-3 text-blue-600 shrink-0" />
-                    <span>Regla Matriz: {currentValidityRule}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label className={labelCls}>Estado del documento</label>
+                    {isExpirationRequired && (
+                      <span className="text-[9.5px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 border border-[#2c84c4]/30 px-2 py-0.5 rounded-full mb-1.5">
+                        Sujeto a vigencia
+                      </span>
+                    )}
+                  </div>
+                  <select
+                    value={status}
+                    onChange={handleStatusChange}
+                    className={`w-full px-3.5 h-11 rounded-xl border font-semibold focus:outline-hidden focus:ring-2 focus:ring-[#2c84c4] ${
+                      status === 'VENCIDO'
+                        ? 'border-red-500 text-red-600 dark:text-red-300'
+                        : status === 'VIGENTE' || status === 'APROBADO' || status === 'POR_VENCER'
+                        ? 'border-[#2c84c4]/50 text-[#1d5fa8] dark:text-[#69bdd7]'
+                        : 'border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white'
+                    }`}
+                  >
+                    {STATUS_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1.5 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" />
+                    <span>Se sincroniza automáticamente al evaluar o ingresar la vigencia.</span>
                   </p>
-                )}
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label className={labelCls}>
+                      Fecha de vigencia / expiración{' '}
+                      {isExpirationRequired ? <span className="text-red-500">*</span> : <span className="normal-case tracking-normal font-normal text-[#5d7392] dark:text-slate-400">(opcional)</span>}
+                    </label>
+                  </div>
+                  <input
+                    type="date"
+                    value={expirationDate}
+                    onChange={handleExpirationDateChange}
+                    className={`w-full px-3.5 h-11 rounded-xl border font-mono focus:ring-2 focus:ring-[#2c84c4] ${
+                      currentExp?.status === 'VENCIDO'
+                        ? 'border-red-500 text-red-600 dark:text-red-300 font-bold'
+                        : currentExp?.status === 'POR_VENCER'
+                        ? 'border-[#2c84c4]/50'
+                        : 'border-black/10 dark:border-white/10'
+                    }`}
+                  />
+                  {isExpirationRequired && (
+                    <p className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium mt-1.5">Exigida por la matriz SIG</p>
+                  )}
+                  {currentValidityRule && (
+                    <p className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium flex items-center gap-1 mt-0.5 truncate" title={currentValidityRule}>
+                      <Clock className="w-3 h-3 shrink-0" />
+                      <span>Regla matriz: {currentValidityRule}</span>
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Alerta Interactiva y Visual de Semáforo de Expiración */}
-            {currentExp && expirationDate && (
-              <div className="animate-in fade-in">
-                {currentExp.status === 'VENCIDO' && (
-                  <div className="p-3 bg-red-50 border border-red-300 rounded-xl text-red-950 text-xs flex items-start gap-2.5 shadow-2xs">
-                    <ShieldAlert className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-extrabold text-red-900 uppercase tracking-wide">
-                          ❌ REQUISITO VENCIDO (Expiró hace {currentExp.daysOverdue} días)
-                        </span>
-                        <span className="text-[10px] font-mono bg-red-200/80 text-red-900 px-2 py-0.5 rounded font-bold">
-                          {expirationDate}
-                        </span>
+              {/* Semáforo de expiración */}
+              {currentExp && expirationDate && (
+                <div className="mt-4 animate-fade-up">
+                  {currentExp.status === 'VENCIDO' && (
+                    <div className="p-3.5 bg-red-500/10 border border-red-500/40 rounded-2xl text-xs flex items-start gap-3">
+                      <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-400 text-white grid place-items-center">
+                        <ShieldAlert className="w-4 h-4" />
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <span className="font-display text-sm font-semibold text-red-600 dark:text-red-300">
+                            Requisito vencido · expiró hace {currentExp.daysOverdue} días
+                          </span>
+                          <span className="text-[10px] font-mono bg-red-500/15 text-red-600 dark:text-red-300 px-2 py-0.5 rounded-lg font-bold">{expirationDate}</span>
+                        </div>
+                        <p className="text-[#3a5274] dark:text-slate-300 text-[11px] mt-1 leading-snug">
+                          La fecha ingresada ya caducó. El estado cambió automáticamente a <strong>VENCIDO</strong>, lo que inhabilita temporalmente al proveedor hasta su renovación.
+                        </p>
                       </div>
-                      <p className="text-red-800 text-[11px] mt-1 leading-snug">
-                        La fecha ingresada ya caducó. El sistema ha cambiado automáticamente el estado a <strong>VENCIDO</strong>, lo cual inhabilita temporalmente al proveedor para contratación hasta su renovación.
-                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {currentExp.status === 'POR_VENCER' && (
-                  <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-950 text-xs flex items-start gap-2.5 shadow-2xs">
-                    <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-extrabold text-amber-900 uppercase tracking-wide">
-                          ⚠️ DOCUMENTO POR VENCER (Restan {currentExp.daysRemaining} días)
-                        </span>
-                        <span className="text-[10px] font-mono bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded font-bold">
-                          {expirationDate}
-                        </span>
+                  {currentExp.status === 'POR_VENCER' && (
+                    <div className="p-3.5 bg-[#69bdd7]/15 border border-[#2c84c4]/40 rounded-2xl text-xs flex items-start gap-3">
+                      <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[#69bdd7] to-[#2c84c4] text-white grid place-items-center">
+                        <Clock className="w-4 h-4" />
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <span className="font-display text-sm font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">
+                            Documento por vencer · restan {currentExp.daysRemaining} días
+                          </span>
+                          <span className="text-[10px] font-mono bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] px-2 py-0.5 rounded-lg font-bold">{expirationDate}</span>
+                        </div>
+                        <p className="text-[#3a5274] dark:text-slate-300 text-[11px] mt-1 leading-snug">
+                          El documento está próximo a caducar. El estado se configuró como <strong>POR VENCER</strong> para generar la alerta preventiva de renovación.
+                        </p>
                       </div>
-                      <p className="text-amber-800 text-[11px] mt-1 leading-snug">
-                        El documento está próximo a caducar. El estado se ha configurado como <strong>POR VENCER</strong> para generar alerta preventiva de renovación.
-                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {currentExp.status === 'VIGENTE' && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-950 text-xs flex items-start gap-2.5 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-extrabold text-emerald-900 uppercase tracking-wide">
-                          ✅ DOCUMENTO VIGENTE ({currentExp.daysRemaining} días restantes)
-                        </span>
-                        <span className="text-[10px] font-mono bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded font-bold">
-                          {expirationDate}
-                        </span>
+                  {currentExp.status === 'VIGENTE' && (
+                    <div className="p-3.5 bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-2xl text-xs flex items-start gap-3">
+                      <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <span className="font-display text-sm font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">
+                            Documento vigente · {currentExp.daysRemaining} días restantes
+                          </span>
+                          <span className="text-[10px] font-mono bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] px-2 py-0.5 rounded-lg font-bold">{expirationDate}</span>
+                        </div>
+                        <p className="text-[#3a5274] dark:text-slate-300 text-[11px] mt-1 leading-snug">
+                          Vigencia conforme con las políticas del Sistema Integrado de Gestión de Flota Sugamuxi S.A.
+                        </p>
                       </div>
-                      <p className="text-emerald-800 text-[11px] mt-1 leading-snug">
-                        Vigencia plenamente conforme con las políticas del Sistema Integrado de Gestión de Flota Sugamuxi S.A.
-                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+              )}
+            </section>
+
+            {/* 4. Observaciones y justificación */}
+            <section>
+              <div className="flex items-center gap-2.5 mb-2.5">
+                {stepNum(4)}
+                <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Trazabilidad</h4>
               </div>
-            )}
+              <div className="space-y-3">
+                <div>
+                  <label className={labelCls}>Observaciones o notas de control</label>
+                  <input
+                    type="text"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Ej. Certificado revisado en auditoría; vigencia verificada con el emisor."
+                    className="w-full px-3.5 h-11 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#2c84c4]"
+                  />
+                </div>
+                <div className="rounded-2xl bg-[#2c84c4]/[0.07] border border-[#2c84c4]/25 p-4 space-y-2">
+                  <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
+                    Justificación de la modificación <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={justification}
+                    onChange={(e) => setJustification(e.target.value)}
+                    placeholder="Escriba el motivo institucional del cargue o certificación del documento..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#2c84c4]/30 text-[#0b1d3a] dark:text-white text-xs focus:ring-2 focus:ring-[#2c84c4]"
+                    required
+                  />
+                  <p className="text-[10px] text-[#3a5274] dark:text-slate-400">
+                    Esta acción quedará registrada con fecha, hora y firma de <strong>{reviewerName}</strong>.
+                  </p>
+                </div>
+              </div>
+            </section>
 
-            {/* Reviewer Notes */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1">
-                Observaciones o Notas de Control
-              </label>
-              <input
-                type="text"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Ej. Certificado revisado en auditoría; fecha de vigencia verificada con el emisor."
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-600"
-              />
-            </div>
-
-            {/* Justification for Audit Trail */}
-            <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 space-y-1.5">
-              <label className="block text-xs font-bold text-blue-950">
-                Justificación de la Modificación (Trazabilidad y Auditoría) <span className="text-blue-600 font-bold">*</span>
-              </label>
-              <textarea
-                rows={2}
-                value={justification}
-                onChange={(e) => setJustification(e.target.value)}
-                placeholder="Escriba el motivo institucional del cargue o certificación del documento..."
-                className="w-full px-3 py-1.5 bg-white rounded border border-blue-300 text-slate-900 text-xs focus:ring-2 focus:ring-blue-600"
-                required
-              />
-              <p className="text-[10px] text-blue-800">
-                Esta acción quedará registrada con fecha, hora y firma del usuario <strong>{reviewerName}</strong>.
-              </p>
-            </div>
-
-            {/* Form Validation Error Banner */}
             {formError && (
-              <div className="p-3 bg-red-50 border border-red-300 rounded-xl text-red-800 text-xs font-semibold flex items-start gap-2.5 animate-in fade-in">
-                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 bg-red-500/10 border border-red-500/40 rounded-2xl text-xs flex items-start gap-3 animate-fade-up">
+                <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <span className="font-bold block text-red-900">Validación Requerida</span>
-                  <span className="text-red-700 leading-snug">{formError}</span>
+                  <span className="font-semibold block text-red-600 dark:text-red-300">Validación requerida</span>
+                  <span className="text-[#3a5274] dark:text-slate-300 leading-snug">{formError}</span>
                 </div>
               </div>
             )}
-
           </div>
 
-          {/* Sticky Footer Buttons */}
-          <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+          {/* Pie */}
+          <div className="shrink-0 px-5 sm:px-6 py-4 border-t border-black/[0.07] dark:border-white/10 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer rounded-lg hover:bg-slate-200/60 transition-colors"
+              className="h-11 px-5 text-sm font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white cursor-pointer rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className={`px-5 py-2.5 font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-colors border cursor-pointer ${
-                status === 'VENCIDO'
-                  ? 'bg-slate-900 hover:bg-slate-950 text-white border-slate-700'
-                  : 'bg-blue-900 hover:bg-blue-950 text-white border-blue-700'
+              className={`h-11 px-6 font-semibold text-sm rounded-xl flex items-center gap-2 transition-opacity cursor-pointer text-white hover:opacity-95 ${
+                status === 'VENCIDO' ? 'bg-gradient-to-r from-red-600 to-red-500' : 'bg-gradient-action shadow-glow'
               }`}
             >
-              <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-              <span>
-                {status === 'VENCIDO' ? 'Guardar como Requisito Vencido' : 'Guardar y Certificar Requisito'}
-              </span>
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{status === 'VENCIDO' ? 'Guardar como requisito vencido' : 'Guardar y certificar requisito'}</span>
             </button>
           </div>
-
         </form>
       </div>
     </div>

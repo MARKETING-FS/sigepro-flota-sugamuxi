@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useConfirm } from '../ui/ConfirmDialog';
 import { CategoryRequirementConfig, SupplierType, DocumentDefinition } from '../../types';
 import {
   Briefcase,
@@ -175,12 +176,26 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
   };
 
   // Quick toggle category active
-  const handleToggleCategoryActive = (cat: CategoryRequirementConfig) => {
+  const { ask, dialog } = useConfirm();
+  const doToggleCategoryActive = (cat: CategoryRequirementConfig) => {
     const current = cat.isActive !== false;
     updateCategoryConfig(cat.category, { isActive: !current });
     onShowToast(
       `Actividad "${cat.category}" ${!current ? 'ACTIVADA' : 'INACTIVADA'} en el sistema.`
     );
+  };
+
+  const handleToggleCategoryActive = (cat: CategoryRequirementConfig) => {
+    if (cat.isActive === false) {
+      doToggleCategoryActive(cat);
+      return;
+    }
+    ask({
+      title: `¿Inactivar la actividad «${cat.category}»?`,
+      message: 'Dejará de ofrecerse al registrar proveedores nuevos. Los proveedores que ya la tienen no se borran.',
+      hint: 'Podrá volver a activarla cuando quiera con el botón «Activar» de esta misma fila.',
+      onConfirm: () => doToggleCategoryActive(cat),
+    });
   };
 
   // Open Doc Definition editor directly from category row
@@ -234,22 +249,23 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
   return (
     <div className="space-y-6">
+      {dialog}
       {/* Top Filter and Actions Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+      <div className="fs-card p-4 rounded-2xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-blue-600" />
+            <h2 className="text-sm font-bold text-[#0b1d3a] dark:text-white flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
               <span>Matriz de Requisitos Específicos por Actividad Económica</span>
-              <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
+              <span className="text-[10px] bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 font-bold px-2 py-0.5 rounded-full">
                 Edición Total de Campos Habilitada
               </span>
-              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-[10px] bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] border border-[#2c84c4]/35 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2c84c4] animate-pulse"></span>
                 Supabase Sincronizado
               </span>
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#5d7392] dark:text-slate-400">
               Parametrice los documentos técnicos, pólizas, condiciones y soportes exigibles para cada línea de bienes y servicios.
             </p>
           </div>
@@ -264,22 +280,22 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
         </div>
 
         {/* Filter Controls */}
-        <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
+        <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-black/10 dark:border-white/10">
           {/* Search */}
           <div className="relative flex-1 min-w-[220px]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#5d7392] dark:text-slate-400" />
             <input
               type="text"
               placeholder="Buscar por actividad, CIIU o descripción..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+              className="w-full pl-9 pr-3 py-2 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500"
             />
           </div>
 
           {/* Risk Filter */}
-          <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 text-xs">
-            <span className="text-slate-400 font-bold px-2 text-[10px]">RIESGO:</span>
+          <div className="flex items-center gap-1 bg-black/[0.04] dark:bg-white/[0.06] p-1 rounded-xl border border-black/10 dark:border-white/10 text-xs">
+            <span className="text-[#5d7392] dark:text-slate-400 font-bold px-2 text-[10px]">RIESGO:</span>
             {(['ALL', 'CRITICO', 'ALTO', 'MEDIO', 'BAJO'] as const).map((r) => (
               <button
                 key={r}
@@ -287,7 +303,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                 className={`px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer ${
                   selectedRiskFilter === r
                     ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white'
                 }`}
               >
                 {r === 'ALL' ? 'Todos' : r}
@@ -296,8 +312,8 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 text-xs">
-            <span className="text-slate-400 font-bold px-2 text-[10px]">ESTADO:</span>
+          <div className="flex items-center gap-1 bg-black/[0.04] dark:bg-white/[0.06] p-1 rounded-xl border border-black/10 dark:border-white/10 text-xs">
+            <span className="text-[#5d7392] dark:text-slate-400 font-bold px-2 text-[10px]">ESTADO:</span>
             {(['ALL', 'ACTIVE', 'INACTIVE'] as const).map((s) => (
               <button
                 key={s}
@@ -305,7 +321,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                 className={`px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer ${
                   selectedStatusFilter === s
                     ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white'
                 }`}
               >
                 {s === 'ALL' ? 'Todas' : s === 'ACTIVE' ? 'Activas' : 'Inactivas'}
@@ -314,11 +330,11 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
           </div>
 
           {/* Regimen view toggle */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs">
+          <div className="flex items-center gap-1 bg-black/[0.04] dark:bg-white/[0.06] p-1 rounded-xl text-xs">
             <button
               onClick={() => setSelectedRegimenView('ALL')}
               className={`px-2.5 py-1 rounded-lg font-bold text-[10px] cursor-pointer ${
-                selectedRegimenView === 'ALL' ? 'bg-white shadow-2xs text-slate-900' : 'text-slate-600'
+                selectedRegimenView === 'ALL' ? 'bg-white shadow-2xs text-[#0b1d3a] dark:text-white' : 'text-[#3a5274] dark:text-slate-300'
               }`}
             >
               Ambos Regímenes
@@ -326,7 +342,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
             <button
               onClick={() => setSelectedRegimenView('NATURAL')}
               className={`px-2.5 py-1 rounded-lg font-bold text-[10px] cursor-pointer ${
-                selectedRegimenView === 'NATURAL' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600'
+                selectedRegimenView === 'NATURAL' ? 'bg-blue-600 text-white shadow-2xs' : 'text-[#3a5274] dark:text-slate-300'
               }`}
             >
               Solo Natural
@@ -334,7 +350,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
             <button
               onClick={() => setSelectedRegimenView('JURIDICA')}
               className={`px-2.5 py-1 rounded-lg font-bold text-[10px] cursor-pointer ${
-                selectedRegimenView === 'JURIDICA' ? 'bg-blue-700 text-white shadow-2xs' : 'text-slate-600'
+                selectedRegimenView === 'JURIDICA' ? 'bg-blue-700 text-white shadow-2xs' : 'text-[#3a5274] dark:text-slate-300'
               }`}
             >
               Solo Jurídica
@@ -344,23 +360,23 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
       </div>
 
       {/* Legend Bar */}
-      <div className="bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-4 text-slate-600 flex-wrap">
-          <span className="font-bold text-slate-700">Convención de Estados por Actividad:</span>
+      <div className="bg-black/[0.04] dark:bg-white/[0.06] px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-4 text-[#3a5274] dark:text-slate-300 flex-wrap">
+          <span className="font-semibold text-[#0b1d3a] dark:text-white">Convención de Estados por Actividad:</span>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-blue-700 inline-block" />
-            <span className="font-semibold text-blue-950">Obligatorio Específico</span>
+            <span className="w-3 h-3 rounded-full bg-[#2c84c4] inline-block" />
+            <span className="font-semibold text-[#0b1d3a] dark:text-white">Obligatorio Específico</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-cyan-600 inline-block" />
-            <span className="font-semibold text-cyan-950">Opcional / Condicional</span>
+            <span className="w-3 h-3 rounded-full bg-[#69bdd7] inline-block" />
+            <span className="font-semibold text-[#0b1d3a] dark:text-white">Opcional / Condicional</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full bg-slate-400 inline-block" />
-            <span className="text-slate-500 font-medium">Inactivo / No Exigido</span>
+            <span className="text-[#5d7392] dark:text-slate-400 font-medium">Inactivo / No Exigido</span>
           </div>
         </div>
-        <div className="text-[11px] text-blue-800 font-medium">
+        <div className="text-[11px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium">
           💡 Los requisitos específicos se suman a los Requisitos Base del Tipo de Persona.
         </div>
       </div>
@@ -368,15 +384,15 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
       {/* Category Cards List */}
       <div className="space-y-4">
         {categoriesConfig.length === 0 ? (
-          <div className="bg-white p-10 sm:p-14 rounded-2xl border-2 border-dashed border-blue-200 text-center space-y-4 animate-in fade-in">
-            <div className="w-16 h-16 bg-blue-50 text-blue-700 rounded-2xl mx-auto flex items-center justify-center border border-blue-100 shadow-inner">
+          <div className="fs-card p-10 sm:p-14 rounded-[24px] border-2 border-dashed border-[#2c84c4]/40 text-center space-y-4 animate-fade-up">
+            <div className="w-16 h-16 bg-gradient-action text-white rounded-2xl mx-auto flex items-center justify-center shadow-glow">
               <Briefcase className="w-8 h-8" />
             </div>
             <div className="max-w-md mx-auto space-y-1.5">
-              <h3 className="text-base font-extrabold text-slate-900">
+              <h3 className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white">
                 Matriz de Actividades Económicas Lista para Registro Real
               </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs text-[#5d7392] dark:text-slate-400 leading-relaxed">
                 Se ha vaciado la información demo de la base de datos. Como Administrador, ahora puede registrar las actividades económicas, líneas de contratación y suministros reales de <strong>Flota Sugamuxi S.A.</strong>, asociar requisitos y parametrizar la vigencia documental.
               </p>
             </div>
@@ -384,15 +400,15 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
               <button
                 type="button"
                 onClick={onOpenNewCategoryModal}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer hover:shadow-lg active:scale-95"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-action text-white text-xs font-semibold rounded-xl shadow-glow transition-all cursor-pointer hover:shadow-lg active:scale-95"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Registrar Primera Actividad Económica Real</span>
+                <span>Registrar Primera Actividad Económica Real</span>
               </button>
             </div>
           </div>
         ) : filteredCategories.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center text-slate-500 text-xs">
+          <div className="fs-card p-12 rounded-2xl text-center text-[#5d7392] dark:text-slate-400 text-xs">
             No se encontraron actividades económicas con los filtros seleccionados.
           </div>
         ) : (
@@ -401,9 +417,9 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
             const isAct = cat.isActive !== false;
 
             const riskColors: Record<string, string> = {
-              BAJO: 'bg-blue-50 text-blue-800 border-blue-200',
-              MEDIO: 'bg-cyan-50 text-cyan-800 border-cyan-200',
-              ALTO: 'bg-slate-100 text-slate-800 border-slate-300',
+              BAJO: 'bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30',
+              MEDIO: 'bg-[#69bdd7]/15 text-[#0e6d8a] dark:text-[#69bdd7] border-[#69bdd7]/40',
+              ALTO: 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10',
               CRITICO: 'bg-blue-900 text-cyan-200 border-blue-800',
             };
 
@@ -415,18 +431,16 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
             return (
               <div
                 key={cat.category}
-                className={`bg-white rounded-2xl border transition-all overflow-hidden ${
-                  !isAct
-                    ? 'border-slate-200 bg-slate-50/50 opacity-80'
-                    : 'border-slate-200 shadow-2xs hover:shadow-xs'
+                className={`fs-card rounded-[22px] transition-all overflow-hidden ${
+                  !isAct ? 'opacity-70' : ''
                 }`}
               >
                 {/* Header Bar */}
-                <div className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                <div className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-black/10 dark:border-white/10 ">
                   <div className="flex items-start sm:items-center gap-3">
                     <button
                       onClick={() => setExpandedCategory(isExpanded ? null : cat.category)}
-                      className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                      className="p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
                       title={isExpanded ? 'Contraer matriz' : 'Desplegar matriz'}
                     >
                       <ChevronDown
@@ -438,7 +452,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-extrabold text-sm sm:text-base text-slate-900">
+                        <h3 className="font-extrabold text-sm sm:text-base text-[#0b1d3a] dark:text-white">
                           {cat.category}
                         </h3>
 
@@ -446,8 +460,8 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                         <span
                           className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
                             isAct
-                              ? 'bg-blue-50 text-blue-800 border-blue-200'
-                              : 'bg-slate-200 text-slate-600 border-slate-300'
+                              ? 'bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
+                              : 'bg-black/[0.08] dark:bg-white/10 text-[#3a5274] dark:text-slate-300 border-black/10 dark:border-white/10'
                           }`}
                         >
                           {isAct ? 'ACTIVA' : 'INACTIVA'}
@@ -463,30 +477,30 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                         </span>
 
                         {cat.economicCode && (
-                          <span className="text-[10px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-bold">
+                          <span className="text-[10px] tabular-nums text-[#3a5274] dark:text-slate-300 bg-black/[0.04] dark:bg-white/[0.06] px-2 py-0.5 rounded border border-black/10 dark:border-white/10 font-bold">
                             CIIU: {cat.economicCode}
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5">{cat.description}</p>
+                      <p className="text-xs text-[#5d7392] dark:text-slate-400 mt-0.5">{cat.description}</p>
                     </div>
                   </div>
 
                   {/* Summary Badges & Action Buttons */}
                   <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
                     <div className="flex items-center gap-2 text-xs">
-                      <div className="bg-blue-50/70 px-2.5 py-1 rounded-lg border border-blue-200">
-                        <span className="text-blue-900 font-semibold">P. Natural: </span>
-                        <strong className="text-blue-700">+{natMandatoryCount} Ob.</strong>
+                      <div className="bg-[#2c84c4]/10 px-2.5 py-1 rounded-lg border border-[#2c84c4]/30">
+                        <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-semibold">P. Natural: </span>
+                        <strong className="text-[#1d5fa8] dark:text-[#69bdd7]">+{natMandatoryCount} Ob.</strong>
                         {natOptionalCount > 0 && (
-                          <span className="text-cyan-700 font-bold"> / {natOptionalCount} Op.</span>
+                          <span className="text-[#0e6d8a] dark:text-[#69bdd7] font-bold"> / {natOptionalCount} Op.</span>
                         )}
                       </div>
-                      <div className="bg-blue-50/70 px-2.5 py-1 rounded-lg border border-blue-200">
-                        <span className="text-blue-900 font-semibold">P. Jurídica: </span>
-                        <strong className="text-blue-700">+{jurMandatoryCount} Ob.</strong>
+                      <div className="bg-[#2c84c4]/10 px-2.5 py-1 rounded-lg border border-[#2c84c4]/30">
+                        <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-semibold">P. Jurídica: </span>
+                        <strong className="text-[#1d5fa8] dark:text-[#69bdd7]">+{jurMandatoryCount} Ob.</strong>
                         {jurOptionalCount > 0 && (
-                          <span className="text-cyan-700 font-bold"> / {jurOptionalCount} Op.</span>
+                          <span className="text-[#0e6d8a] dark:text-[#69bdd7] font-bold"> / {jurOptionalCount} Op.</span>
                         )}
                       </div>
                     </div>
@@ -496,7 +510,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                       onClick={() => handleToggleCategoryActive(cat)}
                       className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors cursor-pointer flex items-center gap-1 ${
                         isAct
-                          ? 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-300'
+                          ? 'bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 border-black/10 dark:border-white/10'
                           : 'bg-blue-600 text-white hover:bg-blue-500 border-blue-600'
                       }`}
                       title={isAct ? 'Inactivar esta actividad económica' : 'Activar esta actividad económica'}
@@ -507,7 +521,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                     {/* Edit Activity Button */}
                     <button
                       onClick={() => handleOpenEditCategory(cat)}
-                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                      className="p-1.5 text-[#1d5fa8] dark:text-[#69bdd7] hover:text-[#0b1d3a] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/10"
                       title="Editar todos los campos de la actividad"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -526,7 +540,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                           else onShowToast(res.message, 'error');
                         }
                       }}
-                      className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                      className="p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/10"
                       title="Eliminar actividad"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -549,21 +563,21 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                   });
 
                   return (
-                  <div className="p-4 sm:p-5 bg-white space-y-4">
+                  <div className="p-4 sm:p-5 space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="text-xs text-slate-600">
+                      <div className="text-xs text-[#3a5274] dark:text-slate-300">
                         Configure los documentos exigidos específicamente para la actividad <strong>{cat.category}</strong>:
                       </div>
 
                       <div className="flex items-center gap-2">
                         <div className="relative">
-                          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5d7392] dark:text-slate-400" />
                           <input
                             type="text"
                             placeholder="Filtrar documentos en esta actividad..."
                             value={innerDocSearch}
                             onChange={(e) => setInnerDocSearch(e.target.value)}
-                            className="pl-8 pr-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-500 w-56"
+                            className="pl-8 pr-3 py-1 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-lg text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500 w-56"
                           />
                         </div>
 
@@ -571,10 +585,10 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                           <button
                             type="button"
                             onClick={() => setLinkingCategory(cat.category)}
-                            className="text-xs text-slate-700 hover:text-slate-900 font-bold flex items-center gap-1 cursor-pointer bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors"
+                            className="text-xs text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white font-bold flex items-center gap-1 cursor-pointer bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10 transition-colors"
                             title="Vincular un documento técnico ya existente en el catálogo a esta actividad"
                           >
-                            <Layers className="w-3.5 h-3.5 text-slate-500" />
+                            <Layers className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
                             <span>Vincular del Catálogo ({unlinkedCatalogDocs.length})</span>
                           </button>
                         )}
@@ -582,7 +596,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                         <button
                           type="button"
                           onClick={() => onOpenNewDocModal(cat.category)}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 cursor-pointer bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200 transition-colors"
+                          className="text-xs text-[#1d5fa8] dark:text-[#69bdd7] hover:text-[#0b1d3a] dark:hover:text-white font-bold flex items-center gap-1 cursor-pointer bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 px-2.5 py-1 rounded-lg border border-[#2c84c4]/30 transition-colors"
                           title="Crear un nuevo tipo de documento técnico exclusivo para esta actividad"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -592,23 +606,23 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                     </div>
 
                     <div>
-                      <div className="sm:hidden px-3 py-1 bg-blue-50/60 border border-b-0 border-slate-200 rounded-t-xl text-[10px] text-blue-900 flex items-center justify-between font-medium">
+                      <div className="sm:hidden px-3 py-1 bg-[#2c84c4]/10 border border-b-0 border-black/10 dark:border-white/10 rounded-t-xl text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] flex items-center justify-between font-medium">
                         <span>Desliza horizontalmente para ver las columnas</span>
                         <span className="font-bold">↔</span>
                       </div>
-                      <div className="overflow-x-auto border border-slate-200 rounded-b-xl sm:rounded-t-xl">
-                        <table className="w-full text-left text-xs divide-y divide-slate-200 min-w-[700px] lg:min-w-full">
-                        <thead className="bg-slate-50 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                      <div className="overflow-x-auto border border-black/10 dark:border-white/10 rounded-b-xl sm:rounded-t-xl">
+                        <table className="w-full text-left text-xs divide-y divide-black/10 dark:divide-white/10 min-w-[700px] lg:min-w-full">
+                        <thead className="bg-black/[0.04] dark:bg-white/[0.06] text-[11px] font-bold text-[#3a5274] dark:text-slate-300 uppercase tracking-wider">
                           <tr>
                             <th className="px-4 py-3">Código & Tipo de Documento</th>
                             <th className="px-3 py-3">Clasificación SIG</th>
                             {(selectedRegimenView === 'ALL' || selectedRegimenView === 'NATURAL') && (
-                              <th className="px-4 py-3 text-center bg-blue-50/50 border-l border-r border-blue-100">
+                              <th className="px-4 py-3 text-center bg-[#2c84c4]/10 border-l border-r border-[#2c84c4]/30">
                                 Persona Natural
                               </th>
                             )}
                             {(selectedRegimenView === 'ALL' || selectedRegimenView === 'JURIDICA') && (
-                              <th className="px-4 py-3 text-center bg-blue-50/50 border-r border-blue-100">
+                              <th className="px-4 py-3 text-center bg-[#2c84c4]/10 border-r border-[#2c84c4]/30">
                                 Persona Jurídica
                               </th>
                             )}
@@ -617,7 +631,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                             <th className="px-3 py-3 text-right">Editar Documento</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-black/10 dark:divide-white/10">
                           {documentDefinitions
                             .filter((d) => {
                               if (d.code === 'FS_GA_FOR_009' || d.code === 'FS_GA_FOR_039') return false;
@@ -645,51 +659,51 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                               return (
                                 <tr
                                   key={doc.code}
-                                  className={`hover:bg-slate-50/70 transition-colors ${
-                                    isInactiveDoc ? 'bg-slate-50/50 opacity-60' : ''
+                                  className={`hover:bg-black/5 dark:hover:bg-white/10 transition-colors ${
+                                    isInactiveDoc ? 'bg-black/[0.04] dark:bg-white/[0.06] opacity-60' : ''
                                   }`}
                                 >
                                   <td className="px-4 py-3">
-                                    <div className="font-semibold text-slate-800 flex items-center gap-2 flex-wrap">
+                                    <div className="font-semibold text-[#0b1d3a] dark:text-white flex items-center gap-2 flex-wrap">
                                       <span>{doc.name}</span>
                                       {isBaseDoc ? (
-                                        <span className="px-1.5 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold rounded border border-slate-200">
+                                        <span className="px-1.5 py-0.5 bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 text-xs font-bold rounded border border-black/10 dark:border-white/10">
                                           Requisito Base
                                         </span>
                                       ) : (
-                                        <span className="px-1.5 py-0.5 bg-blue-50 text-blue-800 text-[9px] font-bold rounded border border-blue-200">
+                                        <span className="px-1.5 py-0.5 bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded border border-[#2c84c4]/30">
                                           Específico Actividad
                                         </span>
                                       )}
                                       {isInactiveDoc && (
-                                        <span className="px-1.5 py-0.5 bg-slate-200 text-slate-600 text-[9px] font-bold rounded">
+                                        <span className="px-1.5 py-0.5 bg-black/[0.08] dark:bg-white/10 text-[#3a5274] dark:text-slate-300 text-xs font-bold rounded">
                                           INACTIVO EN CATÁLOGO
                                         </span>
                                       )}
                                       {doc.requiresExpirationDate && (
-                                        <span className="px-1.5 py-0.5 bg-blue-50 text-blue-800 text-[9px] font-bold rounded">
+                                        <span className="px-1.5 py-0.5 bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded">
                                           Caducidad
                                         </span>
                                       )}
                                     </div>
-                                    <div className="text-[10px] text-slate-400 font-mono">{doc.code}</div>
+                                    <div className="text-[10px] text-[#5d7392] dark:text-slate-400 tabular-nums">{doc.code}</div>
                                   </td>
 
                                   <td className="px-3 py-3">
-                                    <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-700">
+                                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300">
                                       {doc.category}
                                     </span>
                                   </td>
 
                                   {/* Persona Natural Controls */}
                                   {(selectedRegimenView === 'ALL' || selectedRegimenView === 'NATURAL') && (
-                                    <td className="px-4 py-3 text-center bg-blue-50/20 border-l border-r border-blue-100">
+                                    <td className="px-4 py-3 text-center bg-[#2c84c4]/10 border-l border-r border-[#2c84c4]/30">
                                       {isBaseNat ? (
-                                        <span className="px-2.5 py-1 bg-blue-100 text-blue-900 rounded-full font-bold text-[10px] inline-flex items-center gap-1">
+                                        <span className="px-2.5 py-1 bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] rounded-full font-bold text-[10px] inline-flex items-center gap-1">
                                           <User className="w-3 h-3" /> Requisito Base Universal
                                         </span>
                                       ) : (
-                                        <div className="inline-flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[10px] font-bold">
+                                        <div className="inline-flex items-center bg-black/[0.04] dark:bg-white/[0.06] p-0.5 rounded-lg border border-black/10 dark:border-white/10 text-[10px] font-bold">
                                           <button
                                             onClick={() => {
                                               toggleDocumentRequirement(cat.category, doc.code, 'NATURAL', 'MANDATORY');
@@ -698,7 +712,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                             className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
                                               natState === 'MANDATORY'
                                                 ? 'bg-blue-700 text-white shadow-xs'
-                                                : 'text-slate-500 hover:text-slate-900'
+                                                : 'text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white'
                                             }`}
                                           >
                                             Obligatorio
@@ -711,20 +725,27 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                             className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
                                               natState === 'OPTIONAL'
                                                 ? 'bg-cyan-700 text-white shadow-xs'
-                                                : 'text-slate-500 hover:text-slate-900'
+                                                : 'text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white'
                                             }`}
                                           >
                                             Opcional
                                           </button>
                                           <button
-                                            onClick={() => {
-                                              toggleDocumentRequirement(cat.category, doc.code, 'NATURAL', 'NONE');
-                                              onShowToast(`"${doc.name}" INACTIVADO / NO APLICA para Persona Natural en ${cat.category}`);
-                                            }}
+                                            onClick={() =>
+                                              ask({
+                                                title: `¿Inactivar «${doc.name}»?`,
+                                                message: `Dejará de aplicar para Persona Natural en la actividad ${cat.category}.`,
+                                                hint: 'Podrá volver a activarlo cuando quiera con los botones «Obligatorio» u «Opcional» de esta misma fila.',
+                                                onConfirm: () => {
+                                                  toggleDocumentRequirement(cat.category, doc.code, 'NATURAL', 'NONE');
+                                                  onShowToast(`"${doc.name}" INACTIVADO / NO APLICA para Persona Natural en ${cat.category}`);
+                                                },
+                                              })
+                                            }
                                             className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
                                               natState === 'NONE'
                                                 ? 'bg-slate-400 text-white shadow-xs'
-                                                : 'text-slate-400 hover:text-slate-700'
+                                                : 'text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white'
                                             }`}
                                           >
                                             Inactivar
@@ -736,13 +757,13 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
                                   {/* Persona Juridica Controls */}
                                   {(selectedRegimenView === 'ALL' || selectedRegimenView === 'JURIDICA') && (
-                                    <td className="px-4 py-3 text-center bg-blue-50/20 border-r border-blue-100">
+                                    <td className="px-4 py-3 text-center bg-[#2c84c4]/10 border-r border-[#2c84c4]/30">
                                       {isBaseJur ? (
-                                        <span className="px-2.5 py-1 bg-blue-100 text-blue-900 rounded-full font-bold text-[10px] inline-flex items-center gap-1">
+                                        <span className="px-2.5 py-1 bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] rounded-full font-bold text-[10px] inline-flex items-center gap-1">
                                           <Building2 className="w-3 h-3" /> Requisito Base Universal
                                         </span>
                                       ) : (
-                                        <div className="inline-flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[10px] font-bold">
+                                        <div className="inline-flex items-center bg-black/[0.04] dark:bg-white/[0.06] p-0.5 rounded-lg border border-black/10 dark:border-white/10 text-[10px] font-bold">
                                           <button
                                             onClick={() => {
                                               toggleDocumentRequirement(cat.category, doc.code, 'JURIDICA', 'MANDATORY');
@@ -751,7 +772,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                             className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
                                               jurState === 'MANDATORY'
                                                 ? 'bg-blue-700 text-white shadow-xs'
-                                                : 'text-slate-500 hover:text-slate-900'
+                                                : 'text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white'
                                             }`}
                                           >
                                             Obligatorio
@@ -764,20 +785,27 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                             className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
                                               jurState === 'OPTIONAL'
                                                 ? 'bg-cyan-700 text-white shadow-xs'
-                                                : 'text-slate-500 hover:text-slate-900'
+                                                : 'text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white'
                                             }`}
                                           >
                                             Opcional
                                           </button>
                                           <button
-                                            onClick={() => {
-                                              toggleDocumentRequirement(cat.category, doc.code, 'JURIDICA', 'NONE');
-                                              onShowToast(`"${doc.name}" INACTIVADO / NO APLICA para Persona Jurídica en ${cat.category}`);
-                                            }}
+                                            onClick={() =>
+                                              ask({
+                                                title: `¿Inactivar «${doc.name}»?`,
+                                                message: `Dejará de aplicar para Persona Jurídica en la actividad ${cat.category}.`,
+                                                hint: 'Podrá volver a activarlo cuando quiera con los botones «Obligatorio» u «Opcional» de esta misma fila.',
+                                                onConfirm: () => {
+                                                  toggleDocumentRequirement(cat.category, doc.code, 'JURIDICA', 'NONE');
+                                                  onShowToast(`"${doc.name}" INACTIVADO / NO APLICA para Persona Jurídica en ${cat.category}`);
+                                                },
+                                              })
+                                            }
                                             className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
                                               jurState === 'NONE'
                                                 ? 'bg-slate-400 text-white shadow-xs'
-                                                : 'text-slate-400 hover:text-slate-700'
+                                                : 'text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white'
                                             }`}
                                           >
                                             Inactivar
@@ -806,28 +834,28 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                       }}
                                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
                                         doc.requiresExpirationDate
-                                          ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 shadow-2xs'
-                                          : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                                          ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35 hover:bg-[#2c84c4]/12 shadow-2xs'
+                                          : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10'
                                       }`}
                                       title="Clic para alternar si este documento exige fecha de vencimiento y calcula semáforo de vigencia"
                                     >
                                       {doc.requiresExpirationDate ? (
                                         <>
-                                          <Clock className="w-3 h-3 text-amber-700" />
+                                          <Clock className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" />
                                           <span>Con Vencimiento</span>
                                         </>
                                       ) : (
                                         <>
-                                          <CheckCircle2 className="w-3 h-3 text-slate-400" />
+                                          <CheckCircle2 className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />
                                           <span>Permanente</span>
                                         </>
                                       )}
                                     </button>
                                   </td>
 
-                                  <td className="px-3 py-3 text-slate-600 text-[11px]">
+                                  <td className="px-3 py-3 text-[#3a5274] dark:text-slate-300 text-[11px]">
                                     <div className="font-medium">{doc.validityRule || 'Documento vigente.'}</div>
-                                    <div className="text-[10px] text-slate-400 line-clamp-1">{doc.description}</div>
+                                    <div className="text-[10px] text-[#5d7392] dark:text-slate-400 line-clamp-1">{doc.description}</div>
                                   </td>
 
                                   <td className="px-3 py-3 text-right">
@@ -835,7 +863,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                       <button
                                         type="button"
                                         onClick={() => handleOpenDocEditor(doc)}
-                                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                                        className="p-1.5 text-[#1d5fa8] dark:text-[#69bdd7] hover:text-[#0b1d3a] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/10"
                                         title="Editar todos los campos de este documento"
                                       >
                                         <Edit3 className="w-3.5 h-3.5" />
@@ -843,11 +871,19 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                       {!isBaseDoc && (
                                         <button
                                           type="button"
-                                          onClick={() => {
-                                            toggleDocumentRequirement(cat.category, doc.code, 'JURIDICA', 'NONE');
-                                            toggleDocumentRequirement(cat.category, doc.code, 'NATURAL', 'NONE');
-                                            onShowToast(`Requisito "${doc.name}" desvinculado de la actividad ${cat.category}.`);
-                                          }}
+                                          onClick={() =>
+                                            ask({
+                                              title: `¿Quitar «${doc.name}» de esta actividad?`,
+                                              message: `Se inactivará para Persona Natural y Persona Jurídica en ${cat.category}.`,
+                                              hint: 'Podrá volver a activarlo cuando quiera con los botones «Obligatorio» u «Opcional» al agregarlo de nuevo a la actividad.',
+                                              confirmLabel: 'Sí, quitar',
+                                              onConfirm: () => {
+                                                toggleDocumentRequirement(cat.category, doc.code, 'JURIDICA', 'NONE');
+                                                toggleDocumentRequirement(cat.category, doc.code, 'NATURAL', 'NONE');
+                                                onShowToast(`Requisito "${doc.name}" desvinculado de la actividad ${cat.category}.`);
+                                              },
+                                            })
+                                          }
                                           className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer border border-rose-200"
                                           title="Quitar requisito de esta actividad económica"
                                         >
@@ -876,7 +912,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
       {/* Modal para Vincular Documento Existente del Catálogo a una Actividad */}
       {linkingCategory && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
+          <div className="fs-card rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
             <div className="bg-[#0b1329] text-white p-5 flex items-center justify-between border-b border-slate-800">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-cyan-300">
@@ -890,14 +926,14 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
               <button
                 type="button"
                 onClick={() => setLinkingCategory(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                className="text-[#5d7392] dark:text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 &times;
               </button>
             </div>
 
             <div className="p-5 space-y-3 max-h-[60vh] overflow-y-auto">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#5d7392] dark:text-slate-400">
                 Seleccione un documento técnico existente en el catálogo maestro para exigirlo como requisito en <strong>{linkingCategory}</strong>:
               </p>
 
@@ -915,19 +951,19 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
                 if (availableToLink.length === 0) {
                   return (
-                    <div className="p-4 bg-slate-50 rounded-xl text-center text-xs text-slate-500">
+                    <div className="p-4 bg-black/[0.04] dark:bg-white/[0.06] rounded-xl text-center text-xs text-[#5d7392] dark:text-slate-400">
                       No hay otros documentos en el catálogo maestro pendientes de vincular.
                     </div>
                   );
                 }
 
                 return (
-                  <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
+                  <div className="divide-y divide-black/10 dark:divide-white/10 border border-black/10 dark:border-white/10 rounded-xl overflow-hidden">
                     {availableToLink.map((d) => (
-                      <div key={d.code} className="p-3 flex items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
+                      <div key={d.code} className="p-3 flex items-center justify-between gap-3 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                         <div>
-                          <div className="font-bold text-xs text-slate-900">{d.name}</div>
-                          <div className="text-[10.5px] text-slate-500 font-mono">[{d.code}] &bull; {d.category}</div>
+                          <div className="font-bold text-xs text-[#0b1d3a] dark:text-white">{d.name}</div>
+                          <div className="text-[10.5px] text-[#5d7392] dark:text-slate-400 tabular-nums">[{d.code}] &bull; {d.category}</div>
                         </div>
                         <button
                           type="button"
@@ -948,11 +984,11 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
               })()}
             </div>
 
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+            <div className="p-4 bg-black/[0.04] dark:bg-white/[0.06] border-t border-black/10 dark:border-white/10 flex justify-end">
               <button
                 type="button"
                 onClick={() => setLinkingCategory(null)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl cursor-pointer"
+                className="px-4 py-2 text-xs font-bold text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl cursor-pointer"
               >
                 Cerrar
               </button>
@@ -963,7 +999,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
       {editingCategory && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
+          <div className="fs-card rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
             <div className="bg-[#0b1329] text-white p-5 flex items-center justify-between border-b border-slate-800">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-cyan-300">
@@ -976,7 +1012,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
               </div>
               <button
                 onClick={() => setEditingCategory(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                className="text-[#5d7392] dark:text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 &times;
               </button>
@@ -984,7 +1020,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
             <form onSubmit={handleSaveEditCategory} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                   Nombre de la Actividad Económica o Servicio *
                 </label>
                 <input
@@ -992,19 +1028,19 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                   required
                   value={editCatName}
                   onChange={(e) => setEditCatName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                     Nivel de Riesgo Operativo / SIG
                   </label>
                   <select
                     value={editCatRisk}
                     onChange={(e: any) => setEditCatRisk(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 cursor-pointer"
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     <option value="BAJO">Bajo</option>
                     <option value="MEDIO">Medio</option>
@@ -1014,7 +1050,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                     Código CIIU (Opcional)
                   </label>
                   <input
@@ -1022,18 +1058,18 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                     value={editCatEconomicCode}
                     onChange={(e) => setEditCatEconomicCode(e.target.value)}
                     placeholder="Ej: 4921, 4520..."
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                     Estado de Disponibilidad
                   </label>
                   <select
                     value={editCatIsActive ? 'ACTIVE' : 'INACTIVE'}
                     onChange={(e) => setEditCatIsActive(e.target.value === 'ACTIVE')}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 cursor-pointer"
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     <option value="ACTIVE">Activa (Disponible)</option>
                     <option value="INACTIVE">Inactiva (Oculta en radicación)</option>
@@ -1042,90 +1078,90 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                   Descripción o Alcance de la Actividad
                 </label>
                 <textarea
                   rows={2}
                   value={editCatDescription}
                   onChange={(e) => setEditCatDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               {/* Special Conditions Checkboxes */}
-              <div className="pt-3 border-t border-slate-200 space-y-2">
-                <label className="block text-xs font-bold text-slate-800">
+              <div className="pt-3 border-t border-black/10 dark:border-white/10 space-y-2">
+                <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white">
                   Condiciones Especiales y Pólizas Exigidas por Defecto:
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  <label className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer">
+                  <label className="flex items-center gap-2 p-2 bg-black/[0.04] dark:bg-white/[0.06] rounded-lg border border-black/10 dark:border-white/10 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editSpecialConditions.requiresRCEPolicy}
                       onChange={(e) =>
                         setEditSpecialConditions((prev) => ({ ...prev, requiresRCEPolicy: e.target.checked }))
                       }
-                      className="rounded text-blue-600"
+                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7]"
                     />
-                    <span className="text-slate-700 font-medium">Exigir Póliza de Responsabilidad Civil Extracontractual</span>
+                    <span className="text-[#3a5274] dark:text-slate-300 font-medium">Exigir Póliza de Responsabilidad Civil Extracontractual</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer">
+                  <label className="flex items-center gap-2 p-2 bg-black/[0.04] dark:bg-white/[0.06] rounded-lg border border-black/10 dark:border-white/10 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editSpecialConditions.requiresSSTPlan}
                       onChange={(e) =>
                         setEditSpecialConditions((prev) => ({ ...prev, requiresSSTPlan: e.target.checked }))
                       }
-                      className="rounded text-blue-600"
+                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7]"
                     />
-                    <span className="text-slate-700 font-medium">Exigir Plan de Seguridad y Salud en el Trabajo (SST)</span>
+                    <span className="text-[#3a5274] dark:text-slate-300 font-medium">Exigir Plan de Seguridad y Salud en el Trabajo (SST)</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer">
+                  <label className="flex items-center gap-2 p-2 bg-black/[0.04] dark:bg-white/[0.06] rounded-lg border border-black/10 dark:border-white/10 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editSpecialConditions.requiresISO9001}
                       onChange={(e) =>
                         setEditSpecialConditions((prev) => ({ ...prev, requiresISO9001: e.target.checked }))
                       }
-                      className="rounded text-blue-600"
+                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7]"
                     />
-                    <span className="text-slate-700 font-medium">Exigir Certificación de Calidad ISO 9001 / NTC</span>
+                    <span className="text-[#3a5274] dark:text-slate-300 font-medium">Exigir Certificación de Calidad ISO 9001 / NTC</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer">
+                  <label className="flex items-center gap-2 p-2 bg-black/[0.04] dark:bg-white/[0.06] rounded-lg border border-black/10 dark:border-white/10 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editSpecialConditions.requiresFinancialAudit}
                       onChange={(e) =>
                         setEditSpecialConditions((prev) => ({ ...prev, requiresFinancialAudit: e.target.checked }))
                       }
-                      className="rounded text-blue-600"
+                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7]"
                     />
-                    <span className="text-slate-700 font-medium">Exigir Dictamen de Revisoría Fiscal / Auditoría</span>
+                    <span className="text-[#3a5274] dark:text-slate-300 font-medium">Exigir Dictamen de Revisoría Fiscal / Auditoría</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer sm:col-span-2">
+                  <label className="flex items-center gap-2 p-2 bg-black/[0.04] dark:bg-white/[0.06] rounded-lg border border-black/10 dark:border-white/10 cursor-pointer sm:col-span-2">
                     <input
                       type="checkbox"
                       checked={editSpecialConditions.requiresTechnicalBrochure}
                       onChange={(e) =>
                         setEditSpecialConditions((prev) => ({ ...prev, requiresTechnicalBrochure: e.target.checked }))
                       }
-                      className="rounded text-blue-600"
+                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7]"
                     />
-                    <span className="text-slate-700 font-medium">Exigir Carpeta de Servicios, Brochure Técnico o Cotización Oficial</span>
+                    <span className="text-[#3a5274] dark:text-slate-300 font-medium">Exigir Carpeta de Servicios, Brochure Técnico o Cotización Oficial</span>
                   </label>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+              <div className="pt-4 border-t border-black/10 dark:border-white/10 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setEditingCategory(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -1144,15 +1180,15 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
       {/* Modal: Editar Documento Directamente desde la Actividad */}
       {editingDocFromCategory && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
+          <div className="fs-card rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
             <div className="bg-[#0b1329] text-white p-5 flex items-center justify-between border-b border-slate-800">
               <div>
                 <h3 className="font-bold text-sm">Editar Parámetros del Documento</h3>
-                <p className="text-[11px] text-cyan-300 font-mono">Código: {editingDocFromCategory.code}</p>
+                <p className="text-[11px] text-cyan-300 tabular-nums">Código: {editingDocFromCategory.code}</p>
               </div>
               <button
                 onClick={() => setEditingDocFromCategory(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                className="text-[#5d7392] dark:text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 &times;
               </button>
@@ -1160,7 +1196,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
             <form onSubmit={handleSaveDocFromCategory} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                   Nombre Oficial del Documento *
                 </label>
                 <input
@@ -1169,19 +1205,19 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                   value={editDocName}
                   onChange={(e) => setEditDocName(e.target.value)}
                   placeholder="Ej: Certificado de Calidad..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                     Categoría SIG
                   </label>
                   <select
                     value={editDocCategory}
                     onChange={(e: any) => setEditDocCategory(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 cursor-pointer"
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     <option value="LEGAL">Legal / Estatutaria</option>
                     <option value="FINANCIERO">Financiera / Tributaria</option>
@@ -1193,13 +1229,13 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                     Estado en Catálogo
                   </label>
                   <select
                     value={editDocIsActive ? 'ACTIVE' : 'INACTIVE'}
                     onChange={(e) => setEditDocIsActive(e.target.value === 'ACTIVE')}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 cursor-pointer"
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     <option value="ACTIVE">Activo</option>
                     <option value="INACTIVE">Inactivo</option>
@@ -1208,7 +1244,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                   Regla de Validez, Caducidad o Vigencia *
                 </label>
                 <input
@@ -1217,12 +1253,12 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                   value={editDocValidity}
                   onChange={(e) => setEditDocValidity(e.target.value)}
                   placeholder="Ej: Expedición no mayor a 30 días calendario..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
                   Descripción e Instrucciones para el Proveedor
                 </label>
                 <textarea
@@ -1230,13 +1266,13 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                   value={editDocDescription}
                   onChange={(e) => setEditDocDescription(e.target.value)}
                   placeholder="Detalle los puntos clave que el revisor o aspirante deben tener en cuenta..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               {/* Parametrización de Vigencia y Vencimiento */}
-              <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-xl space-y-3">
-                <label className="flex items-center gap-2.5 text-xs text-amber-950 font-bold cursor-pointer">
+              <div className="p-4 bg-[#2c84c4]/12 border border-[#2c84c4]/35 rounded-xl space-y-3">
+                <label className="flex items-center gap-2.5 text-xs text-[#1d5fa8] dark:text-[#69bdd7] font-bold cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editDocRequiresExp}
@@ -1249,22 +1285,22 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                         setEditDocValidity('Vigencia periódica requerida sujeta a fecha de vencimiento.');
                       }
                     }}
-                    className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                    className="w-4 h-4 rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-[#2c84c4] cursor-pointer"
                   />
                   <span>¿Este documento tiene fecha de vencimiento? (Control de Vigencia SIG)</span>
                 </label>
                 
                 {editDocRequiresExp ? (
-                  <div className="space-y-2.5 pl-6 pt-1 border-t border-amber-200/80 animate-in fade-in">
-                    <p className="text-[11px] text-amber-900 leading-relaxed">
+                  <div className="space-y-2.5 pl-6 pt-1 border-t border-[#2c84c4]/35 animate-in fade-in">
+                    <p className="text-[11px] text-[#1d5fa8] dark:text-[#69bdd7] leading-relaxed">
                       Al activar esta opción, SIGEPRO exigirá obligatoriamente ingresar la <strong>fecha de vencimiento</strong> al radicar el documento y calculará automáticamente en los expedientes:
-                      <span className="block mt-1 text-[10px] text-slate-700 font-mono">
+                      <span className="block mt-1 text-[10px] text-[#3a5274] dark:text-slate-300 tabular-nums">
                         🟢 Vigente (&gt;30d) &nbsp;|&nbsp; 🟡 Por vencer (≤30d) &nbsp;|&nbsp; 🔴 Vencido (&lt;0d)
                       </span>
                     </p>
 
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                      <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1.5">
                         Períodos Frecuentes de Renovación (Presets sugeridos):
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -1278,7 +1314,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                             key={preset.label}
                             type="button"
                             onClick={() => setEditDocValidity(preset.rule)}
-                            className="px-2 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-md text-[10px] font-semibold text-amber-950 transition-colors cursor-pointer"
+                            className="px-2 py-1 bg-white hover:bg-[#2c84c4]/12 border border-[#2c84c4]/35 rounded-md text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] transition-colors cursor-pointer"
                           >
                             {preset.label}
                           </button>
@@ -1287,17 +1323,17 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <p className="text-[11px] text-slate-600 pl-6">
+                  <p className="text-[11px] text-[#3a5274] dark:text-slate-300 pl-6">
                     Este requisito se considerará <strong>Permanente</strong> (sin semáforo de expiración periódica).
                   </p>
                 )}
               </div>
 
-              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+              <div className="pt-4 border-t border-black/10 dark:border-white/10 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setEditingDocFromCategory(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl cursor-pointer"
                 >
                   Cancelar
                 </button>

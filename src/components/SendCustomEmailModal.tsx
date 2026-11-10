@@ -97,7 +97,7 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 max-w-2xl w-full flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         
         {/* Header */}
         <div className="bg-[#0b1329] text-white px-5 sm:px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0">
@@ -126,12 +126,12 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
         {/* Content Form */}
         {successSent ? (
           <div className="p-8 sm:p-12 text-center space-y-4 my-auto">
-            <div className="w-16 h-16 bg-blue-50 border border-blue-200 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+            <div className="w-16 h-16 bg-[#2c84c4]/10 border border-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7] rounded-2xl flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-9 h-9" />
             </div>
-            <h4 className="text-lg font-bold text-slate-900">¡Correo Despachado con Éxito!</h4>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-              La notificación institucional ha sido generada y entregada al buzón del proveedor <strong className="text-blue-900">{targetEmail}</strong>.
+            <h4 className="text-lg font-bold text-[#0b1d3a] dark:text-white">¡Correo Despachado con Éxito!</h4>
+            <p className="text-xs sm:text-sm text-[#3a5274] dark:text-slate-300 max-w-md mx-auto leading-relaxed">
+              La notificación institucional ha sido generada y entregada al buzón del proveedor <strong className="text-[#1d5fa8] dark:text-[#69bdd7]">{targetEmail}</strong>.
             </p>
           </div>
         ) : (
@@ -139,14 +139,14 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
             
             {/* Target Supplier Selector */}
             <div>
-              <label className="block font-bold text-slate-800 mb-1.5">
-                Destinatario (Proveedor Registrado) <span className="text-blue-600">*</span>
+              <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
+                Destinatario (Proveedor Registrado) <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
               </label>
               {allDossiers.length > 1 ? (
                 <select
                   value={selectedDossierId}
                   onChange={(e) => setSelectedDossierId(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer"
+                  className="w-full px-3 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer"
                 >
                   {allDossiers.map((d) => {
                     const name =
@@ -165,7 +165,7 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
                   })}
                 </select>
               ) : (
-                <div className="px-3 py-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800">
+                <div className="px-3 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold text-[#0b1d3a] dark:text-white">
                   {targetFileNumber} — {targetName} ({targetEmail})
                 </div>
               )}
@@ -173,14 +173,14 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
 
             {/* Recipient Details Preview Box */}
             {targetDossier && (
-              <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 flex items-start gap-3 shadow-2xs">
-                <Building2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+              <div className="bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-xl p-3.5 flex items-start gap-3 shadow-2xs">
+                <Building2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <div className="font-bold text-slate-900">
+                  <div className="font-bold text-[#0b1d3a] dark:text-white">
                     {targetName}
                   </div>
-                  <div className="text-[11px] text-slate-600">
-                    Correo destinatario: <span className="font-bold text-blue-700">{targetEmail}</span> &bull; Estado actual: <span className="font-bold text-slate-800">{targetDossier.processStatus}</span>
+                  <div className="text-[11px] text-[#3a5274] dark:text-slate-300">
+                    Correo destinatario: <span className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">{targetEmail}</span> &bull; Estado actual: <span className="font-bold text-[#0b1d3a] dark:text-white">{targetDossier.processStatus}</span>
                   </div>
                 </div>
               </div>
@@ -189,13 +189,13 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
             {/* Template Selector */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block font-bold text-slate-800 mb-1.5">
+                <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
                   Plantilla Rápida
                 </label>
                 <select
                   value={templateType}
                   onChange={handleTemplateChange}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                  className="w-full px-3 py-2 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
                 >
                   <option value="CUSTOM">-- Redacción Personalizada --</option>
                   <option value="RECORDATORIO_CORRECCION">Recordatorio de Correcciones Pendientes</option>
@@ -205,14 +205,14 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-bold text-slate-800 mb-1.5">
-                  Remitente Institucional <span className="text-blue-600">*</span>
+                <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
+                  Remitente Institucional <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
                 </label>
                 <input
                   type="text"
                   value={reviewerName}
                   onChange={(e) => setReviewerName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Ej: Departamento de Compras y Contratación"
                   required
                 />
@@ -221,14 +221,14 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
 
             {/* Subject */}
             <div>
-              <label className="block font-bold text-slate-800 mb-1.5">
-                Asunto del Correo <span className="text-blue-600">*</span>
+              <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
+                Asunto del Correo <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
               </label>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ej: Requerimiento de aclaración sobre estados financieros"
                 required
               />
@@ -236,28 +236,28 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
 
             {/* Message Body */}
             <div>
-              <label className="block font-bold text-slate-800 mb-1.5">
-                Cuerpo del Mensaje / Observaciones <span className="text-blue-600">*</span>
+              <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
+                Cuerpo del Mensaje / Observaciones <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
               </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 leading-relaxed"
+                className="w-full px-3 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 leading-relaxed"
                 placeholder="Escriba aquí el contenido del correo que será despachado con membrete oficial..."
                 required
               />
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="text-[11px] text-[#5d7392] dark:text-slate-400 mt-1">
                 El sistema aplicará automáticamente el encabezado institucional, logo de Flota Sugamuxi S.A., pie de página y botones de acceso al portal.
               </p>
             </div>
 
             {/* Footer Buttons */}
-            <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-2 shrink-0">
+            <div className="pt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-end gap-2 shrink-0">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 text-slate-700 font-bold hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                className="px-4 py-2.5 text-[#3a5274] dark:text-slate-300 font-bold hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
               >
                 Cancelar
               </button>

@@ -160,23 +160,23 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
       )}
 
       {/* 1. SECCIÓN: INFORMACIÓN BÁSICA Y TRIBUTARIA */}
-      <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-        <div className="bg-slate-50 dark:bg-slate-900/60 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-            <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+      <div className="fs-card rounded-[24px] overflow-hidden animate-fade-up">
+        <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow"><Building2 className="w-[18px] h-[18px]" /></span>
+            <h3 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">
               I. Identificación General y Régimen Tributario
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-800 px-2 py-0.5 rounded">
+            <span className="text-[11px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 border border-[#2c84c4]/25 px-3 py-1 rounded-full">
               {isNatural ? 'Persona Natural' : 'Persona Jurídica'}
             </span>
             {hasEditPrivilege && !isBatchEditing && (
               <button
                 type="button"
                 onClick={handleStartBatchEdit}
-                className="px-2.5 py-1 text-xs font-semibold text-blue-700 dark:text-cyan-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-800 flex items-center gap-1 transition-colors cursor-pointer"
+                className="h-9 px-4 text-xs font-semibold text-white bg-gradient-action shadow-glow rounded-xl flex items-center gap-1.5 hover:opacity-95 transition-colors cursor-pointer"
                 title="Editar todos los campos del formulario"
               >
                 <Edit3 className="w-3 h-3" />
@@ -187,12 +187,12 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
         </div>
 
         {/* Unified Dossier Data Sheet - Clean Definition Layout without fragmented boxes */}
-        <div className="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
+        <div className="p-4 sm:p-5 space-y-3 text-xs">
           {/* Fila 1: Razón Social, NIT y Tipo de Persona */}
-          <div className="p-3.5 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-start bg-slate-50/40 dark:bg-slate-900/20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-start">
             {/* Razón Social / Nombre Completo */}
-            <div className="lg:col-span-6 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-6 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 {isNatural ? 'Nombre Completo del Proveedor' : 'Razón Social / Denominación Comercial'}
               </span>
               <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 leading-snug">
@@ -210,7 +210,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'text'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -219,8 +219,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* NIT / Cédula */}
-            <div className="lg:col-span-3 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-3 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 {isNatural ? 'Cédula / Documento' : 'NIT (Identificación Tributaria)'}
               </span>
               <div className="text-sm font-mono font-bold text-slate-900 dark:text-slate-100 mt-0.5">
@@ -238,7 +238,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'text'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -247,8 +247,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Tipo de Persona */}
-            <div className="lg:col-span-3 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-3 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Tipo de Persona
               </span>
               <div className="mt-0.5 flex items-center gap-1.5">
@@ -272,7 +272,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       ]
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -282,10 +282,10 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
           </div>
 
           {/* Fila 2: Clasificación de Criticidad SIG, Categoría y Actividad CIIU */}
-          <div className="p-3.5 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-start">
             {/* Tipo de Proveedor (A, B, C) */}
-            <div className="lg:col-span-4 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-4 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Criticidad SIG (Tipo A, B, C)
               </span>
               <div className="mt-1 flex items-center gap-2">
@@ -325,7 +325,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       ]
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar Tipo de Proveedor (A, B, C)"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -334,8 +334,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Categoría Asignada */}
-            <div className="lg:col-span-5 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-5 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Categoría Oficial de Suministro
               </span>
               <div className="text-xs font-bold text-blue-900 dark:text-cyan-300 mt-1 leading-snug">
@@ -357,7 +357,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       }))
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -366,8 +366,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Actividad Económica CIIU */}
-            <div className="lg:col-span-3 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-3 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Actividad Económica CIIU
               </span>
               <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-1">
@@ -385,7 +385,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'text'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -395,10 +395,10 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
           </div>
 
           {/* Fila 3: Ubicación, Dirección, Correo y Teléfono */}
-          <div className="p-3.5 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-start bg-slate-50/40 dark:bg-slate-900/20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-start">
             {/* Ciudad y Municipio */}
-            <div className="lg:col-span-3 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-3 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Ciudad / Municipio
               </span>
               <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
@@ -416,7 +416,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'text'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -425,8 +425,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Dirección Principal */}
-            <div className="lg:col-span-3 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-3 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Dirección Principal
               </span>
               <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5 leading-snug">
@@ -444,7 +444,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'text'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -453,8 +453,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Correo Electrónico Principal */}
-            <div className="lg:col-span-3 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-3 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Correo Electrónico
               </span>
               <div className="text-xs font-semibold text-blue-700 dark:text-cyan-400 mt-0.5 break-all">
@@ -472,7 +472,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'email'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -481,8 +481,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Teléfono / Celular */}
-            <div className="lg:col-span-3 group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="lg:col-span-3 group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Teléfono / Celular
               </span>
               <div className="text-xs font-mono font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
@@ -500,7 +500,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'text'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -513,24 +513,24 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
 
       {/* 2. SECCIÓN: REPRESENTANTE LEGAL (SI APLICA) */}
       {!isNatural && (
-        <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-          <div className="bg-slate-50 dark:bg-slate-900/60 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-              <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+        <div className="fs-card rounded-[24px] overflow-hidden animate-fade-up">
+          <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow"><User className="w-[18px] h-[18px]" /></span>
+              <h3 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">
                 II. Representación Legal y Datos de Identificación
               </h3>
             </div>
           </div>
 
-          <div className="p-3.5 sm:p-4 text-xs">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+          <div className="text-xs p-4 sm:p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start">
               {/* Nombre Representante */}
-              <div className="group relative pr-7">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                   Nombre del Representante Legal
                 </span>
-                <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 leading-snug">
+                <div className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white mt-1 leading-snug">
                   {dossier.basicInfo.legalRepresentative || 'No registrado'}
                 </div>
                 {hasEditPrivilege && (
@@ -545,7 +545,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                         'text'
                       )
                     }
-                    className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                    className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                     title="Editar este campo"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -554,11 +554,11 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
               </div>
 
               {/* Cédula / Documento */}
-              <div className="group relative pr-7">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                   Cédula / Documento de Identidad
                 </span>
-                <div className="text-xs sm:text-sm font-mono font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                <div className="text-[15px] font-mono font-semibold text-[#0b1d3a] dark:text-white mt-1">
                   {dossier.basicInfo.repDocNumber || 'No registrado'}
                 </div>
                 {hasEditPrivilege && (
@@ -573,7 +573,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                         'text'
                       )
                     }
-                    className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                    className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                     title="Editar este campo"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -582,11 +582,11 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
               </div>
 
               {/* Correo del Representante */}
-              <div className="group relative pr-7">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                   Correo del Representante Legal
                 </span>
-                <div className="text-xs sm:text-sm font-semibold text-blue-700 dark:text-cyan-400 mt-0.5 break-all">
+                <div className="text-[15px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] mt-1 break-all">
                   {dossier.basicInfo.repEmail || dossier.basicInfo.email}
                 </div>
                 {hasEditPrivilege && (
@@ -601,7 +601,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                         'email'
                       )
                     }
-                    className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                    className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                     title="Editar este campo"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -614,24 +614,24 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
       )}
 
       {/* 3. SECCIÓN: INFORMACIÓN BANCARIA */}
-      <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-        <div className="bg-slate-50 dark:bg-slate-900/60 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-            <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+      <div className="fs-card rounded-[24px] overflow-hidden animate-fade-up">
+        <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow"><CreditCard className="w-[18px] h-[18px]" /></span>
+            <h3 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">
               III. Información Bancaria Registrada (FS.GA-FOR-009)
             </h3>
           </div>
         </div>
 
-        <div className="p-3.5 sm:p-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+        <div className="text-xs p-4 sm:p-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
             {/* Banco */}
-            <div className="group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Entidad Bancaria
               </span>
-              <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+              <div className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white mt-1">
                 {dossier.basicInfo.bankName || 'Bancolombia'}
               </div>
               {hasEditPrivilege && (
@@ -646,7 +646,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'text'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -655,11 +655,11 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Tipo de Cuenta */}
-            <div className="group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Tipo de Cuenta
               </span>
-              <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+              <div className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white mt-1">
                 {dossier.basicInfo.accountType || 'Cuenta de Ahorros'}
               </div>
               {hasEditPrivilege && (
@@ -678,7 +678,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       ]
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -687,11 +687,11 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Número de Cuenta */}
-            <div className="group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Número de Cuenta
               </span>
-              <div className="text-xs sm:text-sm font-mono font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+              <div className="text-[15px] font-mono font-semibold text-[#0b1d3a] dark:text-white mt-1">
                 {dossier.basicInfo.accountNumber || '230-984712-44'}
               </div>
               {hasEditPrivilege && (
@@ -706,7 +706,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       'text'
                     )
                   }
-                  className="absolute top-0 right-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                   title="Editar este campo"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -715,11 +715,11 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             {/* Titular */}
-            <div className="group relative pr-7">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                 Titular de la Cuenta
               </span>
-              <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5 leading-snug">
+              <div className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white mt-1 leading-snug">
                 {isNatural ? dossier.basicInfo.fullName : dossier.basicInfo.companyName}
               </div>
             </div>
@@ -730,7 +730,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
       {/* 4. MODAL: Granular Single Field Editor with Mandatory Audit Justification */}
       {editModal.isOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
             <div className="shrink-0 bg-[#0b1329] text-white px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-800 flex items-center justify-between shadow-xs">
               <div>
                 <span className="text-[10px] font-mono font-bold uppercase bg-blue-500/20 text-cyan-300 px-2 py-0.5 rounded border border-blue-400/30">
@@ -750,26 +750,26 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             <form onSubmit={handleSaveFieldEdit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-slate-700 scrollbar-thin scrollbar-thumb-slate-300">
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-[#3a5274] dark:text-slate-300 scrollbar-thin scrollbar-thumb-slate-300">
                 {/* Valor Actual */}
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Valor Actual:</span>
-                  <div className="font-semibold text-slate-800 mt-0.5">
+                <div className="bg-black/[0.04] dark:bg-white/[0.06] p-3 rounded-xl border border-black/10 dark:border-white/10">
+                  <span className="text-[10px] uppercase font-bold text-[#5d7392] dark:text-slate-400">Valor Actual:</span>
+                  <div className="font-semibold text-[#0b1d3a] dark:text-white mt-0.5">
                     {String(editModal.currentValue) || '(Vacío)'}
                   </div>
                 </div>
 
                 {/* Nuevo Valor */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Nuevo Valor para "{editModal.fieldLabel}" <span className="text-blue-600 font-bold">*</span>
+                  <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
+                    Nuevo Valor para "{editModal.fieldLabel}" <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
 
                   {editModal.inputType === 'select' ? (
                     <select
                       value={editModal.newValue}
                       onChange={(e) => setEditModal({ ...editModal, newValue: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-900 bg-white focus:ring-2 focus:ring-blue-500"
+                      className="fs-card w-full px-3 py-2.5 rounded-2xl border-black/10 dark:border-white/10 font-semibold focus:ring-2 focus:ring-blue-500 text-[#0b1d3a] dark:text-white"
                       required
                     >
                       {editModal.selectOptions?.map((opt) => (
@@ -783,7 +783,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       rows={3}
                       value={editModal.newValue}
                       onChange={(e) => setEditModal({ ...editModal, newValue: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-medium text-slate-900 focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 rounded-xl border border-black/10 dark:border-white/10 font-medium text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   ) : (
@@ -791,7 +791,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                       type={editModal.inputType || 'text'}
                       value={editModal.newValue}
                       onChange={(e) => setEditModal({ ...editModal, newValue: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 rounded-xl border border-black/10 dark:border-white/10 font-semibold text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   )}
@@ -799,29 +799,29 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
 
                 {/* Motivo o Justificación Obligatoria */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Motivo / Justificación del Cambio (Para Trazabilidad y Auditoría) <span className="text-blue-600 font-bold">*</span>
+                  <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
+                    Motivo / Justificación del Cambio (Para Trazabilidad y Auditoría) <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <textarea
                     rows={3}
                     value={justification}
                     onChange={(e) => setJustification(e.target.value)}
                     placeholder="Ej. Corrección autorizada por el proveedor según RUT actualizado radicado el 26 de agosto..."
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-blue-500"
                     required
                   />
-                  <p className="text-[10px] text-slate-500 mt-1">
+                  <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1">
                     Esta justificación se almacenará en el <strong>Módulo de Auditoría</strong> accesible por el Administrador General.
                   </p>
                 </div>
               </div>
 
               {/* Footer Actions */}
-              <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+              <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-black/[0.04] dark:bg-white/[0.06] border-t border-black/10 dark:border-white/10 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setEditModal({ ...editModal, isOpen: false })}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer rounded-lg hover:bg-slate-200/60 transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white cursor-pointer rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 >
                   Cancelar
                 </button>
@@ -841,7 +841,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
       {/* 5. MODAL: Batch Form Editor */}
       {isBatchEditing && batchFormData && (
         <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
             <div className="shrink-0 bg-[#0b1329] text-white px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-800 flex items-center justify-between shadow-xs">
               <div>
                 <span className="text-[10px] font-mono font-bold uppercase bg-blue-500/20 text-cyan-300 px-2 py-0.5 rounded border border-blue-400/30">
@@ -861,11 +861,11 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
             </div>
 
             <form onSubmit={handleSaveBatchEdit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-slate-700 scrollbar-thin scrollbar-thumb-slate-300">
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-[#3a5274] dark:text-slate-300 scrollbar-thin scrollbar-thumb-slate-300">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Nombre / Razón Social */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                    <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
                       {isNatural ? 'Nombre Completo' : 'Razón Social'}
                     </label>
                     <input
@@ -884,14 +884,14 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                           });
                         }
                       }}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold"
                       required
                     />
                   </div>
 
                   {/* Documento / NIT */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                    <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
                       {isNatural ? 'Cédula / Documento' : 'NIT'}
                     </label>
                     <input
@@ -910,14 +910,14 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                           });
                         }
                       }}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold"
                       required
                     />
                   </div>
 
                   {/* Correo */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">Correo Electrónico</label>
+                    <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">Correo Electrónico</label>
                     <input
                       type="email"
                       value={batchFormData.basicInfo.email}
@@ -927,14 +927,14 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                           basicInfo: { ...batchFormData.basicInfo, email: e.target.value },
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold"
                       required
                     />
                   </div>
 
                   {/* Teléfono */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">Teléfono / Celular</label>
+                    <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">Teléfono / Celular</label>
                     <input
                       type="text"
                       value={batchFormData.basicInfo.phone || batchFormData.basicInfo.cellphone || ''}
@@ -944,13 +944,13 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                           basicInfo: { ...batchFormData.basicInfo, phone: e.target.value },
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold"
                     />
                   </div>
 
                   {/* Ciudad */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">Ciudad / Municipio</label>
+                    <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">Ciudad / Municipio</label>
                     <input
                       type="text"
                       value={batchFormData.basicInfo.city || ''}
@@ -960,14 +960,14 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                           basicInfo: { ...batchFormData.basicInfo, city: e.target.value },
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold"
                     />
                   </div>
 
                   {/* Categoría Oficial */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      Categoría de Suministro / Servicio <span className="text-blue-600 font-bold">*</span>
+                    <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
+                      Categoría de Suministro / Servicio <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                     </label>
                     <select
                       value={batchFormData.selectedCategory || ''}
@@ -977,7 +977,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                           selectedCategory: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold bg-white text-slate-900"
+                      className="fs-card w-full px-3 py-2 rounded-2xl border-black/10 dark:border-white/10 font-semibold text-[#0b1d3a] dark:text-white"
                       required
                     >
                       {categoriesConfig.map((c) => (
@@ -990,8 +990,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
 
                   {/* Tipo de Proveedor (A, B y C) */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      Tipo de Proveedor (A, B y C) <span className="text-blue-600 font-bold">*</span>
+                    <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
+                      Tipo de Proveedor (A, B y C) <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                     </label>
                     <select
                       value={batchFormData.supplierTier || batchFormData.basicInfo?.supplierTier || 'B'}
@@ -1003,7 +1003,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                           basicInfo: { ...batchFormData.basicInfo, supplierTier: val },
                         });
                       }}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold bg-white text-slate-900"
+                      className="fs-card w-full px-3 py-2 rounded-2xl border-black/10 dark:border-white/10 font-semibold text-[#0b1d3a] dark:text-white"
                       required
                     >
                       <option value="A">Tipo A - Crítico (Estratégico / Operación / Seguridad)</option>
@@ -1014,7 +1014,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
 
                   {/* Dirección */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">Dirección</label>
+                    <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">Dirección</label>
                     <input
                       type="text"
                       value={batchFormData.basicInfo.address || ''}
@@ -1024,7 +1024,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                           basicInfo: { ...batchFormData.basicInfo, address: e.target.value },
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold"
                     />
                   </div>
 
@@ -1032,7 +1032,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                   {!isNatural && (
                     <>
                       <div>
-                        <label className="block text-xs font-bold text-slate-800 mb-1">
+                        <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
                           Representante Legal
                         </label>
                         <input
@@ -1047,12 +1047,12 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                               },
                             })
                           }
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold"
+                          className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-800 mb-1">
+                        <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
                           Documento Representante
                         </label>
                         <input
@@ -1064,7 +1064,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                               basicInfo: { ...batchFormData.basicInfo, repDocNumber: e.target.value },
                             })
                           }
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 font-semibold"
+                          className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold"
                         />
                       </div>
                     </>
@@ -1072,26 +1072,26 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                 </div>
 
                 {/* Justificación obligatoria para auditoría */}
-                <div className="pt-2 border-t border-slate-200">
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Justificación de la Actualización Integral (Auditable) <span className="text-blue-600 font-bold">*</span>
+                <div className="pt-2 border-t border-black/10 dark:border-white/10">
+                  <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
+                    Justificación de la Actualización Integral (Auditable) <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <textarea
                     rows={3}
                     value={batchJustification}
                     onChange={(e) => setBatchJustification(e.target.value)}
                     placeholder="Explique la razón de la actualización de datos para el módulo de auditoría..."
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
               </div>
 
-              <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+              <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-black/[0.04] dark:bg-white/[0.06] border-t border-black/10 dark:border-white/10 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setIsBatchEditing(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer rounded-lg hover:bg-slate-200/60 transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white cursor-pointer rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 >
                   Cancelar
                 </button>

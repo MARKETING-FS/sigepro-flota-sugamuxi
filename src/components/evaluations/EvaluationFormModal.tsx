@@ -254,12 +254,12 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
       case 'SOBRESALIENTE':
         return {
           text: 'Sobresaliente (Apto con Excelencia SIG)',
-          bg: 'bg-blue-600 text-white border-blue-400',
+          bg: 'bg-white/15 text-white border-white/40',
         };
       case 'CONFORME':
         return {
           text: 'Conforme (Aprobado según Requisitos)',
-          bg: 'bg-blue-500/20 text-blue-700 dark:text-cyan-300 border-blue-400/40',
+          bg: 'bg-white/12 text-white border-white/30',
         };
       case 'CONDICIONAL_MEJORA':
         return {
@@ -282,25 +282,25 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
+      <div className="bg-[#f3f7fc] dark:bg-[#07142f] rounded-[26px] border border-[#d5e2f1] dark:border-[#1e3a6e] shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
         {/* Modal Header */}
-        <div className="px-6 py-4 bg-[#0b1329] text-white flex items-center justify-between shrink-0 border-b border-slate-800">
+        <div className="px-7 py-5 bg-gradient-to-r from-[#0a2a5e] to-[#134a8f] text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-400/40 flex items-center justify-center text-cyan-300">
-              <Award className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-2xl bg-white/12 ring-1 ring-white/25 flex items-center justify-center text-white">
+              <Award className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white tracking-wide">
+              <h3 className="text-lg font-bold text-white tracking-tight">
                 Calificación y Evaluación de Proveedor
               </h3>
-              <p className="text-xs text-slate-300">
+              <p className="text-[13px] text-[#bcd2ea]">
                 Sistema Integrado de Gestión (SIG) - Flota Sugamuxi S.A.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 text-[#bcd2ea] hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -308,20 +308,20 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
 
         {/* Modal Form */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
-          <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-800 dark:text-slate-100 text-sm">
+          <div className="p-6 sm:p-7 overflow-y-auto space-y-5 flex-1 text-[#0b1d3a] dark:text-slate-100 text-sm">
             {/* 1. Supplier & Type Selection Bar */}
-            <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <div className="bg-white dark:bg-[#0b1f4a] p-5 rounded-2xl border border-[#d5e2f1] dark:border-[#1e3a6e] shadow-[0_8px_22px_-16px_rgba(15,61,117,0.35)] space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Select Supplier */}
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+                  <label className="block text-[12px] font-bold uppercase tracking-wide text-[#1d3b63] dark:text-[#9fc2ee] mb-2 flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     Proveedor a Calificar
                   </label>
                   <select
                     value={selectedDossierId}
                     onChange={(e) => setSelectedDossierId(e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-[#121c38] border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-600 focus:outline-none cursor-pointer"
+                    className="w-full px-3 py-2.5 bg-[#f1f6fc] dark:bg-[#0a1c44] border border-[#d5e2f1] dark:border-[#1e3a6e] rounded-xl text-sm font-semibold text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#2b78b3]/40 focus:outline-none cursor-pointer"
                     disabled={!!initialSupplier}
                   >
                     {allDossiers.map((d) => (
@@ -334,7 +334,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
 
                 {/* Evaluation Event Selector: Inicial vs Anual */}
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+                  <label className="block text-[12px] font-bold uppercase tracking-wide text-[#1d3b63] dark:text-[#9fc2ee] mb-2 flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     Tipo de Evaluación
                   </label>
@@ -342,27 +342,27 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setEvalType('INICIAL')}
-                      className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all text-center cursor-pointer flex flex-col items-center justify-center ${
+                      className={`px-3 py-3 rounded-xl text-sm font-bold border transition-all text-center cursor-pointer flex flex-col items-center justify-center ${
                         evalType === 'INICIAL'
-                          ? 'bg-blue-600 text-white border-blue-500 shadow-xs'
-                          : 'bg-white dark:bg-[#121c38] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                          ? 'bg-[#0f3d75] text-white border-[#0f3d75] dark:bg-[#1b4f94] dark:border-[#3d78c4] shadow-sm'
+                          : 'bg-[#f1f6fc] dark:bg-[#0a1c44] text-[#1d3b63] dark:text-slate-200 border-[#d5e2f1] dark:border-[#1e3a6e] hover:bg-[#e6eef8] dark:hover:bg-[#0f2a5c]'
                       }`}
                     >
                       <span>Evaluación Inicial</span>
-                      <span className="text-[10px] font-normal opacity-90">(Admisión al Ingreso)</span>
+                      <span className="text-[11px] font-medium opacity-85">(Admisión al Ingreso)</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setEvalType('ANUAL_1_ANO')}
-                      className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all text-center cursor-pointer flex flex-col items-center justify-center ${
+                      className={`px-3 py-3 rounded-xl text-sm font-bold border transition-all text-center cursor-pointer flex flex-col items-center justify-center ${
                         evalType === 'ANUAL_1_ANO' || (evalType as string) === 'ANUAL_PERIODICA'
-                          ? 'bg-blue-600 text-white border-blue-500 shadow-xs'
-                          : 'bg-white dark:bg-[#121c38] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                          ? 'bg-[#0f3d75] text-white border-[#0f3d75] dark:bg-[#1b4f94] dark:border-[#3d78c4] shadow-sm'
+                          : 'bg-[#f1f6fc] dark:bg-[#0a1c44] text-[#1d3b63] dark:text-slate-200 border-[#d5e2f1] dark:border-[#1e3a6e] hover:bg-[#e6eef8] dark:hover:bg-[#0f2a5c]'
                       }`}
                     >
                       <span>Evaluación Anual</span>
-                      <span className="text-[10px] font-normal opacity-90">(Recurrente Cada Año)</span>
+                      <span className="text-[11px] font-medium opacity-85">(Recurrente Cada Año)</span>
                     </button>
                   </div>
                 </div>
@@ -370,10 +370,10 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
 
               {/* Annual Cycle Selection if Annual Evaluation is chosen */}
               {(evalType === 'ANUAL_1_ANO' || (evalType as string) === 'ANUAL_PERIODICA') && (
-                <div className="p-3 bg-blue-50/70 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-900/60 space-y-2">
+                <div className="p-4 bg-[#eaf2fb] dark:bg-[#0a1c44] rounded-xl border border-[#cfe0f2] dark:border-[#1e3a6e] space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <span className="text-xs font-bold text-blue-900 dark:text-cyan-300 flex items-center gap-1.5">
+                      <span className="text-[13px] font-bold text-[#0f3d75] dark:text-[#9fc2ee] flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
                         Ciclo Anual a Calificar (Periodicidad Obligatoria Anual)
                       </span>
@@ -388,10 +388,10 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                           key={cycle}
                           type="button"
                           onClick={() => setSelectedCycleNumber(cycle)}
-                          className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors cursor-pointer ${
+                          className={`px-3.5 py-1.5 text-xs font-bold rounded-full transition-colors cursor-pointer ${
                             selectedCycleNumber === cycle
-                              ? 'bg-blue-700 text-white shadow-xs'
-                              : 'bg-white dark:bg-[#121c38] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-100'
+                              ? 'bg-[#0f3d75] text-white shadow-sm dark:bg-[#1b4f94]'
+                              : 'bg-white dark:bg-[#0b1f4a] text-[#1d3b63] dark:text-slate-200 border border-[#cfe0f2] dark:border-[#1e3a6e] hover:bg-[#f1f6fc]'
                           }`}
                         >
                           Año {cycle}
@@ -400,7 +400,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="text-[11px] flex items-center justify-between text-slate-500 pt-1 border-t border-blue-100 dark:border-blue-900/40">
+                  <div className="text-[11px] flex items-center justify-between text-[#5d7392] dark:text-slate-400 pt-1 border-t border-blue-100 dark:border-blue-900/40">
                     <span>
                       Evaluaciones anuales previas registradas:{' '}
                       <strong className="text-blue-900 dark:text-cyan-300 font-mono">
@@ -416,7 +416,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
 
               {/* Supplier Context Details */}
               {selectedDossier && (
-                <div className="pt-3 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="pt-4 border-t border-[#e1e9f3] dark:border-[#1e3a6e] grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                   <div>
                     <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Estado Proveedor:</span>
                     <span
@@ -457,11 +457,11 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
             </div>
 
             {/* 2. Real-time Score Preview Card */}
-            <div className="p-4 bg-gradient-to-r from-blue-950 via-[#0b1329] to-slate-900 rounded-xl text-white border border-blue-900/60 shadow-md">
+            <div className="p-5 bg-gradient-to-r from-[#0a2a5e] to-[#0f3d75] rounded-2xl text-white shadow-[0_14px_28px_-18px_rgba(10,42,94,0.9)]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider text-cyan-300 font-bold flex items-center gap-1.5">
-                    <Award className="w-4 h-4 text-cyan-400" />
+                  <div className="text-[12px] uppercase tracking-wider text-[#bcd8f7] font-bold flex items-center gap-1.5">
+                    <Award className="w-4 h-4 text-[#bcd8f7]" />
                     <span>Calificación Ponderada en Tiempo Real</span>
                   </div>
                   <div className="text-xs text-slate-300 mt-0.5">
@@ -470,9 +470,9 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="text-2xl sm:text-3xl font-black text-white font-mono leading-none">
+                    <div className="text-3xl sm:text-4xl font-black text-white font-mono leading-none">
                       {totalScore}
-                      <span className="text-sm font-semibold text-slate-400">/100</span>
+                      <span className="text-sm font-semibold text-[#5d7392] dark:text-slate-400">/100</span>
                     </div>
                   </div>
                   <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold ${badgeInfo.bg}`}>
@@ -482,14 +482,14 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full bg-slate-800 rounded-full h-2 mt-3 overflow-hidden">
+              <div className="w-full bg-white/15 rounded-full h-2.5 mt-4 overflow-hidden">
                 <div
                   className={`h-full transition-all duration-300 rounded-full ${
                     totalScore >= 85
-                      ? 'bg-cyan-400'
+                      ? 'bg-[#7cc4ff]'
                       : totalScore >= 70
-                      ? 'bg-blue-500'
-                      : 'bg-slate-500'
+                      ? 'bg-[#5a9be0]'
+                      : 'bg-[#8aa3c4]'
                   }`}
                   style={{ width: `${Math.min(100, Math.max(0, totalScore))}%` }}
                 />
@@ -499,10 +499,10 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
             {/* 3. Evaluation Criteria Form */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <h4 className="text-[13px] font-bold uppercase tracking-wide text-[#0f3d75] dark:text-[#9fc2ee] flex items-center gap-1.5">
                   <span>Criterios de Evaluación Parametrizados ({applicableCriteria.length})</span>
                 </h4>
-                <span className="text-[11px] text-slate-500">
+                <span className="text-[11px] text-[#5d7392] dark:text-slate-400">
                   Total Peso: {applicableCriteria.reduce((sum, c) => sum + (c.weight ?? c.weightInitial ?? 20), 0)}%
                 </span>
               </div>
@@ -514,27 +514,27 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                   return (
                     <div
                       key={criterion.id}
-                      className="p-4 bg-white dark:bg-[#121c38] rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                      className="p-5 bg-white dark:bg-[#0b1f4a] rounded-2xl border border-[#d5e2f1] dark:border-[#1e3a6e] shadow-[0_8px_22px_-16px_rgba(15,61,117,0.35)] hover:border-[#2b78b3] dark:hover:border-[#3d78c4] transition-colors"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center shrink-0">
+                            <span className="w-8 h-8 rounded-xl bg-[#e1ecf8] dark:bg-[#123267] text-[#0f3d75] dark:text-white text-sm font-bold flex items-center justify-center shrink-0">
                               {idx + 1}
                             </span>
-                            <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                            <h5 className="text-[15px] font-bold text-[#0b1d3a] dark:text-white">
                               {criterion.name}
                             </h5>
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
                               {criterion.category}
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 ml-7">
+                          <p className="text-[12.5px] text-[#4b6485] dark:text-slate-300 mt-1 ml-10">
                             {criterion.description}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                          <span className="text-[11px] text-slate-500 font-medium">
+                          <span className="text-[11px] text-[#5d7392] dark:text-slate-400 font-medium">
                             Peso: <strong className="text-blue-600 dark:text-blue-400">{critWeight}%</strong>
                           </span>
                           <div className="w-16">
@@ -544,15 +544,15 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                               max={100}
                               value={state.score}
                               onChange={(e) => handleScoreChange(criterion.id, Number(e.target.value))}
-                              className="w-full px-2 py-1 text-center font-mono font-bold text-xs bg-slate-50 dark:bg-[#090f20] border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                              className="w-full px-2 py-1.5 text-center font-mono font-bold text-sm bg-[#f1f6fc] dark:bg-[#0a1c44] border border-[#d5e2f1] dark:border-[#1e3a6e] rounded-lg text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#2b78b3]/40 focus:outline-none"
                             />
                           </div>
-                          <span className="text-xs text-slate-400">pts</span>
+                          <span className="text-xs text-[#5d7392] dark:text-slate-400">pts</span>
                         </div>
                       </div>
 
                       {/* Slider and Quick Grade Buttons */}
-                      <div className="ml-0 sm:ml-7 pt-1 space-y-2">
+                      <div className="ml-0 sm:ml-10 pt-2 space-y-3">
                         <div className="flex items-center gap-3">
                           <input
                             type="range"
@@ -561,7 +561,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                             step={5}
                             value={state.score}
                             onChange={(e) => handleScoreChange(criterion.id, Number(e.target.value))}
-                            className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg"
+                            className="w-full accent-[#1d5fa8] cursor-pointer h-1.5 rounded-lg"
                           />
                           <div className="flex items-center gap-1 shrink-0">
                             {[
@@ -574,10 +574,10 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                                 key={btn.score}
                                 type="button"
                                 onClick={() => handleScoreChange(criterion.id, btn.score)}
-                                className={`px-2 py-0.5 text-[10px] rounded font-semibold transition-colors cursor-pointer ${
+                                className={`px-2.5 py-1 text-[11px] rounded-lg font-bold transition-colors cursor-pointer ${
                                   state.score === btn.score
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                                    ? 'bg-[#0f3d75] text-white dark:bg-[#1b4f94]'
+                                    : 'bg-[#e6eef8] dark:bg-[#123267] text-[#1d3b63] dark:text-slate-200 hover:bg-[#d8e5f5]'
                                 }`}
                                 title={btn.title}
                               >
@@ -593,7 +593,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                           placeholder="Observación técnica o justificación para este criterio (opcional)..."
                           value={state.notes}
                           onChange={(e) => handleNotesChange(criterion.id, e.target.value)}
-                          className="w-full px-2.5 py-1 text-[11px] bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-md text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="w-full px-3 py-2 text-[12.5px] bg-[#f1f6fc] dark:bg-[#0a1c44] border border-[#d5e2f1] dark:border-[#1e3a6e] rounded-xl text-[#0b1d3a] dark:text-slate-100 placeholder:text-[#7b90ab] focus:outline-none focus:ring-2 focus:ring-[#2b78b3]/40"
                         />
                       </div>
                     </div>
@@ -603,9 +603,9 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
             </div>
 
             {/* 4. Improvement Plan & Observations */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <div className="p-5 bg-white dark:bg-[#0b1f4a] rounded-2xl border border-[#d5e2f1] dark:border-[#1e3a6e] shadow-[0_8px_22px_-16px_rgba(15,61,117,0.35)] space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[13px] font-bold uppercase tracking-wide text-[#0f3d75] dark:text-[#9fc2ee] mb-2">
                   Observaciones Generales y Dictamen del Revisor
                 </label>
                 <textarea
@@ -613,7 +613,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                   value={generalObservations}
                   onChange={(e) => setGeneralObservations(e.target.value)}
                   placeholder="Escriba aquí los comentarios institucionales, fortalezas y oportunidades identificadas en el proveedor..."
-                  className="w-full px-3 py-2 bg-white dark:bg-[#121c38] border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 bg-[#f1f6fc] dark:bg-[#0a1c44] border border-[#d5e2f1] dark:border-[#1e3a6e] rounded-xl text-sm text-[#0b1d3a] dark:text-slate-100 placeholder:text-[#7b90ab] focus:ring-2 focus:ring-[#2b78b3]/40 focus:outline-none"
                 />
               </div>
 
@@ -626,7 +626,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                       id="planMejoraCheck"
                       checked={hasImprovementPlan || computedConcept === 'CONDICIONAL_MEJORA'}
                       onChange={(e) => setHasImprovementPlan(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
+                      className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] rounded border-black/10 dark:border-white/10 focus:ring-blue-500 cursor-pointer"
                     />
                     <label htmlFor="planMejoraCheck" className="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer flex items-center gap-1.5">
                       <AlertTriangle className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
@@ -651,7 +651,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                         value={improvementAction}
                         onChange={(e) => setImprovementAction(e.target.value)}
                         placeholder="Ej: Remitir actualización de póliza RCE y certificación técnica ISO 9001..."
-                        className="w-full px-3 py-1.5 bg-white dark:bg-[#121c38] border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                        className="w-full px-3.5 py-2.5 bg-[#f1f6fc] dark:bg-[#0a1c44] border border-[#d5e2f1] dark:border-[#1e3a6e] rounded-xl text-sm text-[#0b1d3a] dark:text-slate-100 placeholder:text-[#7b90ab] focus:ring-2 focus:ring-[#2b78b3]/40 focus:outline-none"
                         required={hasImprovementPlan || computedConcept === 'CONDICIONAL_MEJORA'}
                       />
                     </div>
@@ -663,7 +663,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                         type="date"
                         value={improvementDeadline}
                         onChange={(e) => setImprovementDeadline(e.target.value)}
-                        className="w-full px-3 py-1.5 bg-white dark:bg-[#121c38] border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-600 focus:outline-none cursor-pointer"
+                        className="w-full px-3.5 py-2.5 bg-[#f1f6fc] dark:bg-[#0a1c44] border border-[#d5e2f1] dark:border-[#1e3a6e] rounded-xl text-sm text-[#0b1d3a] dark:text-slate-100 placeholder:text-[#7b90ab] focus:ring-2 focus:ring-[#2b78b3]/40 focus:outline-none cursor-pointer"
                       />
                     </div>
                   </div>
@@ -673,9 +673,9 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
           </div>
 
           {/* Modal Footer */}
-          <div className="px-6 py-4 bg-slate-100 dark:bg-[#090f20] border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+          <div className="px-7 py-4 bg-white dark:bg-[#061330] border-t border-[#d5e2f1] dark:border-[#1e3a6e] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
             <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-              <Info className="w-4 h-4 text-blue-600 shrink-0" />
+              <Info className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0" />
               <span>
                 La evaluación se registrará en el expediente oficial y en la bitácora de trazabilidad SIG.
               </span>
@@ -685,14 +685,14 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                className="h-11 px-5 bg-[#e6eef8] dark:bg-[#123267] hover:bg-[#d8e5f5] dark:hover:bg-[#1a3f7a] text-[#0f3d75] dark:text-white rounded-xl text-sm font-bold transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || !selectedDossier}
-                className="px-5 py-2 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
+                className="h-11 px-6 bg-[#0f3d75] hover:bg-[#0b2f5c] dark:bg-[#1b4f94] dark:hover:bg-[#2259a6] disabled:opacity-50 text-white rounded-xl text-sm font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Registrar Calificación Oficial</span>

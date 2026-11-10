@@ -115,7 +115,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
+      <div className="bg-white dark:bg-[#0f172a] rounded-[26px] shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
         {/* Header */}
         <div className="px-6 py-4 bg-[#0b1329] text-white flex items-center justify-between shrink-0 border-b border-slate-800">
           <div className="flex items-center gap-3">
@@ -140,34 +140,34 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
         </div>
 
         {/* Sub-tabs Navigation */}
-        <div className="px-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
-          <div className="flex gap-2 pt-2">
+        <div className="px-6 py-3 border-b border-[#e1e9f3] dark:border-white/10 bg-white dark:bg-[#071636] flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-1 p-1 rounded-2xl bg-[#e6edf6] dark:bg-[#0b1f4a]">
             <button
               onClick={() => setActiveSubTab('criteria')}
-              className={`px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              className={`px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                 activeSubTab === 'criteria'
-                  ? 'border-blue-600 text-blue-600 dark:text-cyan-400'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-[#0f3d75] text-white shadow-md dark:bg-[#1f7ae8]'
+                  : 'text-[#1d3b63] dark:text-slate-300 hover:bg-white/70 dark:hover:bg-white/10'
               }`}
             >
               Criterios y Ponderaciones ({evaluationMethod.criteria.length})
             </button>
             <button
               onClick={() => setActiveSubTab('thresholds')}
-              className={`px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              className={`px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                 activeSubTab === 'thresholds'
-                  ? 'border-blue-600 text-blue-600 dark:text-cyan-400'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-[#0f3d75] text-white shadow-md dark:bg-[#1f7ae8]'
+                  : 'text-[#1d3b63] dark:text-slate-300 hover:bg-white/70 dark:hover:bg-white/10'
               }`}
             >
               Umbrales y Escalas Conceptuales
             </button>
             <button
               onClick={() => setActiveSubTab('general')}
-              className={`px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              className={`px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                 activeSubTab === 'general'
-                  ? 'border-blue-600 text-blue-600 dark:text-cyan-400'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-[#0f3d75] text-white shadow-md dark:bg-[#1f7ae8]'
+                  : 'text-[#1d3b63] dark:text-slate-300 hover:bg-white/70 dark:hover:bg-white/10'
               }`}
             >
               Periodicidad y Frecuencias (1 Año)
@@ -180,7 +180,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                 resetEvaluationMethodToDefault();
               }
             }}
-            className="text-xs text-slate-500 hover:text-blue-600 dark:hover:text-cyan-400 flex items-center gap-1 cursor-pointer"
+            className="text-sm font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0f3d75] flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-[#eef3fa] dark:hover:bg-white/10 cursor-pointer"
             title="Restaurar valores iniciales"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -189,13 +189,13 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6 text-slate-800 dark:text-slate-100 text-sm">
+        <div className="p-6 overflow-y-auto flex-1 space-y-6 text-slate-800 dark:text-slate-100 text-sm bg-[#f3f7fc] dark:bg-[#081a40]">
           {/* TAB 1: CRITERIA */}
           {activeSubTab === 'criteria' && (
             <div className="space-y-4">
               {/* Weight indicator banner */}
               <div
-                className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
+                className={`p-4 rounded-2xl border flex flex-wrap gap-3 items-center justify-between text-sm ${
                   totalWeight === 100
                     ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-800 text-blue-900 dark:text-cyan-300'
                     : 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300'
@@ -348,13 +348,13 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
               )}
 
               {/* Criteria List */}
-              <div className="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-[#121c38]">
-                {evaluationMethod.criteria.map((crit) => {
+              <div className="space-y-3">
+                {evaluationMethod.criteria.map((crit, idx) => {
                   const isEditing = editingCriterionId === crit.id;
 
                   if (isEditing) {
                     return (
-                      <div key={crit.id} className="p-4 bg-blue-50/50 dark:bg-blue-950/20 space-y-3">
+                      <div key={crit.id} className="p-4 rounded-2xl bg-white dark:bg-[#0a1c44] border-2 border-[#2b78b3] space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <div className="sm:col-span-2">
                             <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
@@ -431,7 +431,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                           <button
                             type="button"
                             onClick={() => setEditingCriterionId(null)}
-                            className="px-3 py-1 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-200 rounded cursor-pointer"
+                            className="px-3 py-1 text-xs text-slate-600 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/10 rounded cursor-pointer"
                           >
                             Cancelar
                           </button>
@@ -448,10 +448,11 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                   }
 
                   return (
-                    <div key={crit.id} className="p-3.5 flex items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                    <div key={crit.id} className="p-4 flex items-center justify-between gap-4 rounded-2xl bg-white dark:bg-[#0a1c44] border border-[#dbe6f2] dark:border-white/10 shadow-[0_6px_16px_-12px_rgba(15,42,82,0.5)] hover:-translate-y-px hover:shadow-[0_10px_22px_-12px_rgba(15,42,82,0.55)] transition-all">
+                      <span className="w-10 h-10 shrink-0 rounded-xl bg-[#e1ecf8] dark:bg-[#123267] text-[#0f3d75] dark:text-white font-bold text-base grid place-items-center tabular-nums">{idx + 1}</span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100">{crit.name}</span>
+                          <span className="font-bold text-base text-[#0b1d3a] dark:text-white">{crit.name}</span>
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                             {crit.category}
                           </span>
@@ -471,17 +472,20 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                               : 'Solo Anual (1 Año)'}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                        <p className="text-[13px] text-[#3a5274] dark:text-slate-300 mt-1 truncate">
                           {crit.description}
                         </p>
+                        <div className="mt-2 h-1.5 w-full max-w-sm rounded-full bg-[#e6edf6] dark:bg-white/10 overflow-hidden">
+                          <div className="h-full rounded-full bg-[#2b78b3]" style={{ width: `${Math.min(100, crit.weight ?? crit.weightInitial ?? 20)}%` }} />
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0">
                         <div className="text-right">
-                          <span className="font-mono font-bold text-xs text-blue-700 dark:text-cyan-400">
+                          <span className="font-bold text-xl text-[#0f3d75] dark:text-white tabular-nums">
                             {crit.weight ?? crit.weightInitial ?? 20}%
                           </span>
-                          <span className="text-[10px] text-slate-400 block">peso</span>
+                          <span className="text-xs text-[#5d7392] block">peso</span>
                         </div>
 
                         <div className="flex items-center gap-1">
@@ -520,7 +524,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Escalas de Calificación y Umbrales Conceptuales
                   </h4>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-[#5d7392] dark:text-slate-400 mt-0.5">
                     Define la puntuación mínima requerida para clasificar el dictamen del proveedor en el SIG.
                   </p>
                 </div>
@@ -541,9 +545,9 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                         }
                         className="w-20 px-2 py-1 text-center font-mono font-bold text-sm bg-slate-50 dark:bg-[#090f20] border rounded-lg"
                       />
-                      <span className="text-xs text-slate-500">puntos (90-100)</span>
+                      <span className="text-xs text-[#5d7392] dark:text-slate-400">puntos (90-100)</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 block mt-1">
+                    <span className="text-[10px] text-[#5d7392] dark:text-slate-400 block mt-1">
                       Proveedor apto sin observaciones.
                     </span>
                   </div>
@@ -563,9 +567,9 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                         }
                         className="w-20 px-2 py-1 text-center font-mono font-bold text-sm bg-slate-50 dark:bg-[#090f20] border rounded-lg"
                       />
-                      <span className="text-xs text-slate-500">puntos (75-89)</span>
+                      <span className="text-xs text-[#5d7392] dark:text-slate-400">puntos (75-89)</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 block mt-1">
+                    <span className="text-[10px] text-[#5d7392] dark:text-slate-400 block mt-1">
                       Aprobado con requisitos cumplidos.
                     </span>
                   </div>
@@ -585,9 +589,9 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                         }
                         className="w-20 px-2 py-1 text-center font-mono font-bold text-sm bg-slate-50 dark:bg-[#090f20] border rounded-lg"
                       />
-                      <span className="text-xs text-slate-500">puntos (60-74)</span>
+                      <span className="text-xs text-[#5d7392] dark:text-slate-400">puntos (60-74)</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 block mt-1">
+                    <span className="text-[10px] text-[#5d7392] dark:text-slate-400 block mt-1">
                       Requiere Plan de Acción Correctiva.
                     </span>
                   </div>
@@ -613,7 +617,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Reglas de Periodicidad de Evaluación de Proveedores
                   </h4>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-[#5d7392] dark:text-slate-400 mt-0.5">
                     Conforme al requerimiento institucional de Flota Sugamuxi S.A.:
                   </p>
                 </div>
@@ -627,7 +631,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                       <div className="font-bold text-slate-900 dark:text-slate-100">
                         Evaluación Inicial (Al Crearlo)
                       </div>
-                      <p className="text-slate-500 mt-0.5">
+                      <p className="text-[#5d7392] dark:text-slate-400 mt-0.5">
                         Se aplica en el momento de la creación, habilitación o admisión del expediente del proveedor. Evalúa idoneidad jurídica, antecedentes SARLAFT, capacidad instalada y documentación básica.
                       </p>
                     </div>
@@ -641,7 +645,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                       <div className="font-bold text-slate-900 dark:text-slate-100">
                         Evaluación Anual de Desempeño (1 Año Después)
                       </div>
-                      <p className="text-slate-500 mt-0.5">
+                      <p className="text-[#5d7392] dark:text-slate-400 mt-0.5">
                         Se programa automáticamente exactamente a los <strong className="text-blue-600 dark:text-cyan-400">365 días (1 año)</strong> contados desde la fecha oficial de registro del proveedor. Mide calidad en la entrega, soporte postventa, cumplimiento de garantías y estándares HSEQ.
                       </p>
                     </div>
@@ -653,10 +657,10 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 bg-slate-100 dark:bg-[#090f20] border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <div className="px-6 py-4 bg-white dark:bg-[#071636] border-t border-[#e1e9f3] dark:border-white/10 flex justify-end">
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+            className="h-11 px-6 bg-[#0f3d75] hover:bg-[#0b2f5c] dark:bg-[#1f7ae8] text-white rounded-xl text-sm font-bold transition-colors cursor-pointer"
           >
             Cerrar Parametrización
           </button>

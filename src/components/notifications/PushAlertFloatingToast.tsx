@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Bell,
-  AlertTriangle,
   AlertCircle,
   X,
   ChevronRight,
-  ShieldAlert,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { BrandSwoosh } from '../ui/BrandSwoosh';
 import {
   computePushAlerts,
   playNotificationChime,
@@ -75,89 +74,74 @@ export const PushAlertFloatingToast: React.FC = () => {
     setActiveView('revisores');
   };
 
+  const tone = isCritical ? '#f87171' : '#69bdd7';
+  const glow = isCritical ? 'rgba(248,113,113,0.45)' : 'rgba(105,189,215,0.45)';
+
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full p-1 animate-in slide-in-from-bottom-5 duration-300">
+    <div className="fixed bottom-4 right-4 z-50 max-w-[320px] w-[calc(100vw-2rem)] animate-fade-up" style={{ position: 'fixed' }} role="alert">
       <div
-        className={`rounded-2xl p-4 shadow-2xl border flex flex-col gap-3 backdrop-blur-md transition-all ${
-          isCritical
-            ? 'bg-[#0f172a]/95 text-white border-rose-500/80 shadow-rose-950/40 ring-2 ring-rose-500/30'
-            : 'bg-[#0b1329]/95 text-white border-blue-500/80 shadow-blue-950/40 ring-2 ring-blue-500/30'
-        }`}
+        className="gradient-border relative overflow-hidden rounded-xl bg-[#131b2e]/95 text-white backdrop-blur-xl"
+        style={{ boxShadow: `0 28px 60px -20px rgba(3,10,30,0.85), 0 0 44px -12px ${glow}` }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
-                isCritical
-                  ? 'bg-rose-600 text-white animate-pulse'
-                  : 'bg-blue-600 text-white'
+        <BrandSwoosh className="absolute -right-10 -top-10 w-44 opacity-30" />
+        <div className="relative px-3 pt-3 pb-3 flex flex-col gap-2">
+          <div className="flex items-start gap-2.5">
+            <span
+              className={`flex w-9 h-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white ${
+                isCritical ? 'from-red-500 to-red-400' : 'from-[#2c84c4] to-[#69bdd7]'
               }`}
+              style={{ boxShadow: `0 8px 20px -8px ${glow}` }}
             >
-              {isCritical ? <AlertCircle className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-black uppercase tracking-wider text-cyan-300">
-                  {isCritical ? 'Alerta Crítica' : 'Aviso Preventivo'}
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                <span className="text-[10px] text-slate-300 font-mono">SIGEPRO PUSH</span>
+              {isCritical ? <AlertCircle className="w-4.5 h-4.5" /> : <Bell className="w-4.5 h-4.5" />}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: tone }}>
+                {isCritical ? 'Alerta crítica' : 'Aviso preventivo'}
               </div>
-              <h4 className="font-extrabold text-xs sm:text-sm text-white">
+              <h4 className="font-display font-semibold text-[14px] leading-tight text-white mt-0.5">
                 {isCritical
-                  ? `${alertsSummary.criticalCount} Requisito(s) Vencido(s)`
-                  : `${alertsSummary.warningCount} Próximo(s) a Vencer`}
+                  ? `${alertsSummary.criticalCount} requisito(s) vencido(s)`
+                  : `${alertsSummary.warningCount} próximo(s) a vencer`}
               </h4>
             </div>
+            <button
+              type="button"
+              onClick={() => setIsVisible(false)}
+              className="p-1 text-white/50 hover:text-white rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+              title="Descartar notificación"
+              aria-label="Descartar notificación"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsVisible(false)}
-            className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
-            title="Descartar notificación"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Message snippet */}
-        {topAlert && (
-          <div className="bg-white/5 rounded-xl p-2.5 border border-white/10 text-xs space-y-1">
-            <span className="font-bold text-white block text-[11px] truncate">
-              {topAlert.title}
-            </span>
-            <p className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
-              {topAlert.message}
-            </p>
-            <div className="text-[10px] text-slate-400 font-mono pt-0.5">
-              {topAlert.supplierName} ({topAlert.fileNumber})
+          {topAlert && (
+            <div className="rounded-lg glass-dark px-3 py-2 space-y-0.5">
+              <span className="font-semibold text-white block text-[12.5px] truncate">{topAlert.title}</span>
+              <p className="text-[11.5px] text-white/70 line-clamp-2 leading-snug">{topAlert.message}</p>
+              <div className="text-[10.5px] text-[#69bdd7]/80 truncate">
+                {topAlert.supplierName} · {topAlert.fileNumber}
+              </div>
             </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setIsVisible(false)}
+              className="h-8 px-3 rounded-lg text-xs font-semibold text-white/80 hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              Más tarde
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenAlert}
+              className="shimmer h-8 px-3.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 text-white cursor-pointer bg-gradient-brand shadow-glow hover:opacity-95 transition-opacity"
+            >
+              <span>Ver y gestionar</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-        )}
-
-        {/* Action Button */}
-        <div className="flex items-center justify-between gap-2 pt-0.5">
-          <button
-            type="button"
-            onClick={() => setIsVisible(false)}
-            className="text-[11px] text-slate-400 hover:text-slate-200 font-bold px-2 py-1"
-          >
-            Más tarde
-          </button>
-
-          <button
-            type="button"
-            onClick={handleOpenAlert}
-            className={`px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer ${
-              isCritical
-                ? 'bg-rose-600 hover:bg-rose-700 text-white'
-                : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black'
-            }`}
-          >
-            <span>Ver y Gestionar</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
     </div>

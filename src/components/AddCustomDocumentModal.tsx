@@ -123,7 +123,7 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
+      <div className="bg-white rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
         
         {/* Header */}
         <div className="shrink-0 bg-gradient-to-r from-blue-950 to-blue-900 text-white px-5 sm:px-6 py-3.5 sm:py-4 border-b border-blue-800 flex items-center justify-between shadow-xs">
@@ -151,17 +151,17 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
           
-          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-slate-700 scrollbar-thin scrollbar-thumb-slate-300">
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-[#3a5274] dark:text-slate-300 scrollbar-thin scrollbar-thumb-slate-300">
             <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1">
-                Nombre Oficial del Documento <span className="text-blue-600 font-bold">*</span>
+              <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white mb-1">
+                Nombre Oficial del Documento <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="Ej. Certificado de Calidad ISO 9001 o Póliza de Responsabilidad Civil"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 font-medium text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-600"
                 required
               />
             </div>
@@ -169,21 +169,21 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-semibold text-slate-800">
-                    Código del Documento <span className="text-blue-600 font-bold">*</span>
+                  <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white">
+                    Código del Documento <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   {isCodeCustomized ? (
                     <button
                       type="button"
                       onClick={handleResetToAuto}
-                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-600 hover:underline cursor-pointer"
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer"
                       title="Recalcular automáticamente"
                     >
-                      <Zap className="w-2.5 h-2.5 text-amber-500" />
+                      <Zap className="w-2.5 h-2.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                       Auto iniciales
                     </button>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/35">
                       <Zap className="w-2.5 h-2.5" />
                       Auto iniciales
                     </span>
@@ -194,24 +194,24 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
                   value={code}
                   onChange={(e) => handleCodeChange(e.target.value)}
                   placeholder="CERT_ISO, POLIZA_RC, etc."
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold tracking-wider text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-600 uppercase"
+                  className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 font-mono font-bold tracking-wider text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 uppercase"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1">
+                <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white mb-1">
                   Obligatoriedad
                 </label>
-                <div className="py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
+                <div className="py-2 px-3 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-lg flex items-center gap-2">
                   <input
                     type="checkbox"
                     id="isRequiredCustom"
                     checked={isRequired}
                     onChange={(e) => setIsRequired(e.target.checked)}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    className="rounded border-black/10 dark:border-white/10 text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500 cursor-pointer"
                   />
-                  <label htmlFor="isRequiredCustom" className="text-xs font-medium text-slate-700 cursor-pointer">
+                  <label htmlFor="isRequiredCustom" className="text-xs font-medium text-[#3a5274] dark:text-slate-300 cursor-pointer">
                     Requisito Obligatorio
                   </label>
                 </div>
@@ -219,8 +219,8 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
             </div>
 
             {name.trim().length > 2 && (
-              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+              <div className="p-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 space-y-1.5">
+                <span className="text-[10px] font-bold text-[#5d7392] dark:text-slate-400 uppercase tracking-wider block">
                   Sugerencias nemotécnicas (clic para aplicar):
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -231,7 +231,7 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
                       className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
                         code === docSuggestions.initials
                           ? 'bg-blue-600 text-white'
-                          : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400'
+                          : 'bg-white text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10 hover:border-blue-400'
                       }`}
                     >
                       ⚡ {docSuggestions.initials} <span className="opacity-75 font-sans text-[9px]">(Iniciales)</span>
@@ -244,7 +244,7 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
                       className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
                         code === docSuggestions.prefixInitials
                           ? 'bg-blue-600 text-white'
-                          : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400'
+                          : 'bg-white text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10 hover:border-blue-400'
                       }`}
                     >
                       {docSuggestions.prefixInitials} <span className="opacity-75 font-sans text-[9px]">(Prefijo)</span>
@@ -257,7 +257,7 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
                       className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
                         code === docSuggestions.shortSlug
                           ? 'bg-blue-600 text-white'
-                          : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400'
+                          : 'bg-white text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10 hover:border-blue-400'
                       }`}
                     >
                       {docSuggestions.shortSlug} <span className="opacity-75 font-sans text-[9px]">(Corto)</span>
@@ -268,13 +268,13 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
             )}
 
             {/* File attachment */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+            <div className="bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-xl p-3.5 space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="block font-bold text-slate-800">
+                <label className="block font-bold text-[#0b1d3a] dark:text-white">
                   Adjuntar Archivo de Soporte (Opcional)
                 </label>
                 {fileSize && (
-                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded-md">
+                  <span className="text-[10px] font-semibold text-[#5d7392] dark:text-slate-400 bg-black/[0.08] dark:bg-white/10 px-2 py-0.5 rounded-md">
                     Tamaño: {fileSize} (Máx. 5 MB)
                   </span>
                 )}
@@ -296,7 +296,7 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
                   value={fileName}
                   onChange={(e) => setFileName(e.target.value)}
                   placeholder="nombre_archivo.pdf"
-                  className="w-full px-3 py-1.5 bg-white rounded-lg border border-slate-300 font-mono text-[11px] text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-hidden"
+                  className="w-full px-3 py-1.5 bg-white rounded-lg border border-black/10 dark:border-white/10 font-mono text-[11px] text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-blue-600 focus:outline-hidden"
                 />
               </div>
 
@@ -311,7 +311,7 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
                     onChange={handleFileUpload}
                   />
                 </label>
-                <span className="text-[10px] text-slate-500">
+                <span className="text-[10px] text-[#5d7392] dark:text-slate-400">
                   Límite de tamaño: <strong>5 MB</strong>
                 </span>
               </div>
@@ -320,13 +320,13 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
             {/* Status & Expiration */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1">
+                <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white mb-1">
                   Estado Inicial
                 </label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as DocumentStatus)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-bold text-slate-900 bg-white"
+                  className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 font-bold text-[#0b1d3a] dark:text-white bg-white"
                 >
                   <option value="CARGADO">CARGADO (EN REVISIÓN)</option>
                   <option value="APROBADO">APROBADO</option>
@@ -336,40 +336,40 @@ export const AddCustomDocumentModal: React.FC<Props> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1">
+                <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white mb-1">
                   Fecha de Vencimiento
                 </label>
                 <input
                   type="date"
                   value={expirationDate}
                   onChange={(e) => setExpirationDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-slate-900 bg-white"
+                  className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 font-mono text-[#0b1d3a] dark:text-white bg-white"
                 />
               </div>
             </div>
 
             {/* Justification */}
-            <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 space-y-1.5">
-              <label className="block text-xs font-bold text-blue-950">
-                Justificación de Inclusión del Documento <span className="text-blue-600 font-bold">*</span>
+            <div className="bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-xl p-3.5 space-y-1.5">
+              <label className="block text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7]">
+                Justificación de Inclusión del Documento <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
               </label>
               <textarea
                 rows={2}
                 value={justification}
                 onChange={(e) => setJustification(e.target.value)}
                 placeholder="Motivo por el cual se anexa este requisito..."
-                className="w-full px-3 py-1.5 bg-white rounded border border-blue-300 text-slate-900 text-xs focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3 py-1.5 bg-white rounded border border-[#2c84c4]/30 text-[#0b1d3a] dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
                 required
               />
             </div>
           </div>
 
           {/* Sticky Footer */}
-          <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+          <div className="shrink-0 px-5 sm:px-6 py-3.5 bg-black/[0.04] dark:bg-white/[0.06] border-t border-black/10 dark:border-white/10 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer rounded-lg hover:bg-slate-200/60 transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white cursor-pointer rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             >
               Cancelar
             </button>

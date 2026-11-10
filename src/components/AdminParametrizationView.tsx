@@ -50,6 +50,7 @@ import { BaseRequirementsTab } from './matrix/BaseRequirementsTab';
 import { EconomicActivitiesTab } from './matrix/EconomicActivitiesTab';
 import { DocumentCatalogTab } from './matrix/DocumentCatalogTab';
 import { MatrixSimulatorTab } from './matrix/MatrixSimulatorTab';
+import { PageHeader, heroPrimaryBtn, heroSecondaryBtn } from './ui/archive';
 
 export type ParamTab =
   // Matriz de Requisitos Documentales
@@ -767,7 +768,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   // Access Security Check
   if (role !== 'ADMIN') {
     return (
-      <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+      <div className="fs-card max-w-xl mx-auto my-12 p-8 rounded-2xl text-center">
         <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
           <AlertCircle className="w-6 h-6" />
         </div>
@@ -786,57 +787,24 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
+    <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1 space-y-5">
       
-      {/* 1. Standardized Header Banner */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 text-slate-900 border border-slate-200 shadow-xs relative overflow-hidden dark:bg-[#0b1329] dark:text-white dark:border-blue-900/60">
-        <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1 w-full">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 p-1.5 dark:bg-slate-900/80 dark:border-blue-800 shadow-2xs">
-              <Sliders className="w-5 h-5 text-blue-700 dark:text-cyan-400" />
-            </div>
-            <div className="space-y-1 min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="bg-blue-50 text-blue-800 border border-blue-200 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-400/30 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
-                  ADMIN GENERAL
-                </span>
-                <span className="bg-slate-100 text-slate-700 border border-slate-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-400/30 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider hidden sm:inline-flex">
-                  ISO 9001:2015
-                </span>
-              </div>
-              <h1 className="text-base sm:text-lg lg:text-xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
-                Parametrización General y Matriz SIG
-              </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-                Gestión centralizada de requisitos documentales, listas desplegables, catálogos maestros y políticas SIG
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons in Header */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto shrink-0 pt-2.5 xl:pt-0 border-t xl:border-t-0 border-slate-100 dark:border-slate-800/80">
-            <button
-              onClick={handleExportJson}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold rounded-lg border border-slate-200 transition-all shadow-2xs cursor-pointer dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700"
-              title="Exportar configuración en formato JSON"
-            >
-              <Download className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-              <span>Exportar JSON</span>
+      <PageHeader
+        icon={Sliders}
+        title="Parametrización general"
+        subtitle="Requisitos documentales, listas desplegables, catálogos maestros y políticas SIG"
+        actions={
+          <>
+            <button type="button" className={heroSecondaryBtn} onClick={handleExportJson}>
+              <Download className="w-5 h-5" /> Exportar JSON
             </button>
-
-            <button
-              onClick={() => setIsImportModalOpen(true)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold rounded-lg border border-slate-200 transition-all shadow-2xs cursor-pointer dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700"
-              title="Importar configuración desde JSON"
-            >
-              <Upload className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-              <span>Importar</span>
+            <button type="button" className={heroSecondaryBtn} onClick={() => setIsImportModalOpen(true)}>
+              <Upload className="w-5 h-5" /> Importar
             </button>
-
-
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
+      <div className="h-1" />
 
       {/* 2. Main Content Grid: Left Tabs Sidebar & Right Active Catalog Management */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -845,7 +813,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
         <div className="lg:col-span-4 xl:col-span-3 space-y-3">
           
           {/* Quick Filter Pill Switcher */}
-          <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 p-2 shadow-xs flex items-center justify-between gap-1">
+          <div className="fs-card rounded-2xl p-2 flex items-center justify-between gap-1">
             <button
               onClick={() => setActiveSectionFilter('ALL')}
               className={`flex-1 py-1 px-1.5 text-[10px] font-bold rounded-lg transition-colors text-center cursor-pointer ${
@@ -878,17 +846,17 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
             </button>
           </div>
 
-          <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 p-2 shadow-xs space-y-3">
+          <div className="fs-card rounded-2xl p-2 space-y-3">
             
             {/* GROUP 1: MATRIZ DE REQUISITOS DOCUMENTALES */}
             {(activeSectionFilter === 'ALL' || activeSectionFilter === 'MATRIX') && (
               <div>
-                <div className="flex items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 border-b border-blue-100 dark:border-blue-900/40 mb-1">
+                <div className="flex items-center justify-between px-3 py-1.5 text-sm font-bold text-blue-600 dark:text-blue-400 border-b border-blue-100 dark:border-blue-900/40 mb-1">
                   <span className="flex items-center gap-1.5">
                     <FileSpreadsheet className="w-3.5 h-3.5" />
                     <span>Matriz de Requisitos (SIG)</span>
                   </span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                  <span className="text-xs px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
                     4 vistas
                   </span>
                 </div>
@@ -905,7 +873,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                           setSearchQuery('');
                           setFilterStatus('ALL');
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[15px] font-semibold transition-all text-left cursor-pointer ${
                           isActive
                             ? 'bg-blue-600 text-white shadow-sm shadow-blue-900/20 font-bold'
                             : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
@@ -934,12 +902,12 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
             {/* GROUP 2: CATÁLOGOS Y PARÁMETROS MAESTROS */}
             {(activeSectionFilter === 'ALL' || activeSectionFilter === 'CATALOGS') && (
               <div>
-                <div className="flex items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/80 mb-1">
+                <div className="flex items-center justify-between px-3 py-1.5 text-sm font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/80 mb-1">
                   <span className="flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5" />
                     <span>Catálogos Maestros</span>
                   </span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                  <span className="text-xs px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                     9 catálogos
                   </span>
                 </div>
@@ -956,7 +924,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                           setSearchQuery('');
                           setFilterStatus('ALL');
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[15px] font-semibold transition-all text-left cursor-pointer ${
                           isActive
                             ? 'bg-blue-600 text-white shadow-sm shadow-blue-900/20 font-bold'
                             : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
@@ -985,7 +953,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
             {/* GROUP 3: CONFIGURACIÓN GLOBAL */}
             {(activeSectionFilter === 'ALL' || activeSectionFilter === 'GLOBAL') && (
               <div>
-                <div className="flex items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/80 mb-1">
+                <div className="flex items-center justify-between px-3 py-1.5 text-sm font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/80 mb-1">
                   <span className="flex items-center gap-1.5">
                     <Sliders className="w-3.5 h-3.5" />
                     <span>Sistema SIG</span>
@@ -1004,7 +972,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                           setSearchQuery('');
                           setFilterStatus('ALL');
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[15px] font-semibold transition-all text-left cursor-pointer ${
                           isActive
                             ? 'bg-blue-600 text-white shadow-sm shadow-blue-900/20 font-bold'
                             : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
@@ -1027,10 +995,10 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
           <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-3 text-xs space-y-1.5">
             <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 font-semibold text-[11px]">
               <span className="flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5 text-blue-600" />
+                <Info className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                 <span>Estado de Parámetros</span>
               </span>
-              <span className="text-blue-600 font-bold">Activo</span>
+              <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">Activo</span>
             </div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
               Todas las modificaciones a la matriz y catálogos aplican inmediatamente a los formularios de registro y evaluación SIG.
@@ -1076,16 +1044,16 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
           
           {/* TAB 1: CATEGORIAS DE SUMINISTRO / SERVICIO */}
           {activeTab === 'categories' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               
               {/* Header inside card */}
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Categorías de Suministro / Servicio Institucional ({categoriesConfig.length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Estas categorías aparecen en los formularios de registro, convocatorias y selección de proveedores.
                   </p>
                 </div>
@@ -1104,13 +1072,13 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               {/* Search & Stats Bar */}
               <div className="p-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b1329] flex items-center gap-3">
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-[#5d7392] dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar categoría de suministro, descripción o nivel de riesgo..."
-                    className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-[15px] text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1134,7 +1102,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {filteredCategories.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="text-center py-8 text-slate-400 text-xs">
+                        <td colSpan={5} className="text-center py-8 text-[#5d7392] dark:text-slate-400 text-xs">
                           No se encontraron categorías con el criterio de búsqueda "{searchQuery}".
                         </td>
                       </tr>
@@ -1205,14 +1173,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 2: ENTIDADES BANCARIAS */}
           {activeTab === 'banks' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Entidades Financieras y Bancos ({(systemParameters?.bankOptions || []).length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Entidades bancarias y financieras autorizadas en Colombia para dispersión de pagos.
                   </p>
                 </div>
@@ -1228,13 +1196,13 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               {/* Search & Filter */}
               <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center gap-2">
                 <div className="relative flex-1 w-full">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-[#5d7392] dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar banco por nombre o código..."
-                    className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-[15px] text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div className="flex items-center gap-1.5 w-full sm:w-auto">
@@ -1285,7 +1253,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                     {filteredBanks.map((b) => (
                       <tr key={b.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-slate-100">{b.name}</td>
-                        <td className="px-3 py-2.5 text-slate-500 font-mono text-[11px]">{b.code}</td>
+                        <td className="px-3 py-2.5 text-[#5d7392] dark:text-slate-400 tabular-nums text-[11px]">{b.code}</td>
                         <td className="px-3 py-2.5">
                           <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md text-slate-700 dark:text-slate-300">
                             {b.bankType || 'BANCO'}
@@ -1300,7 +1268,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {b.isActive ? <CheckCircle2 className="w-3 h-3 text-blue-600" /> : <XCircle className="w-3 h-3 text-slate-400" />}
+                            {b.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{b.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1330,14 +1298,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 3: TIPOS DE CUENTA BANCARIA */}
           {activeTab === 'bankAccountTypes' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Tipos de Cuenta Bancaria ({(systemParameters?.bankAccountTypes || []).length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Modalidades de cuenta disponibles en certificaciones bancarias de proveedores.
                   </p>
                 </div>
@@ -1368,7 +1336,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                     {filteredBankAccountTypes.map((a) => (
                       <tr key={a.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-slate-100">{a.name}</td>
-                        <td className="px-3 py-2.5 text-slate-500 font-mono text-[11px]">{a.code}</td>
+                        <td className="px-3 py-2.5 text-[#5d7392] dark:text-slate-400 tabular-nums text-[11px]">{a.code}</td>
                         <td className="px-3 py-2.5">
                           <button
                             onClick={() => handleToggleStatus(a)}
@@ -1378,7 +1346,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {a.isActive ? <CheckCircle2 className="w-3 h-3 text-blue-600" /> : <XCircle className="w-3 h-3 text-slate-400" />}
+                            {a.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{a.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1408,14 +1376,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 4: TIPOS DE IDENTIFICACIÓN */}
           {activeTab === 'documentTypes' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Tipos de Identificación y Documento ({(systemParameters?.documentTypes || []).length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Tipos de documentos de identificación tributaria y ciudadana en Colombia.
                   </p>
                 </div>
@@ -1447,7 +1415,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                     {filteredDocumentTypes.map((d) => (
                       <tr key={d.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-slate-100">{d.name}</td>
-                        <td className="px-3 py-2.5 text-slate-500 font-mono text-[11px]">{d.code}</td>
+                        <td className="px-3 py-2.5 text-[#5d7392] dark:text-slate-400 tabular-nums text-[11px]">{d.code}</td>
                         <td className="px-3 py-2.5">
                           <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md text-slate-700 dark:text-slate-300">
                             {d.appliesTo === 'NATURAL' ? 'Persona Natural' : d.appliesTo === 'JURIDICA' ? 'Persona Jurídica' : 'Ambos Regímenes'}
@@ -1462,7 +1430,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {d.isActive ? <CheckCircle2 className="w-3 h-3 text-blue-600" /> : <XCircle className="w-3 h-3 text-slate-400" />}
+                            {d.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{d.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1492,14 +1460,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 5: REGIMEN TRIBUTARIO */}
           {activeTab === 'taxRegimes' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Régimen Tributario y Calidad Fiscal ({(systemParameters?.taxRegimes || []).length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Clasificación fiscal DIAN para retenciones en la fuente e ICA.
                   </p>
                 </div>
@@ -1531,7 +1499,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                     {filteredTaxRegimes.map((t) => (
                       <tr key={t.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-slate-100">{t.name}</td>
-                        <td className="px-3 py-2.5 text-slate-500 font-mono text-[11px]">{t.code}</td>
+                        <td className="px-3 py-2.5 text-[#5d7392] dark:text-slate-400 tabular-nums text-[11px]">{t.code}</td>
                         <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300 text-[11px]">{t.description || 'Sin notas'}</td>
                         <td className="px-3 py-2.5">
                           <button
@@ -1542,7 +1510,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {t.isActive ? <CheckCircle2 className="w-3 h-3 text-blue-600" /> : <XCircle className="w-3 h-3 text-slate-400" />}
+                            {t.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{t.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1572,14 +1540,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 6: CIUDADES Y COBERTURA */}
           {activeTab === 'cities' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Ciudades, Municipios y Agencias ({(systemParameters?.cityOptions || []).length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Cobertura operativa para radicación y sedes terminales de Flota Sugamuxi S.A.
                   </p>
                 </div>
@@ -1612,7 +1580,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                       <tr key={c.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-slate-100">{c.name}</td>
                         <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">{c.department}</td>
-                        <td className="px-3 py-2.5 text-slate-500 font-mono text-[11px]">{c.code}</td>
+                        <td className="px-3 py-2.5 text-[#5d7392] dark:text-slate-400 tabular-nums text-[11px]">{c.code}</td>
                         <td className="px-3 py-2.5">
                           <button
                             onClick={() => handleToggleStatus(c)}
@@ -1622,7 +1590,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {c.isActive ? <CheckCircle2 className="w-3 h-3 text-blue-600" /> : <XCircle className="w-3 h-3 text-slate-400" />}
+                            {c.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{c.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1652,14 +1620,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 7: NIVELES ARL */}
           {activeTab === 'arlRiskLevels' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Niveles de Riesgo Laboral ARL ({(systemParameters?.arlRiskLevels || []).length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Clasificación de riesgo en Seguridad y Salud en el Trabajo (SST - Decreto 1072 de 2015).
                   </p>
                 </div>
@@ -1691,7 +1659,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                     {filteredArlRiskLevels.map((a) => (
                       <tr key={a.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-slate-100">{a.name}</td>
-                        <td className="px-3 py-2.5 font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                        <td className="px-3 py-2.5 tabular-nums text-[11px] font-bold text-blue-600 dark:text-blue-400">
                           {a.percentage}%
                         </td>
                         <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300 text-[11px]">{a.description || 'Sin descripción'}</td>
@@ -1704,7 +1672,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {a.isActive ? <CheckCircle2 className="w-3 h-3 text-blue-600" /> : <XCircle className="w-3 h-3 text-slate-400" />}
+                            {a.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{a.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1734,14 +1702,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 8: MODALIDADES DE CONVOCATORIAS */}
           {activeTab === 'convocatoriaTypes' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Modalidades de Contratación y Convocatorias ({(systemParameters?.convocatoriaTypes || []).length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Procesos de selección y modalidades de contratación institucional.
                   </p>
                 </div>
@@ -1773,7 +1741,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                     {filteredConvocatoriaTypes.map((c) => (
                       <tr key={c.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-slate-100">{c.name}</td>
-                        <td className="px-3 py-2.5 text-slate-500 font-mono text-[11px]">{c.code}</td>
+                        <td className="px-3 py-2.5 text-[#5d7392] dark:text-slate-400 tabular-nums text-[11px]">{c.code}</td>
                         <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300 text-[11px]">{c.description || 'Sin notas'}</td>
                         <td className="px-3 py-2.5">
                           <button
@@ -1784,7 +1752,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {c.isActive ? <CheckCircle2 className="w-3 h-3 text-blue-600" /> : <XCircle className="w-3 h-3 text-slate-400" />}
+                            {c.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{c.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1814,14 +1782,14 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 9: CAUSAS DE DEVOLUCIÓN */}
           {activeTab === 'rejectionReasons' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                     <span>Causas de Devolución y Observaciones SIG ({(systemParameters?.rejectionReasons || []).length})</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     Motivos preestablecidos para requerir subsanación en proveedores y documentos.
                   </p>
                 </div>
@@ -1853,7 +1821,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                     {filteredRejectionReasons.map((r) => (
                       <tr key={r.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-slate-100">{r.name}</td>
-                        <td className="px-3 py-2.5 text-slate-500 font-mono text-[11px]">{r.code}</td>
+                        <td className="px-3 py-2.5 text-[#5d7392] dark:text-slate-400 tabular-nums text-[11px]">{r.code}</td>
                         <td className="px-3 py-2.5">
                           <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
                             {r.category || 'DOCUMENTAL'}
@@ -1868,7 +1836,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {r.isActive ? <CheckCircle2 className="w-3 h-3 text-blue-600" /> : <XCircle className="w-3 h-3 text-slate-400" />}
+                            {r.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{r.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1898,13 +1866,13 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
 
           {/* TAB 10: PARAMETROS Y POLÍTICAS GLOBALES */}
           {activeTab === 'globalSettings' && (
-            <div className="bg-white dark:bg-[#0b1329] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40">
-                <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-blue-600" />
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
                   <span>Políticas Operativas y Parámetros Globales SIG</span>
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                   Directrices técnicas, contactos institucionales y límites de almacenamiento para Flota Sugamuxi S.A.
                 </p>
               </div>
@@ -2019,7 +1987,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                       id="enableAutoEmails"
                       checked={settingsForm.enableAutoEmailNotifications}
                       onChange={(e) => setSettingsForm({ ...settingsForm, enableAutoEmailNotifications: e.target.checked })}
-                      className="rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500 cursor-pointer"
                     />
                     <label htmlFor="enableAutoEmails" className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                       Enviar notificaciones automáticas por correo en cambios de estado de proveedores
@@ -2043,7 +2011,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       {/* 3. MODAL FOR CREATE / EDIT PARAMETERS */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
@@ -2135,7 +2103,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                         value={genericForm.code}
                         onChange={(e) => setGenericForm({ ...genericForm, code: e.target.value })}
                         placeholder="Ej: BANCO_AGRARIO"
-                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 uppercase font-mono"
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 uppercase tabular-nums"
                       />
                     </div>
 
@@ -2224,7 +2192,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                       id="itemActive"
                       checked={genericForm.isActive}
                       onChange={(e) => setGenericForm({ ...genericForm, isActive: e.target.checked })}
-                      className="rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500 cursor-pointer"
                     />
                     <label htmlFor="itemActive" className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                       Habilitar parámetro inmediatamente en todas las listas desplegables
@@ -2257,9 +2225,9 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       {/* 4. MODAL DELETE CONFIRMATION */}
       {deleteConfirmItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-md w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 text-center">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-md w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 text-center">
             <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center mx-auto">
-              <AlertCircle className="w-6 h-6 text-blue-600" />
+              <AlertCircle className="w-6 h-6 text-[#1d5fa8] dark:text-[#69bdd7]" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
@@ -2292,17 +2260,17 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       {/* 6. MODAL IMPORT JSON */}
       {isImportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <Upload className="w-5 h-5 text-blue-600" />
+                <Upload className="w-5 h-5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   Importar Configuración JSON
                 </h3>
               </div>
               <button
                 onClick={() => setIsImportModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="p-1 rounded-lg text-[#5d7392] dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2317,7 +2285,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 value={importJsonText}
                 onChange={(e) => setImportJsonText(e.target.value)}
                 placeholder='{ "bankOptions": [...], "cityOptions": [...] }'
-                className="w-full p-3 font-mono text-[11px] bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 tabular-nums text-[11px] bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -2342,7 +2310,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       {/* 7. MODAL NUEVA ACTIVIDAD / SERVICIO (MATRIX) */}
       {isNewCategoryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-2xl w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
@@ -2359,7 +2327,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               </div>
               <button
                 onClick={() => setIsNewCategoryModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="p-1 rounded-lg text-[#5d7392] dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2468,7 +2436,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       {/* 8. MODAL NUEVO DOCUMENTO MAESTRO (MATRIX) */}
       {isNewDocModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[92vh] overflow-y-auto">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
@@ -2492,7 +2460,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                   setIsNewDocModalOpen(false);
                   setIsDocCodeCustomized(false);
                 }}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="p-1 rounded-lg text-[#5d7392] dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2512,7 +2480,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                   placeholder="Ej. Certificado de Retenciones en la Fuente (RCE)..."
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1">
                   💡 Tip: Puedes incluir siglas al final entre paréntesis, ej: <span className="font-semibold text-blue-600 dark:text-blue-400">(RUT)</span>, <span className="font-semibold text-blue-600 dark:text-blue-400">(RCE)</span>, <span className="font-semibold text-blue-600 dark:text-blue-400">(SST)</span>.
                 </p>
               </div>
@@ -2531,11 +2499,11 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                         className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
                         title="Recalcular automáticamente a partir de las iniciales"
                       >
-                        <Zap className="w-2.5 h-2.5 text-amber-500" />
+                        <Zap className="w-2.5 h-2.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
                         Autocalcular
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-xs font-bold bg-[#2c84c4]/12 dark:bg-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] border border-[#2c84c4]/35 dark:border-[#2c84c4]/35">
                         <Zap className="w-2.5 h-2.5" />
                         Auto por iniciales
                       </span>
@@ -2547,7 +2515,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                     value={newDocCode}
                     onChange={(e) => handleDocCodeChange(e.target.value)}
                     placeholder="Ej. CRF"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono font-bold tracking-wider text-[11px] focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 tabular-nums font-bold tracking-wider text-[11px] focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -2581,52 +2549,52 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                       <button
                         type="button"
                         onClick={() => handleApplyDocCodeSuggestion(docCodeSuggestions.initials)}
-                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                        className={`px-2 py-0.5 rounded text-[10px] tabular-nums font-semibold transition-all cursor-pointer ${
                           newDocCode === docCodeSuggestions.initials
                             ? 'bg-blue-600 text-white shadow-xs'
                             : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
                         }`}
                       >
-                        ⚡ {docCodeSuggestions.initials} <span className="opacity-75 font-sans text-[9px]">(Iniciales)</span>
+                        ⚡ {docCodeSuggestions.initials} <span className="opacity-75 font-sans text-xs">(Iniciales)</span>
                       </button>
                     )}
                     {docCodeSuggestions.prefixInitials && (
                       <button
                         type="button"
                         onClick={() => handleApplyDocCodeSuggestion(docCodeSuggestions.prefixInitials!)}
-                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                        className={`px-2 py-0.5 rounded text-[10px] tabular-nums font-semibold transition-all cursor-pointer ${
                           newDocCode === docCodeSuggestions.prefixInitials
                             ? 'bg-blue-600 text-white shadow-xs'
                             : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
                         }`}
                       >
-                        {docCodeSuggestions.prefixInitials} <span className="opacity-75 font-sans text-[9px]">(Prefijo)</span>
+                        {docCodeSuggestions.prefixInitials} <span className="opacity-75 font-sans text-xs">(Prefijo)</span>
                       </button>
                     )}
                     {docCodeSuggestions.shortSlug && (
                       <button
                         type="button"
                         onClick={() => handleApplyDocCodeSuggestion(docCodeSuggestions.shortSlug)}
-                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                        className={`px-2 py-0.5 rounded text-[10px] tabular-nums font-semibold transition-all cursor-pointer ${
                           newDocCode === docCodeSuggestions.shortSlug
                             ? 'bg-blue-600 text-white shadow-xs'
                             : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
                         }`}
                       >
-                        {docCodeSuggestions.shortSlug} <span className="opacity-75 font-sans text-[9px]">(Corto)</span>
+                        {docCodeSuggestions.shortSlug} <span className="opacity-75 font-sans text-xs">(Corto)</span>
                       </button>
                     )}
                     {docCodeSuggestions.fullSlug && (
                       <button
                         type="button"
                         onClick={() => handleApplyDocCodeSuggestion(docCodeSuggestions.fullSlug)}
-                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                        className={`px-2 py-0.5 rounded text-[10px] tabular-nums font-semibold transition-all cursor-pointer ${
                           newDocCode === docCodeSuggestions.fullSlug
                             ? 'bg-blue-600 text-white shadow-xs'
                             : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
                         }`}
                       >
-                        {docCodeSuggestions.fullSlug} <span className="opacity-75 font-sans text-[9px]">(Completo)</span>
+                        {docCodeSuggestions.fullSlug} <span className="opacity-75 font-sans text-xs">(Completo)</span>
                       </button>
                     )}
                   </div>
@@ -2665,7 +2633,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                   id="newDocRequiresExp"
                   checked={newDocRequiresExp}
                   onChange={(e) => setNewDocRequiresExp(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500 cursor-pointer"
                 />
                 <label htmlFor="newDocRequiresExp" className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                   Exigir captura obligatoria de fecha de vencimiento al proveedor
