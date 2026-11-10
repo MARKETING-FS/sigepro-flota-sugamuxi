@@ -643,15 +643,15 @@ export const ExcelReportsView: React.FC = () => {
                       <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{doc}</td>
                       <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{isNat ? 'Natural' : 'Jurídica'}</td>
                       <td className="px-3 py-3">
-                        <span className={`px-2 h-6 inline-flex items-center rounded-md text-[10px] font-bold ${tier === 'A' ? 'bg-gradient-action text-white' : 'bg-[#69bdd7]/25 text-[#0e6d8a] dark:text-[#69bdd7]'}`}>Tipo {tier}</span>
+                        <span className={`px-2 h-6 inline-flex items-center whitespace-nowrap rounded-md text-[10px] font-bold ${tier === 'A' ? 'bg-gradient-action text-white' : 'bg-[#69bdd7]/25 text-[#0e6d8a] dark:text-[#69bdd7]'}`}>Tipo {tier}</span>
                       </td>
                       <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{d.basicInfo?.city || 'Sogamoso'}</td>
                       <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{d.selectedCategory}</td>
                       <td className="px-3 py-3">
-                        <span className="px-2.5 h-6 inline-flex items-center rounded-full text-[10px] font-bold bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]">{d.processStatus}</span>
+                        <span className="px-2.5 h-6 inline-flex items-center whitespace-nowrap rounded-full text-[10px] font-bold bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]">{d.processStatus}</span>
                       </td>
                       <td className="px-3 py-3">
-                        <span className={`px-2.5 h-6 inline-flex items-center rounded-full text-[10px] font-bold ${sarlaft === 'SIN_COINCIDENCIAS' ? 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]' : 'bg-black/[0.06] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'}`}>
+                        <span className={`px-2.5 h-6 inline-flex items-center whitespace-nowrap rounded-full text-[10px] font-bold ${sarlaft === 'SIN_COINCIDENCIAS' ? 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]' : 'bg-black/[0.06] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'}`}>
                           {sarlaft || 'PENDIENTE'}
                         </span>
                       </td>

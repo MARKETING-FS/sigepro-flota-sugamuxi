@@ -1580,12 +1580,8 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                         <td className="p-2.5 text-slate-600 dark:text-slate-400">{isNat ? 'Natural' : 'Jurídica'}</td>
                         <td className="p-2.5">
                           <span
-                            className={`text-[10px] font-black px-1.5 py-0.5 rounded border ${
-                              tier === 'A'
-                                ? 'bg-slate-900 text-white border-slate-700 dark:bg-slate-800 dark:text-[#69bdd7]'
-                                : tier === 'B'
-                                ? 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-[#69bdd7]'
-                                : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300'
+                            className={`text-[10px] font-bold px-2 h-6 inline-flex items-center whitespace-nowrap rounded-md ${
+                              tier === 'A' ? 'bg-gradient-action text-white' : 'bg-[#69bdd7]/25 text-[#0e6d8a] dark:text-[#69bdd7]'
                             }`}
                           >
                             Tipo {tier}
