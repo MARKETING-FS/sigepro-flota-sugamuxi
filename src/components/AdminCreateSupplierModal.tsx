@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import {
   X,
   UserPlus,
@@ -33,13 +34,52 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
   onClose,
   onSuccess,
 }) => {
-  const { role, categoriesConfig, createSupplierAdmin, setCurrentDossierId, systemUsers, activeUserId, activeUser, showToast } = useApp();
+  const { role, categoriesConfig, createSupplierAdmin, setCurrentDossierId, systemUsers, activeUserId, activeUser, showToast, accountRole } = useApp();
+
+  // Solo el superadministrador asigna evaluador; los demás roles quedan como responsables de lo que crean
+  const isSuper = accountRole === 'SUPERADMIN';
+  const [realUsers, setRealUsers] = useState<Array<{ id: string; name: string; roleLabel: string }>>([]);
 
   const [supplierType, setSupplierType] = useState<SupplierType>('JURIDICA');
   const [supplierTier, setSupplierTier] = useState<SupplierTier>('A');
   const [selectedCategory, setSelectedCategory] = useState<string>(
     categoriesConfig[0]?.category || 'Mantenimiento Automotriz y Repuestos'
   );
+  // Evaluadores reales: los usuarios registrados en la base de datos
+  useEffect(() => {
+    if (!isOpen || !isSuper || !supabase) return;
+    let cancelled = false;
+    (async () => {
+      const { data: sess } = await supabase!.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) return;
+      try {
+        const res = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const json = await res.json();
+        const list = (json.users || []).map((u: { id: string; name: string; email: string; role: string }) => ({
+          id: u.id,
+          name: u.name || u.email,
+          roleLabel:
+            u.role === 'SUPERADMIN' || u.role === 'ADMIN'
+              ? 'Superadministrador'
+              : u.role === 'ADMINISTRADOR'
+              ? 'Administrador'
+              : 'Usuario',
+        }));
+        if (cancelled || list.length === 0) return;
+        setRealUsers(list);
+        const me = sess.session?.user?.id;
+        setAssignedReviewerId((cur) => (list.some((x: { id: string }) => x.id === cur) ? cur : list.find((x: { id: string }) => x.id === me)?.id || list[0].id));
+      } catch {
+        /* sin conexión: se conserva la asignación por defecto */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, isSuper]);
+
   const [assignedReviewerId, setAssignedReviewerId] = useState<string>(
     role === 'REVISOR' ? activeUserId : 'revisor-1'
   );
@@ -229,9 +269,12 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
         notes: formData.notes.trim(),
         createdByRole: role === 'ADMIN' ? 'ADMIN' : 'REVISOR',
         createdByName: creatorName,
-        assignedReviewerId,
-        assignedReviewerName:
-          systemUsers.find((u) => u.id === assignedReviewerId)?.name || 'Ing. Carlos Mendoza (Revisor 1)',
+        assignedReviewerId: isSuper ? assignedReviewerId : activeUserId,
+        assignedReviewerName: isSuper
+          ? realUsers.find((u) => u.id === assignedReviewerId)?.name ||
+            systemUsers.find((u) => u.id === assignedReviewerId)?.name ||
+            activeUser.name
+          : activeUser.name,
         complianceChecks: compliance,
       };
 
@@ -418,6 +461,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                 </select>
               </div>
 
+              {isSuper && (
               <div>
                 <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1.5 uppercase tracking-wider flex items-center justify-between">
                   <span>Avaluador / Usuario con Acceso</span>
@@ -429,9 +473,9 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   disabled={role === 'REVISOR'}
                   className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white font-medium focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-hidden disabled:bg-slate-100 disabled:cursor-not-allowed"
                 >
-                  {systemUsers.map((u) => (
+                  {realUsers.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.name} — {u.role === 'REVISOR' ? 'Evaluador Técnico' : 'Administrador General'}
+                      {u.name} — {u.roleLabel}
                     </option>
                   ))}
                 </select>
@@ -441,6 +485,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   </p>
                 )}
               </div>
+              )}
             </div>
 
             {/* Selector de Tipo de Proveedor (A, B y C) */}

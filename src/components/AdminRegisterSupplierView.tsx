@@ -33,6 +33,7 @@ import {
   BadgeCheck,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { supabase } from '../lib/supabase';
 import { SupplierType, SupplierTier, ProcessStatus, AdminCreateSupplierInput } from '../types';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
 import { PageHeader, heroPrimaryBtn, heroSecondaryBtn } from './ui/archive';
@@ -60,7 +61,15 @@ export const AdminRegisterSupplierView: React.FC = () => {
     systemUsers,
     activeUserId,
     activeUser,
+    accountRole,
   } = useApp();
+
+  // Solo el superadministrador asigna evaluador; los demás roles quedan como responsables de lo que crean
+  const isSuper = accountRole === 'SUPERADMIN';
+  const [realUsers, setRealUsers] = useState<
+    Array<{ id: string; name: string; email: string; roleLabel: string; isRevisor: boolean }>
+  >([]);
+
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [supplierType, setSupplierType] = useState<SupplierType>('JURIDICA');
@@ -71,6 +80,43 @@ export const AdminRegisterSupplierView: React.FC = () => {
   const [assignedReviewerId, setAssignedReviewerId] = useState<string>(
     role === 'REVISOR' ? activeUserId : 'revisor-1'
   );
+
+  // Evaluadores reales: los usuarios registrados en la base de datos
+  useEffect(() => {
+    if (!isSuper || !supabase) return;
+    let cancelled = false;
+    (async () => {
+      const { data: sess } = await supabase!.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) return;
+      try {
+        const res = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const json = await res.json();
+        const list = (json.users || []).map((u: { id: string; name: string; email: string; role: string }) => ({
+          id: u.id,
+          name: u.name || u.email,
+          email: u.email,
+          isRevisor: u.role === 'USUARIO' || u.role === 'REVISOR',
+          roleLabel:
+            u.role === 'SUPERADMIN' || u.role === 'ADMIN'
+              ? 'Superadministrador'
+              : u.role === 'ADMINISTRADOR'
+              ? 'Administrador'
+              : 'Usuario',
+        }));
+        if (cancelled || list.length === 0) return;
+        setRealUsers(list);
+        const me = sess.session?.user?.id;
+        setAssignedReviewerId((cur) => (list.some((x: { id: string }) => x.id === cur) ? cur : list.find((x: { id: string }) => x.id === me)?.id || list[0].id));
+      } catch {
+        /* sin conexión: se conserva la asignación por defecto */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isSuper]);
 
   const [initialStatus] = useState<ProcessStatus>('DOCUMENTACION_PENDIENTE');
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(true);
@@ -331,9 +377,12 @@ export const AdminRegisterSupplierView: React.FC = () => {
         notes: formData.notes.trim(),
         createdByRole: role === 'ADMIN' ? 'ADMIN' : 'REVISOR',
         createdByName: role === 'ADMIN' ? 'Administrador General' : activeUser.name || 'Revisor Técnico Evaluador',
-        assignedReviewerId,
-        assignedReviewerName:
-          systemUsers.find((u) => u.id === assignedReviewerId)?.name || 'Ing. Carlos Mendoza (Revisor 1)',
+        assignedReviewerId: isSuper ? assignedReviewerId : activeUserId,
+        assignedReviewerName: isSuper
+          ? realUsers.find((u) => u.id === assignedReviewerId)?.name ||
+            systemUsers.find((u) => u.id === assignedReviewerId)?.name ||
+            activeUser.name
+          : activeUser.name,
         complianceChecks: {
           sarlaftResult: compliance.sarlaftResult,
           ofacResult: compliance.ofacResult,
@@ -700,7 +749,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
               </div>
 
               {/* BLOQUE 2: Dos Columnas Simétricas - Categoría Técnica (Izquierda) y Evaluador Asignado (Derecha) */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+              <div className={`grid grid-cols-1 ${isSuper ? 'lg:grid-cols-2' : ''} gap-5 items-stretch`}>
                 {/* 2.1 Categoría de Suministro (Panel Izquierdo) */}
                 <div className="fs-card rounded-2xl overflow-hidden flex flex-col">
                   {/* Header Categoría */}
@@ -716,64 +765,29 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Listado de Categorías con texto legible sin truncar */}
+                  {/* Lista desplegable de categorías */}
                   <div className="p-3.5 space-y-2 flex-1">
-                    {categoriesConfig.map((cat) => {
-                      const isSelected = selectedCategory === cat.category;
-                      const CatIcon = getCategoryIcon(cat.category);
-                      return (
-                        <div
-                          key={cat.id}
-                          onClick={() => setSelectedCategory(cat.category)}
-                          className={`p-3 rounded-2xl border cursor-pointer transition-all duration-300 flex items-center justify-between gap-3 ${
-                            isSelected
-                              ? 'border-blue-600 dark:border-cyan-400 bg-blue-50/70 dark:bg-blue-950/60 shadow-xs ring-1 ring-blue-500/20'
-                              : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/40'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div
-                              className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                                isSelected
-                                  ? 'bg-gradient-action text-white shadow-glow'
-                                  : 'bg-[#e3eaf3] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
-                              }`}
-                            >
-                              <CatIcon className="w-4 h-4" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h5 className="font-bold text-xs text-slate-900 dark:text-white leading-snug">
-                                  {cat.category}
-                                </h5>
-                                {cat.economicCode && (
-                                  <span className="text-[9px] font-bold text-blue-700 dark:text-cyan-300 bg-blue-100/70 dark:bg-blue-950/80 px-1.5 py-0.2 rounded border border-blue-200 dark:border-blue-900 shrink-0">
-                                    {cat.economicCode}
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
-                                {cat.description}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="shrink-0 pl-1">
-                            {isSelected ? (
-                              <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow">
-                                <Check className="w-3 h-3 stroke-[3]" />
-                              </div>
-                            ) : (
-                              <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25" />
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-white/5 border border-black/15 dark:border-white/15 text-sm font-semibold text-[#0b1d3a] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2c84c4]/40"
+                    >
+                      {categoriesConfig.map((cat) => (
+                        <option key={cat.id} value={cat.category}>
+                          {cat.category}{cat.economicCode ? ` (${cat.economicCode})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {categoriesConfig.find((c) => c.category === selectedCategory)?.description && (
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                        {categoriesConfig.find((c) => c.category === selectedCategory)?.description}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {/* 2.2 Evaluador Asignado (Panel Derecho) */}
+                {/* 2.2 Evaluador Asignado (Panel Derecho) — solo superadministrador */}
+                {isSuper && (
                 <div className="fs-card rounded-2xl overflow-hidden flex flex-col justify-between">
                   <div>
                     {/* Header Evaluador */}
@@ -797,9 +811,12 @@ export const AdminRegisterSupplierView: React.FC = () => {
 
                     {/* Listado de Evaluadores */}
                     <div className="p-3.5 space-y-2">
-                      {systemUsers.map((user) => {
+                      {realUsers.length === 0 && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 px-1">Cargando usuarios registrados…</p>
+                      )}
+                      {realUsers.map((user) => {
                         const isSelected = assignedReviewerId === user.id;
-                        const isReviewerRole = user.role === 'REVISOR';
+                        const isReviewerRole = user.isRevisor;
                         return (
                           <div
                             key={user.id}
@@ -832,11 +849,11 @@ export const AdminRegisterSupplierView: React.FC = () => {
                                         : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                                     }`}
                                   >
-                                    {isReviewerRole ? 'Revisor' : 'Administrador'}
+                                    {user.roleLabel}
                                   </span>
                                 </div>
                                 <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">
-                                  {user.roleDescription || user.email}
+                                  {user.email}
                                 </span>
                               </div>
                             </div>
@@ -881,6 +898,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                )}
               </div>
             </div>
           )}
@@ -1214,7 +1232,8 @@ export const AdminRegisterSupplierView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Evaluador Asignado y Acceso */}
+              {/* Evaluador Asignado y Acceso — solo superadministrador */}
+              {isSuper && (
               <div className="p-4 rounded-2xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/30 space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
@@ -1237,15 +1256,16 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       disabled={role === 'REVISOR'}
                       className="fs-card w-full px-3 py-2 border-slate-300 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed"
                     >
-                      {systemUsers.map((u) => (
+                      {realUsers.map((u) => (
                         <option key={u.id} value={u.id}>
-                          {u.name} ({u.role === 'REVISOR' ? 'Evaluador Técnico' : 'Administrador'})
+                          {u.name} ({u.roleLabel})
                         </option>
                       ))}
                     </select>
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Status and Notes */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
