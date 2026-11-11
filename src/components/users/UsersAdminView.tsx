@@ -3,7 +3,8 @@ import { UserCog, UserPlus, Eye, EyeOff, Wand2, Trash2, RefreshCw, ShieldCheck, 
 import { useApp } from '../../context/AppContext';
 import { supabase } from '../../lib/supabase';
 import { useConfirm } from '../ui/ConfirmDialog';
-import { PageHeader, StatusPill, cardCls, theadRowCls, tbodyCls, rowCls } from '../ui/archive';
+import { BrandSwoosh } from '../ui/BrandSwoosh';
+import { PageHeader, StatusPill, cardCls, heroPrimaryBtn, theadRowCls, tbodyCls, rowCls } from '../ui/archive';
 
 interface ManagedUser {
   id: string;
@@ -72,6 +73,7 @@ export const UsersAdminView: React.FC = () => {
   const [showPass, setShowPass] = useState(false);
   const [role, setRole] = useState<AssignableRole>('USUARIO');
   const [saving, setSaving] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [formError, setFormError] = useState('');
 
   const load = useCallback(async () => {
@@ -103,6 +105,7 @@ export const UsersAdminView: React.FC = () => {
     setPassword('');
     setShowPass(false);
     setRole('USUARIO');
+    setIsFormOpen(false);
     void load();
   };
 
@@ -133,20 +136,32 @@ export const UsersAdminView: React.FC = () => {
         icon={UserCog}
         title="Usuarios"
         subtitle="Cree las cuentas del equipo y elija su rol. Solo usted, como superadministrador, ve este módulo."
+        actions={
+          <button type="button" className={heroPrimaryBtn} onClick={() => { setFormError(''); setIsFormOpen(true); }}>
+            <UserPlus className="w-5 h-5" /> Crear usuario
+          </button>
+        }
       />
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] items-start">
-        {/* Formulario */}
-        <form onSubmit={submit} className={`${cardCls} p-6 space-y-5`}>
-          <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow">
-              <UserPlus className="w-5 h-5" />
-            </span>
-            <div>
-              <h2 className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white leading-tight">Nuevo usuario</h2>
-              <p className="text-xs text-[#3a5274] dark:text-slate-400">Se crea con acceso inmediato.</p>
+      <div className="mt-6">
+        {/* Formulario (ventana) */}
+        {isFormOpen && (
+        <div className="fixed inset-0 z-50 bg-[#050b1a]/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" onMouseDown={(e) => { if (e.target === e.currentTarget) setIsFormOpen(false); }}>
+        <form onSubmit={submit} className="bg-[#f4f8fc] dark:bg-[#0c1426] rounded-[28px] border border-black/10 dark:border-white/10 max-w-lg w-full shadow-2xl overflow-hidden animate-fade-up my-8">
+          <div className="relative overflow-hidden bg-gradient-brand text-white px-6 py-5 flex items-center justify-between">
+            <BrandSwoosh className="absolute -right-10 -bottom-12 w-64 opacity-100" />
+            <div className="relative flex items-center gap-3">
+              <span className="w-11 h-11 rounded-2xl bg-white/15 ring-1 ring-white/30 grid place-items-center">
+                <UserPlus className="w-5 h-5" />
+              </span>
+              <div>
+                <h3 className="font-display text-lg font-semibold">Nuevo usuario</h3>
+                <p className="text-xs text-white/75">Se crea con acceso inmediato.</p>
+              </div>
             </div>
+            <button type="button" onClick={() => setIsFormOpen(false)} aria-label="Cerrar" className="relative w-9 h-9 grid place-items-center rounded-xl text-white/80 hover:text-white hover:bg-white/15 text-xl cursor-pointer">&times;</button>
           </div>
+          <div className="p-6 space-y-5">
 
           {formError && (
             <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">
@@ -231,7 +246,10 @@ export const UsersAdminView: React.FC = () => {
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
             {saving ? 'Creando…' : 'Crear usuario'}
           </button>
+          </div>
         </form>
+        </div>
+        )}
 
         {/* Lista */}
         <section className={`${cardCls} overflow-hidden`}>
