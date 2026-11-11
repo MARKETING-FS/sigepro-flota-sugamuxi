@@ -14,7 +14,6 @@ import {
   Panel,
   Radicado,
   STAGES,
-  StageStrip,
   StatusPill,
   stageOf,
   supplierName,
@@ -205,12 +204,6 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         <Kpi icon={FileClock} label="Con vencimientos" value={stats.conVencimientos} hint={`${stats.due.length} pendientes en ${HORIZON_DAYS} días`} tone="danger" progress={pct(stats.conVencimientos)} delay={240} />
       </div>
 
-      <Panel title="Etapas de los expedientes" aside="Toque una etapa para ver sus expedientes">
-        <div className="pt-2">
-          <StageStrip counts={stats.stageCounts} onSelect={onFilterStage} />
-        </div>
-      </Panel>
-
       <div className="grid gap-6 grid-cols-1 xl:grid-cols-12 [&>*]:min-w-0">
         <Panel title="Desempeño de proveedores" aside={stats.avg !== null ? `Promedio ${stats.avg.toFixed(1).replace('.', ',')} pts` : 'Sin calificaciones'} className="xl:col-span-8">
           <div className="text-[#0b1d3a] dark:text-slate-200"><TrendChart data={stats.trend} /></div>
@@ -235,44 +228,8 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] [&>*]:min-w-0">
-        <Panel title="Vencimientos próximos" aside={`Vencidos y próximos ${HORIZON_DAYS} días`} padded={false}>
-          {stats.due.length === 0 ? (
-            <p className="px-5 py-10 text-center text-[13px] text-[#3a5274]">No hay documentos ni contratos por vencer en los próximos {HORIZON_DAYS} días.</p>
-          ) : (
-            <ul className="divide-y divide-[#edf1f6] dark:divide-slate-800 max-h-[420px] overflow-y-auto">
-              {stats.due.map((it, i) => {
-                const expired = it.days < 0;
-                return (
-                  <li key={`${it.dossier.id}-${it.what}-${i}`}>
-                    <button
-                      type="button"
-                      onClick={() => openSupplierReview(it.dossier.id)}
-                      className="w-full flex items-stretch gap-4 pr-5 text-left hover:bg-fs-ground dark:hover:bg-slate-900 transition-colors cursor-pointer group"
-                    >
-                      <ArchiveTab tone={expired ? 'bad' : 'warn'} />
-                      <div className="flex-1 min-w-0 py-3">
-                        <div className="text-base font-bold text-[#0b1d3a] dark:text-white truncate">{supplierName(it.dossier)}</div>
-                        <div className="flex items-center gap-2 mt-0.5 min-w-0">
-                          <Radicado value={it.dossier.fileNumber} />
-                          <span className="text-sm text-[#3a5274] truncate">· {it.what}</span>
-                        </div>
-                      </div>
-                      <div className="hidden sm:flex items-center">
-                        <StatusPill tone="muted">{it.kind}</StatusPill>
-                      </div>
-                      <div className={`flex items-center shrink-0 sm:w-36 justify-end text-sm font-semibold tabular-nums whitespace-nowrap ${expired ? 'text-fs-bad' : 'text-fs-warn'}`}>
-                        {dueLabel(it.days)}
-                      </div>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </Panel>
-
-        <div className="space-y-6">
+      <div className="grid gap-6 grid-cols-1 [&>*]:min-w-0">
+        <div className={`grid gap-6 grid-cols-1 items-start ${accountRole === 'SUPERADMIN' ? 'xl:grid-cols-2' : ''}`}>
           <Panel
             title="Evaluaciones"
             aside={stats.avg !== null ? `Promedio ${stats.avg.toFixed(1).replace('.', ',')} / 100` : 'Sin calificaciones'}
