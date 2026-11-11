@@ -58,6 +58,7 @@ import {
 import { INITIAL_EVALUATION_METHOD, INITIAL_SUPPLIER_EVALUATIONS } from '../data/initialEvaluations';
 import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/initialEmails';
 import { generateEmailContent } from '../utils/emailTemplates';
+import { DEFAULT_FORM_PDFS } from '../utils/formPdf';
 import { supabaseService } from '../services/supabaseService';
 import { sendEmail } from '../services/emailService';
 import { useSupabaseAuth, AuthProfile, AuthResult } from '../auth/useSupabaseAuth';
@@ -840,7 +841,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       supabaseService.getInstitutionalForms().then((remoteForms) => {
         if (remoteForms !== null && remoteForms.length > 0) {
-          setInstitutionalForms(remoteForms);
+          // Formatos guardados sin historial: se crea la entrada de la versión vigente con su PDF oficial
+          const withHistory = remoteForms.map((f) =>
+            f.versionHistory && f.versionHistory.length > 0
+              ? f
+              : {
+                  ...f,
+                  versionHistory: [
+                    {
+                      version: f.currentVersion,
+                      releaseDate: f.effectiveDate,
+                      modifiedBy: 'Sistema de Gestión Integral (SIG)',
+                      changeSummary: 'Versión vigente del formato oficial.',
+                      isActive: true,
+                      ...(DEFAULT_FORM_PDFS[f.code] ? { fileUrl: DEFAULT_FORM_PDFS[f.code], fileName: `${f.code}.pdf` } : {}),
+                    },
+                  ],
+                }
+          );
+          setInstitutionalForms(withHistory);
           remoteForms.forEach((f) => {
             savedFormsSnapshot.current[f.id] = JSON.stringify(f);
           });

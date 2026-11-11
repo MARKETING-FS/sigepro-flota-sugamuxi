@@ -28,8 +28,10 @@ export const getFormPdf = (form: InstitutionalForm, version?: string): FormPdf |
     return { url: hist.fileUrl, fileName: hist.fileName || `${form.code}_v${hist.version}.pdf`, version: hist.version };
   }
   const fallback = DEFAULT_FORM_PDFS[form.code];
-  if (fallback && hist && hist.version === DEFAULT_FORM_PDF_VERSION[form.code]) {
-    return { url: fallback, fileName: `${form.code}.pdf`, version: hist.version };
+  // Versión vigente (o la de origen) sin archivo propio: se usa el PDF oficial entregado con el sistema
+  const isCurrent = !version || version === form.currentVersion || hist?.isActive;
+  if (fallback && (isCurrent || (hist && hist.version === DEFAULT_FORM_PDF_VERSION[form.code]))) {
+    return { url: fallback, fileName: `${form.code}.pdf`, version: hist?.version || version || form.currentVersion };
   }
   return null;
 };
