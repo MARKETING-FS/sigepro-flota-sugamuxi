@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useApp } from '../../context/AppContext';
 import {
   X,
   ShieldCheck,
@@ -62,6 +63,9 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
 
   // Tabs: 1. Estado del Proveedor | 2. Estado del Contrato | 3. Trazabilidad
   const [activeTab, setActiveTab] = useState<'STATUS' | 'CONTRACT' | 'HISTORY'>('STATUS');
+  // La trazabilidad / auditoría solo la ve el superadministrador
+  const { accountRole } = useApp();
+  const canSeeAudit = accountRole === 'SUPERADMIN';
 
   // DIMENSIÓN 1: Estado del Proveedor (Homologación y Cumplimiento SIG)
   // Normalizar para que solo contenga estados propios de proveedor
@@ -303,6 +307,7 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
             </span>
           </button>
 
+          {canSeeAudit && (
           <button
             type="button"
             onClick={() => setActiveTab('HISTORY')}
@@ -318,6 +323,7 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
               {dossier.auditHistory?.length || 0}
             </span>
           </button>
+          )}
         </div>
 
         {/* Modal Form Body */}
@@ -743,7 +749,7 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
           )}
 
           {/* TAB 3: TRAZABILIDAD & HISTORIAL AUDITABLE */}
-          {activeTab === 'HISTORY' && (
+          {activeTab === 'HISTORY' && canSeeAudit && (
             <div className="space-y-3">
               <div className="text-xs text-[#3a5274] dark:text-slate-300 font-medium">
                 Historial cronológico de cambios de estado y actualizaciones contractuales auditadas para este proveedor:

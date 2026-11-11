@@ -70,6 +70,7 @@ interface Props {
 export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack }) => {
   const {
     role,
+    accountRole,
     isReadOnly,
     dossiers,
     approveDocument,
@@ -860,7 +861,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         <div className="px-4 pt-4 pb-3 border-b border-black/[0.07] dark:border-white/10">
           <div className="inline-flex flex-wrap items-center gap-1 p-1 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/10">
             {(
-              [
+              ([
                 { id: 'datos', label: 'Información del Proveedor', icon: User },
                 { id: 'contrato', label: 'Vigencia & Contrato', icon: Calendar },
                 { id: 'documentos', label: `Documentación (${Object.keys(dossier.documents).length})`, icon: FileText },
@@ -869,7 +870,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   label: `Auditoría (${(systemAuditLogs || []).filter((l) => l.dossierId === dossier.id).length || (dossier.auditHistory || []).length})`,
                   icon: History,
                 },
-              ] as const
+              ] as const).filter((t) => t.id !== 'auditoria' || accountRole === 'SUPERADMIN')
             ).map((t) => {
               const TabIcon = t.icon;
               const on = activeTab === t.id;
@@ -1727,7 +1728,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
 
         {/* Tab 5: Audit Trail */}
-        {activeTab === 'auditoria' && (
+        {activeTab === 'auditoria' && accountRole === 'SUPERADMIN' && (
           <div className="p-4 sm:p-6 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3.5">

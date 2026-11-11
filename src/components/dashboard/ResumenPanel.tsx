@@ -340,7 +340,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
               <AlertTriangle className="w-5 h-5 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]" />
             </span>
           }
-          className="xl:col-span-5"
+          className={accountRole === 'SUPERADMIN' ? 'xl:col-span-5' : 'xl:col-span-12'}
         >
           <p className="-mt-1 mb-3 text-[13px] text-[#3a5274] dark:text-slate-400">Lo que hay que atender primero</p>
           {priorityAlerts.length === 0 ? (
@@ -353,6 +353,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
           )}
         </Panel>
 
+        {accountRole === 'SUPERADMIN' && (
         <Panel
           title="Actividad reciente"
           aside={
@@ -382,6 +383,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
             />
           )}
         </Panel>
+        )}
       </div>
     </div>
   );
