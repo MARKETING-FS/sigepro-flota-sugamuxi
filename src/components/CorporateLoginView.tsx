@@ -100,7 +100,7 @@ export const CorporateLoginView: React.FC = () => {
             <img src="/nd/flotasugamuxi_logo.png" alt="" className="w-12 h-12 rounded-2xl shadow-glow ring-1 ring-white/20 object-cover" />
             <div>
               <p className="font-display text-lg font-semibold leading-none">Flota Sugamuxi</p>
-              <p className="mt-1 text-xs text-white/60">Transporte terrestre de pasajeros</p>
+              <p className="mt-1 text-xs text-white/60">SIGEPRO · Sistema de proveedores</p>
             </div>
           </div>
 
