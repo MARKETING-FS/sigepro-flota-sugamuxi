@@ -15,6 +15,7 @@ import {
   Sparkles,
   ShieldAlert,
   ShieldCheck,
+  Download,
 } from 'lucide-react';
 import { SupplierDocument, DocumentStatus, UserRole } from '../types';
 import { useApp } from '../context/AppContext';
@@ -22,6 +23,7 @@ import { BrandSwoosh } from './ui/BrandSwoosh';
 import { supabaseService } from '../services/supabaseService';
 import { storageService } from '../services/storageService';
 import { calculateDocumentExpiration } from '../utils/contractValidity';
+import { getFormPdf } from '../utils/formPdf';
 
 interface Props {
   isOpen: boolean;
@@ -64,7 +66,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
   validityRule: propValidityRule,
   onSave,
 }) => {
-  const { documentDefinitions, currentDossierId } = useApp();
+  const { documentDefinitions, currentDossierId, institutionalForms } = useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen || !document) return null;
@@ -73,6 +75,32 @@ export const DocumentEditorModal: React.FC<Props> = ({
   const docDef = (documentDefinitions || []).find((d) => d.code === docCode);
   const isExpirationRequired = propRequiresExpirationDate ?? docDef?.requiresExpirationDate ?? false;
   const currentValidityRule = propValidityRule || docDef?.validityRule || '';
+
+  // Plantilla oficial (PDF vigente del formato institucional) asociada a este documento
+  const templateFormCode =
+    document.formCode ||
+    (docDef as { formCode?: string } | undefined)?.formCode ||
+    (/^FS_GA_FOR_\d+$/.test(docCode) ? docCode.replace('FS_GA_FOR_', 'FS.GA-FOR-') : undefined);
+  const templateForm = templateFormCode ? (institutionalForms || []).find((f) => f.code === templateFormCode) : undefined;
+  const templatePdf = templateForm ? getFormPdf(templateForm) : null;
+
+  const handleDownloadTemplate = async () => {
+    if (!templatePdf) return;
+    try {
+      const res = await fetch(templatePdf.url);
+      if (!res.ok) throw new Error('descarga');
+      const blob = await res.blob();
+      const a = window.document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = templatePdf.fileName;
+      window.document.body.appendChild(a);
+      a.click();
+      window.document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    } catch {
+      window.open(templatePdf.url, '_blank', 'noopener');
+    }
+  };
 
   const displayTitle = documentTitle || docTitle || docCode;
   const isMandatory = Boolean(document.isRequired);
@@ -441,6 +469,24 @@ export const DocumentEditorModal: React.FC<Props> = ({
                   Evaluador: {reviewerName}
                 </span>
               </div>
+
+              {templatePdf && (
+                <button
+                  type="button"
+                  onClick={handleDownloadTemplate}
+                  className="mb-2.5 w-full flex items-center gap-3 rounded-xl border border-[#2c84c4]/30 bg-white dark:bg-white/[0.04] px-3.5 py-2.5 text-left cursor-pointer hover:bg-[#2c84c4]/10 transition-colors"
+                >
+                  <span className="shrink-0 w-9 h-9 rounded-lg bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] grid place-items-center">
+                    <Download className="w-4 h-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-bold text-[#0b1d3a] dark:text-white">Descargar plantilla oficial</span>
+                    <span className="block text-[11px] text-[#5d7392] dark:text-slate-400 truncate">
+                      {templateFormCode} · versión {templatePdf.version} · diligéncielo y cárguelo aquí
+                    </span>
+                  </span>
+                </button>
+              )}
 
               <input
                 ref={fileInputRef}
