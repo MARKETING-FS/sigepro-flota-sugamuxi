@@ -328,12 +328,12 @@ export const InstitutionalFormsAdmin: React.FC = () => {
       {editCode && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
           <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[92vh]">
-            <div className="bg-[#0b1329] text-white px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0">
+            <div className="bg-[#2c84c4]/10 dark:bg-[#0b1329] text-[#0b1d3a] dark:text-white px-5 sm:px-6 py-4 border-b border-black/10 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div>
                 <span className="text-[10px] font-extrabold uppercase bg-blue-600 px-2 py-0.5 rounded text-white">Datos del formato</span>
-                <h3 className="text-sm sm:text-base font-bold text-white mt-1">Editar &bull; {editCode}</h3>
+                <h3 className="text-sm sm:text-base font-bold text-[#0b1d3a] dark:text-white mt-1">Editar &bull; {editCode}</h3>
               </div>
-              <button type="button" onClick={() => setEditCode(null)} className="text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">✕</button>
+              <button type="button" onClick={() => setEditCode(null)} className="text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white p-2 rounded-lg hover:bg-black/5 dark:hover:bg-slate-800 transition-colors cursor-pointer">✕</button>
             </div>
             <form
               onSubmit={(e) => {
@@ -384,19 +384,19 @@ export const InstitutionalFormsAdmin: React.FC = () => {
       {isNewVersionModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
           <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 flex flex-col max-h-[92vh] sm:max-h-[88vh]">
-            <div className="bg-[#0b1329] text-white px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0">
+            <div className="bg-[#2c84c4]/10 dark:bg-[#0b1329] text-[#0b1d3a] dark:text-white px-5 sm:px-6 py-4 border-b border-black/10 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div>
                 <span className="text-[10px] font-extrabold uppercase bg-blue-600 px-2 py-0.5 rounded text-white shadow-2xs">
                   Control de Cambios SIG
                 </span>
-                <h3 className="text-sm sm:text-base font-bold text-white mt-1">
+                <h3 className="text-sm sm:text-base font-bold text-[#0b1d3a] dark:text-white mt-1">
                   Registrar Nueva Versión &bull; {targetFormCode}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsNewVersionModalOpen(false)}
-                className="text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                className="text-[#3a5274] dark:text-slate-300 hover:text-[#0b1d3a] dark:hover:text-white p-2 rounded-lg hover:bg-black/5 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 ✕
               </button>
