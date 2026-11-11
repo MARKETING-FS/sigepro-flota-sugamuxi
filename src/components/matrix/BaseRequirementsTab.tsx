@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useConfirm } from '../ui/ConfirmDialog';
+import { BrandSwoosh } from '../ui/BrandSwoosh';
 import { StatusPill, rowCls, rowIconBtn, tbodyCls, theadRowCls } from '../ui/archive';
 import { SupplierType, DocumentDefinition } from '../../types';
 import {
@@ -29,6 +30,119 @@ interface BaseRequirementsTabProps {
   onShowToast: (message: string, type?: 'success' | 'error') => void;
   onOpenDocModal: () => void;
 }
+
+const CATEGORY_LABEL: Record<string, string> = {
+  LEGAL: 'Legal / Estatutaria',
+  FINANCIERO: 'Financiera / Tributaria',
+  TECNICO: 'Técnica / Experiencia',
+  HSEQ: 'HSEQ y Ambiental',
+  SARLAFT: 'SARLAFT y Cumplimiento',
+  OPERATIVO: 'Operativa y Logística',
+};
+
+/** Lista desplegable propia: búsqueda, grupos por categoría y código visible. */
+const DocPicker: React.FC<{
+  docs: DocumentDefinition[];
+  value: string;
+  onChange: (code: string) => void;
+}> = ({ docs, value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const selected = docs.find((d) => d.code === value);
+
+  const groups = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? docs.filter((d) => `${d.name} ${d.code} ${d.category}`.toLowerCase().includes(q))
+      : docs;
+    const map = new Map<string, DocumentDefinition[]>();
+    filtered.forEach((d) => {
+      const k = String(d.category || 'OTROS');
+      if (!map.has(k)) map.set(k, []);
+      map.get(k)!.push(d);
+    });
+    return Array.from(map.entries());
+  }, [docs, query]);
+
+  return (
+    <div className="rounded-2xl border border-black/[0.1] dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="w-full flex items-center gap-3 px-4 min-h-14 py-2.5 text-left cursor-pointer hover:bg-[#2c84c4]/[0.06] transition-colors"
+      >
+        <span className={`w-9 h-9 rounded-xl grid place-items-center shrink-0 ${selected ? 'bg-gradient-action text-white shadow-glow' : 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7]'}`}>
+          <FileText className="w-4 h-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          {selected ? (
+            <>
+              <span className="block text-sm font-semibold text-[#0b1d3a] dark:text-white truncate">{selected.name}</span>
+              <span className="block text-[11px] text-[#3a5274] dark:text-slate-400 truncate">{selected.code} · {CATEGORY_LABEL[String(selected.category)] || selected.category}</span>
+            </>
+          ) : (
+            <span className="block text-sm text-[#6b84a3]">Seleccione un documento del catálogo</span>
+          )}
+        </span>
+        <span className={`text-[#2c84c4] dark:text-[#69bdd7] transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true">▾</span>
+      </button>
+
+      {open && (
+        <div className="border-t border-black/[0.08] dark:border-white/10">
+          <div className="p-3">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-3 text-[#6b84a3]" />
+              <input
+                type="text"
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar por nombre, código o categoría"
+                className="w-full h-10 pl-9 pr-3 text-sm rounded-xl bg-white dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30"
+              />
+            </div>
+          </div>
+          <div className="max-h-64 overflow-y-auto px-2 pb-2">
+            {groups.length === 0 && (
+              <div className="px-3 py-6 text-center text-sm text-[#3a5274] dark:text-slate-400">Ningún documento coincide con la búsqueda.</div>
+            )}
+            {groups.map(([cat, list]) => (
+              <div key={cat} className="mb-1">
+                <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
+                  {CATEGORY_LABEL[cat] || cat}
+                </div>
+                {list.map((d) => {
+                  const active = d.code === value;
+                  return (
+                    <button
+                      key={d.code}
+                      type="button"
+                      onClick={() => {
+                        onChange(d.code);
+                        setOpen(false);
+                        setQuery('');
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left cursor-pointer transition-colors ${
+                        active ? 'bg-[#2c84c4]/15 dark:bg-[#2c84c4]/25' : 'hover:bg-[#2c84c4]/[0.08]'
+                      }`}
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold text-[#0b1d3a] dark:text-white truncate">{d.name}</span>
+                        <span className="block text-[11px] font-mono text-[#3a5274] dark:text-slate-400 truncate">{d.code}</span>
+                      </span>
+                      {active && <Check className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" strokeWidth={3} />}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
   onShowToast,
@@ -603,103 +717,89 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
 
       {/* Modal: Agregar Requisito Base */}
       {isAddDocModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="fs-card rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-8">
-            <div className="bg-[#0b1329] text-white p-5 flex items-center justify-between border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-cyan-300">
+        <div className="fixed inset-0 z-50 bg-[#050b1a]/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-[#f4f8fc] dark:bg-[#0c1426] rounded-[28px] border border-black/10 dark:border-white/10 max-w-xl w-full shadow-2xl overflow-hidden animate-fade-up my-8">
+            <div className="relative overflow-hidden bg-gradient-brand text-white px-6 py-5 flex items-center justify-between">
+              <BrandSwoosh className="absolute -right-10 -bottom-12 w-64 opacity-100" />
+              <div className="relative flex items-center gap-3 min-w-0">
+                <span className="w-11 h-11 rounded-2xl bg-white/15 ring-1 ring-white/30 grid place-items-center shrink-0">
                   <Plus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm">Agregar Documento a Requisitos Base</h3>
-                  <p className="text-[11px] text-cyan-300">
-                    {selectedPersonType === 'NATURAL' ? 'Para Persona Natural' : 'Para Persona Jurídica'}
+                </span>
+                <div className="min-w-0">
+                  <h3 className="font-display text-lg font-semibold truncate">Agregar documento a requisitos base</h3>
+                  <p className="text-xs text-white/75">
+                    {selectedPersonType === 'NATURAL' ? 'Para persona natural' : 'Para persona jurídica'}
                   </p>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsAddDocModalOpen(false)}
-                className="text-[#5d7392] dark:text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                aria-label="Cerrar"
+                className="relative w-9 h-9 grid place-items-center rounded-xl text-white/80 hover:text-white hover:bg-white/15 text-xl cursor-pointer"
               >
                 &times;
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-5">
               <div>
-                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
-                  1. Seleccione Documento del Catálogo Maestro:
+                <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-2">
+                  1. Documento del catálogo maestro
                 </label>
                 {availableDocsToAdd.length === 0 ? (
-                  <div className="p-3 bg-black/[0.04] dark:bg-white/[0.06] rounded-xl border border-black/10 dark:border-white/10 text-xs text-[#0b1d3a] dark:text-white">
-                    Todos los documentos registrados en el catálogo ya forman parte de los requisitos base. Si necesita uno nuevo, puede crearlo inmediatamente.
+                  <div className="p-4 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-sm text-[#0b1d3a] dark:text-white">
+                    Todos los documentos del catálogo ya forman parte de los requisitos base. Si necesita uno nuevo, puede crearlo ahora mismo.
                   </div>
                 ) : (
-                  <select
-                    value={selectedDocToAdd}
-                    onChange={(e) => setSelectedDocToAdd(e.target.value)}
-                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl text-xs font-semibold text-[#0b1d3a] dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
-                  >
-                    <option value="">-- Seleccione un documento --</option>
-                    {availableDocsToAdd.map((d) => (
-                      <option key={d.code} value={d.code}>
-                        {d.name} ({d.code}) &bull; {d.category}
-                      </option>
-                    ))}
-                  </select>
+                  <DocPicker docs={availableDocsToAdd} value={selectedDocToAdd} onChange={setSelectedDocToAdd} />
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1">
-                  2. Tipo de Exigibilidad en Base:
+                <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-2">
+                  2. Tipo de exigibilidad en base
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setAddMode('MANDATORY')}
-                    className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                      addMode === 'MANDATORY'
-                        ? 'bg-[#2c84c4]/10 border-blue-400 text-[#1d5fa8] dark:text-[#69bdd7] shadow-2xs'
-                        : 'bg-white border-black/10 dark:border-white/10 text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
-                    }`}
-                  >
-                    <span className="px-2 py-0.5 bg-blue-700 text-white rounded-full text-[10px]">OBLIGATORIO</span>
-                    <span className="text-[11px] text-[#5d7392] dark:text-slate-400 text-center">Bloqueante para radicar</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setAddMode('OPTIONAL')}
-                    className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                      addMode === 'OPTIONAL'
-                        ? 'bg-[#69bdd7]/15 border-cyan-400 text-[#0e6d8a] dark:text-[#69bdd7] shadow-2xs'
-                        : 'bg-white border-black/10 dark:border-white/10 text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
-                    }`}
-                  >
-                    <span className="px-2 py-0.5 bg-cyan-700 text-white rounded-full text-[10px]">OPCIONAL</span>
-                    <span className="text-[11px] text-[#5d7392] dark:text-slate-400 text-center">Sujeto a condición o complementario</span>
-                  </button>
+                <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-black/[0.04] dark:bg-white/[0.05]">
+                  {([
+                    ['MANDATORY', 'Obligatorio', 'Bloqueante para radicar'],
+                    ['OPTIONAL', 'Opcional', 'Sujeto a condición o complementario'],
+                  ] as const).map(([mode, title, sub]) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setAddMode(mode)}
+                      aria-pressed={addMode === mode}
+                      className={`min-h-14 px-3 py-2 rounded-xl flex flex-col items-center justify-center leading-tight transition-all cursor-pointer ${
+                        addMode === mode
+                          ? 'bg-gradient-action text-white shadow-glow'
+                          : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#2c84c4]/10'
+                      }`}
+                    >
+                      <span className="text-sm font-semibold">{title}</span>
+                      <span className={`text-[10.5px] text-center ${addMode === mode ? 'text-white/85' : 'text-[#6b84a3]'}`}>{sub}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-black/10 dark:border-white/10 flex items-center justify-between">
+              <div className="pt-4 border-t border-black/[0.08] dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setIsAddDocModalOpen(false);
                     onOpenDocModal();
                   }}
-                  className="text-xs text-[#1d5fa8] dark:text-[#69bdd7] hover:text-[#0b1d3a] dark:hover:text-white font-bold cursor-pointer"
+                  className="text-sm text-[#2c84c4] dark:text-[#69bdd7] hover:underline font-semibold cursor-pointer text-left"
                 >
-                  + Crear nuevo tipo documental en catálogo
+                  + Crear nuevo tipo documental
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-end sm:self-auto">
                   <button
                     type="button"
                     onClick={() => setIsAddDocModalOpen(false)}
-                    className="px-4 py-2 text-xs font-bold text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl cursor-pointer"
+                    className="h-11 px-5 rounded-xl border border-[#2c84c4]/35 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -707,9 +807,9 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                     type="button"
                     disabled={!selectedDocToAdd}
                     onClick={handleAddDocumentToBase}
-                    className="px-4 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl shadow-2xs cursor-pointer"
+                    className="h-11 px-5 rounded-xl bg-gradient-action text-white text-sm font-semibold shadow-glow hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    Confirmar e Incluir
+                    Confirmar e incluir
                   </button>
                 </div>
               </div>
