@@ -242,7 +242,10 @@ interface AppContextType {
     file?: { url: string; fileName: string; fileSize?: string }
   ) => void;
   toggleFormMandatory: (formCode: string, isMandatory: boolean) => void;
-  updateFormEffectiveDate: (formCode: string, date: string) => void;
+  updateFormDetails: (
+    formCode: string,
+    patch: { name: string; description: string; currentVersion: string; effectiveDate: string; isMandatory: boolean }
+  ) => void;
   
   // Convocatorias Actions
   createConvocatoria: (data: Omit<Convocatoria, 'id' | 'postulaciones'>) => void;
@@ -2531,17 +2534,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const updateFormEffectiveDate = (formCode: string, date: string) => {
+  const updateFormDetails = (
+    formCode: string,
+    patch: { name: string; description: string; currentVersion: string; effectiveDate: string; isMandatory: boolean }
+  ) => {
     setInstitutionalForms((prev) =>
-      prev.map((form) =>
-        form.code === formCode
-          ? {
-              ...form,
-              effectiveDate: date,
-              versionHistory: form.versionHistory.map((h) => (h.isActive ? { ...h, releaseDate: date } : h)),
-            }
-          : form
-      )
+      prev.map((form) => {
+        if (form.code !== formCode) return form;
+        const oldVersion = form.currentVersion;
+        return {
+          ...form,
+          ...patch,
+          // La versión vigente del historial sigue los cambios de número y fecha
+          versionHistory: form.versionHistory.map((h) =>
+            h.isActive || h.version === oldVersion
+              ? { ...h, version: patch.currentVersion, releaseDate: patch.effectiveDate }
+              : h
+          ),
+        };
+      })
     );
   };
 
@@ -3598,7 +3609,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateDossierContractInfo,
         addNewFormVersion,
         toggleFormMandatory,
-        updateFormEffectiveDate,
+        updateFormDetails,
         createConvocatoria,
         updateConvocatoria,
         deleteConvocatoria,
