@@ -87,7 +87,7 @@ export const CorporateLoginView: React.FC = () => {
       {/* Panel de imagen */}
       <section className="relative hidden w-[56%] shrink-0 overflow-hidden lg:block">
         <img
-          src="/nd/login-bus-libertadores.webp"
+          src="/nd/login-bus-lago.webp"
           alt="Bus de pasajeros en una carretera de montaña de Boyacá al anochecer"
           className="absolute inset-0 w-full h-full scale-105 object-cover object-[center_68%] animate-fade-up"
         />
@@ -122,7 +122,7 @@ export const CorporateLoginView: React.FC = () => {
         <div className="absolute inset-0 grid-pattern opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
         <div className="absolute -right-32 -top-32 w-[28rem] h-[28rem] rounded-full bg-[#2c84c4]/35 blur-3xl animate-float" />
         <div className="absolute -bottom-40 -left-20 w-[26rem] h-[26rem] rounded-full bg-[#69bdd7]/20 blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
-        <img src="/nd/login-bus-libertadores.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 lg:hidden" />
+        <img src="/nd/login-bus-lago.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 lg:hidden" />
 
         <div key={shakeKey} className="relative w-full max-w-md" style={shakeKey > 0 ? { animation: 'nd-shake 0.45s ease-in-out' } : undefined}>
           <div className="gradient-border rounded-[28px] glass-dark p-8 shadow-glow animate-fade-up sm:p-10" style={{ animationDelay: '0.1s' }}>
