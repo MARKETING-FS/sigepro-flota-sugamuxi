@@ -105,9 +105,6 @@ export const CorporateLoginView: React.FC = () => {
           </div>
 
           <div className="max-w-xl">
-            <p className="mb-4 inline-flex items-center gap-2 rounded-full glass-dark px-3 py-1 text-xs text-white/80 animate-fade-up" style={{ animationDelay: '0.15s' }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#69bdd7] animate-pulse" /> Sistema de gestión de proveedores
-            </p>
             <h1 className="font-display text-5xl font-semibold leading-[1.05] animate-fade-up xl:text-6xl" style={{ animationDelay: '0.25s' }}>
               Cada proveedor en regla.
               <br />
