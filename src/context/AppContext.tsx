@@ -735,21 +735,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(categoriesConfig));
-    if (isCategoriesLoadedFromSupabase.current && supabaseService.isConfigured()) {
+    if (isCategoriesLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       supabaseService.saveCategoriesConfig(categoriesConfig);
     }
   }, [categoriesConfig]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_DOC_DEFINITIONS, JSON.stringify(documentDefinitions));
-    if (isDocDefsLoadedFromSupabase.current && supabaseService.isConfigured()) {
+    if (isDocDefsLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       supabaseService.saveDocumentDefinitions(documentDefinitions);
     }
   }, [documentDefinitions]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_BASE_REQUIREMENTS, JSON.stringify(baseRequirementsConfig));
-    if (isBaseReqsLoadedFromSupabase.current && supabaseService.isConfigured()) {
+    if (isBaseReqsLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       supabaseService.saveBaseRequirementsConfig(baseRequirementsConfig);
     }
   }, [baseRequirementsConfig]);

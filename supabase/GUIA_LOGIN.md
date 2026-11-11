@@ -90,3 +90,13 @@ Las cuentas Administrador y Usuario se crean desde el módulo **Usuarios**. Eso 
 `api/users.ts`, que necesita la variable de entorno **`SUPABASE_SERVICE_ROLE_KEY`** en Vercel
 (Supabase → Project Settings → API → `service_role`). Esa clave es secreta: nunca va en el código ni en el navegador.
 Después de agregarla hay que volver a desplegar.
+
+## Seguridad en la base de datos (reglas por rol)
+
+Aplicadas en Supabase con la migración `sigepro_rls_por_rol`. El rol se lee del token (`app_metadata.role`):
+- **Usuario** (`USUARIO`): solo lectura.
+- **Administrador** (`ADMINISTRADOR`): lee y escribe proveedores, documentos, evaluaciones, convocatorias y correos; registra auditoría; no ve la auditoría ni cambia la configuración.
+- **Superadministrador** (`SUPERADMIN` o `ADMIN`): todo, incluida auditoría y configuración.
+- Sin sesión: no ve nada.
+
+Cuando se cambia el rol de alguien, el cambio llega a la base en su próximo refresco de sesión (hasta 1 hora) o al volver a iniciar sesión.
