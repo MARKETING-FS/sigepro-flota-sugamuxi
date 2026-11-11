@@ -237,7 +237,8 @@ interface AppContextType {
     releaseDate: string,
     modifiedBy: string,
     changeSummary: string,
-    isMandatory?: boolean
+    isMandatory?: boolean,
+    file?: { url: string; fileName: string; fileSize?: string }
   ) => void;
   toggleFormMandatory: (formCode: string, isMandatory: boolean) => void;
   
@@ -2476,7 +2477,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     releaseDate: string,
     modifiedBy: string,
     changeSummary: string,
-    isMandatory: boolean = true
+    isMandatory: boolean = true,
+    file?: { url: string; fileName: string; fileSize?: string }
   ) => {
     setInstitutionalForms((prev) =>
       prev.map((form) => {
@@ -2492,6 +2494,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             modifiedBy,
             changeSummary,
             isActive: true,
+            ...(file ? { fileUrl: file.url, fileName: file.fileName, fileSize: file.fileSize } : {}),
           });
 
           return {
@@ -2499,6 +2502,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             currentVersion: newVersion,
             effectiveDate: releaseDate,
             isMandatory,
+            templateFileName: file?.fileName || form.templateFileName,
             versionHistory: updatedHistory,
           };
         }

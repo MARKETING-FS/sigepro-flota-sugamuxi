@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   FileText,
   FileSpreadsheet,
@@ -16,12 +16,17 @@ import {
   Info,
   Clock,
   Sparkles,
+  Upload,
+  Loader2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { InstitutionalForm } from '../types';
 import { InstitutionalFormsViewerModal } from './InstitutionalFormsViewerModal';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
 import { PageHeader, heroPrimaryBtn, heroSecondaryBtn } from './ui/archive';
+import { storageService } from '../services/storageService';
+import { supabaseService } from '../services/supabaseService';
+import { formatFileSize, getFormPdf, validatePdfFile } from '../utils/formPdf';
 
 export const InstitutionalFormsAdmin: React.FC = () => {
   const { institutionalForms, addNewFormVersion, toggleFormMandatory, showToast } = useApp();
@@ -32,10 +37,16 @@ export const InstitutionalFormsAdmin: React.FC = () => {
   const [isNewVersionModalOpen, setIsNewVersionModalOpen] = useState(false);
   const [targetFormCode, setTargetFormCode] = useState('FS.GA-FOR-009');
   const [newVersionString, setNewVersionString] = useState('15.0');
-  const [newReleaseDate, setNewReleaseDate] = useState('2026-09-01');
+  const [newReleaseDate, setNewReleaseDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [newModifiedBy, setNewModifiedBy] = useState('Coordinación SIG / Calidad');
   const [newChangeSummary, setNewChangeSummary] = useState('');
   const [newIsMandatory, setNewIsMandatory] = useState(true);
+  const [newFile, setNewFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Versión que abre el visor al pulsar "Ver PDF" en el historial
+  const [viewerVersion, setViewerVersion] = useState<string | null>(null);
 
   const handleOpenNewVersionModal = (form: InstitutionalForm) => {
     setTargetFormCode(form.code);
@@ -43,30 +54,78 @@ export const InstitutionalFormsAdmin: React.FC = () => {
     setNewVersionString(nextMajor);
     setNewChangeSummary('');
     setNewIsMandatory(form.isMandatory);
+    setNewFile(null);
+    setFileError('');
+    setNewReleaseDate(new Date().toISOString().slice(0, 10));
     setIsNewVersionModalOpen(true);
   };
 
-  const handleSaveNewVersion = (e: React.FormEvent) => {
+  const handlePickFile = async (file: File | undefined) => {
+    setFileError('');
+    if (!file) return;
+    const problem = await validatePdfFile(file);
+    if (problem) {
+      setNewFile(null);
+      setFileError(problem);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    setNewFile(file);
+  };
+
+  const handleSaveNewVersion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newChangeSummary.trim()) {
       showToast('Por favor describa el resumen de cambios de la nueva versión.', 'warning');
       return;
     }
 
+    const target = institutionalForms.find((f) => f.code === targetFormCode);
+    if (target?.versionHistory.some((h) => h.version.trim() === newVersionString.trim())) {
+      showToast(`La versión ${newVersionString} ya existe en el historial. Use otro número.`, 'warning');
+      return;
+    }
+    if (!newFile) {
+      setFileError('Cargue el PDF de la nueva versión.');
+      return;
+    }
+
+    setIsPublishing(true);
+    // Sube el PDF a Storage; sin base de datos conectada queda disponible solo en esta sesión
+    let fileUrl = '';
+    if (supabaseService.isConfigured()) {
+      const up = await storageService.uploadInstitutionalTemplate({
+        file: newFile,
+        fileName: `${targetFormCode}_v${newVersionString.trim()}.pdf`,
+        formCode: targetFormCode,
+      });
+      if (!up.success || !up.url) {
+        setIsPublishing(false);
+        setFileError(`No se pudo subir el PDF${up.error ? `: ${up.error}` : '.'}`);
+        return;
+      }
+      fileUrl = up.url;
+    } else {
+      fileUrl = URL.createObjectURL(newFile);
+    }
+
     addNewFormVersion(
       targetFormCode,
-      newVersionString,
+      newVersionString.trim(),
       newReleaseDate,
       newModifiedBy,
       newChangeSummary,
-      newIsMandatory
+      newIsMandatory,
+      { url: fileUrl, fileName: newFile.name, fileSize: formatFileSize(newFile.size) }
     );
 
+    setIsPublishing(false);
     showToast(`Versión ${newVersionString} de ${targetFormCode} publicada exitosamente.`, 'success');
     setIsNewVersionModalOpen(false);
   };
 
-  const handlePreview = (form: InstitutionalForm) => {
+  const handlePreview = (form: InstitutionalForm, version?: string) => {
+    setViewerVersion(version || null);
     setSelectedFormForModal(form);
     setIsViewerModalOpen(true);
   };
@@ -220,8 +279,19 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                       </span>
                     </div>
                     <p className="text-[#3a5274] dark:text-slate-300 text-xs">{hist.changeSummary}</p>
-                    <div className="text-[10px] text-[#5d7392] dark:text-slate-400">
-                      Responsable: {hist.modifiedBy}
+                    <div className="flex items-center justify-between gap-3 text-[10px] text-[#5d7392] dark:text-slate-400">
+                      <span>Responsable: {hist.modifiedBy}</span>
+                      {getFormPdf(form, hist.version) ? (
+                        <button
+                          type="button"
+                          onClick={() => handlePreview(form, hist.version)}
+                          className="inline-flex items-center gap-1 font-bold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer"
+                        >
+                          <FileText className="w-3 h-3" /> Ver PDF{hist.fileSize ? ` (${hist.fileSize})` : ''}
+                        </button>
+                      ) : (
+                        <span>Sin archivo</span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -310,6 +380,43 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                 />
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">
+                  Archivo PDF de la nueva versión
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  onChange={(e) => handlePickFile(e.target.files?.[0])}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`w-full flex items-center gap-3 rounded-xl border-2 border-dashed px-4 py-3 text-left cursor-pointer transition-colors ${
+                    newFile
+                      ? 'border-[#2c84c4]/50 bg-[#2c84c4]/10'
+                      : 'border-black/15 dark:border-white/20 hover:bg-[#2c84c4]/5'
+                  }`}
+                >
+                  <span className="w-10 h-10 rounded-xl bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] grid place-items-center shrink-0">
+                    {newFile ? <FileText className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-[#0b1d3a] dark:text-white truncate">
+                      {newFile ? newFile.name : 'Seleccionar archivo PDF'}
+                    </span>
+                    <span className="block text-[11px] text-[#5d7392] dark:text-slate-400">
+                      {newFile ? formatFileSize(newFile.size) : 'Solo formato PDF · máximo 10 MB'}
+                    </span>
+                  </span>
+                </button>
+                {fileError && (
+                  <p role="alert" className="mt-1.5 text-[11px] font-semibold text-red-600 dark:text-red-300">{fileError}</p>
+                )}
+              </div>
+
               <div className="flex items-center gap-2.5 pt-1">
                 <input
                   type="checkbox"
@@ -340,9 +447,11 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                  disabled={isPublishing}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer inline-flex items-center gap-2"
                 >
-                  Publicar y Activar Nueva Versión
+                  {isPublishing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  {isPublishing ? 'Subiendo PDF…' : 'Publicar y Activar Nueva Versión'}
                 </button>
               </div>
             </form>
@@ -354,7 +463,11 @@ export const InstitutionalFormsAdmin: React.FC = () => {
       <InstitutionalFormsViewerModal
         form={selectedFormForModal}
         isOpen={isViewerModalOpen}
-        onClose={() => setIsViewerModalOpen(false)}
+        onClose={() => {
+          setIsViewerModalOpen(false);
+          setViewerVersion(null);
+        }}
+        initialVersion={viewerVersion || undefined}
       />
 
     </div>

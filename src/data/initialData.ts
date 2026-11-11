@@ -130,6 +130,8 @@ export const INITIAL_INSTITUTIONAL_FORMS: InstitutionalForm[] = [
         changeSummary:
           'Actualización de política de pagos electrónicos, códigos CIIU 2025 y casillas de régimen simple de tributación.',
         isActive: true,
+        fileUrl: '/formatos/FS.GA-FOR-009.pdf',
+        fileName: 'FS.GA-FOR-009 - FORMULARIO PROVEEDOR.pdf',
       },
       {
         version: '13.0',
@@ -173,6 +175,8 @@ export const INITIAL_INSTITUTIONAL_FORMS: InstitutionalForm[] = [
         changeSummary:
           'Emisión inicial del formato institucional conforme a la circular de la Superintendencia de Industria y Comercio.',
         isActive: true,
+        fileUrl: '/formatos/FS.GA-FOR-039.pdf',
+        fileName: 'FS.GA-FOR-039 TRATAMIENTO DE DATOS.pdf',
       },
     ],
   },

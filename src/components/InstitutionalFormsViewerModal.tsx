@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FileText,
   Download,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { InstitutionalForm } from '../types';
 import { FlotaSugamuxiEmblem } from './FlotaSugamuxiLogo';
+import { getFormPdf } from '../utils/formPdf';
 
 interface Props {
   form: InstitutionalForm | null;
@@ -21,6 +22,8 @@ interface Props {
   onClose: () => void;
   supplierName?: string;
   nitOrDoc?: string;
+  /** Versión a mostrar al abrir (vacío = la vigente) */
+  initialVersion?: string;
 }
 
 export const InstitutionalFormsViewerModal: React.FC<Props> = ({
@@ -29,39 +32,46 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
   onClose,
   supplierName = '',
   nitOrDoc = '',
+  initialVersion,
 }) => {
   const [activeTab, setActiveTab] = useState<'vista' | 'instrucciones' | 'historial'>('vista');
+  // Versión que se está viendo (vacío = la vigente)
+  const [viewVersion, setViewVersion] = useState<string>(initialVersion || '');
+  useEffect(() => {
+    if (isOpen) {
+      setViewVersion(initialVersion || '');
+      setActiveTab('vista');
+    }
+  }, [isOpen, initialVersion]);
 
   if (!isOpen || !form) return null;
 
   const isForm009 = form.code === 'FS.GA-FOR-009';
 
+  const pdf = getFormPdf(form, viewVersion || undefined);
+
+  // Abre el PDF en una pestaña nueva (para imprimir desde el visor del navegador)
   const handlePrint = () => {
-    window.print();
+    if (pdf) window.open(pdf.url, '_blank', 'noopener');
   };
 
-  const handleSimulateDownload = () => {
-    const element = document.createElement('a');
-    const file = new Blob(
-      [
-        `=========================================================================\n` +
-        `FLOTA SUGAMUXI S.A. - SISTEMA INTEGRADO DE GESTIÓN (SIG)\n` +
-        `FORMATO INSTITUCIONAL OFICIAL: ${form.code}\n` +
-        `NOMBRE: ${form.name}\n` +
-        `VERSIÓN VIGENTE: ${form.currentVersion} | FECHA DE VIGENCIA: ${form.effectiveDate}\n` +
-        `OBLIGATORIO: ${form.isMandatory ? 'SÍ' : 'NO'}\n` +
-        `=========================================================================\n\n` +
-        `INSTRUCCIONES DE DILIGENCIAMIENTO:\n` +
-        form.instructions.map((ins, i) => `${i + 1}. ${ins}`).join('\n') +
-        `\n\n[Este archivo de muestra representa la plantilla oficial descargable para su posterior diligenciamiento y firma]`
-      ],
-      { type: 'text/plain;charset=utf-8' }
-    );
-    element.href = URL.createObjectURL(file);
-    element.download = form.templateFileName || `${form.code}_v${form.currentVersion}.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+  // Descarga el PDF real (con respaldo de abrirlo si el servidor no permite descargarlo directo)
+  const handleDownload = async () => {
+    if (!pdf) return;
+    try {
+      const res = await fetch(pdf.url);
+      if (!res.ok) throw new Error('descarga');
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = pdf.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    } catch {
+      window.open(pdf.url, '_blank', 'noopener');
+    }
   };
 
   return (
@@ -90,7 +100,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={handleSimulateDownload}
+              onClick={handleDownload}
               className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
               title="Descargar plantilla oficial para diligenciar"
             >
@@ -105,7 +115,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
               <Printer className="w-4 h-4" />
             </button>
             <button
-              onClick={onClose}
+              onClick={() => { setViewVersion(''); onClose(); }}
               className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
               title="Cerrar ventana"
             >
@@ -125,7 +135,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
-            Estructura Oficial del Formato
+            Formato oficial (PDF)
           </button>
           <button
             onClick={() => setActiveTab('instrucciones')}
@@ -154,259 +164,27 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
         {/* Body Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 dark:bg-[#050b18]">
           {activeTab === 'vista' && (
-            <div className="max-w-3xl mx-auto bg-white border border-black/10 dark:border-white/10 rounded-xl shadow-xs p-5 sm:p-8 print:p-0 print:border-none">
-              {/* Official Header Table */}
-              <div className="border-2 border-slate-800 mb-6 rounded-sm overflow-hidden">
-                <div className="grid grid-cols-12 border-b border-slate-800 text-center items-center">
-                  <div className="col-span-3 p-3 border-r border-slate-800 flex flex-col items-center justify-center bg-black/[0.04] dark:bg-white/[0.06] gap-1">
-                    <div className="w-9 h-9 p-0.5 flex items-center justify-center">
-                      <FlotaSugamuxiEmblem className="w-full h-full" color="#0080d7" />
-                    </div>
-                    <div className="font-extrabold text-[#0b1329] text-xs sm:text-sm tracking-wide">
-                      FLOTA SUGAMUXI S.A.
-                    </div>
-                    <div className="text-[10px] text-[#5d7392] dark:text-slate-400 font-medium">NIT 891.800.075-8</div>
-                    <div className="text-[9px] text-[#5d7392] dark:text-slate-400">Sogamoso - Boyacá</div>
-                  </div>
-                  <div className="col-span-6 p-2.5 border-r border-slate-800 flex flex-col justify-center">
-                    <div className="text-[10px] sm:text-[11px] font-bold uppercase text-[#5d7392] dark:text-slate-400">
-                      SISTEMA INTEGRADO DE GESTIÓN (SIG)
-                    </div>
-                    <div className="font-black text-xs sm:text-sm text-[#0b1d3a] dark:text-white uppercase">
-                      {form.name}
-                    </div>
-                  </div>
-                  <div className="col-span-3 text-[10px] text-left p-2.5 space-y-1 bg-black/[0.04] dark:bg-white/[0.06] font-mono">
-                    <div>
-                      <span className="font-bold text-[#3a5274] dark:text-slate-300">CÓDIGO:</span> {form.code}
-                    </div>
-                    <div>
-                      <span className="font-bold text-[#3a5274] dark:text-slate-300">VERSIÓN:</span> {form.currentVersion}
-                    </div>
-                    <div>
-                      <span className="font-bold text-[#3a5274] dark:text-slate-300">FECHA:</span> {form.effectiveDate}
-                    </div>
-                    <div>
-                      <span className="font-bold text-[#3a5274] dark:text-slate-300">PÁGINA:</span> 1 de {isForm009 ? '3' : '1'}
-                    </div>
-                  </div>
+            <div className="max-w-4xl mx-auto">
+              {viewVersion && (
+                <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#2c84c4]/30 bg-[#2c84c4]/10 px-4 py-2.5 text-xs text-[#1d5fa8] dark:text-[#69bdd7]">
+                  <span>Está viendo la versión {viewVersion}{viewVersion !== form.currentVersion ? ' (histórica, no vigente)' : ''}.</span>
+                  {viewVersion !== form.currentVersion && (
+                    <button type="button" onClick={() => setViewVersion('')} className="font-bold hover:underline cursor-pointer">
+                      Ver la vigente
+                    </button>
+                  )}
                 </div>
-              </div>
-
-              {/* Form 009 Specific Layout */}
-              {isForm009 ? (
-                <div className="space-y-5 text-xs text-[#0b1d3a] dark:text-white">
-                  {/* Notice Box */}
-                  <div className="bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-xl p-3.5 text-[#1d5fa8] dark:text-[#69bdd7] text-xs flex items-start gap-2.5 shadow-2xs">
-                    <ShieldCheck className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">Documento Oficial Obligatorio del Expediente Digital</p>
-                      <p className="text-[#3a5274] dark:text-slate-300 text-[11px] mt-0.5">
-                        Este formato institucional debe ser completado en su totalidad, firmado por el titular o representante legal, y cargado en formato PDF al expediente digital del portal SIGEPRO.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Numeral I */}
-                  <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
-                    <div className="bg-[#0b1329] text-white font-bold px-3.5 py-2 text-xs flex justify-between items-center">
-                      <span>I. INFORMACIÓN GENERAL Y DE IDENTIFICACIÓN</span>
-                      <span className="text-[10px] font-normal text-cyan-300">Marcar: [X] Inscripción [ ] Actualización</span>
-                    </div>
-                    <div className="p-3.5 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white">
-                      <div className="col-span-2 sm:col-span-3">
-                        <label className="block text-[10px] text-[#5d7392] dark:text-slate-400 font-bold uppercase">Nombre o Razón Social</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 font-semibold text-[#0b1d3a] dark:text-white">
-                          {supplierName || '__________________________________________________'}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-[#5d7392] dark:text-slate-400 font-bold uppercase">NIT / Cédula</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 font-semibold text-[#0b1d3a] dark:text-white font-mono">
-                          {nitOrDoc || '____________________'}
-                        </div>
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-[10px] text-[#5d7392] dark:text-slate-400 font-bold uppercase">Dirección Comercial Principal</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 text-[#5d7392] dark:text-slate-400">Calle / Carrera / Número / Barrio</div>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-[#5d7392] dark:text-slate-400 font-bold uppercase">Ciudad / Municipio</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 text-[#5d7392] dark:text-slate-400">Sogamoso / Tunja / Duitama...</div>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-[#5d7392] dark:text-slate-400 font-bold uppercase">Teléfono de Contacto</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 text-[#5d7392] dark:text-slate-400">(608) / 300 000 0000</div>
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-[10px] text-[#5d7392] dark:text-slate-400 font-bold uppercase">Correo Electrónico para Notificaciones</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 text-[#5d7392] dark:text-slate-400">facturacion@proveedor.com</div>
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-[10px] text-[#5d7392] dark:text-slate-400 font-bold uppercase">Representante Legal (si aplica)</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 text-[#5d7392] dark:text-slate-400">Nombre completo y C.C.</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Numeral II */}
-                  <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
-                    <div className="bg-[#0b1329] text-white font-bold px-3.5 py-2 text-xs">
-                      II. INFORMACIÓN TRIBUTARIA Y CLASIFICACIÓN
-                    </div>
-                    <div className="p-3.5 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white text-[11px]">
-                      <div>
-                        <span className="font-bold block text-[#3a5274] dark:text-slate-300">Régimen de IVA:</span>
-                        <div className="mt-1 space-y-1 text-[#3a5274] dark:text-slate-300">
-                          <div>[ ] Responsable de IVA</div>
-                          <div>[ ] No Responsable</div>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="font-bold block text-[#3a5274] dark:text-slate-300">Tipo de Contribuyente:</span>
-                        <div className="mt-1 space-y-1 text-[#3a5274] dark:text-slate-300">
-                          <div>[ ] Gran Contribuyente</div>
-                          <div>[ ] Régimen Simple (RST)</div>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="font-bold block text-[#3a5274] dark:text-slate-300">Retención en la Fuente:</span>
-                        <div className="mt-1 space-y-1 text-[#3a5274] dark:text-slate-300">
-                          <div>[ ] Autorretenedor Renta</div>
-                          <div>[ ] Autorretenedor ICA</div>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="font-bold block text-[#3a5274] dark:text-slate-300">Actividad Económica:</span>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 text-[#5d7392] dark:text-slate-400 font-mono">CIIU: __________</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Numeral III - Banking */}
-                  <div className="border-2 border-blue-600/50 rounded-lg overflow-hidden bg-[#2c84c4]/10">
-                    <div className="bg-blue-900 text-white font-bold px-3.5 py-2 text-xs flex items-center justify-between">
-                      <span>III. INFORMACIÓN BANCARIA PARA PAGOS POR TRANSFERENCIA ELECTRÓNICA</span>
-                      <span className="text-[10px] bg-blue-700 px-2 py-0.5 rounded text-white font-bold">
-                        Requisito Clave
-                      </span>
-                    </div>
-                    <div className="p-3.5 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white">
-                      <div>
-                        <label className="block text-[10px] text-[#3a5274] dark:text-slate-300 font-bold uppercase">Entidad Bancaria</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 font-medium text-[#3a5274] dark:text-slate-300">
-                          Bancolombia / Banco de Bogotá / Davivienda / BBVA...
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-[#3a5274] dark:text-slate-300 font-bold uppercase">Tipo de Cuenta</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 font-medium text-[#3a5274] dark:text-slate-300">
-                          [ ] Cuenta Corriente &nbsp;&nbsp; [ ] Cuenta de Ahorros
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-[#3a5274] dark:text-slate-300 font-bold uppercase">Número de Cuenta</label>
-                        <div className="p-1.5 border-b border-black/10 dark:border-white/10 font-mono text-[#3a5274] dark:text-slate-300">
-                          ___________________________
-                        </div>
-                      </div>
-                      <div className="col-span-1 sm:col-span-3 text-[10px] text-[#5d7392] dark:text-slate-400 italic">
-                        * Nota: La cuenta bancaria debe estar a nombre del titular o razón social y coincidir estrictamente con la certificación bancaria adjunta.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Numeral IV */}
-                  <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
-                    <div className="bg-[#0b1329] text-white font-bold px-3.5 py-2 text-xs">
-                      IV. REFERENCIAS COMERCIALES Y BANCARIAS
-                    </div>
-                    <div className="p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white text-[11px]">
-                      <div className="border border-black/10 dark:border-white/10 p-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06]">
-                        <span className="font-bold text-[#0b1d3a] dark:text-white block mb-1">Referencia Comercial 1</span>
-                        <div className="text-[#3a5274] dark:text-slate-300 space-y-1 text-[10px]">
-                          <div>Empresa: _____________________________________</div>
-                          <div>Contacto: ________________ Tel: _____________</div>
-                        </div>
-                      </div>
-                      <div className="border border-black/10 dark:border-white/10 p-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06]">
-                        <span className="font-bold text-[#0b1d3a] dark:text-white block mb-1">Referencia Comercial 2</span>
-                        <div className="text-[#3a5274] dark:text-slate-300 space-y-1 text-[10px]">
-                          <div>Empresa: _____________________________________</div>
-                          <div>Contacto: ________________ Tel: _____________</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Numeral V */}
-                  <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
-                    <div className="bg-[#0b1329] text-white font-bold px-3.5 py-2 text-xs">
-                      V. DECLARACIÓN DE ORIGEN DE FONDOS Y FIRMA DEL SOLICITANTE
-                    </div>
-                    <div className="p-3.5 bg-white space-y-3">
-                      <p className="text-[10px] text-[#3a5274] dark:text-slate-300 leading-relaxed text-justify">
-                        Declaro bajo la gravedad de juramento que los dineros, bienes y recursos con los cuales ejecuto mis operaciones provienen de actividades lícitas y no provienen de ninguna actividad contemplada en las normas penales colombianas ni en normas internacionales relativas a prevención de lavado de activos y financiación del terrorismo (SARLAFT). Autorizo expresamente a Flota Sugamuxi S.A. a verificar la información suministrada.
-                      </p>
-                      <div className="pt-6 grid grid-cols-2 gap-6 text-center">
-                        <div>
-                          <div className="border-b border-slate-400 h-8 mb-1"></div>
-                          <div className="text-[10px] font-bold text-[#0b1d3a] dark:text-white">Firma del Titular / Representante Legal</div>
-                          <div className="text-[9px] text-[#5d7392] dark:text-slate-400">C.C. Nº ________________________</div>
-                        </div>
-                        <div>
-                          <div className="border-b border-slate-400 h-8 mb-1"></div>
-                          <div className="text-[10px] font-bold text-[#0b1d3a] dark:text-white">Fecha de Diligenciamiento</div>
-                          <div className="text-[9px] text-[#5d7392] dark:text-slate-400">Día _____ / Mes _____ / Año 2026</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              )}
+              {pdf ? (
+                <iframe
+                  key={pdf.url}
+                  src={`${pdf.url}#toolbar=1&navpanes=0`}
+                  title={`${form.code} versión ${pdf.version}`}
+                  className="w-full h-[68vh] rounded-xl border border-black/10 dark:border-white/10 bg-white"
+                />
               ) : (
-                /* Form 039 Layout (Habeas Data) */
-                <div className="space-y-5 text-xs text-[#0b1d3a] dark:text-white">
-                  <div className="bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-xl p-3.5 text-[#1d5fa8] dark:text-[#69bdd7] text-xs flex items-start gap-2.5 shadow-2xs">
-                    <ShieldCheck className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">Protección Constitucional de Datos Personales (Ley 1581 de 2012)</p>
-                      <p className="text-[#3a5274] dark:text-slate-300 text-[11px] mt-0.5">
-                        Autorización expresa para el tratamiento y almacenamiento seguro de datos personales y comerciales en las bases de datos de Flota Sugamuxi S.A.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="border border-black/10 dark:border-white/10 rounded-xl p-4 sm:p-5 bg-white space-y-4">
-                    <h3 className="font-bold text-[#0b1d3a] dark:text-white text-center uppercase text-xs tracking-wide">
-                      AUTORIZACIÓN EXPRESA PARA EL TRATAMIENTO DE DATOS PERSONALES
-                    </h3>
-
-                    <p className="text-[11px] text-[#3a5274] dark:text-slate-300 leading-relaxed text-justify">
-                      En cumplimiento de la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes, actuando en nombre propio o en representación legal de la entidad indicada, autorizo de manera voluntaria, previa, explícita e informada a <strong>FLOTA SUGAMUXI S.A.</strong> (NIT 891.800.075-8), domiciliada en la ciudad de Sogamoso (Boyacá), en calidad de Responsable del Tratamiento, para recolectar, almacenar, usar, circular y suprimir los datos personales y comerciales suministrados en este proceso de vinculación.
-                    </p>
-
-                    <div className="bg-black/[0.04] dark:bg-white/[0.06] p-3.5 rounded-lg border border-black/10 dark:border-white/10 text-[10px] space-y-1.5 text-[#3a5274] dark:text-slate-300">
-                      <div className="font-bold text-[#0b1d3a] dark:text-white">FINALIDADES DEL TRATAMIENTO:</div>
-                      <div>1. Adelantar el estudio de vinculación, calificación y homologación como proveedor de bienes o servicios.</div>
-                      <div>2. Consulta y verificación en listas vinculantes de control de lavado de activos y financiación del terrorismo (SARLAFT/OFAC).</div>
-                      <div>3. Gestión contable, fiscal, administrativa, emisión de órdenes de compra, contratos y pagos por transferencias.</div>
-                      <div>4. Contacto e invitaciones a participar en procesos de cotización, licitaciones y convocatorias públicas o privadas.</div>
-                    </div>
-
-                    <div className="pt-6 grid grid-cols-2 gap-6 text-center">
-                      <div>
-                        <div className="border-b border-slate-400 h-8 mb-1"></div>
-                        <div className="text-[10px] font-bold text-[#0b1d3a] dark:text-white">Firma del Titular de Datos</div>
-                        <div className="text-[9px] text-[#5d7392] dark:text-slate-400">Nombre: {supplierName || '________________________'}</div>
-                        <div className="text-[9px] text-[#5d7392] dark:text-slate-400">Doc: {nitOrDoc || '________________________'}</div>
-                      </div>
-                      <div>
-                        <div className="border-b border-slate-400 h-8 mb-1"></div>
-                        <div className="text-[10px] font-bold text-[#0b1d3a] dark:text-white">Huella Dactilar / Fecha</div>
-                        <div className="text-[9px] text-[#5d7392] dark:text-slate-400">Fecha: _____ / _____ / 2026</div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="rounded-xl border border-dashed border-black/20 dark:border-white/20 bg-white dark:bg-white/[0.03] px-6 py-16 text-center text-sm text-[#3a5274] dark:text-slate-300">
+                  Esta versión no tiene un PDF cargado.
                 </div>
               )}
             </div>
@@ -473,7 +251,21 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
                         <p className="text-[#0b1d3a] dark:text-white font-medium">{hist.changeSummary}</p>
                         <p className="text-[#5d7392] dark:text-slate-400 text-[11px]">Aprobado por: {hist.modifiedBy}</p>
                       </div>
-                      <div className="shrink-0 text-right">
+                      <div className="shrink-0 text-right space-y-2">
+                        {getFormPdf(form, hist.version) ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setViewVersion(hist.version);
+                              setActiveTab('vista');
+                            }}
+                            className="block ml-auto text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer"
+                          >
+                            Ver PDF
+                          </button>
+                        ) : (
+                          <span className="block text-[10px] text-[#5d7392] dark:text-slate-400">Sin archivo</span>
+                        )}
                         <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md ${
                           hist.isActive ? 'text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 border border-[#2c84c4]/30' : 'text-[#5d7392] dark:text-slate-400'
                         }`}>
@@ -496,14 +288,14 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={handleSimulateDownload}
+              onClick={handleDownload}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Descargar plantilla ({form.templateFileName})</span>
+              <span>Descargar PDF{pdf ? ` (v${pdf.version})` : ''}</span>
             </button>
             <button
-              onClick={onClose}
+              onClick={() => { setViewVersion(''); onClose(); }}
               className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
             >
               Cerrar

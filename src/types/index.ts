@@ -172,6 +172,10 @@ export interface InstitutionalForm {
     modifiedBy: string;
     changeSummary: string;
     isActive: boolean;
+    /** PDF de esta versión (Storage o ruta pública) */
+    fileUrl?: string;
+    fileName?: string;
+    fileSize?: string;
   }>;
 }
 
