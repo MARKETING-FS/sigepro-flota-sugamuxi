@@ -52,6 +52,8 @@ const publicUser = (u: any) => ({
   role: String(u.app_metadata?.role || '').toUpperCase(),
   createdAt: u.created_at as string,
   lastSignInAt: (u.last_sign_in_at || null) as string | null,
+  /** true mientras la persona no haya cambiado la contraseña temporal */
+  mustChangePassword: u.user_metadata?.must_change_password === true,
 });
 
 export default async function handler(req: Req, res: Res) {
@@ -127,21 +129,39 @@ export default async function handler(req: Req, res: Res) {
       if (!id) return res.status(400).json({ error: 'Falta el usuario.' });
       if (id === caller.id) return res.status(400).json({ error: 'No puede modificar su propia cuenta desde aquí.' });
       const patch: Record<string, unknown> = {};
+      const meta: Record<string, unknown> = {};
       if (body.role !== undefined) {
         const role = String(body.role).toUpperCase();
         if (!ASSIGNABLE.has(role)) return res.status(400).json({ error: 'El rol debe ser Administrador o Usuario.' });
         patch.app_metadata = { role };
       }
+      if (body.name !== undefined) {
+        const name = String(body.name).trim();
+        if (!name) return res.status(400).json({ error: 'Escriba el nombre completo.' });
+        meta.full_name = name;
+      }
+      if (body.email !== undefined) {
+        const email = String(body.email).trim().toLowerCase();
+        if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'El correo no es válido.' });
+        patch.email = email;
+        patch.email_confirm = true;
+      }
       if (body.password !== undefined) {
         const pwProblem = passwordProblem(String(body.password));
         if (pwProblem) return res.status(400).json({ error: pwProblem });
         patch.password = String(body.password);
-        patch.user_metadata = { must_change_password: true };
+        // Nueva contraseña temporal: vuelve a pedir el cambio en el próximo ingreso
+        meta.must_change_password = true;
       }
+      if (Object.keys(meta).length > 0) patch.user_metadata = meta;
       if (Object.keys(patch).length === 0) return res.status(400).json({ error: 'No hay nada que cambiar.' });
       const r = await adminFetch(`/admin/users/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(patch) });
       const data: any = await r.json();
-      if (!r.ok) return res.status(502).json({ error: data?.msg || data?.message || 'No se pudo actualizar.' });
+      if (!r.ok) {
+        const msg = String(data?.msg || data?.message || '');
+        if (/already|registered|exists/i.test(msg)) return res.status(409).json({ error: 'Ya existe un usuario con ese correo.' });
+        return res.status(502).json({ error: msg || 'No se pudo actualizar.' });
+      }
       return res.status(200).json({ user: publicUser(data) });
     }
 
