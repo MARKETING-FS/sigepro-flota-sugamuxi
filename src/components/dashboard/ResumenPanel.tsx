@@ -64,7 +64,7 @@ const dueLabel = (days: number) =>
     : `En ${days} d`;
 
 export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegister, tabs, scopeLabel, dateLabel }) => {
-  const { role, activeUser, currentDossierId, systemAuditLogs, systemUsers, openSupplierReview, openSupplierEvaluation, setActiveView } = useApp();
+  const { role, accountRole, isReadOnly, activeUser, currentDossierId, systemAuditLogs, systemUsers, openSupplierReview, openSupplierEvaluation, setActiveView } = useApp();
 
   const stats = useMemo(() => {
     const stageCounts = STAGES.map((s) => ({ key: s.key, label: s.label, tone: s.tone, count: 0 }));
@@ -293,6 +293,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
               <button
                 key={r.dossier.id}
                 type="button"
+                disabled={isReadOnly}
                 onClick={() => openSupplierEvaluation(r.dossier.id)}
                 className="w-full flex items-center justify-between gap-3 py-2 border-t border-[#edf1f6] dark:border-slate-800 text-left text-sm hover:text-fs-blue cursor-pointer"
               >
@@ -355,7 +356,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         <Panel
           title="Actividad reciente"
           aside={
-            role === 'ADMIN' ? (
+            accountRole === 'SUPERADMIN' ? (
               <button type="button" onClick={() => setActiveView('auditoria')} className="inline-flex items-center gap-1 font-semibold text-fs-blue hover:underline cursor-pointer">
                 Ver auditoría <ArrowRight className="w-3.5 h-3.5" />
               </button>

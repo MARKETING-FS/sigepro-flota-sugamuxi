@@ -50,12 +50,14 @@ interface Props {
   onManualStatus: (d: SupplierDossier) => void;
   /** Solo Administrador y superadministrador: habilitar o inhabilitar al proveedor */
   canManage?: boolean;
+  /** Falso para el rol Usuario (solo consulta) */
+  canEvaluate?: boolean;
   onToggleEnabled?: (d: SupplierDossier) => void;
 }
 
 const iconBtn = rowIconBtn;
 
-export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, onManualStatus, canManage = false, onToggleEnabled }) => (
+export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, onManualStatus, canManage = false, canEvaluate = true, onToggleEnabled }) => (
   <div className="overflow-x-auto">
     <table className="w-full text-sm">
       <thead>
@@ -133,9 +135,11 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                 </td>
                 <td className="py-3 pl-3 pr-5">
                   <div className="flex justify-end gap-2">
-                    <button type="button" className={iconBtn} title="Evaluar proveedor" aria-label="Evaluar proveedor" onClick={() => onEvaluate(d.id)}>
-                      <Award className="w-4 h-4" />
-                    </button>
+                    {canEvaluate && (
+                      <button type="button" className={iconBtn} title="Evaluar proveedor" aria-label="Evaluar proveedor" onClick={() => onEvaluate(d.id)}>
+                        <Award className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       type="button"
                       className={iconBtn}

@@ -72,6 +72,8 @@ interface AppContextType {
   accountRole: AccountRole | null;
   /** Superadministrador o Administrador: puede habilitar/inhabilitar proveedores */
   canManageProviders: boolean;
+  /** Rol Usuario: solo consulta (no crea, edita, sube ni elimina nada) */
+  isReadOnly: boolean;
   isPasswordRecovery: boolean;
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
@@ -340,6 +342,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const role: UserRole = authProfile?.role ?? 'REVISOR';
   const accountRole: AccountRole | null = authProfile?.accountRole ?? null;
   const canManageProviders = accountRole === 'SUPERADMIN' || accountRole === 'ADMIN';
+  const isReadOnly = accountRole === 'USER';
 
   const activeUserId: string = authProfile ? authProfile.sigeproUserId || authProfile.id : '';
 
@@ -399,6 +402,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Setter enriquecido con sincronización y persistencia automática bidireccional en Supabase
   const setDossiers: React.Dispatch<React.SetStateAction<SupplierDossier[]>> = (updater) => {
     setAllDossiers((prev) => {
+      // Rol Usuario: solo consulta, ningún cambio sobre expedientes se aplica ni se guarda
+      if (isReadOnly) return prev;
       const next = typeof updater === 'function' ? (updater as any)(prev) : updater;
       if (supabaseService.isConfigured()) {
         // Persistir proveedores creados o modificados
@@ -434,6 +439,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Enforce editing permissions by user:
   // Admin can edit any dossier. A revisor can only edit suppliers assigned to him.
   const canEditDossier = (dossierId: string): boolean => {
+    if (isReadOnly) return false;
     if (role === 'ADMIN') return true;
     if (role === 'REVISOR') {
       const target = allDossiers.find((d) => d.id === dossierId);
@@ -881,6 +887,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (!authUserKey) return;
     const SUPER_ONLY: AppView[] = ['usuarios', 'parametrizacion', 'documentMatrix', 'auditoria', 'adminForms'];
+    const WRITE_ONLY: AppView[] = ['registrarProveedor'];
     let lastUser = '';
     try {
       lastUser = localStorage.getItem('sigepro_last_auth_user') || '';
@@ -891,6 +898,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActiveViewState((current) => {
       if (lastUser !== authUserKey) return 'revisores';
       if (SUPER_ONLY.includes(current) && authProfile?.accountRole !== 'SUPERADMIN') return 'revisores';
+      if (WRITE_ONLY.includes(current) && authProfile?.accountRole === 'USER') return 'revisores';
       return current;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -3301,6 +3309,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const recordSupplierEvaluation = (
     evalData: Omit<SupplierEvaluation, 'id' | 'createdAt' | 'certificateCode'>
   ): SupplierEvaluation => {
+    if (isReadOnly) {
+      showToast('Su rol es de solo consulta: no puede registrar evaluaciones.', 'warning', 'ACCIÓN BLOQUEADA');
+      return { ...evalData, id: '', createdAt: '', certificateCode: '' } as SupplierEvaluation;
+    }
     const evalId = `eval-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
     const nowIso = new Date().toISOString();
     const currentYear = new Date().getFullYear();
@@ -3376,6 +3388,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteSupplierEvaluation = (id: string) => {
+    if (isReadOnly) {
+      showToast('Su rol es de solo consulta: no puede eliminar evaluaciones.', 'warning', 'ACCIÓN BLOQUEADA');
+      return;
+    }
     setSupplierEvaluations((prev) => prev.filter((e) => e.id !== id));
     showToast('Registro de calificación eliminado.', 'info');
     return { success: true, message: 'Evaluación eliminada correctamente.' };
@@ -3473,6 +3489,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         authProfile,
         accountRole,
         canManageProviders,
+        isReadOnly,
         isPasswordRecovery: auth.isPasswordRecovery,
         signIn: auth.signIn,
         signOut: async () => {

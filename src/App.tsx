@@ -27,6 +27,7 @@ const MainLayout: React.FC = () => {
     activeView,
     setActiveView,
     accountRole,
+    isReadOnly,
   } = useApp();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -104,7 +105,7 @@ const MainLayout: React.FC = () => {
 
         {/* Dynamic Views */}
         <main className="flex-1 pb-10">
-          {activeView === 'registrarProveedor' && <AdminRegisterSupplierView />}
+          {activeView === 'registrarProveedor' && !isReadOnly && <AdminRegisterSupplierView />}
           {activeView === 'bancoProveedores' && <BancoProveedoresView />}
           {activeView === 'convocatorias' && (
             <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">

@@ -31,6 +31,8 @@ interface NavItem {
   icon: React.ElementType;
   /** Solo lo ve el superadministrador */
   superOnly?: boolean;
+  /** Oculto para el rol Usuario (solo consulta) */
+  hideForReadOnly?: boolean;
   alsoActiveOn?: AppView[];
 }
 
@@ -41,7 +43,7 @@ const GROUPS: Array<{ title: string; items: NavItem[] }> = [
       { view: 'revisores', label: 'Resumen', icon: Home },
       { view: 'bancoProveedores', label: 'Banco de proveedores', icon: Users },
       { view: 'evaluaciones', label: 'Evaluaciones', icon: Star },
-      { view: 'registrarProveedor', label: 'Registrar proveedor', icon: UserPlus },
+      { view: 'registrarProveedor', label: 'Registrar proveedor', icon: UserPlus, hideForReadOnly: true },
       { view: 'informesExcel', label: 'Reportes', icon: BarChart3 },
     ],
   },
@@ -57,7 +59,7 @@ const GROUPS: Array<{ title: string; items: NavItem[] }> = [
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, onOpenHabeasDataModal }) => {
-  const { accountRole, activeUser, signOut, activeView, setActiveView, setReviewSelectedDossierId, showToast } = useApp();
+  const { accountRole, isReadOnly, activeUser, signOut, activeView, setActiveView, setReviewSelectedDossierId, showToast } = useApp();
 
   const handleSignOut = async () => {
     await signOut();
@@ -109,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, o
 
       <nav className="relative flex-1 overflow-y-auto min-h-0 px-4 pb-3 pt-2" aria-label="Menú principal">
         {GROUPS.map((group, gi) => {
-          const items = group.items.filter((it) => !it.superOnly || accountRole === 'SUPERADMIN');
+          const items = group.items.filter((it) => (!it.superOnly || accountRole === 'SUPERADMIN') && !(it.hideForReadOnly && isReadOnly));
           if (items.length === 0) return null;
           return (
             <div key={group.title} className={gi > 0 ? 'mt-6' : ''}>

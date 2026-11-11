@@ -38,6 +38,7 @@ export const SupplierEvaluationsView: React.FC = () => {
   const {
     allDossiers,
     role,
+    isReadOnly,
     activeUser,
     activeUserId,
     systemUsers,
@@ -380,14 +381,16 @@ export const SupplierEvaluationsView: React.FC = () => {
             <button type="button" className={heroSecondaryBtn} onClick={handleExportEvaluationsExcel}>
               <FileSpreadsheet className="w-4 h-4" /> Exportar
             </button>
-            {role === 'ADMIN' && (
+            {role === 'ADMIN' && !isReadOnly && (
               <button type="button" className={heroSecondaryBtn} onClick={() => setIsConfigModalOpen(true)}>
                 <Sliders className="w-4 h-4" /> Método de evaluación
               </button>
             )}
-            <button type="button" className={heroPrimaryBtn} onClick={() => handleOpenEvaluationModal(null, 'INICIAL')}>
-              <Plus className="w-4 h-4" /> Nueva evaluación
-            </button>
+            {!isReadOnly && (
+              <button type="button" className={heroPrimaryBtn} onClick={() => handleOpenEvaluationModal(null, 'INICIAL')}>
+                <Plus className="w-4 h-4" /> Nueva evaluación
+              </button>
+            )}
           </>
         }
         tabs={
@@ -505,7 +508,7 @@ export const SupplierEvaluationsView: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="flex justify-end">
-                          {needsInitial || needsAnnual ? (
+                          {isReadOnly ? null : needsInitial || needsAnnual ? (
                             <button
                               type="button"
                               onClick={() => handleOpenEvaluationModal(dossier, needsInitial ? 'INICIAL' : 'ANUAL_1_ANO')}
@@ -578,7 +581,7 @@ export const SupplierEvaluationsView: React.FC = () => {
                         <button type="button" onClick={() => setSelectedEvaluationForCert(ev)} className={`${secondaryBtn} h-8 px-3`}>
                           <Printer className="w-4 h-4" /> Acta
                         </button>
-                        {(role === 'ADMIN' || ev.evaluatorId === activeUser?.id) && (
+                        {!isReadOnly && (role === 'ADMIN' || ev.evaluatorId === activeUser?.id) && (
                           <button
                             type="button"
                             title="Eliminar evaluación"

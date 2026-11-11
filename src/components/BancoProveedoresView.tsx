@@ -23,7 +23,7 @@ const QUICK_FILTERS: Array<{ key: string; label: string }> = [
 ];
 
 export const BancoProveedoresView: React.FC = () => {
-  const { role, canManageProviders, dossiers, setCurrentDossierId, setActiveView, updateDossierStatus, openSupplierEvaluation } = useApp();
+  const { role, isReadOnly, canManageProviders, dossiers, setCurrentDossierId, setActiveView, updateDossierStatus, openSupplierEvaluation } = useApp();
   const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
 
   // Habilitar / inhabilitar (Administrador y superadministrador)
@@ -190,7 +190,7 @@ export const BancoProveedoresView: React.FC = () => {
             <button type="button" className={heroSecondaryBtn} onClick={() => setActiveView('informesExcel')}>
               <FileSpreadsheet className="w-5 h-5" /> Reportes
             </button>
-            {(role === 'ADMIN' || role === 'REVISOR') && (
+            {!isReadOnly && (
               <button type="button" className={heroPrimaryBtn} onClick={() => setActiveView('registrarProveedor')}>
                 <Plus className="w-6 h-6" strokeWidth={2.4} /> Registrar proveedor
               </button>
@@ -277,6 +277,7 @@ export const BancoProveedoresView: React.FC = () => {
           onCertificate={setSelectedDossierForCertificate}
           onManualStatus={setSelectedDossierForManualStatus}
           canManage={canManageProviders}
+          canEvaluate={!isReadOnly}
           onToggleEnabled={handleToggleEnabled}
         />
 

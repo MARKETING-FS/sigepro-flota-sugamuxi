@@ -70,6 +70,7 @@ interface Props {
 export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack }) => {
   const {
     role,
+    isReadOnly,
     dossiers,
     approveDocument,
     requestDocumentCorrection,
@@ -650,7 +651,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               </button>
             )}
 
-            {(role === 'ADMIN' || role === 'REVISOR') && (
+            {!isReadOnly && (
               <button
                 type="button"
                 onClick={() => setIsManualStatusModalOpen(true)}
@@ -729,7 +730,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               </div>
             </div>
 
-            {(role === 'ADMIN' || role === 'REVISOR') && (
+            {!isReadOnly && (
               <button
                 type="button"
                 onClick={() => setIsManualStatusModalOpen(true)}
@@ -842,7 +843,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               </p>
             </div>
           </div>
-          {(role === 'ADMIN' || role === 'REVISOR') && (
+          {!isReadOnly && (
             <button
               type="button"
               onClick={() => setIsManualStatusModalOpen(true)}
@@ -893,7 +894,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         {/* Tab 0: Supplier Data & Full Editing */}
         {activeTab === 'datos' && (
           <div className="p-4 sm:p-5">
-            <SupplierDataEditorTab dossier={dossier} reviewerName={reviewerName} />
+            {/* Rol Usuario: se ven los datos pero ningún campo ni botón de edición responde */}
+            <fieldset disabled={isReadOnly} className="contents">
+              <SupplierDataEditorTab dossier={dossier} reviewerName={reviewerName} />
+            </fieldset>
           </div>
         )}
 
@@ -916,7 +920,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 </div>
               </div>
 
-              {(role === 'ADMIN' || role === 'REVISOR') && (
+              {!isReadOnly && (
                 <button
                   type="button"
                   onClick={() => setIsManualStatusModalOpen(true)}
@@ -1082,7 +1086,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     El proveedor está operando actualmente bajo el esquema de habilitación documental. Puede registrar los datos contractuales y su fecha de vigencia para control automático.
                   </p>
                 </div>
-                {(role === 'ADMIN' || role === 'REVISOR') && (
+                {!isReadOnly && (
                   <button
                     type="button"
                     onClick={() => setIsManualStatusModalOpen(true)}
@@ -1110,7 +1114,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 </p>
               </div>
 
-              {(role === 'ADMIN' || role === 'REVISOR') && (
+              {!isReadOnly && (
                 <button
                   type="button"
                   onClick={() => setIsAddDocOpen(true)}
@@ -1325,7 +1329,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                       </button>
                     )}
 
-                    {(role === 'ADMIN' || role === 'REVISOR') && (
+                    {!isReadOnly && (
                       <button
                         type="button"
                         onClick={() => handleOpenEditDocModal('FS_GA_FOR_009', dossier.documents['FS_GA_FOR_009'], 'Formulario FS.GA-FOR-009')}
@@ -1358,7 +1362,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               ) : (
                 <div className="flex items-center justify-between bg-black/[0.03] dark:bg-white/[0.05] p-4 rounded-2xl border border-black/[0.06] dark:border-white/10">
                   <span className="text-xs text-[#5d7392] dark:text-slate-400 italic">Documento no cargado aún.</span>
-                  {(role === 'ADMIN' || role === 'REVISOR') && (
+                  {!isReadOnly && (
                     <button
                       type="button"
                       onClick={() => handleOpenEditDocModal('FS_GA_FOR_009', dossier.documents['FS_GA_FOR_009'] || {
@@ -1435,7 +1439,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                       </button>
                     )}
 
-                    {(role === 'ADMIN' || role === 'REVISOR') && (
+                    {!isReadOnly && (
                       <button
                         type="button"
                         onClick={() => handleOpenEditDocModal('FS_GA_FOR_039', dossier.documents['FS_GA_FOR_039'], 'Autorización FS.GA-FOR-039')}
@@ -1467,7 +1471,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               ) : (
                 <div className="flex items-center justify-between bg-black/[0.03] dark:bg-white/[0.05] p-4 rounded-2xl border border-black/[0.06] dark:border-white/10">
                   <span className="text-xs text-[#5d7392] dark:text-slate-400 italic">Documento no cargado aún.</span>
-                  {(role === 'ADMIN' || role === 'REVISOR') && (
+                  {!isReadOnly && (
                     <button
                       type="button"
                       onClick={() => handleOpenEditDocModal('FS_GA_FOR_039', dossier.documents['FS_GA_FOR_039'] || {
@@ -1665,7 +1669,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                             </button>
                           )}
 
-                          {(role === 'ADMIN' || role === 'REVISOR') && (
+                          {!isReadOnly && (
                             <button
                               type="button"
                               onClick={() => handleOpenEditDocModal(code, doc, docTitle)}
@@ -1995,7 +1999,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         supplierName={supplierName}
         nitOrDoc={supplierDoc}
         onModifyDoc={
-          (role === 'ADMIN' || role === 'REVISOR') && (previewDocCode || previewDocObj)
+          !isReadOnly && (previewDocCode || previewDocObj)
             ? () => {
                 const code = previewDocCode || previewDocObj?.code || '';
                 const docToEdit = (code && dossier.documents[code]) || previewDocObj;
@@ -2008,7 +2012,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             : undefined
         }
         onRequestCorrection={
-          (role === 'ADMIN' || role === 'REVISOR') && (previewDocCode || previewDocObj)
+          !isReadOnly && (previewDocCode || previewDocObj)
             ? () => {
                 const code = previewDocCode || previewDocObj?.code || '';
                 const titleToCorrect = previewDocTitle;
@@ -2018,7 +2022,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             : undefined
         }
         onApproveDoc={
-          (role === 'ADMIN' || role === 'REVISOR') && (previewDocCode || previewDocObj)
+          !isReadOnly && (previewDocCode || previewDocObj)
             ? () => {
                 const code = previewDocCode || previewDocObj?.code || '';
                 if (code) {
