@@ -33,7 +33,8 @@ const adminFetch = (path: string, init: RequestInit = {}) =>
     ...init,
     headers: {
       apikey: SERVICE_KEY,
-      Authorization: `Bearer ${SERVICE_KEY}`,
+      // Las claves nuevas (sb_secret_...) no son JWT: Supabase las acepta solo en el encabezado apikey
+      ...(SERVICE_KEY.startsWith('sb_secret_') ? {} : { Authorization: `Bearer ${SERVICE_KEY}` }),
       'Content-Type': 'application/json',
       ...(init.headers || {}),
     },
