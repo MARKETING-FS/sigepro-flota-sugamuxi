@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   UserRole,
+  AccountRole,
   ThemeMode,
   AppView,
   SupplierDossier,
@@ -67,6 +68,10 @@ interface AppContextType {
   isAuthConfigured: boolean;
   authLoading: boolean;
   authProfile: AuthProfile | null;
+  /** Rol de la cuenta (SUPERADMIN, ADMIN o USER) */
+  accountRole: AccountRole | null;
+  /** Superadministrador o Administrador: puede habilitar/inhabilitar proveedores */
+  canManageProviders: boolean;
   isPasswordRecovery: boolean;
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
@@ -333,6 +338,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Sin sesión o sin rol se usa el menor privilegio; la app no se muestra en ese caso
   const role: UserRole = authProfile?.role ?? 'REVISOR';
+  const accountRole: AccountRole | null = authProfile?.accountRole ?? null;
+  const canManageProviders = accountRole === 'SUPERADMIN' || accountRole === 'ADMIN';
 
   const activeUserId: string = authProfile ? authProfile.sigeproUserId || authProfile.id : '';
 
@@ -662,6 +669,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Supabase Hydration Guards (prevents premature blank overwrites on mount)
   const isCategoriesLoadedFromSupabase = useRef(false);
+  // Parámetros, método de evaluación y formatos: solo se guardan después de cargar lo que ya hay en la base
+  const isParamsLoadedFromSupabase = useRef(false);
+  const isMethodLoadedFromSupabase = useRef(false);
+  const isFormsLoadedFromSupabase = useRef(false);
+  const savedFormsSnapshot = useRef<Record<string, string>>({});
   const isDocDefsLoadedFromSupabase = useRef(false);
   const isBaseReqsLoadedFromSupabase = useRef(false);
 
@@ -703,6 +715,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_FORMS, JSON.stringify(institutionalForms));
+    // Guarda solo los formatos que cambiaron desde la última vez
+    if (isFormsLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
+      institutionalForms.forEach((f) => {
+        const snap = JSON.stringify(f);
+        if (savedFormsSnapshot.current[f.id] !== snap) {
+          savedFormsSnapshot.current[f.id] = snap;
+          supabaseService.saveInstitutionalForm(f);
+        }
+      });
+    }
   }, [institutionalForms]);
 
   useEffect(() => {
@@ -732,6 +754,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_SYSTEM_PARAMETERS, JSON.stringify(systemParameters));
+    // Solo el superadministrador modifica la parametrización
+    if (isParamsLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
+      supabaseService.saveParametersState(systemParameters);
+    }
   }, [systemParameters]);
 
   useEffect(() => {
@@ -744,6 +770,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATION_METHOD, JSON.stringify(evaluationMethod));
+    if (isMethodLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
+      supabaseService.saveEvaluationMethod(evaluationMethod);
+    }
   }, [evaluationMethod]);
 
   useEffect(() => {
@@ -805,7 +834,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       supabaseService.getInstitutionalForms().then((remoteForms) => {
         if (remoteForms !== null && remoteForms.length > 0) {
           setInstitutionalForms(remoteForms);
+          remoteForms.forEach((f) => {
+            savedFormsSnapshot.current[f.id] = JSON.stringify(f);
+          });
         }
+        isFormsLoadedFromSupabase.current = true;
       });
       supabaseService.getCategoriesConfig().then((remoteCats) => {
         if (remoteCats !== null) {
@@ -829,9 +862,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isBaseReqsLoadedFromSupabase.current = true;
       });
       supabaseService.getSystemParameters().then((remoteParams) => {
-        if (remoteParams !== null) {
+        if (remoteParams !== null && Object.keys(remoteParams).length > 0) {
           setSystemParameters(sanitizeSystemParameters(remoteParams));
         }
+        isParamsLoadedFromSupabase.current = true;
+      });
+      supabaseService.getEvaluationMethod().then((remoteMethod) => {
+        if (remoteMethod !== null) {
+          setEvaluationMethod(normalizeEvaluationMethod(remoteMethod as any));
+        }
+        isMethodLoadedFromSupabase.current = true;
       });
     }
   }, [authUserKey]);
@@ -3411,6 +3451,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isAuthConfigured: auth.isAuthConfigured,
         authLoading: auth.authLoading,
         authProfile,
+        accountRole,
+        canManageProviders,
         isPasswordRecovery: auth.isPasswordRecovery,
         signIn: auth.signIn,
         signOut: auth.signOut,

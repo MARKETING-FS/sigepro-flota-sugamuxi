@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, FileBadge2, SlidersHorizontal } from 'lucide-react';
+import { Award, Ban, BadgeCheck, FileBadge2, SlidersHorizontal } from 'lucide-react';
 import { SupplierDossier, ContractValidityStatus } from '../../types';
 import { getCreationStatus, getContractualStatus } from '../../utils/contractValidity';
 import {
@@ -48,11 +48,14 @@ interface Props {
   onEvaluate: (id: string) => void;
   onCertificate: (d: SupplierDossier) => void;
   onManualStatus: (d: SupplierDossier) => void;
+  /** Solo Administrador y superadministrador: habilitar o inhabilitar al proveedor */
+  canManage?: boolean;
+  onToggleEnabled?: (d: SupplierDossier) => void;
 }
 
 const iconBtn = rowIconBtn;
 
-export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, onManualStatus }) => (
+export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, onManualStatus, canManage = false, onToggleEnabled }) => (
   <div className="overflow-x-auto">
     <table className="w-full text-sm">
       <thead>
@@ -143,9 +146,22 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                     >
                       <FileBadge2 className="w-4 h-4" />
                     </button>
-                    <button type="button" className={iconBtn} title="Cambiar estado o contrato" aria-label="Cambiar estado o contrato" onClick={() => onManualStatus(d)}>
-                      <SlidersHorizontal className="w-4 h-4" />
-                    </button>
+                    {canManage && (
+                      <button type="button" className={iconBtn} title="Cambiar estado o contrato" aria-label="Cambiar estado o contrato" onClick={() => onManualStatus(d)}>
+                        <SlidersHorizontal className="w-4 h-4" />
+                      </button>
+                    )}
+                    {canManage && onToggleEnabled && (
+                      <button
+                        type="button"
+                        className={iconBtn}
+                        title={d.processStatus === 'SUSPENDIDO' ? 'Habilitar proveedor' : 'Inhabilitar proveedor'}
+                        aria-label={d.processStatus === 'SUSPENDIDO' ? 'Habilitar proveedor' : 'Inhabilitar proveedor'}
+                        onClick={() => onToggleEnabled(d)}
+                      >
+                        {d.processStatus === 'SUSPENDIDO' ? <BadgeCheck className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => onOpen(d.id)}

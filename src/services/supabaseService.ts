@@ -803,6 +803,53 @@ export const supabaseService = {
     }
   },
 
+  /** Guarda solo los parámetros generales (bancos, ciudades, etc.) sin tocar las otras columnas. */
+  async saveParametersState(params: SystemParametersState): Promise<boolean> {
+    if (!isSupabaseConfigured() || !supabase) return false;
+    try {
+      const { error } = await supabase.from('system_parameters').upsert({
+        id: 'global_parameters',
+        parameters_state: params,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) console.error('[Supabase] Error guardando parameters_state:', error);
+      return !error;
+    } catch {
+      return false;
+    }
+  },
+
+  /** Método de evaluación (criterios y rangos), guardado en la fila global de parámetros. */
+  async getEvaluationMethod(): Promise<Record<string, unknown> | null> {
+    if (!isSupabaseConfigured() || !supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('system_parameters')
+        .select('evaluation_method')
+        .eq('id', 'global_parameters')
+        .maybeSingle();
+      if (error || !data || !data.evaluation_method || Object.keys(data.evaluation_method).length === 0) return null;
+      return data.evaluation_method as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  },
+
+  async saveEvaluationMethod(method: unknown): Promise<boolean> {
+    if (!isSupabaseConfigured() || !supabase) return false;
+    try {
+      const { error } = await supabase.from('system_parameters').upsert({
+        id: 'global_parameters',
+        evaluation_method: method,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) console.error('[Supabase] Error guardando evaluation_method:', error);
+      return !error;
+    } catch {
+      return false;
+    }
+  },
+
   // ============================================================================
   // 8. ALMACENAMIENTO DE ARCHIVOS (Delegado a storageService / Supabase Storage)
   // ============================================================================

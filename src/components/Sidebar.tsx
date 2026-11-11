@@ -11,6 +11,7 @@ import {
   Layers,
   Settings,
   ShieldCheck,
+  UserCog,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -28,7 +29,8 @@ interface NavItem {
   view: AppView;
   label: string;
   icon: React.ElementType;
-  adminOnly?: boolean;
+  /** Solo lo ve el superadministrador */
+  superOnly?: boolean;
   alsoActiveOn?: AppView[];
 }
 
@@ -46,15 +48,16 @@ const GROUPS: Array<{ title: string; items: NavItem[] }> = [
   {
     title: 'Configuración',
     items: [
-      { view: 'adminForms', label: 'Formatos SIG', icon: Layers },
-      { view: 'parametrizacion', label: 'Parametrización', icon: Settings, adminOnly: true, alsoActiveOn: ['documentMatrix'] },
-      { view: 'auditoria', label: 'Auditoría', icon: ShieldCheck, adminOnly: true },
+      { view: 'adminForms', label: 'Formatos SIG', icon: Layers, superOnly: true },
+      { view: 'parametrizacion', label: 'Parametrización', icon: Settings, superOnly: true, alsoActiveOn: ['documentMatrix'] },
+      { view: 'auditoria', label: 'Auditoría', icon: ShieldCheck, superOnly: true },
+      { view: 'usuarios', label: 'Usuarios', icon: UserCog, superOnly: true },
     ],
   },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, onOpenHabeasDataModal }) => {
-  const { role, activeUser, signOut, activeView, setActiveView, setReviewSelectedDossierId, showToast } = useApp();
+  const { accountRole, activeUser, signOut, activeView, setActiveView, setReviewSelectedDossierId, showToast } = useApp();
 
   const handleSignOut = async () => {
     await signOut();
@@ -106,7 +109,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, o
 
       <nav className="relative flex-1 overflow-y-auto min-h-0 px-4 pb-3 pt-2" aria-label="Menú principal">
         {GROUPS.map((group, gi) => {
-          const items = group.items.filter((it) => !it.adminOnly || role === 'ADMIN');
+          const items = group.items.filter((it) => !it.superOnly || accountRole === 'SUPERADMIN');
           if (items.length === 0) return null;
           return (
             <div key={group.title} className={gi > 0 ? 'mt-6' : ''}>

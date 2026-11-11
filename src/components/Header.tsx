@@ -21,11 +21,12 @@ const SECTION_TITLE: Partial<Record<AppView, string>> = {
   parametrizacion: 'Parametrización',
   documentMatrix: 'Parametrización',
   auditoria: 'Auditoría',
+  usuarios: 'Usuarios',
   convocatorias: 'Convocatorias',
 };
 
 export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, onToggleSidebar }) => {
-  const { role, activeUser, signOut, theme, toggleTheme, showToast, setReviewSelectedDossierId } = useApp();
+  const { accountRole, activeUser, signOut, theme, toggleTheme, showToast, setReviewSelectedDossierId } = useApp();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isDarkMode = theme === 'dark';
@@ -97,7 +98,7 @@ export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, onTog
                 <div className="px-3 py-2 border-b border-fs-line dark:border-slate-800 mb-1">
                   <div className="text-sm font-semibold text-fs-navy dark:text-white truncate">{activeUser.name}</div>
                   <div className="text-xs text-fs-muted dark:!text-[#a9c3e0] truncate">
-                    {role === 'ADMIN' ? 'Administrador general' : 'Revisor técnico'} · {activeUser.email}
+                    {accountRole === 'SUPERADMIN' ? 'Superadministrador' : accountRole === 'ADMIN' ? 'Administrador' : 'Usuario'} · {activeUser.email}
                   </div>
                 </div>
                 <button

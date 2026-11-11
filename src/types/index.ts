@@ -1,4 +1,7 @@
 export type UserRole = 'REVISOR' | 'ADMIN';
+
+/** Rol de la cuenta en Supabase: SUPERADMIN (dueño), ADMIN (Administrador) o USER (Usuario). */
+export type AccountRole = 'SUPERADMIN' | 'ADMIN' | 'USER';
 export type ThemeMode = 'light' | 'dark';
 
 export interface SystemUser {
@@ -24,7 +27,8 @@ export type AppView =
   | 'auditoria'
   | 'informesExcel'
   | 'registrarProveedor'
-  | 'parametrizacion';
+  | 'parametrizacion'
+  | 'usuarios';
 
 export type SupplierType = 'NATURAL' | 'JURIDICA';
 export type SupplierTier = 'A' | 'B' | 'C'; // Tipo A (Crítico/Estratégico), Tipo B (Importante/Operativo), Tipo C (Estándar/Ocasional)

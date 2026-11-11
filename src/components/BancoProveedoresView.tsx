@@ -8,6 +8,8 @@ import { SupplierCertificateModal } from './SupplierCertificateModal';
 import { ManualStatusChangeModal } from './dossier/ManualStatusChangeModal';
 import { getCreationStatus, getContractualStatus } from '../utils/contractValidity';
 import { BancoTable } from './banco/BancoTable';
+import { useConfirm } from './ui/ConfirmDialog';
+import { supplierName } from './ui/archive';
 import { HeroTabs, IconField, PageBody, PageHeader, cardCls, heroPrimaryBtn, heroSecondaryBtn, inputCls, secondaryBtn, selectCls } from './ui/archive';
 
 // Filtro rápido de estado: mismas claves que usa el filtro de creación
@@ -21,7 +23,27 @@ const QUICK_FILTERS: Array<{ key: string; label: string }> = [
 ];
 
 export const BancoProveedoresView: React.FC = () => {
-  const { role, dossiers, setCurrentDossierId, setActiveView, updateDossierStatus, openSupplierEvaluation } = useApp();
+  const { role, canManageProviders, dossiers, setCurrentDossierId, setActiveView, updateDossierStatus, openSupplierEvaluation } = useApp();
+  const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
+
+  // Habilitar / inhabilitar (Administrador y superadministrador)
+  const handleToggleEnabled = (d: SupplierDossier) => {
+    const disabling = d.processStatus !== 'SUSPENDIDO';
+    askConfirm({
+      title: disabling ? 'Inhabilitar proveedor' : 'Habilitar proveedor',
+      message: disabling
+        ? `${supplierName(d)} quedará inhabilitado y no podrá recibir contratos.`
+        : `${supplierName(d)} volverá a estar habilitado.`,
+      hint: disabling ? 'Puede volver a habilitarlo con el mismo botón.' : 'Puede inhabilitarlo de nuevo con el mismo botón.',
+      confirmLabel: disabling ? 'Inhabilitar' : 'Habilitar',
+      onConfirm: () =>
+        updateDossierStatus(
+          d.id,
+          disabling ? 'SUSPENDIDO' : 'PROVEEDOR_HABILITADO',
+          disabling ? 'Proveedor inhabilitado desde el Banco de proveedores.' : 'Proveedor habilitado desde el Banco de proveedores.'
+        ),
+    });
+  };
 
   // Expediente abierto dentro del Banco (mantiene la navegación del Banco)
   const [selectedDossierIdForReview, setSelectedDossierIdForReview] = useState<string | null>(null);
@@ -254,6 +276,8 @@ export const BancoProveedoresView: React.FC = () => {
           onEvaluate={openSupplierEvaluation}
           onCertificate={setSelectedDossierForCertificate}
           onManualStatus={setSelectedDossierForManualStatus}
+          canManage={canManageProviders}
+          onToggleEnabled={handleToggleEnabled}
         />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[#e8eef5] dark:border-slate-800 text-sm text-fs-muted">
@@ -305,6 +329,8 @@ export const BancoProveedoresView: React.FC = () => {
         onClose={() => setSelectedDossierForCertificate(null)}
         dossier={selectedDossierForCertificate}
       />
+
+      {confirmDialog}
 
       <ManualStatusChangeModal
         isOpen={Boolean(selectedDossierForManualStatus)}

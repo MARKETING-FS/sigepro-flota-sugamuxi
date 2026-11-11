@@ -19,6 +19,8 @@ import {
 import { SupplierDocument, DocumentStatus, UserRole } from '../types';
 import { useApp } from '../context/AppContext';
 import { BrandSwoosh } from './ui/BrandSwoosh';
+import { supabaseService } from '../services/supabaseService';
+import { storageService } from '../services/storageService';
 import { calculateDocumentExpiration } from '../utils/contractValidity';
 
 interface Props {
@@ -62,7 +64,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
   validityRule: propValidityRule,
   onSave,
 }) => {
-  const { documentDefinitions } = useApp();
+  const { documentDefinitions, currentDossierId } = useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen || !document) return null;
@@ -154,6 +156,22 @@ export const DocumentEditorModal: React.FC<Props> = ({
       }
     };
     reader.readAsDataURL(file);
+
+    // Con la base de datos conectada, el archivo también se guarda en Storage y se usa su enlace
+    if (supabaseService.isConfigured()) {
+      storageService
+        .uploadSupplierDocument({
+          file,
+          fileName: file.name,
+          supplierId: currentDossierId || 'sin-expediente',
+          fileNumber: '',
+          documentCode: docCode,
+        })
+        .then((res) => {
+          if (res.success && res.url) setCustomUrl(res.url);
+        })
+        .catch(() => undefined);
+    }
 
     // Sincronizar estado al subir archivo considerando vigencia existente
     if (expirationDate) {

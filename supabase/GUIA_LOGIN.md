@@ -75,3 +75,18 @@ Si se cambia el rol de alguien que ya tenía sesión abierta, debe cerrar sesió
 
 El login protege las pantallas, pero las reglas de la base de datos (`supabase/schema.sql`) siguen
 abiertas (`USING (true)`). Falta cambiarlas para que solo usuarios con sesión puedan leer y escribir.
+
+## Roles y módulo "Usuarios"
+
+Roles (se guardan en `app_metadata.role`):
+
+| Rol en la app | Valor en Supabase | Qué ve |
+|---|---|---|
+| Superadministrador (usted) | `SUPERADMIN` (el antiguo `ADMIN` también cuenta) | Todo, incluido el módulo **Usuarios**, Formatos SIG, Parametrización y Auditoría |
+| Administrador | `ADMINISTRADOR` | Solo el grupo Proveedores; sube documentos y habilita/inhabilita proveedores |
+| Usuario | `USUARIO` | Solo el grupo Proveedores; sube documentos |
+
+Las cuentas Administrador y Usuario se crean desde el módulo **Usuarios**. Eso usa la función
+`api/users.ts`, que necesita la variable de entorno **`SUPABASE_SERVICE_ROLE_KEY`** en Vercel
+(Supabase → Project Settings → API → `service_role`). Esa clave es secreta: nunca va en el código ni en el navegador.
+Después de agregarla hay que volver a desplegar.

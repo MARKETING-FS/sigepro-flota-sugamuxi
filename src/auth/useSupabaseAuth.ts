@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { UserRole } from '../types';
+import { UserRole, AccountRole } from '../types';
 import { IS_DEMO_MODE as DEMO_FLAG } from '../dev/demoData';
 
 // Solo existe en `npm run dev`; en producción es siempre falso y el código de demo se elimina
@@ -19,6 +19,7 @@ export interface AuthProfile {
   email: string;
   name: string;
   role: UserRole | null;
+  accountRole: AccountRole | null;
   sigeproUserId: string | null;
 }
 
@@ -34,11 +35,21 @@ const toProfile = (session: Session | null): AuthProfile | null => {
   const appMeta = (user.app_metadata || {}) as Record<string, unknown>;
   const userMeta = (user.user_metadata || {}) as Record<string, unknown>;
   const rawRole = String(appMeta.role || '').toUpperCase();
-  const role: UserRole | null = rawRole === 'ADMIN' || rawRole === 'REVISOR' ? rawRole : null;
+  // SUPERADMIN y el antiguo 'ADMIN' son el dueño; ADMINISTRADOR y USUARIO los crea el superadmin desde la app
+  const accountRole: AccountRole | null =
+    rawRole === 'SUPERADMIN' || rawRole === 'ADMIN'
+      ? 'SUPERADMIN'
+      : rawRole === 'ADMINISTRADOR'
+        ? 'ADMIN'
+        : rawRole === 'USUARIO' || rawRole === 'REVISOR'
+          ? 'USER'
+          : null;
+  // Los tres roles ven todos los expedientes y suben documentos: internamente actúan como 'ADMIN'
+  const role: UserRole | null = accountRole ? 'ADMIN' : null;
   const email = user.email || '';
   const name = String(userMeta.full_name || userMeta.name || email.split('@')[0] || 'Usuario');
   const sigeproUserId = appMeta.sigepro_user_id ? String(appMeta.sigepro_user_id) : null;
-  return { id: user.id, email, name, role, sigeproUserId };
+  return { id: user.id, email, name, role, accountRole, sigeproUserId };
 };
 
 // Traduce los mensajes de Supabase Auth a textos claros en español
@@ -75,6 +86,7 @@ const DEMO_PROFILE: AuthProfile = {
   email: 'demo@sigepro.local',
   name: 'Usuario de Demostración',
   role: 'ADMIN',
+  accountRole: 'SUPERADMIN',
   sigeproUserId: 'admin-1',
 };
 

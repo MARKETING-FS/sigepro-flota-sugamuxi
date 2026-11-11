@@ -5,6 +5,7 @@ import { Header } from './components/Header';
 import { InternalReviewView } from './components/InternalReviewView';
 import { InstitutionalFormsAdmin } from './components/InstitutionalFormsAdmin';
 import { BancoProveedoresView } from './components/BancoProveedoresView';
+import { UsersAdminView } from './components/users/UsersAdminView';
 import { AuditLogView } from './components/AuditLogView';
 import { ExcelReportsView } from './components/ExcelReportsView';
 import { AdminRegisterSupplierView } from './components/AdminRegisterSupplierView';
@@ -25,7 +26,7 @@ const MainLayout: React.FC = () => {
   const {
     activeView,
     setActiveView,
-    role,
+    accountRole,
   } = useApp();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -123,30 +124,33 @@ const MainLayout: React.FC = () => {
             </div>
           )}
           {activeView === 'revisores' && <InternalReviewView />}
-          {activeView === 'adminForms' && <InstitutionalFormsAdmin />}
-          {(activeView === 'parametrizacion' || activeView === 'documentMatrix') && (
-            role !== 'ADMIN' ? (
-            <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
-                <Lock className="w-6 h-6" />
+          {(activeView === 'adminForms' || activeView === 'parametrizacion' || activeView === 'documentMatrix' || activeView === 'auditoria' || activeView === 'usuarios') &&
+            (accountRole !== 'SUPERADMIN' ? (
+              <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                <div className="w-12 h-12 rounded-2xl bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] flex items-center justify-center mx-auto mb-3">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Acceso exclusivo del superadministrador</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
+                  Este módulo solo está disponible para el superadministrador de SIGEPRO.
+                </p>
+                <button
+                  onClick={() => setActiveView('revisores')}
+                  className="mt-4 px-4 py-2 bg-[#2c84c4] hover:bg-[#1d5fa8] text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+                >
+                  Ir al Resumen
+                </button>
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Acceso Exclusivo de Administrador General</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                El proceso de parametrización del sistema y métodos de evaluación solo puede ser realizado por el Administrador General de Flota Sugamuxi S.A.
-              </p>
-              <button
-                onClick={() => setActiveView('revisores')}
-                className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
-              >
-                Ir al Dashboard Ejecutivo
-              </button>
-            </div>
             ) : (
-              activeView === 'documentMatrix' ? <AdminParametrizationView initialTab="matrix_base" /> : <AdminParametrizationView />
-            )
-          )}
+              <>
+                {activeView === 'adminForms' && <InstitutionalFormsAdmin />}
+                {activeView === 'parametrizacion' && <AdminParametrizationView />}
+                {activeView === 'documentMatrix' && <AdminParametrizationView initialTab="matrix_base" />}
+                {activeView === 'auditoria' && <AuditLogView />}
+                {activeView === 'usuarios' && <UsersAdminView />}
+              </>
+            ))}
           {activeView === 'evaluaciones' && <SupplierEvaluationsView />}
-          {activeView === 'auditoria' && <AuditLogView />}
           {activeView === 'informesExcel' && <ExcelReportsView />}
         </main>
 
