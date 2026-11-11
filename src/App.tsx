@@ -242,6 +242,8 @@ const AuthGate: React.FC = () => {
     );
   } else if (!authProfile.role) {
     screen = <NoRoleScreen />;
+  } else if (authProfile.mustChangePassword) {
+    screen = <ResetPasswordView forced />;
   } else {
     return <MainLayout />;
   }

@@ -28,6 +28,17 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const ASSIGNABLE = new Set(['ADMINISTRADOR', 'USUARIO']);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Misma política que la pantalla (src/utils/passwordPolicy.ts)
+const passwordProblem = (pw: string): string => {
+  if (pw.length < 10) return 'La contraseña debe tener al menos 10 caracteres.';
+  if (/\s/.test(pw)) return 'La contraseña no puede tener espacios.';
+  if (!/[A-ZÁÉÍÓÚÑ]/.test(pw)) return 'La contraseña debe tener una letra mayúscula.';
+  if (!/[a-záéíóúñ]/.test(pw)) return 'La contraseña debe tener una letra minúscula.';
+  if (!/\d/.test(pw)) return 'La contraseña debe tener un número.';
+  if (!/[^A-Za-z0-9ÁÉÍÓÚÑáéíóúñ\s]/.test(pw)) return 'La contraseña debe tener un carácter especial.';
+  return '';
+};
+
 const adminFetch = (path: string, init: RequestInit = {}) =>
   fetch(`${SUPABASE_URL}/auth/v1${path}`, {
     ...init,
@@ -93,7 +104,8 @@ export default async function handler(req: Req, res: Res) {
       const role = String(body.role || '').toUpperCase();
       if (!name) return res.status(400).json({ error: 'Escriba el nombre completo.' });
       if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'El correo no es válido.' });
-      if (password.length < 8) return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres.' });
+      const pwProblem = passwordProblem(password);
+      if (pwProblem) return res.status(400).json({ error: pwProblem });
       if (!ASSIGNABLE.has(role)) return res.status(400).json({ error: 'El rol debe ser Administrador o Usuario.' });
 
       const r = await adminFetch('/admin/users', {
@@ -103,7 +115,7 @@ export default async function handler(req: Req, res: Res) {
           password,
           email_confirm: true,
           app_metadata: { role },
-          user_metadata: { full_name: name },
+          user_metadata: { full_name: name, must_change_password: true },
         }),
       });
       const data: any = await r.json();
@@ -127,8 +139,10 @@ export default async function handler(req: Req, res: Res) {
         patch.app_metadata = { role };
       }
       if (body.password !== undefined) {
-        if (String(body.password).length < 8) return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres.' });
+        const pwProblem = passwordProblem(String(body.password));
+        if (pwProblem) return res.status(400).json({ error: pwProblem });
         patch.password = String(body.password);
+        patch.user_metadata = { must_change_password: true };
       }
       if (Object.keys(patch).length === 0) return res.status(400).json({ error: 'No hay nada que cambiar.' });
       const r = await adminFetch(`/admin/users/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(patch) });

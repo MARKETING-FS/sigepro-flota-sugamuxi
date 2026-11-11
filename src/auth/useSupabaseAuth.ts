@@ -20,6 +20,8 @@ export interface AuthProfile {
   name: string;
   role: UserRole | null;
   accountRole: AccountRole | null;
+  /** Primer ingreso con la contraseña temporal: debe cambiarla antes de entrar */
+  mustChangePassword: boolean;
   sigeproUserId: string | null;
 }
 
@@ -49,7 +51,8 @@ const toProfile = (session: Session | null): AuthProfile | null => {
   const email = user.email || '';
   const name = String(userMeta.full_name || userMeta.name || email.split('@')[0] || 'Usuario');
   const sigeproUserId = appMeta.sigepro_user_id ? String(appMeta.sigepro_user_id) : null;
-  return { id: user.id, email, name, role, accountRole, sigeproUserId };
+  const mustChangePassword = userMeta.must_change_password === true;
+  return { id: user.id, email, name, role, accountRole, mustChangePassword, sigeproUserId };
 };
 
 // Traduce los mensajes de Supabase Auth a textos claros en español
@@ -87,6 +90,7 @@ const DEMO_PROFILE: AuthProfile = {
   name: 'Usuario de Demostración',
   role: 'ADMIN',
   accountRole: 'SUPERADMIN',
+  mustChangePassword: false,
   sigeproUserId: 'admin-1',
 };
 
@@ -147,7 +151,8 @@ export function useSupabaseAuth() {
 
   const updatePassword = async (password: string): Promise<AuthResult> => {
     if (!supabase) return { error: 'El inicio de sesión no está configurado en este servidor.' };
-    const { error } = await supabase.auth.updateUser({ password });
+    // Al fijar la contraseña propia se apaga la marca de contraseña temporal
+    const { error } = await supabase.auth.updateUser({ password, data: { must_change_password: false } });
     if (error) return { error: translateAuthError(error.message) };
     setIsPasswordRecovery(false);
     clearRecoveryHash();

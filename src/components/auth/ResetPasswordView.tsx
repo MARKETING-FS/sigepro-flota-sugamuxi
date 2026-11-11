@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { FlotaSugamuxiEmblem } from '../FlotaSugamuxiLogo';
-import { KeyRound, Lock, Eye, EyeOff, AlertCircle, ChevronRight } from 'lucide-react';
-
-const MIN_PASSWORD_LENGTH = 8;
+import { KeyRound, Lock, Eye, EyeOff, AlertCircle, ArrowRight, Check, Loader2 } from 'lucide-react';
+import { BrandSwoosh } from '../ui/BrandSwoosh';
+import { isPasswordValid, passwordRules } from '../../utils/passwordPolicy';
 
 const inputClass =
-  'w-full pl-9 pr-9 py-2 bg-[#edf3fc] dark:bg-slate-900/90 border border-blue-100/90 dark:border-slate-700/80 rounded-xl text-xs font-medium font-mono text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-all';
+  'w-full h-12 pl-10 pr-11 rounded-xl border border-white/15 bg-white/5 text-[15px] text-white placeholder:text-white/35 focus:outline-hidden focus:border-[#69bdd7] focus:ring-4 focus:ring-[#69bdd7]/30 transition-all';
 
 /**
- * Pantalla a la que llega el enlace del correo "Restablecer contraseña".
- * Supabase ya abrió una sesión temporal con el enlace; aquí solo se define la nueva clave.
+ * Pantalla para definir una contraseña nueva. Se usa en dos casos:
+ *  - enlace del correo "Restablecer contraseña" (modo recuperación),
+ *  - primer ingreso con la contraseña temporal creada por el superadministrador (modo obligatorio).
  */
-export const ResetPasswordView: React.FC = () => {
-  const { authProfile, updatePassword, cancelPasswordRecovery, showToast } = useApp();
+export const ResetPasswordView: React.FC<{ forced?: boolean }> = ({ forced = false }) => {
+  const { authProfile, updatePassword, cancelPasswordRecovery, signOut, showToast } = useApp();
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,11 +21,14 @@ export const ResetPasswordView: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const rules = passwordRules(password);
+  const matches = confirmPassword.length > 0 && password === confirmPassword;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setError(`La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`);
+    if (!isPasswordValid(password)) {
+      setError('La contraseña no cumple todos los requisitos de la lista.');
       return;
     }
     if (password !== confirmPassword) {
@@ -43,112 +46,125 @@ export const ResetPasswordView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#f1f5f9] dark:bg-[#080e1e] flex items-center justify-center p-4 font-sans antialiased">
-      <div className="w-full max-w-md bg-white dark:bg-[#0c152a] rounded-3xl shadow-xl p-5 sm:p-7 border border-slate-100 dark:border-slate-800/80">
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-[#060c1c] p-1 flex items-center justify-center shrink-0">
-            <FlotaSugamuxiEmblem className="w-full h-full" color="#38bdf8" />
-          </div>
-          <div>
-            <div className="text-sm font-black text-slate-900 dark:text-white leading-tight">Flota Sugamuxi S.A.</div>
-            <div className="text-[10px] font-bold text-[#0a2368] dark:text-[#38bdf8] font-mono tracking-wider">SIGEPRO</div>
-          </div>
-        </div>
+    <div className="dark fixed inset-0 overflow-y-auto bg-[#131b2e] text-white font-sans antialiased">
+      <div className="absolute inset-0 grid-pattern opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+      <div className="absolute -right-32 -top-32 w-[28rem] h-[28rem] rounded-full bg-[#2c84c4]/35 blur-3xl" />
+      <div className="absolute -bottom-40 -left-20 w-[26rem] h-[26rem] rounded-full bg-[#69bdd7]/20 blur-3xl" />
+      <BrandSwoosh className="absolute -left-10 top-[30%] w-[120%] opacity-40 pointer-events-none" />
 
-        <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/70 border border-blue-100 dark:border-blue-900/60 flex items-center justify-center mx-auto text-[#0a2368] dark:text-[#38bdf8] mb-2">
-          <KeyRound className="w-5 h-5 stroke-[1.8]" />
-        </div>
-        <div className="text-center space-y-0.5 mb-4">
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Nueva Contraseña</h2>
-          <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
-            {authProfile?.email
-              ? <>Defina la nueva contraseña para <strong className="text-slate-700 dark:text-slate-200">{authProfile.email}</strong></>
-              : 'Defina la nueva contraseña de su cuenta'}
-          </p>
-        </div>
-
-        {!authProfile && (
-          <div className="mb-3 p-2 bg-[#2c84c4]/12 dark:bg-[#2c84c4]/60 border border-[#2c84c4]/35 dark:border-[#2c84c4]/35 rounded-xl text-xs text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] flex items-start gap-2">
-            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            <span>El enlace expiró o ya fue usado. Vuelva al inicio de sesión y solicite uno nuevo en "¿Olvidó su contraseña?".</span>
+      <div className="relative min-h-full flex items-center justify-center p-5">
+        <div className="w-full max-w-md gradient-border rounded-[28px] glass-dark p-8 shadow-glow animate-fade-up sm:p-10">
+          <div className="flex flex-col items-center text-center">
+            <span className="w-16 h-16 rounded-3xl bg-gradient-brand grid place-items-center shadow-glow ring-1 ring-white/25">
+              <KeyRound className="w-8 h-8" strokeWidth={1.6} />
+            </span>
+            <h2 className="mt-5 font-display text-2xl font-semibold">{forced ? 'Cree su contraseña' : 'Nueva contraseña'}</h2>
+            <p className="mt-1 text-sm text-white/60">
+              {forced ? (
+                <>
+                  Por seguridad debe cambiar la contraseña temporal antes de continuar
+                  {authProfile?.email && <> ({authProfile.email})</>}.
+                </>
+              ) : authProfile?.email ? (
+                <>Defina la nueva contraseña para {authProfile.email}</>
+              ) : (
+                'Defina la nueva contraseña de su cuenta'
+              )}
+            </p>
           </div>
-        )}
 
-        {error && (
-          <div className="mb-3 p-2 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-center gap-2">
-            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-2.5">
-          <div className="space-y-1">
-            <label htmlFor="new-password" className="text-[10px] font-black text-slate-800 dark:text-slate-300 uppercase tracking-wider block">
-              NUEVA CONTRASEÑA
-            </label>
-            <div className="relative">
-              <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                id="new-password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
-                className={inputClass}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
-                title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              >
-                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              </button>
+          {!authProfile && (
+            <div className="mt-5 p-2.5 bg-[#2c84c4]/15 border border-[#2c84c4]/35 rounded-xl text-xs text-[#69bdd7] flex items-start gap-2">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+              <span>El enlace expiró o ya fue usado. Vuelva al inicio de sesión y solicite uno nuevo en "¿Olvidó su contraseña?".</span>
             </div>
-          </div>
+          )}
 
-          <div className="space-y-1">
-            <label htmlFor="confirm-password" className="text-[10px] font-black text-slate-800 dark:text-slate-300 uppercase tracking-wider block">
-              CONFIRMAR CONTRASEÑA
-            </label>
-            <div className="relative">
-              <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                id="confirm-password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repita la contraseña"
-                className={inputClass}
-              />
+          {error && (
+            <div role="alert" className="mt-5 p-2.5 bg-red-500/15 border border-red-400/40 rounded-xl text-sm text-white flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-300 shrink-0" />
+              <span>{error}</span>
             </div>
-          </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={isLoading || !authProfile}
-            className="w-full py-2.5 bg-[#0a2368] hover:bg-[#07194d] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed mt-1"
-          >
-            {isLoading ? (
-              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <>
-                <span>Guardar nueva contraseña</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </>
-            )}
-          </button>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div>
+              <label htmlFor="new-password" className="mb-1.5 block text-xs font-medium text-white/70">Nueva contraseña</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-white/45 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  id="new-password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClass}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white cursor-pointer"
+                  title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
 
-          <button
-            type="button"
-            onClick={() => cancelPasswordRecovery()}
-            className="w-full text-center text-[11px] text-[#0a2368] dark:text-[#38bdf8] hover:underline font-bold cursor-pointer"
-          >
-            Cancelar y volver al inicio de sesión
-          </button>
-        </form>
+            <ul className="grid grid-cols-1 gap-1.5 rounded-xl bg-white/[0.04] border border-white/10 p-3" aria-label="Requisitos de la contraseña">
+              {rules.map((r) => (
+                <li key={r.key} className={`flex items-center gap-2 text-xs ${r.ok ? 'text-[#69bdd7]' : 'text-white/55'}`}>
+                  <span className={`w-4 h-4 rounded-full grid place-items-center shrink-0 ${r.ok ? 'bg-[#2c84c4] text-white' : 'border border-white/25'}`}>
+                    {r.ok && <Check className="w-3 h-3" strokeWidth={3} />}
+                  </span>
+                  {r.label}
+                </li>
+              ))}
+            </ul>
+
+            <div>
+              <label htmlFor="confirm-password" className="mb-1.5 block text-xs font-medium text-white/70">Confirmar contraseña</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-white/45 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  id="confirm-password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={inputClass}
+                />
+                {matches && <Check className="w-4 h-4 text-[#69bdd7] absolute right-3.5 top-1/2 -translate-y-1/2" strokeWidth={3} />}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading || !authProfile || !isPasswordValid(password) || !matches}
+              className="shimmer w-full h-12 rounded-xl bg-gradient-brand text-white text-base font-semibold shadow-glow transition-all hover:opacity-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Guardando…
+                </>
+              ) : (
+                <>
+                  <span>Guardar nueva contraseña</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => (forced ? signOut() : cancelPasswordRecovery())}
+              className="w-full text-center text-sm text-[#69bdd7] hover:underline font-semibold cursor-pointer"
+            >
+              {forced ? 'Salir' : 'Cancelar y volver al inicio de sesión'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
