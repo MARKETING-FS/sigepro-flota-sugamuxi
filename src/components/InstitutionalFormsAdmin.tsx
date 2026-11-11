@@ -18,6 +18,7 @@ import {
   Sparkles,
   Upload,
   Loader2,
+  Pencil,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { InstitutionalForm } from '../types';
@@ -29,7 +30,10 @@ import { supabaseService } from '../services/supabaseService';
 import { formatFileSize, getFormPdf, validatePdfFile } from '../utils/formPdf';
 
 export const InstitutionalFormsAdmin: React.FC = () => {
-  const { institutionalForms, addNewFormVersion, toggleFormMandatory, showToast } = useApp();
+  const { institutionalForms, addNewFormVersion, toggleFormMandatory, updateFormDetails, showToast } = useApp();
+  // Edición de los datos del formato
+  const [editCode, setEditCode] = useState<string | null>(null);
+  const [draft, setDraft] = useState({ name: '', description: '', currentVersion: '', effectiveDate: '', isMandatory: true });
   const [selectedFormForModal, setSelectedFormForModal] = useState<InstitutionalForm | null>(null);
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
 
@@ -167,7 +171,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                 <th className="py-3 px-3 text-center">Fecha</th>
                 <th className="py-3 px-3 text-center">Vigente</th>
                 <th className="py-3 px-3 text-center">Obligatorio</th>
-                <th className="py-3 px-4 text-right">Acciones de Gestión</th>
+                <th className="py-3 px-4 text-right">Botones de acción</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10 dark:divide-white/10 text-[#0b1d3a] dark:text-white">
@@ -214,6 +218,25 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                     </button>
                   </td>
                   <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraft({
+                          name: form.name,
+                          description: form.description,
+                          currentVersion: form.currentVersion,
+                          effectiveDate: form.effectiveDate,
+                          isMandatory: form.isMandatory,
+                        });
+                        setEditCode(form.code);
+                      }}
+                      className="px-2.5 py-1.5 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#3a5274] dark:text-slate-300 text-xs font-semibold rounded-md transition-colors inline-flex items-center gap-1"
+                      title="Editar datos del formato"
+                      aria-label="Editar datos del formato"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      <span>Editar</span>
+                    </button>
                     <button
                       type="button"
                       onClick={() => handlePreview(form)}
@@ -302,6 +325,62 @@ export const InstitutionalFormsAdmin: React.FC = () => {
       </div>
 
       {/* Modal for Registering a New Version */}
+      {editCode && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
+          <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[92vh]">
+            <div className="bg-[#0b1329] text-white px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase bg-blue-600 px-2 py-0.5 rounded text-white">Datos del formato</span>
+                <h3 className="text-sm sm:text-base font-bold text-white mt-1">Editar &bull; {editCode}</h3>
+              </div>
+              <button type="button" onClick={() => setEditCode(null)} className="text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">✕</button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!draft.name.trim() || !draft.currentVersion.trim() || !draft.effectiveDate) return;
+                updateFormDetails(editCode, {
+                  ...draft,
+                  name: draft.name.trim(),
+                  description: draft.description.trim(),
+                  currentVersion: draft.currentVersion.trim(),
+                });
+                setEditCode(null);
+                showToast(`Datos de ${editCode} actualizados.`, 'success');
+              }}
+              className="p-4 sm:p-6 space-y-4 text-xs text-[#3a5274] dark:text-slate-300 overflow-y-auto flex-1"
+            >
+              <div>
+                <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">Nombre del formato</label>
+                <input type="text" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} required className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">Descripción</label>
+                <textarea rows={3} value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">Versión vigente</label>
+                  <input type="text" value={draft.currentVersion} onChange={(e) => setDraft({ ...draft, currentVersion: e.target.value })} required className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-mono font-bold text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1">Fecha de vigencia</label>
+                  <input type="date" value={draft.effectiveDate} onChange={(e) => setDraft({ ...draft, effectiveDate: e.target.value })} required className="w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 font-mono text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input type="checkbox" checked={draft.isMandatory} onChange={(e) => setDraft({ ...draft, isMandatory: e.target.checked })} className="w-4 h-4" />
+                <span className="font-semibold text-[#0b1d3a] dark:text-white">Documento obligatorio</span>
+              </label>
+              <div className="flex justify-end gap-2 pt-2 border-t border-black/10 dark:border-white/10">
+                <button type="button" onClick={() => setEditCode(null)} className="px-4 py-2.5 text-xs font-semibold rounded-xl text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer">Cancelar</button>
+                <button type="submit" className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl cursor-pointer">Guardar cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {isNewVersionModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
           <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 flex flex-col max-h-[92vh] sm:max-h-[88vh]">
