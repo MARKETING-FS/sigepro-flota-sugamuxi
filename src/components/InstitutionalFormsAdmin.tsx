@@ -18,6 +18,7 @@ import {
   Sparkles,
   Upload,
   Loader2,
+  Pencil,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { InstitutionalForm } from '../types';
@@ -29,7 +30,10 @@ import { supabaseService } from '../services/supabaseService';
 import { formatFileSize, getFormPdf, validatePdfFile } from '../utils/formPdf';
 
 export const InstitutionalFormsAdmin: React.FC = () => {
-  const { institutionalForms, addNewFormVersion, toggleFormMandatory, showToast } = useApp();
+  const { institutionalForms, addNewFormVersion, toggleFormMandatory, updateFormEffectiveDate, showToast } = useApp();
+  // Edición de la fecha de vigencia (solo la fecha)
+  const [editingDateCode, setEditingDateCode] = useState<string | null>(null);
+  const [draftDate, setDraftDate] = useState('');
   const [selectedFormForModal, setSelectedFormForModal] = useState<InstitutionalForm | null>(null);
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
 
@@ -188,7 +192,51 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                     </span>
                   </td>
                   <td className="py-3.5 px-3 text-center text-[#3a5274] dark:text-slate-300 font-mono text-[11px]">
-                    {form.effectiveDate}
+                    {editingDateCode === form.code ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <input
+                          type="date"
+                          value={draftDate}
+                          onChange={(e) => setDraftDate(e.target.value)}
+                          className="h-8 px-2 rounded-lg border border-black/15 dark:border-white/20 bg-white dark:bg-white/5 text-[11px] text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#2c84c4]"
+                        />
+                        <button
+                          type="button"
+                          disabled={!draftDate}
+                          onClick={() => {
+                            updateFormEffectiveDate(form.code, draftDate);
+                            setEditingDateCode(null);
+                            showToast(`Fecha de vigencia de ${form.code} actualizada.`, 'success');
+                          }}
+                          className="h-8 px-2.5 rounded-lg bg-[#2c84c4] text-white text-[11px] font-bold disabled:opacity-50 cursor-pointer"
+                        >
+                          Guardar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingDateCode(null)}
+                          className="h-8 px-2 rounded-lg text-[11px] font-semibold text-[#5d7392] dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer"
+                        >
+                          Cancelar
+                        </button>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5">
+                        {form.effectiveDate}
+                        <button
+                          type="button"
+                          title="Editar fecha de vigencia"
+                          aria-label="Editar fecha de vigencia"
+                          onClick={() => {
+                            setDraftDate(form.effectiveDate);
+                            setEditingDateCode(form.code);
+                          }}
+                          className="w-7 h-7 grid place-items-center rounded-lg text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 cursor-pointer"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      </span>
+                    )}
                   </td>
                   <td className="py-3.5 px-3 text-center">
                     <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
