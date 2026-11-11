@@ -242,10 +242,6 @@ interface AppContextType {
     file?: { url: string; fileName: string; fileSize?: string }
   ) => void;
   toggleFormMandatory: (formCode: string, isMandatory: boolean) => void;
-  updateFormDetails: (
-    formCode: string,
-    patch: { name: string; description: string; currentVersion: string; effectiveDate: string; isMandatory: boolean }
-  ) => void;
   
   // Convocatorias Actions
   createConvocatoria: (data: Omit<Convocatoria, 'id' | 'postulaciones'>) => void;
@@ -2534,28 +2530,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const updateFormDetails = (
-    formCode: string,
-    patch: { name: string; description: string; currentVersion: string; effectiveDate: string; isMandatory: boolean }
-  ) => {
-    setInstitutionalForms((prev) =>
-      prev.map((form) => {
-        if (form.code !== formCode) return form;
-        const oldVersion = form.currentVersion;
-        return {
-          ...form,
-          ...patch,
-          // La versión vigente del historial sigue los cambios de número y fecha
-          versionHistory: form.versionHistory.map((h) =>
-            h.isActive || h.version === oldVersion
-              ? { ...h, version: patch.currentVersion, releaseDate: patch.effectiveDate }
-              : h
-          ),
-        };
-      })
-    );
-  };
-
   const toggleFormMandatory = (formCode: string, isMandatory: boolean) => {
     setInstitutionalForms((prev) =>
       prev.map((form) => (form.code === formCode ? { ...form, isMandatory } : form))
@@ -3609,7 +3583,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateDossierContractInfo,
         addNewFormVersion,
         toggleFormMandatory,
-        updateFormDetails,
         createConvocatoria,
         updateConvocatoria,
         deleteConvocatoria,
