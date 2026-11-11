@@ -876,6 +876,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [authUserKey]);
 
+  // Cada vez que entra una sesión nueva (o cambia la persona) se empieza en el Resumen;
+  // además un rol sin permiso nunca queda en una pantalla exclusiva del superadministrador.
+  useEffect(() => {
+    if (!authUserKey) return;
+    const SUPER_ONLY: AppView[] = ['usuarios', 'parametrizacion', 'documentMatrix', 'auditoria', 'adminForms'];
+    let lastUser = '';
+    try {
+      lastUser = localStorage.getItem('sigepro_last_auth_user') || '';
+      localStorage.setItem('sigepro_last_auth_user', authUserKey);
+    } catch {
+      /* sin almacenamiento local */
+    }
+    setActiveViewState((current) => {
+      if (lastUser !== authUserKey) return 'revisores';
+      if (SUPER_ONLY.includes(current) && authProfile?.accountRole !== 'SUPERADMIN') return 'revisores';
+      return current;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUserKey, authProfile?.accountRole]);
+
   const toggleTheme = () => {
     setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
@@ -3455,7 +3475,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         canManageProviders,
         isPasswordRecovery: auth.isPasswordRecovery,
         signIn: auth.signIn,
-        signOut: auth.signOut,
+        signOut: async () => {
+          setActiveViewState('revisores');
+          await auth.signOut();
+        },
         sendPasswordReset: auth.sendPasswordReset,
         updatePassword: auth.updatePassword,
         cancelPasswordRecovery: auth.cancelPasswordRecovery,
