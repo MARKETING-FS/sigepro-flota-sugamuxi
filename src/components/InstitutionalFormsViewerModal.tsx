@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   FileText,
   Download,
-  Printer,
   X,
   ShieldCheck,
   CheckCircle2,
@@ -49,11 +48,6 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
   const isForm009 = form.code === 'FS.GA-FOR-009';
 
   const pdf = getFormPdf(form, viewVersion || undefined);
-
-  // Abre el PDF en una pestaña nueva (para imprimir desde el visor del navegador)
-  const handlePrint = () => {
-    if (pdf) window.open(pdf.url, '_blank', 'noopener');
-  };
 
   // Descarga el PDF real (con respaldo de abrirlo si el servidor no permite descargarlo directo)
   const handleDownload = async () => {
@@ -106,13 +100,6 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
             >
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">Descargar formato</span>
-            </button>
-            <button
-              onClick={handlePrint}
-              className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-              title="Imprimir formato"
-            >
-              <Printer className="w-4 h-4" />
             </button>
             <button
               onClick={() => { setViewVersion(''); onClose(); }}
@@ -287,13 +274,6 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
             <span>Flota Sugamuxi S.A. &bull; Calidad y Servicio</span>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleDownload}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span>Descargar PDF{pdf ? ` (v${pdf.version})` : ''}</span>
-            </button>
             <button
               onClick={() => { setViewVersion(''); onClose(); }}
               className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
