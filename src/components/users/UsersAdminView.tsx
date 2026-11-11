@@ -4,7 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { supabase } from '../../lib/supabase';
 import { useConfirm } from '../ui/ConfirmDialog';
 import { BrandSwoosh } from '../ui/BrandSwoosh';
-import { generateStrongPassword, isPasswordValid, passwordRules } from '../../utils/passwordPolicy';
+import { generateStrongPassword } from '../../utils/passwordPolicy';
 import { PageHeader, StatusPill, cardCls, heroPrimaryBtn, theadRowCls, tbodyCls, rowCls } from '../ui/archive';
 
 interface ManagedUser {
@@ -88,7 +88,7 @@ export const UsersAdminView: React.FC = () => {
     setFormError('');
     if (!name.trim()) return setFormError('Escriba el nombre completo.');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setFormError('Escriba un correo válido.');
-    if (!isPasswordValid(password)) return setFormError('La contraseña temporal no cumple todos los requisitos.');
+    if (password.length < 6) return setFormError('La contraseña temporal debe tener al menos 6 caracteres.');
     setSaving(true);
     const r = await callUsersApi<{ user: ManagedUser }>('POST', { name, email, password, role });
     setSaving(false);
@@ -209,14 +209,8 @@ export const UsersAdminView: React.FC = () => {
                 </button>
               </div>
             </div>
-            <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
-              {passwordRules(password).map((r) => (
-                <li key={r.key} className={`text-[11px] ${r.ok ? 'text-[#1d5fa8] dark:text-[#69bdd7] font-semibold' : 'text-[#6b84a3]'}`}>
-                  {r.ok ? '✓' : '○'} {r.label}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 text-[11px] text-[#6b84a3]">En su primer ingreso la persona deberá cambiar esta contraseña por una propia.</p>
+            <p className="mt-2 text-[11px] text-[#6b84a3]">Puede escribir la que quiera (mínimo 6 caracteres). Las reglas de seguridad se le piden a la persona cuando la cambie.</p>
+            <p className="text-[11px] text-[#6b84a3]">En su primer ingreso la persona deberá cambiarla por una propia, que sí debe cumplir las reglas de seguridad.</p>
           </div>
 
           <div>

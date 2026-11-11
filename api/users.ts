@@ -28,16 +28,10 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const ASSIGNABLE = new Set(['ADMINISTRADOR', 'USUARIO']);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Misma política que la pantalla (src/utils/passwordPolicy.ts)
-const passwordProblem = (pw: string): string => {
-  if (pw.length < 10) return 'La contraseña debe tener al menos 10 caracteres.';
-  if (/\s/.test(pw)) return 'La contraseña no puede tener espacios.';
-  if (!/[A-ZÁÉÍÓÚÑ]/.test(pw)) return 'La contraseña debe tener una letra mayúscula.';
-  if (!/[a-záéíóúñ]/.test(pw)) return 'La contraseña debe tener una letra minúscula.';
-  if (!/\d/.test(pw)) return 'La contraseña debe tener un número.';
-  if (!/[^A-Za-z0-9ÁÉÍÓÚÑáéíóúñ\s]/.test(pw)) return 'La contraseña debe tener un carácter especial.';
-  return '';
-};
+// La contraseña temporal la define el superadministrador sin reglas especiales (mínimo de Supabase: 6).
+// Las reglas de seguridad se exigen cuando la persona la cambia en su primer ingreso.
+const passwordProblem = (pw: string): string =>
+  pw.length < 6 ? 'La contraseña debe tener al menos 6 caracteres.' : '';
 
 const adminFetch = (path: string, init: RequestInit = {}) =>
   fetch(`${SUPABASE_URL}/auth/v1${path}`, {
