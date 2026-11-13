@@ -194,7 +194,8 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
       selectedStatus,
       reasonObservation.trim(),
       authorName.trim(),
-      saveContractData ? updatedContractData : undefined
+      // El contrato se gestiona en la pestaña "Vigencia & Contrato"; aquí solo cambia el estado
+      undefined
     );
 
     onClose();
@@ -291,22 +292,6 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
             </span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('CONTRACT')}
-            className={`pb-2.5 px-3 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-              activeTab === 'CONTRACT'
-                ? 'border-sky-700 text-sky-900'
-                : 'border-transparent text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>2. Estado y Datos del Contrato</span>
-            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-sky-100 text-sky-800 ml-0.5">
-              Vigencia
-            </span>
-          </button>
-
           {canSeeAudit && (
           <button
             type="button"
@@ -318,7 +303,7 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
             }`}
           >
             <History className="w-4 h-4" />
-            <span>3. Trazabilidad & Auditoría</span>
+            <span>2. Trazabilidad & Auditoría</span>
             <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 ml-0.5">
               {dossier.auditHistory?.length || 0}
             </span>
@@ -831,7 +816,7 @@ export const ManualStatusChangeModal: React.FC<ManualStatusChangeModalProps> = (
                 className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-2 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4 text-cyan-300" />
-                <span>Guardar Cambios de Estado & Contrato</span>
+                <span>Guardar cambio de estado</span>
               </button>
             </div>
           </div>

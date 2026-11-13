@@ -226,6 +226,8 @@ interface AppContextType {
     manualOverride?: boolean,
     updatedContract?: Partial<SupplierContractInfo>
   ) => void;
+  /** Guarda el contrato (PDF y fechas) sin tocar el estado del proveedor */
+  saveSupplierContract: (dossierId: string, contract: Partial<SupplierContractInfo>, reviewerName?: string) => void;
   updateDossierContractInfo: (
     dossierId: string,
     contractInfo: SupplierContractInfo,
@@ -2277,6 +2279,71 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // 10a. Contrato del proveedor: PDF firmado y fecha de terminación. No cambia el estado del proveedor.
+  const saveSupplierContract = (
+    dossierId: string,
+    contract: Partial<SupplierContractInfo>,
+    reviewerName: string = 'Gestión Contractual Flota Sugamuxi'
+  ) => {
+    if (!canEditDossier(dossierId)) {
+      showToast('Permiso denegado para modificar el contrato.', 'warning', 'ACCIÓN BLOQUEADA');
+      return;
+    }
+    const target = allDossiers.find((d) => d.id === dossierId);
+    if (!target) return;
+
+    const timestamp = getNowFormatted();
+    const previousEnd = target.contractInfo?.endDate;
+    const summary = `Contrato${contract.contractNumber ? ` ${contract.contractNumber}` : ''} con vigencia hasta ${contract.endDate || 'N/A'}${contract.fileName ? ` (PDF: ${contract.fileName})` : ''}.`;
+
+    setDossiers((prev) =>
+      prev.map((d) =>
+        d.id !== dossierId
+          ? d
+          : {
+              ...d,
+              contractInfo: {
+                ...(d.contractInfo || {}),
+                ...contract,
+                contractStatus: contract.contractStatus || d.contractInfo?.contractStatus || ('SIN_CONTRATO' as const),
+                lastUpdated: timestamp,
+              },
+              updatedAt: timestamp,
+              auditHistory: [
+                ...d.auditHistory,
+                {
+                  id: `aud-${Date.now()}`,
+                  timestamp,
+                  action: 'Contrato actualizado',
+                  user: reviewerName,
+                  role: 'REVISOR' as const,
+                  notes: summary,
+                },
+              ],
+            }
+      )
+    );
+
+    const supplierName = target.basicInfo.supplierType === 'NATURAL' ? target.basicInfo.fullName || 'Persona Natural' : target.basicInfo.companyName || 'Empresa';
+    const supplierDoc = target.basicInfo.supplierType === 'NATURAL' ? target.basicInfo.documentNumber || '' : target.basicInfo.nit || '';
+    addSystemAuditLog({
+      dossierId,
+      supplierName,
+      supplierDoc,
+      fileNumber: target.fileNumber,
+      user: `${reviewerName} (${role === 'ADMIN' ? 'ADMIN' : 'REVISOR'})`,
+      userRole: role === 'ADMIN' ? 'ADMIN' : 'REVISOR',
+      action: 'EDICION_CAMPO',
+      section: 'Vigencia y Contrato',
+      fieldChanged: 'Contrato (PDF y fecha de terminación)',
+      oldValue: previousEnd || 'Sin contrato',
+      newValue: contract.endDate || '',
+      justification: summary,
+    });
+
+    showToast('Contrato guardado.', 'success', 'CONTRATO ACTUALIZADO');
+  };
+
   // 10b. Update Contract Info and optionally synchronize process status
   const updateDossierContractInfo = (
     dossierId: string,
@@ -3620,6 +3687,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateInternalConcepts,
         updateDossierStatus,
         updateDossierContractInfo,
+        saveSupplierContract,
         addNewFormVersion,
         toggleFormMandatory,
         updateFormDetails,

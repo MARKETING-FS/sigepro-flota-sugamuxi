@@ -135,7 +135,7 @@ export function computeDossierPushAlerts(dossier: SupplierDossier): PushAlert[] 
   // 2. Check Contract Validity
   if (dossier.contractInfo && dossier.contractInfo.endDate) {
     const contractVal = calculateContractValidity(dossier.contractInfo);
-    const contractNum = dossier.contractInfo.contractNumber || 'S/N';
+    const contractNum = dossier.contractInfo.contractNumber ? `: ${dossier.contractInfo.contractNumber}` : '';
 
     if (contractVal.status === 'VENCIDO') {
       const overdue = Math.abs(contractVal.daysRemaining);
@@ -143,7 +143,7 @@ export function computeDossierPushAlerts(dossier: SupplierDossier): PushAlert[] 
         id: `alert-contract-exp-${dossier.id}`,
         type: 'CONTRACT_EXPIRED',
         severity: 'CRITICAL',
-        title: `Contrato Vencido: ${contractNum}`,
+        title: `Contrato vencido${contractNum}`,
         message: `El contrato de ${supplierName} finalizó el ${dossier.contractInfo.endDate} (hace ${overdue} días). Inhabilitado para facturación y compras.`,
         dossierId: dossier.id,
         supplierName,
@@ -158,7 +158,7 @@ export function computeDossierPushAlerts(dossier: SupplierDossier): PushAlert[] 
         id: `alert-contract-soon-${dossier.id}`,
         type: 'CONTRACT_EXPIRING',
         severity: 'WARNING',
-        title: `Contrato por Vencer: ${contractNum}`,
+        title: `Contrato por vencer${contractNum}`,
         message: contractVal.daysRemaining === 0
           ? `El contrato de ${supplierName} vence HOY (${dossier.contractInfo.endDate}). Tramite la prórroga o renovación urgente.`
           : `El contrato vence en ${contractVal.daysRemaining} día${contractVal.daysRemaining === 1 ? '' : 's'} (${dossier.contractInfo.endDate}). Gestione la adición o prórroga contractual.`,

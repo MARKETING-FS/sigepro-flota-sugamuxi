@@ -90,6 +90,12 @@ export interface SupplierContractInfo {
   manualOverride?: boolean;
   manualReason?: string;
   autoSyncStatus?: boolean;
+  /** PDF del contrato firmado (Storage) */
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: string;
+  fileUploadedAt?: string;
+  fileUploadedBy?: string;
 }
 
 export type DocumentStatus =

@@ -36,6 +36,7 @@ import {
   Tag,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { ContractTab } from './dossier/ContractTab';
 import {
   SupplierDossier,
   SupplierDocument,
@@ -694,7 +695,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 title="Gestionar estado por vigencia de contrato o registrar cambio manual con motivo / observación"
               >
                 <Briefcase className="w-4 h-4" />
-                <span>Gestionar Estado & Contrato</span>
+                <span>Gestionar estado</span>
               </button>
             )}
           </div>
@@ -768,12 +769,15 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             {!isReadOnly && (
               <button
                 type="button"
-                onClick={() => setIsManualStatusModalOpen(true)}
+                onClick={() => {
+                  setActiveTab('contrato');
+                  window.setTimeout(() => document.getElementById('contrato-tab')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+                }}
                 className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-[#2c84c4]/40 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-xs font-semibold transition-colors cursor-pointer"
-                title="Gestionar vigencia de contrato u observación de estado manual"
+                title="Subir el PDF del contrato y marcar hasta qué fecha va"
               >
                 <Calendar className="w-3.5 h-3.5" />
-                <span>{dossier.contractInfo?.contractNumber ? 'Editar contrato' : 'Vincular contrato'}</span>
+                <span>{contractualStatus.hasContract ? 'Ver contrato' : 'Subir contrato'}</span>
               </button>
             )}
           </div>
@@ -794,7 +798,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 {dossier.contractInfo.objectDescription}
               </p>
             ) : (
-              <p className="italic text-[#5d7392] dark:text-slate-400">Sin contrato marco vinculado</p>
+              !contractualStatus.hasContract && <p className="italic text-[#5d7392] dark:text-slate-400">Sin contrato registrado</p>
             )}
           </div>
         </div>
@@ -939,102 +943,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         {/* Tab Contrato & Vigencia */}
         {activeTab === 'contrato' && (
           <div className="p-4 sm:p-6 space-y-5">
-            {/* Encabezado de la sección */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start gap-3.5">
-                <span className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-action text-white grid place-items-center shadow-glow">
-                  <Calendar className="w-6 h-6" />
-                </span>
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">
-                    Vigencia contractual y estado operativo
-                  </h3>
-                  <p className="text-xs text-[#3a5274] dark:text-slate-400 mt-1 max-w-2xl">
-                    Gestión del estado del proveedor según vigencia de contrato o mediante cambio manual motivado con observación registrada (ISO 9001 / SARLAFT).
-                  </p>
-                </div>
-              </div>
-
-              {!isReadOnly && (
-                <button
-                  type="button"
-                  onClick={() => setIsManualStatusModalOpen(true)}
-                  className="h-11 px-5 bg-gradient-action text-white font-semibold text-sm rounded-xl shadow-glow flex items-center gap-2 hover:opacity-95 transition-opacity self-start sm:self-auto cursor-pointer shrink-0"
-                >
-                  <Briefcase className="w-4 h-4" />
-                  <span>Actualizar contrato / estado</span>
-                </button>
-              )}
-            </div>
-
-            {/* Resumen de estado */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="fs-card lift rounded-[22px] p-5 space-y-3 animate-fade-up">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center">
-                    <ShieldCheck className="w-[18px] h-[18px]" />
-                  </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">Estado operativo actual</span>
-                </div>
-                <div>{getStatusBadge(effectiveStatus)}</div>
-                <p className="text-[12px] text-[#3a5274] dark:text-slate-400 leading-relaxed">
-                  {dossier.manualStatusOverride
-                    ? 'Determinado manualmente por el comité con justificación registrada.'
-                    : dossier.contractInfo?.contractNumber
-                    ? 'Sincronizado automáticamente con la vigencia del contrato formal.'
-                    : 'Determinado por la verificación de documentos cargados.'}
-                </p>
-              </div>
-
-              <div className="fs-card lift rounded-[22px] p-5 space-y-3 animate-fade-up" style={{ animationDelay: '70ms' }}>
-                <div className="flex items-center gap-2.5">
-                  <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#69bdd7] to-[#2c84c4] text-white grid place-items-center">
-                    <Clock className="w-[18px] h-[18px]" />
-                  </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">Vigencia contractual</span>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${contractValidity.badgeClass}`}>
-                    {contractValidity.label}
-                  </span>
-                  {contractValidity.daysRemaining !== null && (
-                    <span className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white tabular-nums">
-                      {contractValidity.daysRemaining > 0
-                        ? `${contractValidity.daysRemaining} días restantes`
-                        : `${Math.abs(contractValidity.daysRemaining)} días vencido`}
-                    </span>
-                  )}
-                </div>
-                <p className="text-[12px] text-[#3a5274] dark:text-slate-400 leading-relaxed">{contractValidity.description}</p>
-              </div>
-
-              <div className="fs-card lift rounded-[22px] p-5 space-y-3 animate-fade-up" style={{ animationDelay: '140ms' }}>
-                <div className="flex items-center gap-2.5">
-                  <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2c84c4] to-[#1d6fb8] text-white grid place-items-center">
-                    <RefreshCw className="w-[18px] h-[18px]" />
-                  </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">Control de modificación</span>
-                </div>
-                <div>
-                  {dossier.manualStatusOverride ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/15 px-3 py-1 rounded-lg border border-[#2c84c4]/30">
-                      <ShieldAlert className="w-3.5 h-3.5" />
-                      <span>Modo manual activo</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#3a5274] dark:text-slate-200 bg-black/[0.05] dark:bg-white/10 px-3 py-1 rounded-lg border border-black/10 dark:border-white/15">
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      <span>Modo automático</span>
-                    </span>
-                  )}
-                </div>
-                <p className="text-[12px] text-[#3a5274] dark:text-slate-400 leading-relaxed">
-                  {dossier.manualStatusOverride
-                    ? 'El estado manual prevalece sobre el cálculo automático hasta ser restablecido.'
-                    : 'El estado se actualiza dinámicamente según la fecha de terminación del contrato.'}
-                </p>
-              </div>
-            </div>
+            <ContractTab dossier={dossier} isReadOnly={isReadOnly} reviewerName={reviewerName} />
 
             {/* Registro de cambio manual */}
             {dossier.manualStatusOverride && (
@@ -1052,85 +961,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   <span className="font-semibold text-[#5d7392] dark:text-slate-400 block mb-1">Motivo / observación registrada obligatoria:</span>
                   <p className="italic">"{dossier.manualStatusReason || 'Sin observación registrada'}"</p>
                 </div>
-              </div>
-            )}
-
-            {/* Datos del contrato */}
-            {dossier.contractInfo?.contractNumber ? (
-              <div className="fs-card rounded-[24px] overflow-hidden animate-fade-up">
-                <div className="flex items-center justify-between gap-3 flex-wrap bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10">
-                  <div className="flex items-center gap-3">
-                    <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow">
-                      <Briefcase className="w-[18px] h-[18px]" />
-                    </span>
-                    <h4 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">Datos contractuales registrados</h4>
-                  </div>
-                  <span className="font-mono text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 px-3 py-1 rounded-full border border-[#2c84c4]/30">
-                    {dossier.contractInfo.contractNumber}
-                  </span>
-                </div>
-
-                <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                  {[
-                    { label: 'Tipo de contrato', value: dossier.contractInfo.contractType || 'Contrato de Suministro / Servicios', mono: false, span: '' },
-                    { label: 'Fecha de inicio', value: dossier.contractInfo.startDate || 'No registrada', mono: true, span: '' },
-                    { label: 'Fecha de vencimiento', value: dossier.contractInfo.endDate || 'No registrada', mono: true, span: '' },
-                    {
-                      label: 'Valor total (COP)',
-                      value: dossier.contractInfo.contractValue != null ? `$ ${dossier.contractInfo.contractValue.toLocaleString('es-CO')}` : 'A convenir',
-                      mono: true,
-                      span: '',
-                    },
-                    { label: 'Supervisor Flota Sugamuxi', value: dossier.contractInfo.supervisor || 'Coordinación Administrativa y de Compras', mono: false, span: 'sm:col-span-2' },
-                    {
-                      label: 'Sincronización automática de estado',
-                      value: dossier.contractInfo.autoSyncStatus !== false ? 'Habilitada (Actualiza a Vigente / Por Vencer / Vencido)' : 'Deshabilitada',
-                      mono: false,
-                      span: 'sm:col-span-2',
-                    },
-                  ].map((f) => (
-                    <div
-                      key={f.label}
-                      className={`rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 ${f.span}`}
-                    >
-                      <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">{f.label}</span>
-                      <span className={`block mt-1 text-[15px] font-semibold text-[#0b1d3a] dark:text-white ${f.mono ? 'font-mono' : 'font-display'}`}>
-                        {f.value}
-                      </span>
-                    </div>
-                  ))}
-
-                  {dossier.contractInfo.objectDescription && (
-                    <div className="sm:col-span-2 lg:col-span-4 rounded-2xl p-4 bg-[#2c84c4]/[0.07] border border-[#2c84c4]/20">
-                      <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-1">Objeto contractual</span>
-                      <p className="text-[#0b1d3a] dark:text-white text-[13px] leading-relaxed">{dossier.contractInfo.objectDescription}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-[24px] border-2 border-dashed border-[#2c84c4]/40 bg-[#2c84c4]/[0.04] p-8 text-center space-y-4 animate-fade-up">
-                <span className="w-14 h-14 rounded-2xl bg-gradient-action text-white grid place-items-center mx-auto shadow-glow">
-                  <Calendar className="w-7 h-7" />
-                </span>
-                <div>
-                  <h4 className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white">
-                    No se ha vinculado contrato formal a este expediente
-                  </h4>
-                  <p className="text-xs text-[#3a5274] dark:text-slate-400 max-w-md mx-auto mt-1.5 leading-relaxed">
-                    El proveedor está operando actualmente bajo el esquema de habilitación documental. Puede registrar los datos contractuales y su fecha de vigencia para control automático.
-                  </p>
-                </div>
-                {!isReadOnly && (
-                  <button
-                    type="button"
-                    onClick={() => setIsManualStatusModalOpen(true)}
-                    className="h-11 px-5 bg-gradient-action text-white font-semibold text-sm rounded-xl shadow-glow inline-flex items-center gap-2 cursor-pointer hover:opacity-95 transition-opacity"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Vincular y registrar contrato</span>
-                  </button>
-                )}
               </div>
             )}
           </div>

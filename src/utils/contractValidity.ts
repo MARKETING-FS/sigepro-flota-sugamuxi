@@ -452,7 +452,7 @@ export function getContractualStatus(dossier: SupplierDossier): {
       contractObject: contract?.objectDescription || contract?.notes,
       contractValueCOP: contract?.contractValueCOP || contract?.contractValue,
       supervisorName: contract?.supervisorName || contract?.supervisor,
-      hasContract: Boolean(contract?.contractNumber),
+      hasContract: Boolean(contract?.contractNumber || contract?.endDate),
     };
   }
 
@@ -469,11 +469,11 @@ export function getContractualStatus(dossier: SupplierDossier): {
       contractObject: contract?.objectDescription || contract?.notes,
       contractValueCOP: contract?.contractValueCOP || contract?.contractValue,
       supervisorName: contract?.supervisorName || contract?.supervisor,
-      hasContract: Boolean(contract?.contractNumber),
+      hasContract: Boolean(contract?.contractNumber || contract?.endDate),
     };
   }
 
-  if (!contract || !contract.contractNumber || !contract.endDate || contract.contractStatus === 'SIN_CONTRATO') {
+  if (!contract || !contract.endDate || contract.contractStatus === 'SIN_CONTRATO') {
     return {
       status: 'SIN_CONTRATO',
       daysRemaining: 0,
@@ -490,7 +490,8 @@ export function getContractualStatus(dossier: SupplierDossier): {
 
   // Si el usuario especificó manualmente un estado de contrato (ej. VENCIDO, POR_VENCER, VIGENTE)
   const validity = calculateContractValidity(contract.endDate);
-  const effectiveContractStatus: ContractValidityStatus = contract.contractStatus || validity.status;
+  // El estado sale siempre de la fecha de terminación (no de un valor guardado que pudo quedar viejo)
+  const effectiveContractStatus: ContractValidityStatus = validity.status;
 
   let label = validity.label;
   let badgeClass = validity.badgeClass;
