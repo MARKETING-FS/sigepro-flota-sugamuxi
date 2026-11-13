@@ -84,6 +84,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     documentDefinitions,
     getRequiredDocumentsForSupplier,
     showToast,
+    reviewFocus,
+    clearReviewFocus,
   } = useApp();
 
   const dossier = dossiers.find((d) => d.id === dossierId);
@@ -101,6 +103,31 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   }, [dossierId]);
 
   const [activeTab, setActiveTab] = useState<'datos' | 'contrato' | 'documentos' | 'auditoria'>('datos');
+  // Documento resaltado al llegar desde una alerta
+  const [highlightDoc, setHighlightDoc] = useState<string | null>(null);
+
+  /** Abre la pestaña de documentos y deja a la vista (resaltado) el documento indicado. */
+  const focusDocument = (docCode?: string) => {
+    setActiveTab('documentos');
+    if (!docCode) return;
+    setHighlightDoc(docCode);
+    // Se espera a que la pestaña pinte sus filas antes de desplazar
+    window.setTimeout(() => {
+      const sel = `[data-doc-code="${CSS.escape(docCode)}"], [data-doc-alt="${CSS.escape(docCode)}"]`;
+      const el = document.querySelector<HTMLElement>(sel);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+    window.setTimeout(() => setHighlightDoc((cur) => (cur === docCode ? null : cur)), 6000);
+  };
+
+  // Llegada desde una alerta: salta a la pestaña y al documento que la originó
+  useEffect(() => {
+    if (!reviewFocus || reviewFocus.dossierId !== dossierId) return;
+    if (reviewFocus.tab === 'contrato') setActiveTab('contrato');
+    else focusDocument(reviewFocus.docCode);
+    clearReviewFocus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reviewFocus, dossierId]);
   const [selectedFormForModal, setSelectedFormForModal] = useState<any>(null);
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
   const [isManualStatusModalOpen, setIsManualStatusModalOpen] = useState(false);
@@ -784,7 +811,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           </div>
           <button
             type="button"
-            onClick={() => setActiveTab('documentos')}
+            onClick={() => focusDocument(expSummary.expiredDocs[0]?.code)}
             className="h-9 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-semibold shrink-0 hover:opacity-95 transition-opacity cursor-pointer"
           >
             Revisar documentos
@@ -813,7 +840,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           </div>
           <button
             type="button"
-            onClick={() => setActiveTab('documentos')}
+            onClick={() => focusDocument(expSummary.expiringSoonDocs[0]?.code)}
             className="h-9 px-4 rounded-xl border border-black/15 dark:border-white/20 text-[#0b1d3a] dark:text-white text-xs font-semibold shrink-0 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
             Ver documentos
@@ -1268,7 +1295,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               </div>
 
               {/* Institutional Form Form 009 Row */}
-            <div className="fs-card lift rounded-[22px] p-5 space-y-4">
+            <div
+              data-doc-code="FS_GA_FOR_009"
+              className={`fs-card lift rounded-[22px] p-5 space-y-4 transition-shadow duration-300 ${highlightDoc === 'FS_GA_FOR_009' ? 'ring-2 ring-[#2c84c4] shadow-[0_0_0_6px_rgba(44,132,196,0.18)]' : ''}`}
+            >
               <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold uppercase bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] px-2.5 py-0.5 rounded border border-[#2c84c4]/30">
@@ -1385,7 +1415,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             </div>
 
             {/* Institutional Form Form 039 Row */}
-            <div className="fs-card lift rounded-[22px] p-5 space-y-4">
+            <div
+              data-doc-code="FS_GA_FOR_039"
+              className={`fs-card lift rounded-[22px] p-5 space-y-4 transition-shadow duration-300 ${highlightDoc === 'FS_GA_FOR_039' ? 'ring-2 ring-[#2c84c4] shadow-[0_0_0_6px_rgba(44,132,196,0.18)]' : ''}`}
+            >
               <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold uppercase bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] px-2.5 py-0.5 rounded border border-[#2c84c4]/30">
@@ -1559,7 +1592,11 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     return (
                       <div
                         key={code}
+                        data-doc-code={code}
+                        data-doc-alt={doc.code || code}
                         className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
+                          highlightDoc === code || (doc.code && highlightDoc === doc.code) ? 'ring-2 ring-inset ring-[#2c84c4] bg-[#2c84c4]/10 ' : ''
+                        }${
                           docExp.status === 'VENCIDO'
                             ? 'bg-slate-900/5 border-l-4 border-l-slate-900 dark:border-l-cyan-400'
                             : docExp.status === 'POR_VENCER'

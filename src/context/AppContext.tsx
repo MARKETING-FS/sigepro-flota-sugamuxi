@@ -107,7 +107,10 @@ interface AppContextType {
   // Review & Executive Routing
   reviewSelectedDossierId: string | null;
   setReviewSelectedDossierId: (id: string | null) => void;
-  openSupplierReview: (dossierId: string) => void;
+  openSupplierReview: (dossierId: string, focus?: { docCode?: string; tab?: 'documentos' | 'contrato' }) => void;
+  /** Adónde debe saltar el expediente al abrirse (pestaña y documento); se consume una sola vez */
+  reviewFocus: { dossierId: string; docCode?: string; tab?: 'documentos' | 'contrato' } | null;
+  clearReviewFocus: () => void;
   openExecutiveDashboard: () => void;
 
   // Supplier Evaluation & Grading SIG (Revisor & Admin)
@@ -951,9 +954,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const openSupplierReview = (dossierId: string) => {
+  const [reviewFocus, setReviewFocus] = useState<{
+    dossierId: string;
+    docCode?: string;
+    tab?: 'documentos' | 'contrato';
+  } | null>(null);
+  const clearReviewFocus = () => setReviewFocus(null);
+
+  const openSupplierReview = (dossierId: string, focus?: { docCode?: string; tab?: 'documentos' | 'contrato' }) => {
     setCurrentDossierIdState(dossierId);
     setReviewSelectedDossierIdState(dossierId);
+    setReviewFocus(focus && (focus.docCode || focus.tab) ? { dossierId, ...focus } : null);
     setActiveViewState('revisores');
   };
 
@@ -3572,6 +3583,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         reviewSelectedDossierId,
         setReviewSelectedDossierId,
         openSupplierReview,
+        reviewFocus,
+        clearReviewFocus,
         openExecutiveDashboard,
         supplierEvaluations,
         evaluationMethod,

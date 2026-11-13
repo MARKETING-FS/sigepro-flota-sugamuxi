@@ -19,8 +19,7 @@ export const PushAlertFloatingToast: React.FC = () => {
     role,
     dossiers,
     currentDossierId,
-    setActiveView,
-    setReviewSelectedDossierId,
+    openSupplierReview,
   } = useApp();
 
   const [isVisible, setIsVisible] = useState(false);
@@ -69,8 +68,8 @@ export const PushAlertFloatingToast: React.FC = () => {
     setIsVisible(false);
     if (!topAlert) return;
 
-    setReviewSelectedDossierId(topAlert.dossierId);
-    setActiveView('revisores');
+    const isContract = topAlert.type === 'CONTRACT_EXPIRED' || topAlert.type === 'CONTRACT_EXPIRING';
+    openSupplierReview(topAlert.dossierId, isContract ? { tab: 'contrato' } : { tab: 'documentos', docCode: topAlert.docCode });
   };
 
   return (

@@ -30,12 +30,12 @@ interface Props {
   onOpenDossier?: (dossierId: string) => void;
 }
 
-export const PushAlertsPopover: React.FC<Props> = ({ onOpenDossier }) => {
+export const PushAlertsPopover: React.FC<Props> = () => {
   const {
     role,
     dossiers,
     currentDossierId,
-    setReviewSelectedDossierId,
+    openSupplierReview,
     setActiveView,
     showToast,
   } = useApp();
@@ -117,11 +117,9 @@ export const PushAlertsPopover: React.FC<Props> = ({ onOpenDossier }) => {
     dismissPushAlert(alert.id);
     setDismissedVersion((v) => v + 1);
 
-    setReviewSelectedDossierId(alert.dossierId);
-    setActiveView('revisores');
-    if (onOpenDossier) {
-      onOpenDossier(alert.dossierId);
-    }
+    // Abre el expediente justo donde hay que actuar: el documento vencido o la pestaña del contrato
+    const isContract = alert.type === 'CONTRACT_EXPIRED' || alert.type === 'CONTRACT_EXPIRING';
+    openSupplierReview(alert.dossierId, isContract ? { tab: 'contrato' } : { tab: 'documentos', docCode: alert.docCode });
   };
 
   const unreadCount = alertsSummary.totalUnread;
