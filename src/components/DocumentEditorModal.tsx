@@ -120,6 +120,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
   const [justification, setJustification] = useState('Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.');
   const [hasFile, setHasFile] = useState(Boolean(document.fileName));
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -162,6 +163,17 @@ export const DocumentEditorModal: React.FC<Props> = ({
     setJustification('Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.');
   }, [document]);
 
+  /** La subida falló: se descarta el archivo para no dejar registrado un documento sin su archivo. */
+  const failUpload = (reason?: string) => {
+    setFileName('');
+    setFileSize('');
+    setCustomUrl('');
+    setHasFile(false);
+    setStatus('PENDIENTE');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setFileError(`No se pudo guardar el archivo${reason ? `: ${reason}` : ''}. Intente de nuevo.`);
+  };
+
   const processSelectedFile = (file: File) => {
     setFileError(null);
     setFormError(null);
@@ -182,17 +194,10 @@ export const DocumentEditorModal: React.FC<Props> = ({
     setFileSize(formattedSize);
     setHasFile(true);
 
-    // Leer Data URL para previsualización directa
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      if (ev.target?.result) {
-        setCustomUrl(ev.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
-
-    // Con la base de datos conectada, el archivo también se guarda en Storage y se usa su enlace
     if (supabaseService.isConfigured()) {
+      // Con la base de datos conectada el archivo se guarda en el almacén privado
+      setCustomUrl('');
+      setIsUploading(true);
       storageService
         .uploadSupplierDocument({
           file,
@@ -202,9 +207,23 @@ export const DocumentEditorModal: React.FC<Props> = ({
           documentCode: docCode,
         })
         .then((res) => {
-          if (res.success && res.url) setCustomUrl(res.url);
+          if (res.success && res.url) {
+            setCustomUrl(res.url);
+          } else {
+            failUpload(res.error);
+          }
         })
-        .catch(() => undefined);
+        .catch(() => failUpload())
+        .finally(() => setIsUploading(false));
+    } else {
+      // Sin base de datos (modo de demostración) el archivo queda solo en este navegador
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          setCustomUrl(ev.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
     }
 
     // Sincronizar estado al subir archivo considerando vigencia existente
@@ -309,6 +328,11 @@ export const DocumentEditorModal: React.FC<Props> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+
+    if (isUploading) {
+      setFormError('El archivo todavía se está guardando. Espere unos segundos y vuelva a intentar.');
+      return;
+    }
 
     // Validación 1: Si es obligatorio en expediente, debe adjuntar archivo soporte
     if (isMandatory && (!hasFile || !fileName || !fileName.trim())) {
@@ -514,7 +538,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                 <div className="mb-2.5 p-3 bg-red-500/10 border border-red-500/40 rounded-xl flex items-start gap-2 text-[11px] animate-fade-up">
                   <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold block text-red-600 dark:text-red-300">Archivo no permitido (máximo 5 MB)</span>
+                    <span className="font-semibold block text-red-600 dark:text-red-300">No se pudo cargar el archivo</span>
                     <span className="text-[#3a5274] dark:text-slate-300">{fileError}</span>
                   </div>
                 </div>
@@ -532,6 +556,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                           Soporte adjunto
                         </span>
                         {fileSize && <span className="text-[10px] font-semibold text-[#5d7392] dark:text-slate-400">{fileSize}</span>}
+                        {isUploading && <span className="text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">Guardando archivo…</span>}
                       </div>
                       <input
                         type="text"

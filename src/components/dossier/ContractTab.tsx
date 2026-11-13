@@ -5,6 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { storageService } from '../../services/storageService';
 import { calculateContractValidity } from '../../utils/contractValidity';
 import { formatFileSize, validatePdfFile } from '../../utils/formPdf';
+import { openFileInNewTab } from '../../utils/secureFile';
 
 interface Props {
   dossier: SupplierDossier;
@@ -48,7 +49,7 @@ const pillCls = {
 };
 
 export const ContractTab: React.FC<Props> = ({ dossier, isReadOnly, reviewerName }) => {
-  const { saveSupplierContract } = useApp();
+  const { saveSupplierContract, showToast } = useApp();
   const contract = dossier.contractInfo;
   const hasContract = Boolean(contract?.endDate) && contract?.contractStatus !== 'SIN_CONTRATO';
 
@@ -222,14 +223,17 @@ export const ContractTab: React.FC<Props> = ({ dossier, isReadOnly, reviewerName
                         .join(' · ')}
                     </p>
                   </div>
-                  <a
-                    href={contract.fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 h-10 px-4 rounded-xl border border-[#2c84c4]/40 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold inline-flex items-center gap-2 transition-colors"
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      // El contrato está en un almacén privado: se abre con un enlace temporal, solo con sesión
+                      const ok = await openFileInNewTab(contract.fileUrl);
+                      if (!ok) showToast('No se pudo abrir el contrato. Si su sesión venció, vuelva a iniciar sesión.', 'warning', 'ARCHIVO NO DISPONIBLE');
+                    }}
+                    className="shrink-0 h-10 px-4 rounded-xl border border-[#2c84c4]/40 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold inline-flex items-center gap-2 transition-colors cursor-pointer"
                   >
                     <Eye className="w-4 h-4" /> Ver PDF
-                  </a>
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-3">

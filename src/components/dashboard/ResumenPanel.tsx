@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { AlertTriangle, ArrowRight, Building2, BadgeCheck, Hourglass, FileClock } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Building2, BadgeCheck, Hourglass, FileClock, FileSignature } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SupplierDossier } from '../../types';
 import { getCreationStatus, getContractualStatus, getDossierDocumentExpirationSummary } from '../../utils/contractValidity';
@@ -71,6 +71,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     let habilitados = 0;
     let enRevision = 0;
     let conVencimientos = 0;
+    let conContrato = 0;
 
     dossiers.forEach((d) => {
       const creation = getCreationStatus(d);
@@ -84,6 +85,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       exp.expiringSoonDocs.forEach((doc) => due.push({ dossier: d, what: doc.name, kind: 'Documento', days: doc.daysRemaining }));
 
       const contract = getContractualStatus(d);
+      if (contract.hasContract) conContrato++;
       if (contract.hasContract && (contract.status === 'VENCIDO' || contract.status === 'POR_VENCER')) {
         due.push({ dossier: d, what: `Contrato ${contract.contractNumber || ''}`.trim(), kind: 'Contrato', days: contract.daysRemaining });
       }
@@ -162,6 +164,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       habilitados,
       enRevision,
       conVencimientos,
+      conContrato,
       evalUpToDate: active.filter((r) => r.annualStatus === 'AL_DIA' && r.initialEval).length,
       evalDue,
       avg,
@@ -200,7 +203,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi icon={Building2} label="Proveedores" value={dossiers.length} hint={`${juridicas} jurídicas · ${dossiers.length - juridicas} naturales`} progress={100} delay={0} />
         <Kpi icon={BadgeCheck} label="Habilitados" value={stats.habilitados} hint={`${pct(stats.habilitados)} % de la cartera`} tone="info" progress={pct(stats.habilitados)} delay={80} onClick={() => onFilterStage('habilitado')} />
-        <Kpi icon={Hourglass} label="En revisión" value={stats.enRevision} hint="esperan al revisor" tone="warning" progress={pct(stats.enRevision)} delay={160} onClick={() => onFilterStage('revision')} />
+        <Kpi icon={FileSignature} label="Contratos" value={stats.conContrato} hint={`de ${dossiers.length} proveedores · ${pct(stats.conContrato)} %`} tone="info" progress={pct(stats.conContrato)} delay={160} />
         <Kpi icon={FileClock} label="Con vencimientos" value={stats.conVencimientos} hint={`${stats.due.length} pendientes en ${HORIZON_DAYS} días`} tone="danger" progress={pct(stats.conVencimientos)} delay={240} />
       </div>
 
