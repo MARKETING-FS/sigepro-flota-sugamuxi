@@ -75,6 +75,9 @@ export const DocumentEditorModal: React.FC<Props> = ({
   const docDef = (documentDefinitions || []).find((d) => d.code === docCode);
   const isExpirationRequired = propRequiresExpirationDate ?? docDef?.requiresExpirationDate ?? false;
   const currentValidityRule = propValidityRule || docDef?.validityRule || '';
+  // La fecha de vigencia solo se pide en los documentos que la exigen según la parametrización.
+  // Un documento agregado a mano (sin definición) conserva la fecha con la que se creó.
+  const showExpiration = isExpirationRequired || (!docDef && Boolean(document.expirationDate));
 
   // Plantilla oficial (PDF vigente del formato institucional) asociada a este documento
   const templateFormCode =
@@ -112,7 +115,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
   const [fileError, setFileError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [status, setStatus] = useState<DocumentStatus>(document.status);
-  const [expirationDate, setExpirationDate] = useState(document.expirationDate || '');
+  const [expirationDate, setExpirationDate] = useState(showExpiration ? document.expirationDate || '' : '');
   const [notes, setNotes] = useState(document.notes || '');
   const [justification, setJustification] = useState('Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.');
   const [hasFile, setHasFile] = useState(Boolean(document.fileName));
@@ -128,7 +131,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
     setFileError(null);
     setFormError(null);
 
-    const initialExpDate = document.expirationDate || '';
+    const initialExpDate = showExpiration ? document.expirationDate || '' : '';
     setExpirationDate(initialExpDate);
 
     // Sincronización del estado inicial basada en la fecha de vigencia y parametrización de matriz
@@ -143,8 +146,11 @@ export const DocumentEditorModal: React.FC<Props> = ({
       } else {
         setStatus(document.status);
       }
-    } else if (document.status === 'VENCIDO' || document.status === 'POR_VENCER' || document.status === 'VIGENTE') {
+    } else if (showExpiration && (document.status === 'VENCIDO' || document.status === 'POR_VENCER' || document.status === 'VIGENTE')) {
       setStatus(document.status);
+    } else if (!showExpiration && (document.status === 'VENCIDO' || document.status === 'POR_VENCER' || document.status === 'VIGENTE')) {
+      // Sin control de fecha no hay vencimiento: queda aprobado si tiene archivo, pendiente si no
+      setStatus(document.fileName ? 'APROBADO' : 'PENDIENTE');
     } else if (document.fileName && (document.status === 'CARGADO' || document.status === 'PENDIENTE')) {
       setStatus('APROBADO');
     } else {
@@ -346,7 +352,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
         fileSize: hasFile ? fileSize : undefined,
         customUrl: hasFile ? customUrl : undefined,
         status,
-        expirationDate: expirationDate || undefined,
+        expirationDate: showExpiration ? expirationDate || undefined : '',
         notes: notes.trim(),
         uploadedBy: hasFile ? reviewerName : undefined,
         uploadedAt: hasFile ? new Date().toLocaleString('es-CO') : undefined,
@@ -370,11 +376,19 @@ export const DocumentEditorModal: React.FC<Props> = ({
         { value: 'PENDIENTE', label: 'PENDIENTE' },
         { value: 'RECHAZADO', label: 'RECHAZADO' },
       ]
-    : [
+    : showExpiration
+    ? [
         { value: 'APROBADO', label: 'APROBADO (habilitado)' },
         { value: 'VIGENTE', label: 'VIGENTE' },
         { value: 'POR_VENCER', label: 'POR VENCER' },
         { value: 'VENCIDO', label: 'VENCIDO (expirado)' },
+        { value: 'CARGADO', label: 'CARGADO (en revisión)' },
+        { value: 'REQUIERE_CORRECCION', label: 'REQUIERE CORRECCIÓN' },
+        { value: 'PENDIENTE', label: 'PENDIENTE' },
+        { value: 'RECHAZADO', label: 'RECHAZADO' },
+      ]
+    : [
+        { value: 'APROBADO', label: 'APROBADO (habilitado)' },
         { value: 'CARGADO', label: 'CARGADO (en revisión)' },
         { value: 'REQUIERE_CORRECCION', label: 'REQUIERE CORRECCIÓN' },
         { value: 'PENDIENTE', label: 'PENDIENTE' },
@@ -413,12 +427,12 @@ export const DocumentEditorModal: React.FC<Props> = ({
                     </span>
                   )}
                   <span className="text-[10px] font-semibold uppercase tracking-wider bg-[#69bdd7]/30 border border-[#69bdd7]/60 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                    {isExpirationRequired ? (
+                    {showExpiration ? (
                       <>
                         <Clock className="w-3 h-3" /> Control de vigencia SIG
                       </>
                     ) : (
-                      'Permanente'
+                      'Sin fecha de vencimiento'
                     )}
                   </span>
                 </div>
@@ -581,9 +595,9 @@ export const DocumentEditorModal: React.FC<Props> = ({
             <section>
               <div className="flex items-center gap-2.5 mb-2.5">
                 {stepNum(3)}
-                <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Estado y vigencia</h4>
+                <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{showExpiration ? 'Estado y vigencia' : 'Estado'}</h4>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={`grid grid-cols-1 ${showExpiration ? 'sm:grid-cols-2' : ''} gap-4`}>
                 <div>
                   <div className="flex items-center justify-between">
                     <label className={labelCls}>Estado del documento</label>
@@ -612,10 +626,15 @@ export const DocumentEditorModal: React.FC<Props> = ({
                   </select>
                   <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1.5 flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" />
-                    <span>Se sincroniza automáticamente al evaluar o ingresar la vigencia.</span>
+                    <span>
+                      {showExpiration
+                        ? 'Se sincroniza automáticamente al evaluar o ingresar la vigencia.'
+                        : 'Este documento no tiene fecha de vencimiento.'}
+                    </span>
                   </p>
                 </div>
 
+                {showExpiration && (
                 <div>
                   <div className="flex items-center justify-between">
                     <label className={labelCls}>
@@ -645,10 +664,11 @@ export const DocumentEditorModal: React.FC<Props> = ({
                     </p>
                   )}
                 </div>
+                )}
               </div>
 
               {/* Semáforo de expiración */}
-              {currentExp && expirationDate && (
+              {showExpiration && currentExp && expirationDate && (
                 <div className="mt-4 animate-fade-up">
                   {currentExp.status === 'VENCIDO' && (
                     <div className="p-3.5 bg-red-500/10 border border-red-500/40 rounded-2xl text-xs flex items-start gap-3">
