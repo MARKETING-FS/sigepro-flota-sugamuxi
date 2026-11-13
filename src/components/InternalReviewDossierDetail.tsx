@@ -554,6 +554,13 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     setIsCorrectionModalOpen(false);
   };
 
+  /** Aprobar solo se ofrece mientras el documento está cargado y aún sin aprobar (y no vencido). */
+  const canApproveDoc = (doc?: SupplierDocument | null) => {
+    if (isReadOnly || !doc?.fileName) return false;
+    if (doc.status === 'APROBADO' || doc.status === 'VIGENTE' || doc.status === 'VENCIDO') return false;
+    return calculateDocumentExpiration(doc.expirationDate).status !== 'VENCIDO';
+  };
+
   const handleApproveDoc = (docCode: string) => {
     approveDocument(dossier.id, docCode, reviewerName);
   };
@@ -1329,22 +1336,16 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                       </button>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={() => handleOpenCorrectionModal('FS_GA_FOR_009', 'Formulario FS.GA-FOR-009')}
-                      className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors shadow-2xs"
-                    >
-                      <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-                      Pedir Corrección
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleApproveDoc('FS_GA_FOR_009')}
-                      className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                      Aprobar
-                    </button>
+                    {canApproveDoc(dossier.documents['FS_GA_FOR_009']) && (
+                      <button
+                        type="button"
+                        onClick={() => handleApproveDoc('FS_GA_FOR_009')}
+                        className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                        Aprobar
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -1441,22 +1442,16 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                       </button>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={() => handleOpenCorrectionModal('FS_GA_FOR_039', 'Autorización FS.GA-FOR-039')}
-                      className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors shadow-2xs"
-                    >
-                      <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-                      Pedir Corrección
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleApproveDoc('FS_GA_FOR_039')}
-                      className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                      Aprobar
-                    </button>
+                    {canApproveDoc(dossier.documents['FS_GA_FOR_039']) && (
+                      <button
+                        type="button"
+                        onClick={() => handleApproveDoc('FS_GA_FOR_039')}
+                        className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                        Aprobar
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -1689,25 +1684,15 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                             </button>
                           )}
 
-                          {doc.fileName && (
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => handleOpenCorrectionModal(code, docTitle)}
-                                className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors shadow-2xs"
-                              >
-                                <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-                                Corrección
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleApproveDoc(code)}
-                                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
-                              >
-                                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                                Aprobar
-                              </button>
-                            </div>
+                          {canApproveDoc(doc) && (
+                            <button
+                              type="button"
+                              onClick={() => handleApproveDoc(code)}
+                              className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-blue-600 cursor-pointer transition-colors"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                              Aprobar
+                            </button>
                           )}
                         </div>
                       </div>
@@ -2006,18 +1991,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               }
             : undefined
         }
-        onRequestCorrection={
-          !isReadOnly && (previewDocCode || previewDocObj)
-            ? () => {
-                const code = previewDocCode || previewDocObj?.code || '';
-                const titleToCorrect = previewDocTitle;
-                setIsPreviewDocOpen(false);
-                handleOpenCorrectionModal(code, titleToCorrect);
-              }
-            : undefined
-        }
         onApproveDoc={
-          !isReadOnly && (previewDocCode || previewDocObj)
+          canApproveDoc((previewDocCode && dossier.documents[previewDocCode]) || previewDocObj)
             ? () => {
                 const code = previewDocCode || previewDocObj?.code || '';
                 if (code) {
