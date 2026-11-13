@@ -1233,49 +1233,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               ) : null}
             </div>
             
-            {/* Resumen de Vigencias Documentales en Tab Documentos */}
-            {expSummary.totalWithExpiration > 0 && (
-              <div className={`px-4 py-3 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
-                expSummary.hasExpiredDocs
-                  ? 'bg-red-500/10 text-[#0b1d3a] border-red-500/40 dark:text-white'
-                  : expSummary.hasExpiringSoonDocs
-                  ? 'bg-[#2c84c4]/10 text-[#0b1d3a] border-[#2c84c4]/35 dark:text-white'
-                  : 'bg-[#2c84c4]/10 text-[#0b1d3a] border-[#2c84c4]/30 dark:text-white'
-              }`}>
-                <div className="flex items-center gap-2">
-                  {expSummary.hasExpiredDocs ? (
-                    <ShieldAlert className="w-4 h-4 text-red-500 shrink-0" />
-                  ) : expSummary.hasExpiringSoonDocs ? (
-                    <Clock className="w-4 h-4 text-blue-700 dark:text-cyan-400 shrink-0" />
-                  ) : (
-                    <CheckCircle2 className="w-4 h-4 text-blue-700 dark:text-cyan-400 shrink-0" />
-                  )}
-                  <span className="font-bold">
-                    {expSummary.hasExpiredDocs
-                      ? `Control de Vigencias SIG: ${expSummary.expiredCount} documento(s) vencido(s). El proveedor se encuentra inhabilitado preventivamente.`
-                      : expSummary.hasExpiringSoonDocs
-                      ? `Control de Vigencias SIG: ${expSummary.expiringSoonCount} documento(s) próximo(s) a vencer en los próximos 30 días.`
-                      : `Control de Vigencias SIG: Los ${expSummary.totalWithExpiration} documentos con vigencia periódica se encuentran al día.`}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0 text-[11px] font-mono font-bold">
-                  {expSummary.hasExpiredDocs && (
-                    <span className="bg-red-500/15 text-red-600 dark:text-red-300 border border-red-500/40 px-2 py-0.5 rounded">
-                      {expSummary.expiredCount} Vencido(s)
-                    </span>
-                  )}
-                  {expSummary.hasExpiringSoonDocs && (
-                    <span className="bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 px-2 py-0.5 rounded">
-                      {expSummary.expiringSoonCount} Por Vencer (≤30d)
-                    </span>
-                  )}
-                  <span className={expSummary.hasExpiredDocs ? 'text-[#3a5274] dark:text-slate-300' : expSummary.hasExpiringSoonDocs ? 'text-[#3a5274] dark:text-slate-300' : 'text-[#1d5fa8] dark:text-[#69bdd7]'}>
-                    {expSummary.validCount} Vigente(s)
-                  </span>
-                </div>
-              </div>
-            )}
-            
             {/* BLOQUE 1: FORMULARIOS INSTITUCIONALES OFICIALES */}
             <div className="space-y-3">
               <div className="bg-[#2c84c4]/[0.07] p-4 rounded-2xl border border-[#2c84c4]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
