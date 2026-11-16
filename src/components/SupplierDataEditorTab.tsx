@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { SupplierDossier } from '../types';
 import { useApp } from '../context/AppContext';
+import { useConfirm } from './ui/ConfirmDialog';
 
 interface Props {
   dossier: SupplierDossier;
@@ -41,6 +42,40 @@ interface EditModalState {
 
 export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }) => {
   const { role, canEditDossier, categoriesConfig, updateSupplierField, updateEntireSupplier, previewCategoryChange, showToast } = useApp();
+
+  const { ask, dialog } = useConfirm();
+
+  /** Pide confirmación antes de cambiar la categoría; sin cambio de categoría guarda de una vez. */
+  const confirmCategoryChange = (newCategory: string | undefined, save: () => void) => {
+    if (!newCategory || newCategory === dossier.selectedCategory) return save();
+    const impact = previewCategoryChange(dossier, newCategory);
+    const parts: string[] = [];
+    if (impact.removed.length > 0) {
+      parts.push(
+        impact.removed.length === 1
+          ? 'Se retira 1 documento de la categoría anterior'
+          : `Se retiran ${impact.removed.length} documentos de la categoría anterior`
+      );
+    }
+    if (impact.removedLoaded.length > 0) {
+      parts.push(
+        impact.removedLoaded.length === 1
+          ? '1 archivo ya cargado se pierde'
+          : `${impact.removedLoaded.length} archivos ya cargados se pierden`
+      );
+    }
+    if (impact.added.length > 0) {
+      parts.push(impact.added.length === 1 ? 'hay que cargar 1 documento nuevo' : `hay que cargar ${impact.added.length} documentos nuevos`);
+    }
+    const detail = parts.join('; ');
+    ask({
+      title: '¿Seguro que quiere cambiar de categoría?',
+      message: `El proveedor pasa de «${dossier.selectedCategory || 'Sin categoría'}» a «${newCategory}».${parts.length ? ` ${detail.charAt(0).toUpperCase()}${detail.slice(1)}.` : ' Los documentos no cambian.'}`,
+      hint: 'Los requisitos base y los formatos FS.GA-FOR-009 y 039 se conservan.',
+      confirmLabel: 'Sí, cambiar categoría',
+      onConfirm: save,
+    });
+  };
 
   /** Aviso de lo que cambia en los documentos al pasar a otra categoría. */
   const renderCategoryImpact = (newCategory?: string) => {
@@ -145,26 +180,29 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
       return;
     }
 
-    // Call updateSupplierField from context
-    updateSupplierField(
-      dossier.id,
-      editModal.section,
-      editModal.fieldKey,
-      editModal.fieldLabel,
-      editModal.currentValue,
-      editModal.newValue,
-      reviewerName || (role === 'ADMIN' ? 'Julian Salgado (Admin)' : 'Evaluador Técnico SIG'),
-      role,
-      justification.trim()
-    );
+    const save = () => {
+      // Call updateSupplierField from context
+      updateSupplierField(
+        dossier.id,
+        editModal.section,
+        editModal.fieldKey,
+        editModal.fieldLabel,
+        editModal.currentValue,
+        editModal.newValue,
+        reviewerName || (role === 'ADMIN' ? 'Julian Salgado (Admin)' : 'Evaluador Técnico SIG'),
+        role,
+        justification.trim()
+      );
 
-    showToast(
-      `Campo "${editModal.fieldLabel}" actualizado con éxito y registrado en auditoría.`,
-      'success',
-      'MODIFICACIÓN AUDITADA'
-    );
+      showToast(
+        `Campo "${editModal.fieldLabel}" actualizado con éxito y registrado en auditoría.`,
+        'success',
+        'MODIFICACIÓN AUDITADA'
+      );
 
-    setEditModal({ ...editModal, isOpen: false });
+      setEditModal({ ...editModal, isOpen: false });
+    };
+    confirmCategoryChange(editModal.fieldKey === 'selectedCategory' ? editModal.newValue : undefined, save);
   };
 
   // Batch Editor Setup
@@ -185,25 +223,29 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
       return;
     }
 
-    updateEntireSupplier(
-      dossier.id,
-      batchFormData,
-      [],
-      reviewerName || (role === 'ADMIN' ? 'Julian Salgado (Admin)' : 'Evaluador Técnico SIG'),
-      role,
-      batchJustification.trim()
-    );
+    const save = () => {
+      updateEntireSupplier(
+        dossier.id,
+        batchFormData,
+        [],
+        reviewerName || (role === 'ADMIN' ? 'Julian Salgado (Admin)' : 'Evaluador Técnico SIG'),
+        role,
+        batchJustification.trim()
+      );
 
-    showToast(
-      'Información del proveedor actualizada exitosamente. Registro de auditoría generado.',
-      'success',
-      'EXPEDIENTE ACTUALIZADO'
-    );
-    setIsBatchEditing(false);
+      showToast(
+        'Información del proveedor actualizada exitosamente. Registro de auditoría generado.',
+        'success',
+        'EXPEDIENTE ACTUALIZADO'
+      );
+      setIsBatchEditing(false);
+    };
+    confirmCategoryChange(batchFormData.selectedCategory, save);
   };
 
   return (
     <div className="space-y-4">
+      {dialog}
       {!hasEditPrivilege && (
         <div className="p-3 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between text-xs text-blue-950 dark:text-cyan-200 shadow-2xs">
           <div className="flex items-center gap-2">
