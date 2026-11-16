@@ -170,6 +170,11 @@ interface AppContextType {
     baseOptional: string[];
     activityOptional: string[];
   };
+  /** Qué pasa con los documentos del proveedor si se le cambia la categoría (no guarda nada) */
+  previewCategoryChange: (
+    dossier: SupplierDossier,
+    newCategory: string
+  ) => { documents: Record<string, SupplierDocument>; removed: string[]; removedLoaded: string[]; added: string[] };
   updateCategoryConfig: (categoryName: string, updatedConfig: Partial<CategoryRequirementConfig>) => void;
   addCategoryConfig: (newConfig: CategoryRequirementConfig) => { success: boolean; message: string };
   deleteCategoryConfig: (categoryName: string) => { success: boolean; message: string };
@@ -2378,6 +2383,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  /**
+   * Cambio de categoría: los documentos que solo pedía la categoría anterior se retiran (con lo que tuvieran cargado)
+   * y los de la nueva categoría entran como pendientes. Se conservan los requisitos base del tipo de persona,
+   * los formatos FS.GA-FOR-009/039, los documentos que piden ambas categorías y los agregados a mano.
+   */
+  const previewCategoryChange = (dossier: SupplierDossier, newCategory: string) => {
+    const type = dossier.basicInfo.supplierType;
+    const before = getRequiredDocumentsForSupplier(type, dossier.selectedCategory);
+    const after = getRequiredDocumentsForSupplier(type, newCategory);
+    const oldCodes = new Set([...before.allMandatory, ...before.allOptional]);
+    const oldMandatory = new Set(before.allMandatory);
+    const newMandatory = new Set(after.allMandatory);
+    const newCodes = new Set([...after.allMandatory, ...after.allOptional]);
+    const nameOf = (code: string, doc?: SupplierDocument) =>
+      documentDefinitions.find((d) => d.code === code)?.name || doc?.name || DOCUMENT_CATALOG_INFO[code]?.name || code;
+
+    const documents: Record<string, SupplierDocument> = {};
+    const removed: string[] = [];
+    const removedLoaded: string[] = [];
+    Object.entries(dossier.documents || {}).forEach(([code, doc]) => {
+      const isInstitutional = code === 'FS_GA_FOR_009' || code === 'FS_GA_FOR_039' || doc.isInstitutionalForm;
+      if (isInstitutional || !oldCodes.has(code)) {
+        documents[code] = doc; // formato oficial o documento agregado a mano
+      } else if (newCodes.has(code)) {
+        documents[code] = { ...doc, isRequired: newMandatory.has(code) };
+      } else {
+        removed.push(nameOf(code, doc));
+        if (doc.fileName) removedLoaded.push(nameOf(code, doc));
+      }
+    });
+
+    // "added": lo que la categoría nueva pide y la anterior no pedía (o pedía solo como opcional)
+    const added: string[] = [];
+    [...after.allMandatory, ...after.allOptional].forEach((code) => {
+      const isNewRequirement = !oldCodes.has(code) || (newMandatory.has(code) && !oldMandatory.has(code));
+      const alreadyApproved = ['APROBADO', 'VIGENTE', 'POR_VENCER'].includes(documents[code]?.status || '');
+      if (isNewRequirement && !alreadyApproved) added.push(nameOf(code, documents[code]));
+      if (documents[code]) return;
+      documents[code] = {
+        id: `doc-${dossier.id}-${code.toLowerCase()}`,
+        code,
+        name: nameOf(code),
+        isRequired: newMandatory.has(code),
+        status: 'PENDIENTE',
+      } as SupplierDocument;
+    });
+
+    return { documents, removed, removedLoaded, added };
+  };
+
   // Direct Field-level editing with full audit trail
   const updateSupplierField = (
     dossierId: string,
@@ -2424,6 +2479,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const subKey = fieldKey.replace('contactInfo.', '');
             basic.contactInfo = { ...(basic.contactInfo || {}), [subKey]: newValue };
           } else if (fieldKey === 'selectedCategory') {
+            if (newValue && newValue !== d.selectedCategory) {
+              updated.documents = previewCategoryChange(d, newValue).documents;
+            }
             updated.selectedCategory = newValue;
           } else if (fieldKey === 'economicActivity') {
             updated.economicActivity = newValue;
@@ -2518,9 +2576,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           const nextTier = (updatedData.supplierTier || updatedData.basicInfo?.supplierTier || d.supplierTier || 'B') as any;
 
+          const categoryChanged = Boolean(updatedData.selectedCategory) && updatedData.selectedCategory !== d.selectedCategory;
+
           return {
             ...d,
             ...updatedData,
+            ...(categoryChanged ? { documents: previewCategoryChange(d, updatedData.selectedCategory as string).documents } : {}),
             supplierTier: nextTier,
             basicInfo: {
               ...d.basicInfo,
@@ -3699,6 +3760,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateBaseRequirementsConfig,
         toggleBaseDocumentRequirement,
         getRequiredDocumentsForSupplier,
+        previewCategoryChange,
         updateCategoryConfig,
         addCategoryConfig,
         deleteCategoryConfig,

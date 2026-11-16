@@ -84,7 +84,6 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
             const stage = stageOf(creation.status);
             const contract = getContractualStatus(d);
             const cv = CONTRACT_VIEW[contract.status] || CONTRACT_VIEW.SIN_CONTRATO;
-            const sar = SARLAFT_VIEW[d.internalConcepts?.sarlatfCheck?.result || 'PENDIENTE'] || SARLAFT_VIEW.PENDIENTE;
             const prog = requiredDocsProgress(d);
             const complete = prog.approved === prog.total;
             const docNote = creation.expiredCount
@@ -113,7 +112,6 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                 </td>
                 <td className="py-3 px-3">
                   <StatusPill tone={stagePillTone(stage)}>{stage.label}</StatusPill>
-                  <div className={`text-[13px] mt-1 ${sar.tone === 'warn' ? 'text-fs-warn' : 'text-[#3a5274]'}`}>SARLAFT: {sar.label.toLowerCase()}</div>
                 </td>
                 <td className="py-3 px-3">
                   <StatusPill tone={cv.tone}>{cv.label}</StatusPill>

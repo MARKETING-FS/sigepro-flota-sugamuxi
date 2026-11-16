@@ -40,7 +40,64 @@ interface EditModalState {
 }
 
 export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }) => {
-  const { role, canEditDossier, categoriesConfig, updateSupplierField, updateEntireSupplier, showToast } = useApp();
+  const { role, canEditDossier, categoriesConfig, updateSupplierField, updateEntireSupplier, previewCategoryChange, showToast } = useApp();
+
+  /** Aviso de lo que cambia en los documentos al pasar a otra categoría. */
+  const renderCategoryImpact = (newCategory?: string) => {
+    if (!newCategory || newCategory === dossier.selectedCategory) return null;
+    const impact = previewCategoryChange(dossier, newCategory);
+    const list = (items: string[]) => (
+      <ul className="mt-1 list-disc pl-5 space-y-0.5">
+        {items.map((n) => (
+          <li key={n}>{n}</li>
+        ))}
+      </ul>
+    );
+    return (
+      <div role="alert" className="mt-2 rounded-xl border border-[#2c84c4]/40 bg-[#2c84c4]/10 p-3.5 text-xs text-[#0b1d3a] dark:text-white space-y-2.5">
+        <p className="font-bold">Al cambiar la categoría cambian los documentos de este proveedor.</p>
+        {impact.removed.length > 0 ? (
+          <div>
+            <p>
+              <strong>
+                {impact.removed.length === 1 ? 'Se retira 1 documento' : `Se retiran ${impact.removed.length} documentos`}
+              </strong>{' '}
+              de la categoría anterior
+              {impact.removedLoaded.length > 0 ? (
+                <>
+                  .{' '}
+                  <strong className="text-red-600 dark:text-red-300">
+                    {impact.removedLoaded.length === 1
+                      ? '1 ya tenía archivo cargado y se pierde:'
+                      : `${impact.removedLoaded.length} ya tenían archivo cargado y se pierden:`}
+                  </strong>
+                </>
+              ) : (
+                ' (ninguno tenía archivo cargado).'
+              )}
+            </p>
+            {impact.removedLoaded.length > 0 && list(impact.removedLoaded)}
+          </div>
+        ) : (
+          <p>No se retira ningún documento.</p>
+        )}
+        {impact.added.length > 0 ? (
+          <div>
+            <p>
+              <strong>{impact.added.length === 1 ? 'Hay que cargar 1 documento' : `Hay que cargar ${impact.added.length} documentos`}</strong> que pide la
+              categoría nueva:
+            </p>
+            {list(impact.added)}
+          </div>
+        ) : (
+          <p>La categoría nueva no pide documentos adicionales.</p>
+        )}
+        <p className="text-[#3a5274] dark:text-slate-300">
+          Se conservan los requisitos base, los formatos FS.GA-FOR-009 y 039 y los documentos que piden ambas categorías.
+        </p>
+      </div>
+    );
+  };
 
   const [editModal, setEditModal] = useState<EditModalState>({
     isOpen: false,
@@ -766,6 +823,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                   </label>
 
                   {editModal.inputType === 'select' ? (
+                    <>
                     <select
                       value={editModal.newValue}
                       onChange={(e) => setEditModal({ ...editModal, newValue: e.target.value })}
@@ -778,6 +836,8 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                         </option>
                       ))}
                     </select>
+                    {editModal.fieldKey === 'selectedCategory' && renderCategoryImpact(editModal.newValue)}
+                    </>
                   ) : editModal.inputType === 'textarea' ? (
                     <textarea
                       rows={3}
@@ -986,6 +1046,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
                         </option>
                       ))}
                     </select>
+                    {renderCategoryImpact(batchFormData.selectedCategory)}
                   </div>
 
                   {/* Tipo de Proveedor (A, B y C) */}

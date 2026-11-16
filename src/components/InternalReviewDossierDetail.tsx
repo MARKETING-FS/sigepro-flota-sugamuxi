@@ -199,6 +199,11 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     (code) => !institutionalDocKeys.includes(code) && !matrixSupportCodes.includes(code)
   );
 
+  // Categoría del proveedor (se define aquí porque el ordenamiento de abajo la usa)
+  const currentCatConfig = categoriesConfig?.find(
+    (c) => c.category === dossier.selectedCategory
+  );
+
   // Función de ordenamiento canónico de acuerdo a la Matriz de Requisitos Específicos por Actividad Económica
   const getMatrixDocOrderIndex = (code: string): number => {
     // 1. Posición en el catálogo maestro de tipos documentales (orden en que fueron parametrizados/creados)
@@ -484,9 +489,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   const form009 = institutionalForms.find((f) => f.code === 'FS.GA-FOR-009');
   const form039 = institutionalForms.find((f) => f.code === 'FS.GA-FOR-039');
 
-  const currentCatConfig = categoriesConfig?.find(
-    (c) => c.category === dossier.selectedCategory
-  );
 
   const handleOpenEditDocModal = (code: string, doc: SupplierDocument, title?: string) => {
     setEditingDocCode(code);
