@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { SupplierEvaluation } from '../../types';
 import { FlotaSugamuxiLogo } from '../FlotaSugamuxiLogo';
+import { DOC006_CODE, DOC006_PASSING_SCORE, DOC006_TITLE, DOC006_VERSION } from '../../data/evaluationDoc006';
+import { evaluationConceptLabel, evaluationMaxScore, isDoc006Evaluation } from '../../utils/evaluationScale';
 
 interface EvaluationCertificateModalProps {
   evaluation: SupplierEvaluation | null;
@@ -32,7 +34,11 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
   };
 
   const isInitial = evaluation.evaluationType === 'INICIAL';
-  const evalTitle = isInitial
+  const isDoc = isDoc006Evaluation(evaluation);
+  const maxScore = evaluationMaxScore(evaluation);
+  const evalTitle = isDoc
+    ? DOC006_TITLE.toUpperCase()
+    : isInitial
     ? 'EVALUACIÓN INICIAL DE SELECCIÓN Y ADMISIÓN (AL CREARLO)'
     : 'EVALUACIÓN DE DESEMPEÑO ANUAL DE PROVEEDORES (1 AÑO DESPUÉS DE CREACIÓN)';
 
@@ -99,15 +105,15 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
               </div>
               <div className="text-right text-xs">
                 <div className="font-mono font-bold text-blue-900 bg-blue-50 border border-blue-200 px-3 py-1 rounded-md inline-block">
-                  CÓDIGO: FS.SIG-ACT-005
+                  CÓDIGO: {isDoc ? DOC006_CODE : 'FS.SIG-ACT-005'}
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1">Versión 3.0 | Aprobado</div>
+                <div className="text-[11px] text-slate-500 mt-1">{isDoc ? `Versión ${DOC006_VERSION}` : 'Versión 3.0 | Aprobado'}</div>
               </div>
             </div>
 
             <div className="text-center pt-4">
               <h2 className="text-base font-extrabold tracking-tight text-slate-900 uppercase">
-                ACTA DE CALIFICACIÓN Y EVALUACIÓN DE PROVEEDORES
+                {isDoc ? 'ACTA DE EVALUACIÓN INICIAL DE PROVEEDORES' : 'ACTA DE CALIFICACIÓN Y EVALUACIÓN DE PROVEEDORES'}
               </h2>
               <div className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-900 border border-blue-200">
                 {evalTitle}
@@ -163,7 +169,7 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
                   <span className="font-medium text-slate-900">{evaluation.evaluatorName}</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-slate-500">Rol Evaluador:</span>
+                  <span className="text-slate-500">{isDoc ? 'Cargo del evaluador:' : 'Rol Evaluador:'}</span>
                   <span className="font-medium text-slate-700">{evaluation.evaluatorRole}</span>
                 </div>
               </div>
@@ -179,6 +185,14 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
             <div className="border border-slate-200 rounded-xl overflow-hidden">
               <table className="w-full text-xs text-left">
                 <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                  {isDoc ? (
+                    <tr>
+                      <th className="px-3 py-2.5">Criterio</th>
+                      <th className="px-3 py-2.5">Opción calificada</th>
+                      <th className="px-3 py-2.5 text-center">Puntaje (máx. 20)</th>
+                      <th className="px-3 py-2.5">Observación</th>
+                    </tr>
+                  ) : (
                   <tr>
                     <th className="px-3 py-2.5">Criterio de Evaluación</th>
                     <th className="px-3 py-2.5">Categoría</th>
@@ -187,11 +201,26 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
                     <th className="px-3 py-2.5 text-center">Ponderado</th>
                     <th className="px-3 py-2.5">Observaciones Técnicas</th>
                   </tr>
+                  )}
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {(evaluation.criteriaScores || []).map((c, idx) => {
                     const weightVal = c.weight ?? 20;
                     const weighted = (((c.score ?? 0) * weightVal) / 100).toFixed(1);
+                    if (isDoc) {
+                      return (
+                        <tr key={idx} className="hover:bg-slate-50/50 align-top">
+                          <td className="px-3 py-2.5 font-semibold text-slate-900 max-w-[11rem]">{c.criterionName}</td>
+                          <td className="px-3 py-2.5 text-slate-700">{c.optionLabel || '—'}</td>
+                          <td className="px-3 py-2.5 text-center">
+                            <span className="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-900 font-mono font-bold text-xs">
+                              {c.score} / {c.maxScore ?? 20}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2.5 text-slate-600 text-[11px] italic">{c.notes || '—'}</td>
+                        </tr>
+                      );
+                    }
                     return (
                       <tr key={idx} className="hover:bg-slate-50/50">
                         <td className="px-3 py-2.5 font-semibold text-slate-900 max-w-xs">{c.criterionName}</td>
@@ -219,6 +248,24 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
                   })}
                 </tbody>
                 <tfoot className="bg-slate-100 font-bold border-t border-slate-200 text-slate-900">
+                  {isDoc ? (
+                    <tr>
+                      <td className="px-3 py-3 text-right uppercase text-slate-700">Total:</td>
+                      <td className="px-3 py-3 text-[11px] font-medium text-slate-600">
+                        Mínimo para aprobar la vinculación: {DOC006_PASSING_SCORE} puntos
+                      </td>
+                      <td className="px-3 py-3 text-center">
+                        <span className="text-base font-black text-blue-900 font-mono">
+                          {evaluation.totalScore} / {maxScore}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`px-2.5 py-1 rounded-md text-xs font-black border ${getConceptColor(evaluation.concept)}`}>
+                          {evaluationConceptLabel(evaluation).toUpperCase()}
+                        </span>
+                      </td>
+                    </tr>
+                  ) : (
                   <tr>
                     <td colSpan={2} className="px-3 py-3 text-right uppercase text-slate-700">
                       Puntaje Global Ponderado:
@@ -235,20 +282,22 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
                       </span>
                     </td>
                   </tr>
+                  )}
                 </tfoot>
               </table>
             </div>
           </div>
 
           {/* Observations & Improvement Plan */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className={`grid grid-cols-1 ${isDoc ? '' : 'md:grid-cols-2'} gap-4 mb-6`}>
             <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/30">
-              <h5 className="text-xs font-bold text-slate-700 mb-1.5 uppercase">Observaciones y Dictamen del Revisor</h5>
+              <h5 className="text-xs font-bold text-slate-700 mb-1.5 uppercase">{isDoc ? 'Conclusiones' : 'Observaciones y Dictamen del Revisor'}</h5>
               <p className="text-xs text-slate-600 leading-relaxed">
-                {evaluation.observations || 'Sin observaciones adicionales registradas durante la evaluación.'}
+                {evaluation.observations || (isDoc ? 'Sin conclusiones registradas.' : 'Sin observaciones adicionales registradas durante la evaluación.')}
               </p>
             </div>
 
+            {!isDoc && (
             <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/30">
               <h5 className="text-xs font-bold text-slate-700 mb-1.5 uppercase">Plan de Acción / Mejora Continua</h5>
               {evaluation.hasImprovementPlan ? (
@@ -271,6 +320,7 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
                 </div>
               )}
             </div>
+            )}
           </div>
 
           {/* Next Due Date & Signatures */}

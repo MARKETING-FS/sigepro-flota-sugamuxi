@@ -55,6 +55,7 @@ import {
   INITIAL_SYSTEM_PARAMETERS,
 } from '../data/initialData';
 import { INITIAL_EVALUATION_METHOD, INITIAL_SUPPLIER_EVALUATIONS } from '../data/initialEvaluations';
+import { evaluationConceptLabel, formatEvaluationScore } from '../utils/evaluationScale';
 import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/initialEmails';
 import { generateEmailContent } from '../utils/emailTemplates';
 import { DEFAULT_FORM_PDFS } from '../utils/formPdf';
@@ -3683,12 +3684,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ? 'Evaluación Inicial (Admisión al Crear)'
           : `Evaluación de Desempeño Anual (${cycleLabel} - Proveedor Activo)`,
       oldValue: 'PENDIENTE',
-      newValue: `${evalData.totalScore}/100 - ${evalData.concept}`,
+      newValue: `${formatEvaluationScore(evalData)} - ${evaluationConceptLabel(evalData)}`,
       justification: evalData.observations || 'Registro oficial de calificación de proveedor según metodología SIG.',
     });
 
     showToast(
-      `Calificación ${evalData.evaluationType === 'INICIAL' ? 'Inicial' : `Anual (${cycleLabel})`} registrada con éxito (${evalData.totalScore}/100 - ${evalData.concept}).`,
+      `Calificación ${evalData.evaluationType === 'INICIAL' ? 'Inicial' : `Anual (${cycleLabel})`} registrada con éxito (${formatEvaluationScore(evalData)} - ${evaluationConceptLabel(evalData)}).`,
       'success',
       'Evaluación Guardada'
     );

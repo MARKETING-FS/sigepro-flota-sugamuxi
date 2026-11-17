@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import { SupplierDossier, SystemAuditEntry, Convocatoria, SupplierEvaluation } from '../types';
 import { getProcessStatusLabel } from './contractValidity';
+import { formatEvaluationScore } from './evaluationScale';
 
 /**
  * Utility for generating professional Excel (.xlsx) workbooks for SIGEPRO - Flota Sugamuxi S.A.
@@ -578,7 +579,7 @@ export const exportEvaluationsReport = (evaluations: SupplierEvaluation[], filte
     sanitize(ev.periodYear || '2026'),
     sanitize(ev.annualCycleNumber ? `Año ${ev.annualCycleNumber}` : 'N/A'),
     sanitize(ev.evaluationDate),
-    ev.totalScore || 0,
+    formatEvaluationScore(ev),
     sanitize(ev.concept),
     sanitize(ev.evaluatorName),
     sanitize(ev.evaluatorRole),

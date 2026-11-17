@@ -33,6 +33,7 @@ import { EvaluationFormModal } from './EvaluationFormModal';
 import { EvaluationCertificateModal } from './EvaluationCertificateModal';
 import { EvaluationMethodConfigModal } from './EvaluationMethodConfigModal';
 import { EvaluationErrorBoundary } from './EvaluationErrorBoundary';
+import { evaluationConceptLabel, evaluationMaxScore, evaluationPercent } from '../../utils/evaluationScale';
 
 export const SupplierEvaluationsView: React.FC = () => {
   const {
@@ -285,7 +286,7 @@ export const SupplierEvaluationsView: React.FC = () => {
     const annualUpcoming = activeRows.filter((r) => r.annualStatus === 'PROXIMA_VENCER').length;
 
     // Average Score
-    const allScores = relevantEvaluations.map((e) => e.totalScore);
+    const allScores = relevantEvaluations.map((e) => evaluationPercent(e));
     const avgScore =
       allScores.length > 0
         ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1)
@@ -335,8 +336,6 @@ export const SupplierEvaluationsView: React.FC = () => {
 
   const conceptTone = (concept?: string): Tone =>
     concept === 'SOBRESALIENTE' ? 'navy' : concept === 'CONFORME' ? 'blue' : concept === 'CONDICIONAL_MEJORA' ? 'warn' : 'bad';
-  const conceptLabel = (concept?: string) =>
-    concept === 'SOBRESALIENTE' ? 'Sobresaliente' : concept === 'CONFORME' ? 'Conforme' : concept === 'CONDICIONAL_MEJORA' ? 'Condicional' : 'No conforme';
 
   const annualView = (r: (typeof supplierEvaluationRows)[number]): { text: string; tone: Tone } => {
     switch (r.annualStatus) {
@@ -491,7 +490,7 @@ export const SupplierEvaluationsView: React.FC = () => {
                         {initialEval ? (
                           <button type="button" onClick={() => setSelectedEvaluationForCert(initialEval)} className="text-left cursor-pointer group" title="Ver acta">
                             <span className="text-base font-bold tabular-nums text-fs-navy dark:text-white group-hover:text-fs-blue">{initialEval.totalScore}</span>
-                            <span className="text-sm text-[#3a5274]"> / 100 · {conceptLabel(initialEval.concept)}</span>
+                            <span className="text-sm text-[#3a5274]"> / {evaluationMaxScore(initialEval)} · {evaluationConceptLabel(initialEval)}</span>
                             <div className="text-sm text-[#3a5274]">{fmtDate(initialEval.evaluationDate)}</div>
                           </button>
                         ) : (
@@ -502,7 +501,7 @@ export const SupplierEvaluationsView: React.FC = () => {
                         <StatusPill tone={annual.tone}>{annual.text}</StatusPill>
                         {latestAnnualEval && (
                           <button type="button" onClick={() => setSelectedEvaluationForCert(latestAnnualEval)} className="block text-sm text-[#3a5274] hover:text-fs-blue mt-1 cursor-pointer">
-                            Última: {latestAnnualEval.totalScore} / 100 · {fmtDate(latestAnnualEval.evaluationDate)}
+                            Última: {latestAnnualEval.totalScore} / {evaluationMaxScore(latestAnnualEval)} · {fmtDate(latestAnnualEval.evaluationDate)}
                           </button>
                         )}
                       </td>
@@ -569,9 +568,9 @@ export const SupplierEvaluationsView: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-3 whitespace-nowrap">
                       <span className="text-base font-bold tabular-nums text-fs-navy dark:text-white">{ev.totalScore}</span>
-                      <span className="text-sm text-[#3a5274]"> / 100</span>
+                      <span className="text-sm text-[#3a5274]"> / {evaluationMaxScore(ev)}</span>
                       <div className="mt-1">
-                        <StatusPill tone={conceptTone(ev.concept)}>{conceptLabel(ev.concept)}</StatusPill>
+                        <StatusPill tone={conceptTone(ev.concept)}>{evaluationConceptLabel(ev)}</StatusPill>
                       </div>
                     </td>
                     <td className="py-3.5 px-3 whitespace-nowrap text-fs-navy dark:text-slate-300">{ev.evaluatorName}</td>

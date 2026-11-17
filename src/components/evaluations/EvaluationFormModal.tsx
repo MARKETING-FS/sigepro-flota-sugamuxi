@@ -16,6 +16,15 @@ import { useApp } from '../../context/AppContext';
 import { getProcessStatusLabel } from '../../utils/contractValidity';
 import { BrandSwoosh } from '../ui/BrandSwoosh';
 import {
+  DOC006_CODE,
+  DOC006_CRITERIA,
+  DOC006_MAX_PER_CRITERION,
+  DOC006_MAX_SCORE,
+  DOC006_PASSING_SCORE,
+  DOC006_TITLE,
+  DOC006_VERSION,
+} from '../../data/evaluationDoc006';
+import {
   SupplierDossier,
   SupplierEvaluationType,
   EvaluationCriterionScore,
@@ -113,6 +122,12 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     return map;
   }, [applicableCriteria, criterionScores]);
 
+  // Evaluación inicial (formato FS.GA-DOC-006): opción elegida por criterio, observaciones y datos del evaluador
+  const [doc006Points, setDoc006Points] = useState<{ [criterionId: string]: number }>({});
+  const [doc006Notes, setDoc006Notes] = useState<{ [criterionId: string]: string }>({});
+  const [evaluatorNameInput, setEvaluatorNameInput] = useState<string>(activeUser?.name || '');
+  const [evaluatorPosition, setEvaluatorPosition] = useState<string>('');
+
   // Global notes and improvement plan
   const [generalObservations, setGeneralObservations] = useState<string>('');
   const [hasImprovementPlan, setHasImprovementPlan] = useState<boolean>(false);
@@ -121,7 +136,13 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Dynamic Total Score Calculation
+  const isInitialDoc = evalType === 'INICIAL';
+  const doc006Answered = DOC006_CRITERIA.filter((c) => doc006Points[c.id] !== undefined).length;
+  const doc006Total = DOC006_CRITERIA.reduce((sum, c) => sum + (doc006Points[c.id] ?? 0), 0);
+  const doc006Complete = doc006Answered === DOC006_CRITERIA.length;
+
   const totalScore = useMemo(() => {
+    if (isInitialDoc) return doc006Total;
     if (applicableCriteria.length === 0) return 100;
     const totalWeight = applicableCriteria.reduce((sum, c) => sum + (c.weight ?? c.weightInitial ?? 20), 0);
     if (totalWeight === 0) return 0;
@@ -134,10 +155,11 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     });
 
     return Math.round(weightedSum * 10) / 10;
-  }, [applicableCriteria, activeScoresMap]);
+  }, [applicableCriteria, activeScoresMap, isInitialDoc, doc006Total]);
 
   // Concept derivation based on configured thresholds
   const computedConcept = useMemo<EvaluationConcept>(() => {
+    if (isInitialDoc) return totalScore >= DOC006_PASSING_SCORE ? 'CONFORME' : 'NO_CONFORME';
     const thresholds = evaluationMethod?.thresholds || {
       sobresalienteMin: evaluationMethod?.excellentThreshold ?? 90,
       conformeMin: evaluationMethod?.initialPassingScore ?? 70,
@@ -147,7 +169,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     if (totalScore >= (thresholds.conformeMin ?? 70)) return 'CONFORME';
     if (totalScore >= (thresholds.condicionalMin ?? 60)) return 'CONDICIONAL_MEJORA';
     return 'NO_CONFORME';
-  }, [totalScore, evaluationMethod]);
+  }, [totalScore, evaluationMethod, isInitialDoc]);
 
   // Calculate anniversary date (1 year after supplier creation)
   const supplierCreatedDate = selectedDossier?.createdAt
@@ -190,10 +212,22 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDossier) return;
+    if (isInitialDoc && !doc006Complete) return;
 
     setIsSubmitting(true);
 
-    const scoresList: EvaluationCriterionScore[] = applicableCriteria.map((c) => {
+    const scoresList: EvaluationCriterionScore[] = isInitialDoc
+      ? DOC006_CRITERIA.map((c) => ({
+          criterionId: c.id,
+          criterionName: c.name,
+          category: DOC006_CODE,
+          weight: DOC006_MAX_PER_CRITERION,
+          score: doc006Points[c.id],
+          maxScore: DOC006_MAX_PER_CRITERION,
+          optionLabel: c.options.find((o) => o.points === doc006Points[c.id])?.label,
+          notes: doc006Notes[c.id]?.trim() || undefined,
+        }))
+      : applicableCriteria.map((c) => {
       const state = activeScoresMap[c.id] || { score: 90, notes: '' };
       return {
         criterionId: c.id,
@@ -233,15 +267,15 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
       periodYear: new Date().getFullYear(),
       evaluationDate: formattedDate,
       evaluatorId: activeUser?.id || 'rev-1',
-      evaluatorName: activeUser?.name || 'Administrador',
-      evaluatorRole: role,
+      evaluatorName: (isInitialDoc ? evaluatorNameInput.trim() : '') || activeUser?.name || 'Administrador',
+      evaluatorRole: (isInitialDoc ? evaluatorPosition.trim() : '') || role,
       totalScore,
       concept: computedConcept,
       criteriaScores: scoresList,
       observations: generalObservations.trim() || undefined,
-      hasImprovementPlan,
-      improvementPlanAction: hasImprovementPlan ? improvementAction.trim() : undefined,
-      improvementPlanDeadline: hasImprovementPlan ? improvementDeadline : undefined,
+      hasImprovementPlan: isInitialDoc ? false : hasImprovementPlan,
+      improvementPlanAction: !isInitialDoc && hasImprovementPlan ? improvementAction.trim() : undefined,
+      improvementPlanDeadline: !isInitialDoc && hasImprovementPlan ? improvementDeadline : undefined,
       nextEvaluationDueDate: nextDueDateFormatted,
       status: 'COMPLETADA',
     });
@@ -401,6 +435,186 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
               )}
             </section>
 
+            {isInitialDoc ? (
+              <>
+                {/* Formato oficial: datos del proveedor */}
+                {selectedDossier && (
+                  <section className={`${cardCls} space-y-4`}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h4 className={labelCls}>Datos del proveedor · formato {DOC006_CODE} v{DOC006_VERSION}</h4>
+                      <span className="text-xs text-[#3a5274] dark:text-slate-400">{DOC006_TITLE}</span>
+                    </div>
+                    <dl className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-3 text-sm">
+                      {[
+                        { k: 'Fecha', v: new Date().toLocaleDateString('es-CO') },
+                        { k: 'Tipo de persona', v: selectedDossier.basicInfo?.supplierType === 'NATURAL' ? 'Persona natural' : 'Persona jurídica' },
+                        {
+                          k: 'Nombre o razón social',
+                          v: (selectedDossier.basicInfo?.supplierType === 'NATURAL'
+                            ? selectedDossier.basicInfo?.fullName
+                            : selectedDossier.basicInfo?.companyName) || '—',
+                        },
+                        {
+                          k: selectedDossier.basicInfo?.supplierType === 'NATURAL' ? 'C.C.' : 'NIT',
+                          v: (selectedDossier.basicInfo?.supplierType === 'NATURAL'
+                            ? selectedDossier.basicInfo?.documentNumber
+                            : selectedDossier.basicInfo?.nit) || '—',
+                        },
+                        { k: 'Dirección de funcionamiento', v: selectedDossier.basicInfo?.address || '—' },
+                        { k: 'Ciudad', v: selectedDossier.basicInfo?.city || '—' },
+                      ].map((f) => (
+                        <div key={f.k} className="min-w-0">
+                          <dt className="text-[11px] text-[#6b84a3] mb-0.5">{f.k}</dt>
+                          <dd className="font-semibold text-[#0b1d3a] dark:text-white break-words">{f.v}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </section>
+                )}
+
+                {/* Puntaje en tiempo real */}
+                <section className="relative overflow-hidden rounded-[24px] bg-gradient-brand text-white p-5 sm:p-6 shadow-glow">
+                  <BrandSwoosh className="absolute -right-10 -bottom-16 w-[60%] opacity-100" />
+                  <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75 flex items-center gap-1.5">
+                        <Award className="w-4 h-4" /> Puntaje de la evaluación inicial
+                      </div>
+                      <p className="text-xs text-white/75 mt-1 max-w-sm">
+                        Seis criterios de {DOC006_MAX_PER_CRITERION} puntos cada uno. Con {DOC006_PASSING_SCORE} puntos o más se puede aprobar la vinculación como proveedor.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="font-display text-5xl font-semibold leading-none tabular-nums">
+                        {doc006Total}<span className="text-base font-medium text-white/70">/{DOC006_MAX_SCORE}</span>
+                      </div>
+                      <div className="text-right">
+                        <span
+                          className={`inline-flex h-8 px-3.5 items-center rounded-full text-xs font-bold ${
+                            !doc006Complete ? 'bg-white/20 text-white' : computedConcept === 'CONFORME' ? 'bg-white text-[#0b1d3a]' : 'bg-red-500 text-white'
+                          }`}
+                        >
+                          {!doc006Complete ? `Faltan ${DOC006_CRITERIA.length - doc006Answered} criterios` : computedConcept === 'CONFORME' ? 'Aprobado' : 'No aprobado'}
+                        </span>
+                        <div className="text-[11px] text-white/75 mt-1">
+                          {doc006Complete
+                            ? computedConcept === 'CONFORME'
+                              ? `Cumple el mínimo de ${DOC006_PASSING_SCORE} puntos`
+                              : `Faltan ${DOC006_PASSING_SCORE - doc006Total} puntos para el mínimo`
+                            : `${doc006Answered} de ${DOC006_CRITERIA.length} criterios calificados`}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="relative mt-5">
+                    <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
+                      <div className="h-full rounded-full bg-white transition-all duration-300" style={{ width: `${(doc006Total / DOC006_MAX_SCORE) * 100}%` }} />
+                    </div>
+                    <div className="absolute -top-1 bottom-[-4px] w-px bg-white/80" style={{ left: `${(DOC006_PASSING_SCORE / DOC006_MAX_SCORE) * 100}%` }} aria-hidden="true" />
+                    <div className="relative h-4 mt-1.5 text-[10px] text-white/75">
+                      <span className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: `${(DOC006_PASSING_SCORE / DOC006_MAX_SCORE) * 100}%` }}>
+                        Mínimo {DOC006_PASSING_SCORE}
+                      </span>
+                      <span className="absolute right-0">{DOC006_MAX_SCORE}</span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Criterios */}
+                <section className="space-y-3">
+                  <h4 className={labelCls}>Criterios de selección ({DOC006_CRITERIA.length})</h4>
+                  <div className="space-y-3">
+                    {DOC006_CRITERIA.map((criterion, idx) => {
+                      const picked = doc006Points[criterion.id];
+                      return (
+                        <article key={criterion.id} className={`${cardCls} hover:border-[#2c84c4]/50 transition-colors`}>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex gap-3 min-w-0">
+                              <span className="w-10 h-10 rounded-2xl bg-gradient-action text-white font-display font-semibold grid place-items-center shrink-0 shadow-glow">{idx + 1}</span>
+                              <div className="min-w-0">
+                                <h5 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">{criterion.name}</h5>
+                                <p className="text-[13px] text-[#3a5274] dark:text-slate-400 mt-1 leading-relaxed">{criterion.description}</p>
+                              </div>
+                            </div>
+                            <div className="shrink-0 text-right">
+                              <div className="font-display text-2xl font-semibold tabular-nums text-[#0b1d3a] dark:text-white leading-none">
+                                {picked ?? '–'}
+                                <span className="text-xs font-medium text-[#6b84a3]"> / {DOC006_MAX_PER_CRITERION}</span>
+                              </div>
+                              <div className="text-[10px] text-[#6b84a3] mt-1">puntos</div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 sm:pl-[52px] space-y-3">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6b84a3]">Cómo se mide · elija una opción</div>
+                            <div role="radiogroup" aria-label={`Puntaje de ${criterion.name}`} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {criterion.options.map((opt) => {
+                                const on = picked === opt.points;
+                                return (
+                                  <button
+                                    key={opt.points}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={on}
+                                    onClick={() => setDoc006Points((prev) => ({ ...prev, [criterion.id]: opt.points }))}
+                                    className={`text-left rounded-2xl border p-3 flex items-start gap-3 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c84c4]/50 ${
+                                      on
+                                        ? 'border-[#2c84c4] bg-[#2c84c4]/[0.08] dark:bg-[#2c84c4]/15 shadow-xs'
+                                        : 'border-black/[0.08] dark:border-white/10 hover:border-[#2c84c4]/50 hover:bg-[#2c84c4]/[0.04]'
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-9 min-w-[44px] px-2 rounded-xl grid place-items-center font-display text-base font-semibold tabular-nums shrink-0 ${
+                                        on ? 'bg-gradient-action text-white shadow-glow' : 'bg-black/[0.05] dark:bg-white/[0.08] text-[#1c3354] dark:text-slate-200'
+                                      }`}
+                                    >
+                                      {opt.points}
+                                    </span>
+                                    <span className="text-[13px] leading-snug text-[#0b1d3a] dark:text-slate-100 pt-0.5">{opt.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            <input
+                              type="text"
+                              placeholder="Observación de este criterio (opcional)"
+                              value={doc006Notes[criterion.id] || ''}
+                              onChange={(e) => setDoc006Notes((prev) => ({ ...prev, [criterion.id]: e.target.value }))}
+                              className={fieldCls}
+                            />
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* Conclusiones y evaluador */}
+                <section className={`${cardCls} space-y-5`}>
+                  <div>
+                    <label className={`${labelCls} block mb-2`}>Conclusiones</label>
+                    <textarea
+                      rows={3}
+                      value={generalObservations}
+                      onChange={(e) => setGeneralObservations(e.target.value)}
+                      placeholder="Conclusiones de la evaluación y decisión sobre la vinculación del proveedor…"
+                      className="w-full px-3.5 py-3 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-black/[0.07] dark:border-white/10">
+                    <div>
+                      <label className={`${labelCls} block mb-2`}>Nombre del evaluador</label>
+                      <input type="text" value={evaluatorNameInput} onChange={(e) => setEvaluatorNameInput(e.target.value)} className={fieldCls} required />
+                    </div>
+                    <div>
+                      <label className={`${labelCls} block mb-2`}>Cargo</label>
+                      <input type="text" value={evaluatorPosition} onChange={(e) => setEvaluatorPosition(e.target.value)} placeholder="Ej: Coordinador de compras" className={fieldCls} required />
+                    </div>
+                  </div>
+                </section>
+              </>
+            ) : (
+              <>
             {/* 2. Calificación en tiempo real */}
             <section className="relative overflow-hidden rounded-[24px] bg-gradient-brand text-white p-5 sm:p-6 shadow-glow">
               <BrandSwoosh className="absolute -right-10 -bottom-16 w-[60%] opacity-100" />
@@ -581,6 +795,8 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                 )}
               </div>
             </section>
+              </>
+            )}
           </div>
 
           {/* Pie */}
@@ -599,7 +815,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || !selectedDossier}
+                disabled={isSubmitting || !selectedDossier || (isInitialDoc && !doc006Complete)}
                 className="h-11 px-6 rounded-xl bg-gradient-action text-white text-sm font-semibold shadow-glow hover:brightness-110 disabled:opacity-50 transition cursor-pointer inline-flex items-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />

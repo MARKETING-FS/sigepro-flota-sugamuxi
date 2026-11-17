@@ -42,6 +42,7 @@ import {
   exportEvaluationsReport,
 } from '../../utils/excelExport';
 import { PageHeader, heroSecondaryBtn } from '../ui/archive';
+import { evaluationPercent, formatEvaluationScore } from '../../utils/evaluationScale';
 
 export type OfficialReportId =
   | 'DIRECTORIO_MAESTRO'
@@ -564,7 +565,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
         if (has !== evalImprovementPlan) return false;
       }
 
-      const score = ev.totalScore || 0;
+      const score = evaluationPercent(ev) || 0;
       if (evalScoreRange === '90_100' && score < 90) return false;
       if (evalScoreRange === '70_89' && (score < 70 || score >= 90)) return false;
       if (evalScoreRange === '60_69' && (score < 60 || score >= 70)) return false;
@@ -1915,7 +1916,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                         {ev.evaluationType === 'INICIAL' ? 'Inicial' : 'Anual Periódica'}
                       </td>
                       <td className="p-2.5 font-black text-sm text-slate-900 dark:text-slate-100">
-                        {ev.totalScore} / 100
+                        {formatEvaluationScore(ev)}
                       </td>
                       <td className="p-2.5">
                         <span

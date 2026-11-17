@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
 import {
+  DOC006_CODE,
+  DOC006_CRITERIA,
+  DOC006_MAX_PER_CRITERION,
+  DOC006_MAX_SCORE,
+  DOC006_PASSING_SCORE,
+  DOC006_VERSION,
+} from '../../data/evaluationDoc006';
+import {
   X,
   Sliders,
   Plus,
@@ -193,6 +201,38 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
           {/* TAB 1: CRITERIA */}
           {activeSubTab === 'criteria' && (
             <div className="space-y-4">
+              {/* Evaluación inicial: formato fijo FS.GA-DOC-006 */}
+              <details className="rounded-2xl border border-[#2c84c4]/30 bg-white dark:bg-[#0b1f4a] overflow-hidden group">
+                <summary className="cursor-pointer list-none px-4 py-3.5 flex flex-wrap items-center justify-between gap-2">
+                  <span className="flex flex-col">
+                    <span className="text-sm font-bold text-[#0b1d3a] dark:text-white">
+                      Evaluación inicial · formato {DOC006_CODE} v{DOC006_VERSION}
+                    </span>
+                    <span className="text-xs text-[#3a5274] dark:text-slate-300">
+                      Documento controlado: 6 criterios de {DOC006_MAX_PER_CRITERION} puntos (total {DOC006_MAX_SCORE}); se aprueba con {DOC006_PASSING_SCORE} puntos o más. Los criterios de abajo aplican a la evaluación anual.
+                    </span>
+                  </span>
+                  <span className="text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] group-open:hidden">Ver criterios</span>
+                  <span className="text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hidden group-open:inline">Ocultar</span>
+                </summary>
+                <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-[#e1e9f3] dark:border-white/10 pt-3">
+                  {DOC006_CRITERIA.map((c, i) => (
+                    <div key={c.id} className="rounded-xl bg-[#f3f7fc] dark:bg-white/5 p-3">
+                      <div className="text-xs font-bold text-[#0b1d3a] dark:text-white">{i + 1}. {c.name}</div>
+                      <p className="text-[11px] text-[#3a5274] dark:text-slate-300 mt-0.5 leading-snug">{c.description}</p>
+                      <ul className="mt-2 space-y-1">
+                        {c.options.map((o) => (
+                          <li key={o.points} className="flex gap-2 text-[11px] text-[#1c3354] dark:text-slate-200 leading-snug">
+                            <span className="font-mono font-bold text-[#1d5fa8] dark:text-[#69bdd7] w-5 shrink-0">{o.points}</span>
+                            <span>{o.label}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </details>
+
               {/* Weight indicator banner */}
               <div
                 className={`p-4 rounded-2xl border flex flex-wrap gap-3 items-center justify-between text-sm ${

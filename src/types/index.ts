@@ -392,8 +392,11 @@ export interface EvaluationCriterionScore {
   criterionName: string;
   category: string; // e.g. 'Calidad y Especificaciones', 'Oportunidad y Entregas', 'HSEQ y SST', 'Garantía y Servicio', 'Gestión Comercial'
   weight: number; // percentage (e.g., 25)
-  score: number; // 0 to 100
+  score: number; // 0 to 100 (o los puntos de la opción elegida en el formato FS.GA-DOC-006)
   notes?: string;
+  /** Solo FS.GA-DOC-006: máximo de puntos del criterio (20) y texto de la opción elegida. */
+  maxScore?: number;
+  optionLabel?: string;
 }
 
 export interface SupplierEvaluation {
@@ -412,7 +415,7 @@ export interface SupplierEvaluation {
   evaluatorId: string;
   evaluatorName: string;
   evaluatorRole: string;
-  totalScore: number; // 0 to 100
+  totalScore: number; // 0 a 100 (o a 120 si se calificó con FS.GA-DOC-006: ver utils/evaluationScale)
   concept: EvaluationConcept;
   criteriaScores: EvaluationCriterionScore[];
   observations?: string;

@@ -7,6 +7,7 @@ import { buildEvaluationRow } from '../../utils/evaluationRows';
 import { DashboardHero, Kpi, Podium, StageDonut } from './DashboardParts';
 import { ActivityTimeline, BarList, GradeBars, PriorityAlerts, TrendChart } from './DashboardCharts';
 import { computePushAlerts } from '../../utils/pushAlertsService';
+import { evaluationGrade, evaluationPercent } from '../../utils/evaluationScale';
 import {
   ArchiveTab,
   TONE_COLOR,
@@ -98,13 +99,13 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     const evalDue = evalRows.filter(
       (r) => !r.initialEval || r.annualStatus === 'VENCIDA_REQUIERE_EVAL' || r.annualStatus === 'PROXIMA_VENCER'
     );
-    const scores = evalRows.flatMap((r) => [r.initialEval, r.latestAnnualEval]).filter(Boolean).map((e) => e!.totalScore);
+    const scores = evalRows.flatMap((r) => [r.initialEval, r.latestAnnualEval]).filter(Boolean).map((e) => evaluationPercent(e!));
     const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
 
     const ranked = evalRows
       .map((r) => {
         const e = r.latestAnnualEval || r.initialEval;
-        return e ? { id: r.dossier.id, name: supplierName(r.dossier), sub: r.dossier.fileNumber || '', score: e.totalScore } : null;
+        return e ? { id: r.dossier.id, name: supplierName(r.dossier), sub: r.dossier.fileNumber || '', score: evaluationPercent(e) } : null;
       })
       .filter((x): x is { id: string; name: string; sub: string; score: number } => !!x)
       .sort((a, b) => b.score - a.score)
@@ -133,16 +134,14 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       });
       return {
         label: m.toLocaleDateString('es-CO', { month: 'short' }).replace('.', ''),
-        value: inMonth.length ? Math.round(inMonth.reduce((a, e) => a + e.totalScore, 0) / inMonth.length) : null,
+        value: inMonth.length ? Math.round(inMonth.reduce((a, e) => a + evaluationPercent(e), 0) / inMonth.length) : null,
       };
     });
     const grades = { A: 0, B: 0, C: 0 };
     evalRows.forEach((r) => {
       const e = r.latestAnnualEval || r.initialEval;
       if (!e) return;
-      if (e.totalScore >= 85) grades.A++;
-      else if (e.totalScore >= 70) grades.B++;
-      else grades.C++;
+      grades[evaluationGrade(e)]++;
     });
     const catMap = new Map<string, number>();
     dossiers.forEach((d) => {
