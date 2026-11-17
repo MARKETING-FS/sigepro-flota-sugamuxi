@@ -167,10 +167,10 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     };
   }, [dossiers]);
 
-  const reviewers = systemUsers
-    .filter((u) => u.role === 'REVISOR')
-    .map((u) => ({ user: u, count: dossiers.filter((d) => d.assignedReviewerId === u.id).length }));
-  const maxLoad = Math.max(1, ...reviewers.map((r) => r.count));
+  // Solo personas reales con cuenta; los expedientes sin responsable conocido se cuentan aparte
+  const reviewers = systemUsers.map((u) => ({ user: u, count: dossiers.filter((d) => d.assignedReviewerId === u.id).length }));
+  const unassigned = dossiers.filter((d) => !systemUsers.some((u) => u.id === d.assignedReviewerId)).length;
+  const maxLoad = Math.max(1, unassigned, ...reviewers.map((r) => r.count));
 
   const juridicas = dossiers.filter((d) => d.basicInfo?.supplierType !== 'NATURAL').length;
   const pct = (n: number) => (dossiers.length ? Math.round((n / dossiers.length) * 100) : 0);
@@ -267,7 +267,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
           </Panel>
 
           {role === 'ADMIN' && (
-            <Panel title="Carga por revisor" aside="expedientes asignados">
+            <Panel title="Carga por administrador" aside="expedientes asignados">
               <ul className="space-y-3 pt-1">
                 {reviewers.map(({ user, count }) => (
                   <li key={user.id}>
@@ -278,6 +278,15 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
                     <Meter value={count} max={maxLoad} />
                   </li>
                 ))}
+                {unassigned > 0 && (
+                  <li>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-[#5d7392] dark:text-slate-400">Sin responsable asignado</span>
+                      <span className="font-semibold tabular-nums text-fs-navy dark:text-white">{unassigned}</span>
+                    </div>
+                    <Meter value={unassigned} max={maxLoad} />
+                  </li>
+                )}
               </ul>
             </Panel>
           )}

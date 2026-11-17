@@ -233,7 +233,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
       periodYear: new Date().getFullYear(),
       evaluationDate: formattedDate,
       evaluatorId: activeUser?.id || 'rev-1',
-      evaluatorName: activeUser?.name || (role === 'REVISOR' ? 'Ing. Carlos Mendoza' : 'Administrador General'),
+      evaluatorName: activeUser?.name || 'Administrador',
       evaluatorRole: role,
       totalScore,
       concept: computedConcept,

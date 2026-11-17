@@ -55,7 +55,7 @@ export const SupplierEvaluationsView: React.FC = () => {
 
   // Evaluator filter selection in module (syncs with activeUserId or allows switching)
   const [selectedEvaluatorId, setSelectedEvaluatorId] = useState<string>(
-    role === 'REVISOR' ? (activeUserId || 'revisor-1') : 'ALL'
+    role === 'REVISOR' ? (activeUserId || 'ALL') : 'ALL'
   );
 
   // Sync if activeUserId changes externally (e.g. from Sidebar or Header)

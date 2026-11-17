@@ -7,55 +7,7 @@ import {
   PersonTypeBaseRequirementConfig,
   SystemAuditEntry,
   SystemParametersState,
-  SystemUser,
 } from '../types';
-export const INITIAL_SYSTEM_USERS: SystemUser[] = [
-  {
-    id: 'admin-1',
-    name: 'Julian Salgado',
-    shortName: 'Admin General',
-    role: 'ADMIN',
-    email: 'auxsistemas@flotasugamuxisa.com.co',
-    avatarText: 'JS',
-    department: 'Dirección Administrativa y Sistemas',
-    color: 'bg-slate-900 border-cyan-500/50 text-cyan-300',
-    description: 'Acceso total: visualiza, audita, edita y reasigna todos los proveedores de la organización.',
-  },
-  {
-    id: 'revisor-1',
-    name: 'Ing. Carlos Mendoza',
-    shortName: 'Revisor 1',
-    role: 'REVISOR',
-    email: 'carlos.mendoza.sig@flotasugamuxisa.com.co',
-    avatarText: 'R1',
-    department: 'Evaluación Técnica de Proveedores',
-    color: 'bg-blue-900 border-blue-500/50 text-blue-200',
-    description: 'Revisor técnico oficial asignado a su cartera de 8 proveedores.',
-  },
-  {
-    id: 'revisor-2',
-    name: 'Dra. María Fernanda Ortiz',
-    shortName: 'Revisor 2',
-    role: 'REVISOR',
-    email: 'maria.ortiz.sig@flotasugamuxisa.com.co',
-    avatarText: 'R2',
-    department: 'Evaluación Jurídica y Financiera',
-    color: 'bg-blue-950 border-blue-500/50 text-blue-200',
-    description: 'Revisora legal asignada a su cartera de proveedores corporativos.',
-  },
-  {
-    id: 'revisor-3',
-    name: 'Ing. Juan Pablo Gómez',
-    shortName: 'Revisor 3',
-    role: 'REVISOR',
-    email: 'juan.gomez.sig@flotasugamuxisa.com.co',
-    avatarText: 'R3',
-    department: 'Evaluación HSEQ y Operaciones',
-    color: 'bg-slate-900 border-cyan-500/50 text-cyan-200',
-    description: 'Revisor HSEQ y operaciones para proveedores de transporte y seguridad.',
-  },
-];
-
 export const INITIAL_BASE_REQUIREMENTS: Record<'NATURAL' | 'JURIDICA', PersonTypeBaseRequirementConfig> = {
   NATURAL: {
     personType: 'NATURAL',

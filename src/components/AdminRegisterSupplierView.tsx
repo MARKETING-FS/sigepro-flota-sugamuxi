@@ -78,7 +78,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
     categoriesConfig[0]?.category || 'Mantenimiento Automotriz y Repuestos'
   );
   const [assignedReviewerId, setAssignedReviewerId] = useState<string>(
-    role === 'REVISOR' ? activeUserId : 'revisor-1'
+    activeUserId
   );
 
   // Evaluadores reales: los usuarios registrados en la base de datos

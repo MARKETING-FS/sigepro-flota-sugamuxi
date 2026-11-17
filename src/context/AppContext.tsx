@@ -53,13 +53,13 @@ import {
   INITIAL_BASE_REQUIREMENTS,
   INITIAL_SYSTEM_AUDIT_LOGS,
   INITIAL_SYSTEM_PARAMETERS,
-  INITIAL_SYSTEM_USERS,
 } from '../data/initialData';
 import { INITIAL_EVALUATION_METHOD, INITIAL_SUPPLIER_EVALUATIONS } from '../data/initialEvaluations';
 import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/initialEmails';
 import { generateEmailContent } from '../utils/emailTemplates';
 import { DEFAULT_FORM_PDFS } from '../utils/formPdf';
 import { supabaseService } from '../services/supabaseService';
+import { supabase } from '../lib/supabase';
 import { getCreationStatus, getRequiredDocsProgress } from '../utils/contractValidity';
 import { sendEmail } from '../services/emailService';
 import { useSupabaseAuth, AuthProfile, AuthResult } from '../auth/useSupabaseAuth';
@@ -377,8 +377,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const activeUserId: string = authProfile ? authProfile.sigeproUserId || authProfile.id : '';
 
   const activeUser: SystemUser = React.useMemo(() => {
-    const linked = INITIAL_SYSTEM_USERS.find((u) => u.id === activeUserId);
-    const name = authProfile?.name || linked?.name || 'Usuario';
+    const name = authProfile?.name || 'Usuario';
     const initials =
       name
         .split(' ')
@@ -390,15 +389,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return {
       id: activeUserId,
       name,
-      shortName: linked?.shortName || (role === 'ADMIN' ? 'Admin General' : 'Revisor'),
+      shortName: role === 'ADMIN' ? 'Admin General' : 'Revisor',
       role,
       email: authProfile?.email || '',
       avatarText: initials,
-      department: linked?.department || (role === 'ADMIN' ? 'Administración' : 'Evaluación de Proveedores'),
-      color: linked?.color,
-      description: linked?.description,
+      department: role === 'ADMIN' ? 'Administración' : 'Evaluación de Proveedores',
     };
   }, [authProfile, activeUserId, role]);
+
+  // Equipo real: las personas con cuenta en SIGEPRO (superadministrador y administradores). Solo el
+  // superadministrador puede consultar la lista completa; los demás roles se ven a sí mismos.
+  // Cada administrador que se crea aparece solo aquí, y de aquí salen las cargas por evaluador.
+  const [remoteTeam, setRemoteTeam] = useState<SystemUser[] | null>(null);
+  React.useEffect(() => {
+    if (accountRole !== 'SUPERADMIN' || !supabase) {
+      setRemoteTeam(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: sess } = await supabase!.auth.getSession();
+        const token = sess.session?.access_token;
+        if (!token) return;
+        const res = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const json = await res.json();
+        const list: SystemUser[] = (json.users || [])
+          .filter((u: { role: string }) => u.role !== 'USUARIO' && u.role !== 'REVISOR')
+          .map((u: { id: string; name: string; email: string; role: string }) => {
+            const nm = u.name || u.email;
+            const isSuperUser = u.role === 'SUPERADMIN' || u.role === 'ADMIN';
+            return {
+              id: u.id,
+              name: nm,
+              shortName: isSuperUser ? 'Superadministrador' : 'Administrador',
+              role: 'REVISOR',
+              email: u.email,
+              avatarText: nm.split(' ').filter(Boolean).slice(0, 2).map((n: string) => n[0]).join('').toUpperCase() || 'US',
+              department: isSuperUser ? 'Superadministrador' : 'Administrador',
+            } as SystemUser;
+          });
+        if (!cancelled) setRemoteTeam(list);
+      } catch {
+        /* sin conexión: se muestra solo la persona de la sesión */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [accountRole, authProfile?.id]);
+
+  const systemUsers: SystemUser[] = React.useMemo(() => {
+    const base = remoteTeam && remoteTeam.length > 0 ? remoteTeam : [];
+    if (activeUserId && !base.some((u) => u.id === activeUserId) && accountRole !== 'USER') {
+      return [{ ...activeUser, role: 'REVISOR' }, ...base];
+    }
+    return base;
+  }, [remoteTeam, activeUser, activeUserId, accountRole]);
 
   const [activeView, setActiveViewState] = useState<AppView>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_ACTIVE_VIEW);
@@ -1248,13 +1296,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       economicActivity: input.economicActivity || 'Actividad comercial general autorizada',
       processStatus: input.initialStatus,
       documents: initialDocs,
-      assignedReviewerId: input.assignedReviewerId || (role === 'REVISOR' ? activeUserId : 'revisor-1'),
-      assignedReviewerName:
-        input.assignedReviewerName ||
-        INITIAL_SYSTEM_USERS.find(
-          (u) => u.id === (input.assignedReviewerId || (role === 'REVISOR' ? activeUserId : 'revisor-1'))
-        )?.name ||
-        (role === 'REVISOR' ? activeUser.name : 'Ing. Carlos Mendoza (Revisor 1)'),
+      assignedReviewerId: input.assignedReviewerId || activeUserId,
+      assignedReviewerName: input.assignedReviewerName || activeUser.name,
       assignedAt: timestamp,
       assignedBy: input.createdByName,
       internalConcepts: {
@@ -3797,7 +3840,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         allDossiers: dossiersWithStatus,
         activeUserId,
         activeUser,
-        systemUsers: INITIAL_SYSTEM_USERS,
+        systemUsers,
         canEditDossier,
         assignSupplierReviewer,
         currentDossierId,

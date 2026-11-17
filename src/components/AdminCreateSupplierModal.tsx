@@ -81,7 +81,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
   }, [isOpen, isSuper]);
 
   const [assignedReviewerId, setAssignedReviewerId] = useState<string>(
-    role === 'REVISOR' ? activeUserId : 'revisor-1'
+    activeUserId
   );
 
   const [initialStatus] = useState<ProcessStatus>('DOCUMENTACION_PENDIENTE');
