@@ -1,4 +1,5 @@
 import { SupplierDossier, SupplierEvaluation } from '../types';
+import { parseLocalDate } from './dateOnly';
 
 export type AnnualEvaluationStatus =
   | 'AL_DIA'
@@ -52,8 +53,8 @@ export function buildEvaluationRow(dossier: SupplierDossier, now: Date = new Dat
 
   // Sort newest evaluation first
   annualEvals.sort((a, b) => {
-    const timeA = new Date(a.evaluationDate || a.createdAt).getTime();
-    const timeB = new Date(b.evaluationDate || b.createdAt).getTime();
+    const timeA = (parseLocalDate(a.evaluationDate) || new Date(a.createdAt)).getTime();
+    const timeB = (parseLocalDate(b.evaluationDate) || new Date(b.createdAt)).getTime();
     return timeB - timeA;
   });
 
@@ -85,12 +86,7 @@ export function buildEvaluationRow(dossier: SupplierDossier, now: Date = new Dat
   if (latestAnnualEval) {
     let baseDate: Date;
     try {
-      if (latestAnnualEval.evaluationDate && latestAnnualEval.evaluationDate.includes('/')) {
-        const parts = latestAnnualEval.evaluationDate.split('/');
-        baseDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      } else {
-        baseDate = new Date(latestAnnualEval.evaluationDate || latestAnnualEval.createdAt);
-      }
+      baseDate = parseLocalDate(latestAnnualEval.evaluationDate) || new Date(latestAnnualEval.createdAt);
       if (isNaN(baseDate.getTime())) baseDate = new Date(latestAnnualEval.createdAt || createdDate);
     } catch {
       baseDate = createdDate;

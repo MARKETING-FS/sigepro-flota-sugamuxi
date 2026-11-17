@@ -129,6 +129,12 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   const [doc006Notes, setDoc006Notes] = useState<{ [criterionId: string]: string }>({});
   const [evaluatorNameInput, setEvaluatorNameInput] = useState<string>(activeUser?.name || '');
   const [evaluatorPosition, setEvaluatorPosition] = useState<string>('');
+  // Fecha en que realmente se hizo la evaluación (por defecto hoy; se puede cambiar a la que digan los evaluadores)
+  const todayIso = (() => {
+    const t = new Date();
+    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  })();
+  const [evaluationDateInput, setEvaluationDateInput] = useState<string>(todayIso);
 
   // Global notes and improvement plan
   const [generalObservations, setGeneralObservations] = useState<string>('');
@@ -243,12 +249,11 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     });
 
     const nowIso = new Date().toISOString();
-    const today = new Date();
-    // AAAA-MM-DD en hora local: así la base de datos nunca confunde el día con el mes
-    const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    // AAAA-MM-DD: así la base de datos nunca confunde el día con el mes
+    const formattedDate = /^\d{4}-\d{2}-\d{2}$/.test(evaluationDateInput) ? evaluationDateInput : todayIso;
 
-    // Calculate next due date (1 year later if initial, or 1 year after current if annual)
-    const nextDate = new Date();
+    // La próxima evaluación toca un año después de la fecha de ésta
+    const nextDate = new Date(`${formattedDate}T12:00:00`);
     nextDate.setFullYear(nextDate.getFullYear() + 1);
     const nextDueDateFormatted = nextDate.toLocaleDateString('es-CO');
 
@@ -269,7 +274,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
       categoryName: selectedDossier.selectedCategory || 'General',
       evaluationType: evalType,
       annualCycleNumber: isAnnual ? selectedCycleNumber : undefined,
-      periodYear: new Date().getFullYear(),
+      periodYear: Number(formattedDate.slice(0, 4)),
       evaluationDate: formattedDate,
       evaluatorId: activeUser?.id || 'rev-1',
       evaluatorName: (isInitialDoc ? evaluatorNameInput.trim() : '') || activeUser?.name || 'Administrador',
@@ -444,6 +449,28 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                     <span className="text-[#6b84a3] block text-[11px] mb-1">Revisor asignado</span>
                     <span className="font-semibold flex items-center gap-1.5"><UserCheck className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />{activeUser?.name || 'Revisor SIG'}</span>
                   </div>
+                </div>
+              )}
+
+              {selectedDossier && (
+                <div className="pt-4 border-t border-black/[0.07] dark:border-white/10 flex flex-wrap items-end gap-x-5 gap-y-2">
+                  <div className="w-full sm:w-56">
+                    <label htmlFor="eval-date" className={`${labelCls} block mb-2`}>Fecha de la evaluación</label>
+                    <input
+                      id="eval-date"
+                      type="date"
+                      value={evaluationDateInput}
+                      max={todayIso}
+                      onChange={(e) => setEvaluationDateInput(e.target.value)}
+                      className={fieldCls}
+                      required
+                    />
+                  </div>
+                  <p className="text-xs text-[#5d7392] dark:text-slate-400 leading-relaxed flex-1 min-w-[200px] pb-1">
+                    {evaluationDateInput === todayIso
+                      ? 'Hoy. Si la evaluación se hizo otro día, cambie la fecha por la que indiquen los evaluadores.'
+                      : 'Esta fecha queda en el acta y desde ella se cuenta el año de la próxima evaluación.'}
+                  </p>
                 </div>
               )}
             </section>

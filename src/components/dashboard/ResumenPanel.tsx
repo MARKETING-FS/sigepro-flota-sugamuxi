@@ -8,6 +8,7 @@ import { DashboardHero, Kpi, Podium, StageDonut } from './DashboardParts';
 import { ActivityTimeline, BarList, GradeBars, PriorityAlerts, TrendChart } from './DashboardCharts';
 import { computePushAlerts } from '../../utils/pushAlertsService';
 import { evaluationGrade, evaluationPercent } from '../../utils/evaluationScale';
+import { parseLocalDate } from '../../utils/dateOnly';
 import {
   ArchiveTab,
   TONE_COLOR,
@@ -113,9 +114,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
 
     // Puntaje promedio por mes (últimos 12 meses) y clasificación por último puntaje
     const parseD = (v?: string) => {
-      if (!v) return null;
-      const d = v.includes('/') ? new Date(+v.split('/')[2], +v.split('/')[1] - 1, +v.split('/')[0]) : new Date(v);
-      return isNaN(d.getTime()) ? null : d;
+      return parseLocalDate(v);
     };
     const seen = new Set<string>();
     const allEvals = dossiers

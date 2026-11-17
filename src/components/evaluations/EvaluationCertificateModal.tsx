@@ -15,6 +15,7 @@ import { SupplierEvaluation } from '../../types';
 import { FlotaSugamuxiLogo } from '../FlotaSugamuxiLogo';
 import { DOC006_CODE, DOC006_PASSING_SCORE, DOC006_TITLE, DOC006_VERSION } from '../../data/evaluationDoc006';
 import { evaluationConceptLabel, evaluationMaxScore, isDoc006Evaluation } from '../../utils/evaluationScale';
+import { displayDate } from '../../utils/dateOnly';
 
 interface EvaluationCertificateModalProps {
   evaluation: SupplierEvaluation | null;
@@ -156,7 +157,7 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between py-1 border-b border-slate-200/60">
                   <span className="text-slate-500">Fecha de Evaluación:</span>
-                  <span className="font-bold text-slate-900">{evaluation.evaluationDate}</span>
+                  <span className="font-bold text-slate-900">{displayDate(evaluation.evaluationDate)}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-200/60">
                   <span className="text-slate-500">Tipo de Evento:</span>

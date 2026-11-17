@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle } from 'lucide-react';
+import { Search, Plus, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle, Pencil } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   SupplierDossier,
@@ -32,6 +32,8 @@ import {
 import { EvaluationFormModal } from './EvaluationFormModal';
 import { EvaluationCertificateModal } from './EvaluationCertificateModal';
 import { EvaluationPdfModal } from './EvaluationPdfModal';
+import { EvaluationDateModal } from './EvaluationDateModal';
+import { parseLocalDate } from '../../utils/dateOnly';
 import { useConfirm } from '../ui/ConfirmDialog';
 import { preloadPdfTools } from '../../utils/certificatePdf';
 import { EvaluationMethodConfigModal } from './EvaluationMethodConfigModal';
@@ -51,8 +53,12 @@ export const SupplierEvaluationsView: React.FC = () => {
     selectedEvaluationDossierId,
     setSelectedEvaluationDossierId,
     deleteSupplierEvaluation,
+    updateSupplierEvaluationDate,
     showToast,
   } = useApp();
+
+  // Evaluación cuya fecha se está cambiando
+  const [evaluationToEditDate, setEvaluationToEditDate] = useState<SupplierEvaluation | null>(null);
 
   // Active View Tab: 'matrix' (proveedores y sus estados 1/2) vs 'history' (todas las evaluaciones guardadas)
   const [activeTab, setActiveTab] = useState<'matrix' | 'history'>('matrix');
@@ -357,8 +363,8 @@ export const SupplierEvaluationsView: React.FC = () => {
 
   const fmtDate = (value?: string | Date) => {
     if (!value) return '—';
-    const d = value instanceof Date ? value : new Date(value);
-    return isNaN(d.getTime()) ? String(value) : d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+    const d = parseLocalDate(value);
+    return !d ? String(value) : d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   const conceptTone = (concept?: string): Tone =>
@@ -553,6 +559,17 @@ export const SupplierEvaluationsView: React.FC = () => {
                                 {canDeleteEvaluation(lastEval) && (
                                   <button
                                     type="button"
+                                    title="Cambiar la fecha de la última evaluación"
+                                    aria-label="Cambiar la fecha de la última evaluación"
+                                    onClick={() => setEvaluationToEditDate(lastEval)}
+                                    className="w-8 h-8 grid place-items-center rounded-md text-fs-muted hover:text-fs-blue hover:bg-fs-blue/10 cursor-pointer"
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </button>
+                                )}
+                                {canDeleteEvaluation(lastEval) && (
+                                  <button
+                                    type="button"
                                     title="Eliminar la última evaluación"
                                     aria-label="Eliminar la última evaluación"
                                     onClick={() => askDeleteEvaluation(lastEval)}
@@ -640,6 +657,17 @@ export const SupplierEvaluationsView: React.FC = () => {
                         {canDeleteEvaluation(ev) && (
                           <button
                             type="button"
+                            title="Cambiar fecha de la evaluación"
+                            aria-label="Cambiar fecha de la evaluación"
+                            onClick={() => setEvaluationToEditDate(ev)}
+                            className="w-8 h-8 grid place-items-center rounded-md text-fs-muted hover:text-fs-blue hover:bg-fs-blue/10 cursor-pointer"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                        )}
+                        {canDeleteEvaluation(ev) && (
+                          <button
+                            type="button"
                             title="Eliminar evaluación"
                             aria-label="Eliminar evaluación"
                             onClick={() => askDeleteEvaluation(ev)}
@@ -701,6 +729,15 @@ export const SupplierEvaluationsView: React.FC = () => {
       )}
 
       {confirmDialog}
+
+      {evaluationToEditDate && (
+        <EvaluationDateModal
+          key={evaluationToEditDate.id}
+          evaluation={evaluationToEditDate}
+          onSave={(ev, iso) => updateSupplierEvaluationDate(ev.id, iso)}
+          onClose={() => setEvaluationToEditDate(null)}
+        />
+      )}
 
       {/* Parameterization Modal */}
       {isConfigModalOpen && (

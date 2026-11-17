@@ -43,6 +43,7 @@ import {
 } from '../../utils/excelExport';
 import { PageHeader, heroSecondaryBtn } from '../ui/archive';
 import { evaluationPercent, formatEvaluationScore } from '../../utils/evaluationScale';
+import { displayDate } from '../../utils/dateOnly';
 
 export type OfficialReportId =
   | 'DIRECTORIO_MAESTRO'
@@ -1945,7 +1946,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                           </span>
                         )}
                       </td>
-                      <td className="p-2.5 text-slate-500 dark:text-slate-400">{ev.evaluationDate}</td>
+                      <td className="p-2.5 text-slate-500 dark:text-slate-400">{displayDate(ev.evaluationDate)}</td>
                     </tr>
                   ))}
                 </tbody>
