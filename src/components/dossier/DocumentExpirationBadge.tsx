@@ -89,7 +89,7 @@ export const DocumentExpirationBadge: React.FC<DocumentExpirationBadgeProps> = (
     );
   }
 
-  // VIGENTE (> 30 días)
+  // VIGENTE (> 7 días)
   return (
     <div className={`inline-flex flex-col ${className}`}>
       <span

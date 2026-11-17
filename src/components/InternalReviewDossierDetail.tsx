@@ -689,7 +689,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               <Clock className="w-4.5 h-4.5" />
             </span>
             <div className="min-w-0">
-              <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Alerta preventiva (≤30 días)</p>
+              <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Documentos por vencer (7 días o menos)</p>
               <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                 {expSummary.expiringSoonDocs.map((doc) => (
                   <span key={doc.code} className="inline-flex items-center gap-1.5 text-[11px] bg-white/70 dark:bg-white/[0.06] px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10">
@@ -1187,6 +1187,16 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     const isActivityReq = supplierCategoryReqs?.activityMandatory?.includes(code) || supplierCategoryReqs?.activityOptional?.includes(code);
                     const isBaseReq = supplierCategoryReqs?.baseMandatory?.includes(code) || supplierCategoryReqs?.baseOptional?.includes(code);
                     const docExp = calculateDocumentExpiration(doc.expirationDate);
+                    // El estado que se ve sale también de la fecha: vencido, o por vencer (una semana o menos)
+                    const hasFile = !!(doc.fileName || doc.customUrl || doc.previewUrl);
+                    const shownStatus =
+                      hasFile && docExp.status === 'VENCIDO'
+                        ? 'VENCIDO'
+                        : hasFile && docExp.status === 'POR_VENCER' && ['APROBADO', 'VIGENTE', 'POR_VENCER'].includes(doc.status)
+                        ? 'POR_VENCER'
+                        : doc.status;
+                    const docStatusLabel =
+                      ({ POR_VENCER: 'Por vencer', VENCIDO: 'Vencido', APROBADO: 'Aprobado', VIGENTE: 'Vigente', PENDIENTE: 'Pendiente', CARGADO: 'Cargado', REQUIERE_CORRECCION: 'Requiere corrección', RECHAZADO: 'Rechazado' } as Record<string, string>)[shownStatus] || shownStatus;
 
                     return (
                       <div
@@ -1281,17 +1291,17 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
                         <div className="flex flex-wrap items-center gap-2 shrink-0">
                           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                            doc.status === 'APROBADO' || doc.status === 'VIGENTE'
+                            shownStatus === 'APROBADO' || shownStatus === 'VIGENTE'
                               ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35'
-                              : doc.status === 'POR_VENCER'
-                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35 font-bold'
-                              : doc.status === 'VENCIDO'
-                              ? 'bg-slate-900 text-cyan-300 border-slate-700 font-bold'
+                              : shownStatus === 'POR_VENCER'
+                              ? 'text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4] ring-1 ring-[#2c84c4]/40 font-bold'
+                              : shownStatus === 'VENCIDO'
+                              ? 'bg-red-500/10 text-red-600 dark:text-red-300 border-red-500/50 font-bold'
                               : doc.status === 'REQUIERE_CORRECCION'
                               ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35'
                               : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
                           }`}>
-                            {doc.status}
+                            {docStatusLabel}
                           </span>
 
                           {doc.fileName && (

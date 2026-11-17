@@ -10,10 +10,12 @@ import {
  * Utility to calculate document expiration based on expiration date.
  * Regla de negocio Flota Sugamuxi S.A.:
  * - Sin fecha: 'NO_APLICA' / Permanente
- * - > 30 días restantes: 'VIGENTE'
- * - 0 a 30 días restantes: 'POR_VENCER' (Alerta preventiva para trámite de renovación oportuna)
- * - < 0 días: 'VENCIDO' (Inhabilita automáticamente al proveedor para órdenes de compra y contratación)
+ * - > 7 días restantes: 'VIGENTE'
+ * - 0 a 7 días restantes (una semana): 'POR_VENCER' (Alerta preventiva para renovar a tiempo)
+ * - < 0 días: 'VENCIDO' (el proveedor pasa a «Documento vencido»)
  */
+export const DOCUMENT_EXPIRING_DAYS = 7;
+
 export function calculateDocumentExpiration(expirationDateStr?: string): DocumentExpirationInfo {
   if (!expirationDateStr || !expirationDateStr.trim()) {
     return {
@@ -64,7 +66,7 @@ export function calculateDocumentExpiration(expirationDateStr?: string): Documen
       formattedDate: expirationDateStr,
       explanation: `Documento vencido hace ${overdue} día${overdue === 1 ? '' : 's'} (${expirationDateStr}). Inhabilita la conformidad del proveedor.`,
     };
-  } else if (diffDays <= 30) {
+  } else if (diffDays <= DOCUMENT_EXPIRING_DAYS) {
     return {
       status: 'POR_VENCER',
       daysRemaining: diffDays,
