@@ -895,22 +895,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       });
       supabaseService.getConvocatorias().then((remoteConvocatorias) => {
-        if (remoteConvocatorias !== null && remoteConvocatorias.length > 0) {
+        if (remoteConvocatorias !== null) {
           setConvocatorias(remoteConvocatorias);
         }
       });
       supabaseService.getEvaluations().then((remoteEvaluations) => {
-        if (remoteEvaluations !== null && remoteEvaluations.length > 0) {
+        if (remoteEvaluations !== null) {
           setSupplierEvaluations(remoteEvaluations);
         }
       });
       supabaseService.getAuditLogs().then((remoteLogs) => {
+        // Solo el superadministrador puede leer la auditoría: para los demás llega vacía y no debe borrar lo local
         if (remoteLogs !== null && remoteLogs.length > 0) {
           setSystemAuditLogs(remoteLogs);
         }
       });
       supabaseService.getEmailNotifications().then((remoteEmails) => {
-        if (remoteEmails !== null && remoteEmails.length > 0) {
+        if (remoteEmails !== null) {
           setEmailNotifications(remoteEmails);
         }
       });
@@ -3802,13 +3803,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }
 
   // Todo el sistema lee el estado ya calculado, así los reportes y filtros nunca ven estados viejos
+  // Las evaluaciones viven en su propia tabla: aquí se unen a cada proveedor para que, al recargar,
+  // la inicial y las anuales sigan apareciendo en su fila.
+  const evaluationsByDossier = React.useMemo(() => {
+    const map: Record<string, SupplierEvaluation[]> = {};
+    supplierEvaluations.forEach((e) => {
+      (map[e.dossierId] = map[e.dossierId] || []).push(e);
+    });
+    return map;
+  }, [supplierEvaluations]);
+
   const dossiersWithStatus = React.useMemo(
     () =>
       allDossiers.map((d) => {
         const st = computeProcessStatus(d);
-        return d.processStatus === st ? d : { ...d, processStatus: st };
+        const stored = evaluationsByDossier[d.id] || [];
+        const own = Array.isArray(d.evaluations) ? d.evaluations : [];
+        const merged = [...stored, ...own.filter((o) => !stored.some((e) => e.id === o.id))];
+        const sameEvals = merged.length === own.length && merged.every((e, i) => e === own[i]);
+        if (d.processStatus === st && sameEvals) return d;
+        const initial = merged.find((e) => e.evaluationType === 'INICIAL');
+        return {
+          ...d,
+          processStatus: st,
+          ...(sameEvals ? {} : { evaluations: merged }),
+          ...(initial && !d.initialEvaluation ? { initialEvaluation: initial } : {}),
+        };
       }),
-    [allDossiers, categoriesConfig, documentDefinitions, baseRequirementsConfig]
+    [allDossiers, categoriesConfig, documentDefinitions, baseRequirementsConfig, evaluationsByDossier]
   );
   const visibleDossiersWithStatus = React.useMemo(
     () =>
