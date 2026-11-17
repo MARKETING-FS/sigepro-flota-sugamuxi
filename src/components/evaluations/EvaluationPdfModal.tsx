@@ -11,6 +11,9 @@ interface EvaluationPdfModalProps {
   onClose: () => void;
 }
 
+/** PDF ya armado por evaluación: al volver a abrir el acta aparece al instante. */
+const pdfCache = new Map<string, { blob: Blob; fileName: string }>();
+
 /**
  * Acta de la evaluación inicial: es el formato FS.GA-DOC-006 ya diligenciado con los datos de la evaluación.
  * Se genera sola al abrirse y se puede descargar en PDF.
@@ -34,8 +37,24 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
     setPdfUrl(null);
     setError(null);
 
+    const info0 = dossier?.basicInfo;
+    const cacheKey = `${evaluation.id}|${evaluation.totalScore}|${evaluation.observations || ''}|${info0?.address || ''}|${info0?.city || ''}`;
+    const hit = pdfCache.get(cacheKey);
+    if (hit) {
+      blobRef.current = hit.blob;
+      fileNameRef.current = hit.fileName;
+      url = URL.createObjectURL(hit.blob);
+      setPdfUrl(url);
+      return () => {
+        if (url) URL.revokeObjectURL(url);
+      };
+    }
+
     (async () => {
       try {
+        // Deja que el cuadro con "Diligenciando el formato…" se pinte antes del trabajo pesado
+        await new Promise<void>((r) => requestAnimationFrame(() => window.setTimeout(r, 0)));
+        if (cancelled) return;
         const info = dossier?.basicInfo;
         const isNatural = info?.supplierType === 'NATURAL';
         const supplierName = evaluation.supplierName || (isNatural ? info?.fullName : info?.companyName) || 'Proveedor';
@@ -61,6 +80,7 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
         if (cancelled) return;
         blobRef.current = blob;
         fileNameRef.current = evaluationPdfFileName(supplierName);
+        pdfCache.set(cacheKey, { blob, fileName: fileNameRef.current });
         url = URL.createObjectURL(blob);
         setPdfUrl(url);
       } catch (e) {

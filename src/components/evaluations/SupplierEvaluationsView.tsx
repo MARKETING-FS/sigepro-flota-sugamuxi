@@ -33,6 +33,7 @@ import { EvaluationFormModal } from './EvaluationFormModal';
 import { EvaluationCertificateModal } from './EvaluationCertificateModal';
 import { EvaluationPdfModal } from './EvaluationPdfModal';
 import { useConfirm } from '../ui/ConfirmDialog';
+import { preloadPdfTools } from '../../utils/certificatePdf';
 import { EvaluationMethodConfigModal } from './EvaluationMethodConfigModal';
 import { EvaluationErrorBoundary } from './EvaluationErrorBoundary';
 import { evaluationConceptLabel, evaluationMaxScore, evaluationPercent, isDoc006Evaluation } from '../../utils/evaluationScale';
@@ -319,6 +320,11 @@ export const SupplierEvaluationsView: React.FC = () => {
   const [view, setView] = useState<'due' | 'all' | 'history'>('all');
   const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
 
+  // Mientras se mira la lista, se deja lista la librería del PDF para que el acta abra de una vez
+  React.useEffect(() => {
+    preloadPdfTools();
+  }, []);
+
   const canDeleteEvaluation = (ev: SupplierEvaluation) =>
     !isReadOnly && (role === 'ADMIN' || ev.evaluatorId === activeUser?.id);
 
@@ -520,6 +526,14 @@ export const SupplierEvaluationsView: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-3 whitespace-nowrap">
                         <StatusPill tone={annual.tone}>{annual.text}</StatusPill>
+                        {r.annualStatus !== 'NO_APLICA_INACTIVO' && (
+                          <div className="mt-1 text-sm text-[#3a5274] leading-snug">
+                            <div>Toca el <strong className="font-semibold text-fs-navy dark:text-white">{fmtDate(r.annualDueDate)}</strong></div>
+                            <div className="text-fs-muted">
+                              Se cuenta desde {fmtDate(r.annualBaseDate)} · {r.annualBaseSource === 'CREACION' ? 'creación del proveedor' : 'última evaluación anual'}
+                            </div>
+                          </div>
+                        )}
                         {latestAnnualEval && (
                           <button type="button" onClick={() => setSelectedEvaluationForCert(latestAnnualEval)} className="block text-sm text-[#3a5274] hover:text-fs-blue mt-1 cursor-pointer">
                             Última: {latestAnnualEval.totalScore} / {evaluationMaxScore(latestAnnualEval)} · {fmtDate(latestAnnualEval.evaluationDate)}

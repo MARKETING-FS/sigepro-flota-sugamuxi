@@ -316,19 +316,65 @@ export function downloadBlob(blob: Blob, fileName: string) {
   window.setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-/** Lee una imagen pública y la devuelve como data URL (para incrustarla en el PDF). */
-export async function imageToDataUrl(path: string): Promise<string | undefined> {
+const imageCache = new Map<string, Promise<string | undefined>>();
+
+/**
+ * Lee una imagen pública y la devuelve como data URL (para incrustarla en el PDF).
+ * La imagen se reduce a `maxWidth` píxeles: jsPDF vuelve a comprimir cada imagen al armar el PDF y con
+ * el logo original (2380 px) eso bloqueaba la pantalla cerca de 2 segundos. Queda en memoria para no repetirlo.
+ */
+export function imageToDataUrl(path: string, maxWidth = 420): Promise<string | undefined> {
+  const key = `${path}@${maxWidth}`;
+  let cached = imageCache.get(key);
+  if (!cached) {
+    cached = loadScaledImage(path, maxWidth);
+    imageCache.set(key, cached);
+  }
+  return cached;
+}
+
+async function loadScaledImage(path: string, maxWidth: number): Promise<string | undefined> {
   try {
     const res = await fetch(path);
     if (!res.ok) return undefined;
     const blob = await res.blob();
-    return await new Promise<string>((resolve, reject) => {
+    const original = await new Promise<string>((resolve, reject) => {
       const r = new FileReader();
       r.onload = () => resolve(String(r.result));
       r.onerror = reject;
       r.readAsDataURL(blob);
     });
+    try {
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const im = new Image();
+        im.onload = () => resolve(im);
+        im.onerror = reject;
+        im.src = original;
+      });
+      if (img.width <= maxWidth) return original;
+      const canvas = document.createElement('canvas');
+      canvas.width = maxWidth;
+      canvas.height = Math.round((img.height * maxWidth) / img.width);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return original;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/png');
+    } catch {
+      return original;
+    }
   } catch {
     return undefined;
   }
+}
+
+/** Calienta lo que más tarda (la librería de PDF y el logo) para que el primer PDF abra rápido. */
+export function preloadPdfTools(): void {
+  const run = () => {
+    void import('jspdf').catch(() => undefined);
+    void imageToDataUrl('/logo-flota.png');
+  };
+  const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
+  if (idle) idle(run);
+  else window.setTimeout(run, 1200);
 }

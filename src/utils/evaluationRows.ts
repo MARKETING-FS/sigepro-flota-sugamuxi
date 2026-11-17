@@ -17,6 +17,10 @@ export interface EvaluationRow {
   nextCycleNumber: number;
   createdDate: Date;
   annualDueDate: Date;
+  /** Fecha desde la que se cuenta el año de la evaluación anual */
+  annualBaseDate: Date;
+  /** De dónde sale esa fecha: la creación del proveedor o su última evaluación anual */
+  annualBaseSource: 'CREACION' | 'ULTIMA_ANUAL';
   diffDays: number;
   annualStatus: AnnualEvaluationStatus;
 }
@@ -76,6 +80,8 @@ export function buildEvaluationRow(dossier: SupplierDossier, now: Date = new Dat
   // If the active supplier has a previous annual evaluation, next evaluation is due 1 year after the last evaluation.
   // If no annual evaluation has been done yet, it is due 1 year after creation date.
   let annualDueDate: Date;
+  let annualBaseDate: Date = createdDate;
+  let annualBaseSource: 'CREACION' | 'ULTIMA_ANUAL' = 'CREACION';
   if (latestAnnualEval) {
     let baseDate: Date;
     try {
@@ -89,6 +95,8 @@ export function buildEvaluationRow(dossier: SupplierDossier, now: Date = new Dat
     } catch {
       baseDate = createdDate;
     }
+    annualBaseDate = baseDate;
+    annualBaseSource = 'ULTIMA_ANUAL';
     annualDueDate = new Date(baseDate);
     annualDueDate.setFullYear(annualDueDate.getFullYear() + 1);
   } else {
@@ -134,6 +142,8 @@ export function buildEvaluationRow(dossier: SupplierDossier, now: Date = new Dat
     nextCycleNumber,
     createdDate,
     annualDueDate,
+    annualBaseDate,
+    annualBaseSource,
     diffDays,
     annualStatus,
   };
