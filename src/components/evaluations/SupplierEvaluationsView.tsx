@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Sliders, Printer, Trash2, FileSpreadsheet, Star } from 'lucide-react';
+import { Search, Plus, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   SupplierDossier,
@@ -31,9 +31,11 @@ import {
 } from '../ui/archive';
 import { EvaluationFormModal } from './EvaluationFormModal';
 import { EvaluationCertificateModal } from './EvaluationCertificateModal';
+import { EvaluationPdfModal } from './EvaluationPdfModal';
+import { useConfirm } from '../ui/ConfirmDialog';
 import { EvaluationMethodConfigModal } from './EvaluationMethodConfigModal';
 import { EvaluationErrorBoundary } from './EvaluationErrorBoundary';
-import { evaluationConceptLabel, evaluationMaxScore, evaluationPercent } from '../../utils/evaluationScale';
+import { evaluationConceptLabel, evaluationMaxScore, evaluationPercent, isDoc006Evaluation } from '../../utils/evaluationScale';
 
 export const SupplierEvaluationsView: React.FC = () => {
   const {
@@ -314,7 +316,26 @@ export const SupplierEvaluationsView: React.FC = () => {
   };
 
   // Pestañas: lo que toca calificar primero, luego todos y el historial
-  const [view, setView] = useState<'due' | 'all' | 'history'>('due');
+  const [view, setView] = useState<'due' | 'all' | 'history'>('all');
+  const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
+
+  const canDeleteEvaluation = (ev: SupplierEvaluation) =>
+    !isReadOnly && (role === 'ADMIN' || ev.evaluatorId === activeUser?.id);
+
+  /** Alerta de eliminación con el diseño del sistema (reemplaza el cuadro gris del navegador). */
+  const askDeleteEvaluation = (ev: SupplierEvaluation) =>
+    askConfirm({
+      title: '¿Eliminar esta evaluación?',
+      message: `Se eliminará la evaluación ${ev.evaluationType === 'INICIAL' ? 'inicial' : `anual${ev.annualCycleNumber ? ` (año ${ev.annualCycleNumber})` : ''}`} de ${ev.supplierName}, con ${ev.totalScore} de ${evaluationMaxScore(ev)} puntos.`,
+      hint: 'No se puede deshacer. Si el proveedor se queda sin evaluación inicial, volverá a aparecer como pendiente por calificar.',
+      hintIcon: <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />,
+      icon: <Trash2 className="w-6 h-6" />,
+      confirmLabel: 'Sí, eliminar',
+      onConfirm: () => {
+        const res = deleteSupplierEvaluation(ev.id);
+        if (res && res.success === false) showToast(res.message, 'warning', 'NO SE ELIMINÓ');
+      },
+    });
 
   const isDueRow = (r: (typeof supplierEvaluationRows)[number]) =>
     r.dossier.processStatus !== 'RECHAZADO' &&
@@ -395,9 +416,9 @@ export const SupplierEvaluationsView: React.FC = () => {
         tabs={
           <HeroTabs
             items={[
-              { key: 'due', label: 'Por calificar', count: dueRows.length },
               { key: 'all', label: 'Todos los proveedores', count: filteredRows.length },
-              { key: 'history', label: 'Historial', count: filteredEvaluations.length },
+              { key: 'due', label: 'Por calificar', count: dueRows.length },
+              { key: 'history', label: 'Evaluados', count: filteredEvaluations.length },
             ]}
             value={view}
             onChange={(k) => setView(k as 'due' | 'all' | 'history')}
@@ -506,7 +527,29 @@ export const SupplierEvaluationsView: React.FC = () => {
                         )}
                       </td>
                       <td className="py-3.5 px-4">
-                        <div className="flex justify-end">
+                        <div className="flex justify-end items-center gap-3">
+                          {(() => {
+                            const lastEval = latestAnnualEval || initialEval;
+                            if (!lastEval) return null;
+                            return (
+                              <>
+                                <button type="button" onClick={() => setSelectedEvaluationForCert(lastEval)} className={`${secondaryBtn} h-8 px-3`}>
+                                  <Printer className="w-4 h-4" /> Acta
+                                </button>
+                                {canDeleteEvaluation(lastEval) && (
+                                  <button
+                                    type="button"
+                                    title="Eliminar la última evaluación"
+                                    aria-label="Eliminar la última evaluación"
+                                    onClick={() => askDeleteEvaluation(lastEval)}
+                                    className="w-8 h-8 grid place-items-center rounded-md text-fs-muted hover:text-fs-bad hover:bg-fs-bad-soft cursor-pointer"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </>
+                            );
+                          })()}
                           {isReadOnly ? null : needsInitial || needsAnnual ? (
                             <button
                               type="button"
@@ -550,7 +593,7 @@ export const SupplierEvaluationsView: React.FC = () => {
               {filteredEvaluations.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-14 text-center text-fs-muted">
-                    Aún no hay evaluaciones registradas{currentEvaluatorUser ? ` de ${currentEvaluatorUser.name}` : ''}.
+                    Aún no hay proveedores evaluados{currentEvaluatorUser ? ` de ${currentEvaluatorUser.name}` : ''}.
                   </td>
                 </tr>
               ) : (
@@ -580,16 +623,12 @@ export const SupplierEvaluationsView: React.FC = () => {
                         <button type="button" onClick={() => setSelectedEvaluationForCert(ev)} className={`${secondaryBtn} h-8 px-3`}>
                           <Printer className="w-4 h-4" /> Acta
                         </button>
-                        {!isReadOnly && (role === 'ADMIN' || ev.evaluatorId === activeUser?.id) && (
+                        {canDeleteEvaluation(ev) && (
                           <button
                             type="button"
                             title="Eliminar evaluación"
                             aria-label="Eliminar evaluación"
-                            onClick={() => {
-                              if (confirm(`¿Eliminar la evaluación ${ev.certificateCode}?`)) {
-                                deleteSupplierEvaluation(ev.id);
-                              }
-                            }}
+                            onClick={() => askDeleteEvaluation(ev)}
                             className="w-8 h-8 grid place-items-center rounded-md text-fs-muted hover:text-fs-bad hover:bg-fs-bad-soft cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -622,8 +661,9 @@ export const SupplierEvaluationsView: React.FC = () => {
               setIsEvaluationFormOpen(false);
               setEvalModalSupplier(null);
             }}
-            onSuccess={() => {
-              // Evaluacion registrada exitosamente
+            onSuccess={(saved) => {
+              // Al registrar, el formato ya diligenciado se abre solo
+              setSelectedEvaluationForCert(saved);
             }}
           />
         </EvaluationErrorBoundary>
@@ -635,12 +675,18 @@ export const SupplierEvaluationsView: React.FC = () => {
           fallbackTitle="Certificado de Evaluación"
           onClose={() => setSelectedEvaluationForCert(null)}
         >
-          <EvaluationCertificateModal
-            evaluation={selectedEvaluationForCert}
-            onClose={() => setSelectedEvaluationForCert(null)}
-          />
+          {isDoc006Evaluation(selectedEvaluationForCert) ? (
+            <EvaluationPdfModal evaluation={selectedEvaluationForCert} onClose={() => setSelectedEvaluationForCert(null)} />
+          ) : (
+            <EvaluationCertificateModal
+              evaluation={selectedEvaluationForCert}
+              onClose={() => setSelectedEvaluationForCert(null)}
+            />
+          )}
         </EvaluationErrorBoundary>
       )}
+
+      {confirmDialog}
 
       {/* Parameterization Modal */}
       {isConfigModalOpen && (

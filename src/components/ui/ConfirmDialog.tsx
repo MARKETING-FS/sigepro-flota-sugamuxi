@@ -7,6 +7,10 @@ export interface ConfirmOptions {
   /** Aviso sobre cómo volver a activarlo */
   hint?: string;
   confirmLabel?: string;
+  /** Icono grande de la ventana (por defecto, el triángulo de aviso) */
+  icon?: React.ReactNode;
+  /** Icono del recuadro de aviso (por defecto, la flecha de restaurar) */
+  hintIcon?: React.ReactNode;
   onConfirm: () => void;
 }
 
@@ -26,7 +30,7 @@ export const ConfirmDialog: React.FC<{ options: ConfirmOptions | null; onClose: 
         <div className="p-6">
           <div className="flex items-start gap-4">
             <span className="flex w-12 h-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2c84c4] to-[#69bdd7] text-white shadow-[0_8px_20px_-8px_rgba(105,189,215,0.7)]">
-              <AlertTriangle className="w-6 h-6" />
+              {options.icon || <AlertTriangle className="w-6 h-6" />}
             </span>
             <div className="min-w-0">
               <h3 className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white leading-tight">{options.title}</h3>
@@ -35,7 +39,7 @@ export const ConfirmDialog: React.FC<{ options: ConfirmOptions | null; onClose: 
           </div>
           {options.hint && (
             <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-[#2c84c4]/25 bg-[#2c84c4]/10 px-3.5 py-3 text-[13px] text-[#1d5fa8] dark:text-[#69bdd7]">
-              <RotateCcw className="w-4 h-4 shrink-0 mt-0.5" />
+              {options.hintIcon || <RotateCcw className="w-4 h-4 shrink-0 mt-0.5" />}
               <span>{options.hint}</span>
             </div>
           )}

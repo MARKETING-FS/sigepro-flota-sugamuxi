@@ -26,6 +26,7 @@ import {
 } from '../../data/evaluationDoc006';
 import {
   SupplierDossier,
+  SupplierEvaluation,
   SupplierEvaluationType,
   EvaluationCriterionScore,
   EvaluationConcept,
@@ -35,7 +36,7 @@ interface EvaluationFormModalProps {
   initialSupplier?: SupplierDossier | null;
   initialType?: SupplierEvaluationType;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (evaluation: SupplierEvaluation) => void;
 }
 
 export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
@@ -256,7 +257,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     const isAnnual =
       evalType === 'ANUAL_1_ANO' || (evalType as string) === 'ANUAL_PERIODICA';
 
-    recordSupplierEvaluation({
+    const saved = recordSupplierEvaluation({
       dossierId: selectedDossier.id,
       supplierName: selectedDossier.basicInfo?.companyName || 'Proveedor Registrado',
       supplierDoc: supplierDocNumber,
@@ -281,7 +282,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     });
 
     setIsSubmitting(false);
-    if (onSuccess) onSuccess();
+    if (onSuccess && saved?.id) onSuccess(saved);
     onClose();
   };
 
@@ -547,6 +548,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
 
                           <div className="mt-4 sm:pl-[52px] space-y-3">
                             <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6b84a3]">Cómo se mide · elija una opción</div>
+                            {criterion.note && <p className="text-[13px] text-[#3a5274] dark:text-slate-300 -mt-1">{criterion.note}</p>}
                             <div role="radiogroup" aria-label={`Puntaje de ${criterion.name}`} className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {criterion.options.map((opt) => {
                                 const on = picked === opt.points;

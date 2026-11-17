@@ -12,6 +12,7 @@ import {
   Sliders,
   Plus,
   Trash2,
+  AlertTriangle,
   Edit2,
   RotateCcw,
   CheckCircle2,
@@ -22,6 +23,7 @@ import {
   Percent,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useConfirm } from '../ui/ConfirmDialog';
 import {
   EvaluationCriterionConfig,
   EvaluationMethodConfig,
@@ -45,6 +47,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
   } = useApp();
 
   const [activeSubTab, setActiveSubTab] = useState<'criteria' | 'thresholds' | 'general'>('criteria');
+  const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
 
   // Editing Criterion State
   const [editingCriterionId, setEditingCriterionId] = useState<string | null>(null);
@@ -184,9 +187,14 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
 
           <button
             onClick={() => {
-              if (confirm('¿Restaurar la metodología de evaluación a los valores institucionales SIG por defecto?')) {
-                resetEvaluationMethodToDefault();
-              }
+              askConfirm({
+                title: '¿Restaurar la metodología?',
+                message: 'Los criterios, pesos y umbrales volverán a los valores institucionales SIG por defecto.',
+                hint: 'Se pierden los cambios que hayas hecho en esta parametrización.',
+                hintIcon: <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />,
+                confirmLabel: 'Sí, restaurar',
+                onConfirm: () => resetEvaluationMethodToDefault(),
+              });
             }}
             className="text-sm font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0f3d75] flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-[#eef3fa] dark:hover:bg-white/10 cursor-pointer"
             title="Restaurar valores iniciales"
@@ -538,9 +546,15 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                           </button>
                           <button
                             onClick={() => {
-                              if (confirm(`¿Eliminar el criterio "${crit.name}"?`)) {
-                                deleteEvaluationCriterion(crit.id);
-                              }
+                              askConfirm({
+                                title: '¿Eliminar este criterio?',
+                                message: `Se eliminará el criterio "${crit.name}" de la evaluación anual.`,
+                                hint: 'No se puede deshacer. Las evaluaciones ya registradas no cambian.',
+                                hintIcon: <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />,
+                                icon: <Trash2 className="w-6 h-6" />,
+                                confirmLabel: 'Sí, eliminar',
+                                onConfirm: () => deleteEvaluationCriterion(crit.id),
+                              });
                             }}
                             className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                             title="Eliminar criterio"
@@ -706,6 +720,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
           </button>
         </div>
       </div>
+      {confirmDialog}
     </div>
   );
 };
