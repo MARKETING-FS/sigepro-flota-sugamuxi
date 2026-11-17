@@ -57,7 +57,8 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
         const res = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) return;
         const json = await res.json();
-        const list = (json.users || []).map((u: { id: string; name: string; email: string; role: string }) => ({
+        // Solo los administradores: el superadministrador no se asigna a sí mismo
+        const list = (json.users || []).filter((u: { role: string }) => u.role === 'ADMINISTRADOR').map((u: { id: string; name: string; email: string; role: string }) => ({
           id: u.id,
           name: u.name || u.email,
           roleLabel:
@@ -67,10 +68,8 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               ? 'Administrador'
               : 'Usuario',
         }));
-        if (cancelled || list.length === 0) return;
+        if (cancelled) return;
         setRealUsers(list);
-        const me = sess.session?.user?.id;
-        setAssignedReviewerId((cur) => (list.some((x: { id: string }) => x.id === cur) ? cur : list.find((x: { id: string }) => x.id === me)?.id || list[0].id));
       } catch {
         /* sin conexión: se conserva la asignación por defecto */
       }
@@ -80,9 +79,8 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
     };
   }, [isOpen, isSuper]);
 
-  const [assignedReviewerId, setAssignedReviewerId] = useState<string>(
-    activeUserId
-  );
+  // Vacío = sin administrador asignado (se asigna después desde el expediente)
+  const [assignedReviewerId, setAssignedReviewerId] = useState<string>('');
 
   const [initialStatus] = useState<ProcessStatus>('DOCUMENTACION_PENDIENTE');
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(true);
@@ -271,9 +269,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
         createdByName: creatorName,
         assignedReviewerId: isSuper ? assignedReviewerId : activeUserId,
         assignedReviewerName: isSuper
-          ? realUsers.find((u) => u.id === assignedReviewerId)?.name ||
-            systemUsers.find((u) => u.id === assignedReviewerId)?.name ||
-            activeUser.name
+          ? realUsers.find((u) => u.id === assignedReviewerId)?.name || undefined
           : activeUser.name,
         complianceChecks: compliance,
       };
@@ -464,7 +460,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               {isSuper && (
               <div>
                 <label className="block text-xs font-bold text-[#3a5274] dark:text-slate-300 mb-1.5 uppercase tracking-wider flex items-center justify-between">
-                  <span>Avaluador / Usuario con Acceso</span>
+                  <span>Administrador asignado</span>
                   <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-bold">Custodia y Evaluación</span>
                 </label>
                 <select
@@ -473,6 +469,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   disabled={role === 'REVISOR'}
                   className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-xl text-xs text-[#0b1d3a] dark:text-white font-medium focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-hidden disabled:bg-slate-100 disabled:cursor-not-allowed"
                 >
+                  <option value="">Sin administrador asignado</option>
                   {realUsers.map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.name} — {u.roleLabel}

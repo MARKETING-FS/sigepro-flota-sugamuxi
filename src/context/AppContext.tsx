@@ -1300,8 +1300,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       economicActivity: input.economicActivity || 'Actividad comercial general autorizada',
       processStatus: input.initialStatus,
       documents: initialDocs,
-      assignedReviewerId: input.assignedReviewerId || activeUserId,
-      assignedReviewerName: input.assignedReviewerName || activeUser.name,
+      // Si el formulario manda el campo (aunque vacío) se respeta: vacío = sin administrador asignado
+      assignedReviewerId: input.assignedReviewerId !== undefined ? input.assignedReviewerId || undefined : activeUserId,
+      assignedReviewerName: input.assignedReviewerId !== undefined ? input.assignedReviewerName || undefined : activeUser.name,
       assignedAt: timestamp,
       assignedBy: input.createdByName,
       internalConcepts: {

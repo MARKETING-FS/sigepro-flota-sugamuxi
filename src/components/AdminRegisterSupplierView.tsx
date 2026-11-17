@@ -77,9 +77,8 @@ export const AdminRegisterSupplierView: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>(
     categoriesConfig[0]?.category || 'Mantenimiento Automotriz y Repuestos'
   );
-  const [assignedReviewerId, setAssignedReviewerId] = useState<string>(
-    activeUserId
-  );
+  // Vacío = sin administrador asignado (se asigna después desde el expediente)
+  const [assignedReviewerId, setAssignedReviewerId] = useState<string>('');
 
   // Evaluadores reales: los usuarios registrados en la base de datos
   useEffect(() => {
@@ -93,7 +92,8 @@ export const AdminRegisterSupplierView: React.FC = () => {
         const res = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) return;
         const json = await res.json();
-        const list = (json.users || []).map((u: { id: string; name: string; email: string; role: string }) => ({
+        // Solo los administradores: el superadministrador no se asigna a sí mismo
+        const list = (json.users || []).filter((u: { role: string }) => u.role === 'ADMINISTRADOR').map((u: { id: string; name: string; email: string; role: string }) => ({
           id: u.id,
           name: u.name || u.email,
           email: u.email,
@@ -105,10 +105,8 @@ export const AdminRegisterSupplierView: React.FC = () => {
               ? 'Administrador'
               : 'Usuario',
         }));
-        if (cancelled || list.length === 0) return;
+        if (cancelled) return;
         setRealUsers(list);
-        const me = sess.session?.user?.id;
-        setAssignedReviewerId((cur) => (list.some((x: { id: string }) => x.id === cur) ? cur : list.find((x: { id: string }) => x.id === me)?.id || list[0].id));
       } catch {
         /* sin conexión: se conserva la asignación por defecto */
       }
@@ -379,9 +377,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
         createdByName: role === 'ADMIN' ? 'Administrador General' : activeUser.name || 'Revisor Técnico Evaluador',
         assignedReviewerId: isSuper ? assignedReviewerId : activeUserId,
         assignedReviewerName: isSuper
-          ? realUsers.find((u) => u.id === assignedReviewerId)?.name ||
-            systemUsers.find((u) => u.id === assignedReviewerId)?.name ||
-            activeUser.name
+          ? realUsers.find((u) => u.id === assignedReviewerId)?.name || undefined
           : activeUser.name,
         complianceChecks: {
           sarlaftResult: compliance.sarlaftResult,
@@ -508,7 +504,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     Paso 1: Modalidad, Criticidad SIG y Asignación Operativa
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Defina la naturaleza jurídica, el nivel de criticidad según el Sistema Integrado de Gestión y el evaluador a cargo.
+                    Defina la naturaleza jurídica, el nivel de criticidad según el Sistema Integrado de Gestión y, si quiere, el administrador a cargo.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
@@ -795,7 +791,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <UserCheck className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7]" />
                         <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          4. Evaluador Asignado *
+                          4. Administrador asignado (opcional)
                         </h4>
                       </div>
                       {role === 'REVISOR' ? (
@@ -811,8 +807,30 @@ export const AdminRegisterSupplierView: React.FC = () => {
 
                     {/* Listado de Evaluadores */}
                     <div className="p-3.5 space-y-2">
+                      <div
+                        onClick={() => setAssignedReviewerId('')}
+                        className={`p-3 rounded-2xl border cursor-pointer transition-all duration-300 flex items-center justify-between gap-3 ${
+                          assignedReviewerId === ''
+                            ? 'border-blue-600 dark:border-cyan-400 bg-blue-50/70 dark:bg-blue-950/60 shadow-xs ring-1 ring-blue-500/20'
+                            : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 bg-white dark:bg-slate-900/40'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <h5 className="font-bold text-xs text-slate-900 dark:text-white">Sin administrador asignado</h5>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                            Se lo asigna después, desde el expediente, al administrador que quiera.
+                          </span>
+                        </div>
+                        {assignedReviewerId === '' ? (
+                          <div className="w-5 h-5 rounded-full bg-gradient-action text-white flex items-center justify-center shadow-glow shrink-0">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-[#c3d2e4] dark:border-white/25 shrink-0" />
+                        )}
+                      </div>
                       {realUsers.length === 0 && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 px-1">Cargando usuarios registrados…</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 px-1">Todavía no hay administradores creados.</p>
                       )}
                       {realUsers.map((user) => {
                         const isSelected = assignedReviewerId === user.id;
@@ -884,7 +902,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                           Custodia y Responsabilidad Operativa
                         </h6>
                         <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
-                          El evaluador seleccionado asumirá la revisión documental del expediente, el cotejo en listas restrictivas (SARLAFT/OFAC) y la emisión del concepto vinculante para Flota Sugamuxi S.A.
+                          El administrador seleccionado asumirá la revisión documental del expediente, el cotejo en listas restrictivas (SARLAFT/OFAC) y la emisión del concepto vinculante para Flota Sugamuxi S.A.
                         </p>
                         <div className="flex items-center gap-2 mt-2 pt-2 border-t border-blue-100 dark:border-blue-900/50 text-[10px] text-slate-500 dark:text-slate-400">
                           <span className="font-semibold text-blue-900 dark:text-cyan-300">
@@ -1256,6 +1274,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       disabled={role === 'REVISOR'}
                       className="fs-card w-full px-3 py-2 border-slate-300 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed"
                     >
+                      <option value="">Sin administrador asignado</option>
                       {realUsers.map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.name} ({u.roleLabel})

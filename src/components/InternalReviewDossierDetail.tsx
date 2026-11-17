@@ -33,6 +33,7 @@ import {
   ShieldAlert,
   MapPin,
   Tag,
+  UserCheck,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ContractTab } from './dossier/ContractTab';
@@ -70,6 +71,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   const {
     role,
     accountRole,
+    systemUsers,
+    assignSupplierReviewer,
     isReadOnly,
     dossiers,
     approveDocument,
@@ -88,6 +91,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   } = useApp();
 
   const dossier = dossiers.find((d) => d.id === dossierId);
+  const admins = systemUsers.filter((u) => u.shortName === 'Administrador');
 
   const getDocInstitutionalName = (docCode: string, fallbackName?: string) => {
     const docDef = (documentDefinitions || []).find((d) => d.code === docCode);
@@ -517,6 +521,38 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <span>{dossier.selectedCategory}</span>
                   </span>
                 )}
+                {accountRole === 'SUPERADMIN' ? (
+                  <label className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-0.5 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-medium">
+                    <UserCheck className="w-3.5 h-3.5" />
+                    <span className="text-white/70">Administrador</span>
+                    <select
+                      value={admins.some((u) => u.id === dossier.assignedReviewerId) ? dossier.assignedReviewerId : ''}
+                      onChange={(e) => {
+                        const picked = admins.find((u) => u.id === e.target.value);
+                        assignSupplierReviewer(dossier.id, picked?.id || '', picked?.name || '');
+                        showToast(
+                          picked ? `Expediente asignado a ${picked.name}.` : 'Expediente sin administrador asignado.',
+                          'success',
+                          'ASIGNACIÓN'
+                        );
+                      }}
+                      className="h-7 max-w-[210px] rounded-full bg-white/15 text-white text-[11px] font-semibold px-2 outline-hidden cursor-pointer [&>option]:text-[#0b1d3a]"
+                      aria-label="Administrador asignado al expediente"
+                    >
+                      <option value="">Sin asignar</option>
+                      {admins.map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : dossier.assignedReviewerName ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-medium">
+                    <UserCheck className="w-3.5 h-3.5" />
+                    <span>{dossier.assignedReviewerName}</span>
+                  </span>
+                ) : null}
               </div>
             </div>
           </div>
@@ -591,7 +627,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               {expSummary.hasExpiredDocs ? (
                 <span className="text-red-500 font-semibold flex items-center gap-1.5">
                   <ShieldAlert className="w-4 h-4" />
-                  Inhabilitado preventivamente
+                  Documento vencido
                 </span>
               ) : allDocumentsApproved ? (
                 <span className="text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] font-semibold flex items-center gap-1.5">
