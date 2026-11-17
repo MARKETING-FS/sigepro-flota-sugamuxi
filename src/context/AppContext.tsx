@@ -396,6 +396,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const activeUserId: string = authProfile ? authProfile.sigeproUserId || authProfile.id : '';
 
+  /**
+   * Quién ve qué proveedor: el superadministrador ve todos (incluidos los sin asignar);
+   * un administrador solo ve los que están asignados a él (los que él registra quedan a su nombre);
+   * el usuario de consulta ve todos.
+   */
+  const canSeeDossier = (d: { assignedReviewerId?: string }): boolean => {
+    if (accountRole !== 'ADMIN') return true;
+    const owner = d.assignedReviewerId;
+    return !!owner && (owner === activeUserId || owner === authProfile?.id);
+  };
+
   const activeUser: SystemUser = React.useMemo(() => {
     const name = authProfile?.name || 'Usuario';
     const initials =
@@ -910,7 +921,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (supabaseService.isConfigured() && authUserKey) {
       supabaseService.getDossiers().then((remoteDossiers) => {
         if (remoteDossiers !== null) {
-          setAllDossiers(remoteDossiers);
+          setAllDossiers(remoteDossiers.filter(canSeeDossier));
         }
       });
       supabaseService.getConvocatorias().then((remoteConvocatorias) => {
@@ -1014,6 +1025,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     }
   }, [authUserKey]);
+
+  // Un administrador nunca conserva en memoria proveedores que no son suyos (p. ej. datos de otra sesión en el mismo equipo)
+  useEffect(() => {
+    if (accountRole !== 'ADMIN') return;
+    setAllDossiers((prev) => {
+      const next = prev.filter(canSeeDossier);
+      return next.length === prev.length ? prev : next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountRole, activeUserId, allDossiers]);
 
   // Cada vez que entra una sesión nueva (o cambia la persona) se empieza en el Resumen;
   // además un rol sin permiso nunca queda en una pantalla exclusiva del superadministrador.
@@ -2198,7 +2219,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const effectiveAssignedBy = assignedBy || `${activeUser.name} (${activeUser.shortName})`;
     const nowTimestamp = getNowFormatted();
 
-    setAllDossiers((prev) =>
+    setDossiers((prev) =>
       prev.map((d) => {
         if (d.id !== dossierId) return d;
         const newAudit: AuditLog = {
@@ -3791,7 +3812,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const previous = dossier.annualDueDateOverride || null;
     if (previous === isoDate) return { success: true, message: 'La fecha no cambió.' };
 
-    setAllDossiers((prev) => prev.map((d) => (d.id === dossierId ? { ...d, annualDueDateOverride: isoDate || undefined } : d)));
+    setDossiers((prev) => prev.map((d) => (d.id === dossierId ? { ...d, annualDueDateOverride: isoDate || undefined } : d)));
 
     addSystemAuditLog({
       dossierId,
@@ -4004,11 +4025,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     [allDossiers, categoriesConfig, documentDefinitions, baseRequirementsConfig, evaluationsByDossier]
   );
   const visibleDossiersWithStatus = React.useMemo(
-    () =>
-      role === 'REVISOR'
-        ? dossiersWithStatus.filter((d) => d.assignedReviewerId === activeUserId)
-        : dossiersWithStatus,
-    [dossiersWithStatus, role, activeUserId]
+    () => dossiersWithStatus.filter(canSeeDossier),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dossiersWithStatus, accountRole, activeUserId, authProfile?.id]
   );
 
   return (
