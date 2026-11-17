@@ -192,7 +192,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     return {
       due: fmt(row.annualDueDate),
       base: fmt(row.annualBaseDate),
-      source: row.annualBaseSource === 'CREACION' ? 'la creación del proveedor' : 'la última evaluación anual',
+      source: row.annualBaseSource === 'CREACION' ? 'la creación del proveedor' : row.annualBaseSource === 'MANUAL' ? 'la evaluación anual fijada por el administrador' : 'la última evaluación anual',
       daysLeft: row.diffDays,
     };
   }, [selectedDossier]);

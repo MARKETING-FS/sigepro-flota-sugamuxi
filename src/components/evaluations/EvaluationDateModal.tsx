@@ -1,34 +1,45 @@
 import React, { useState } from 'react';
 import { CalendarDays, X } from 'lucide-react';
-import { SupplierEvaluation } from '../../types';
 import { primaryBtn, secondaryBtn } from '../ui/archive';
+import { parseLocalDate } from '../../utils/dateOnly';
 
 interface EvaluationDateModalProps {
-  evaluation: SupplierEvaluation | null;
-  onSave: (evaluation: SupplierEvaluation, isoDate: string) => { success: boolean; message: string } | void;
+  title: string;
+  subtitle?: string;
+  label: string;
+  hint: string;
+  /** Fecha inicial (AAAA-MM-DD o dd/mm/aaaa); si no hay, hoy */
+  initialValue?: string | Date;
+  /** La fecha anual puede ser futura; la de una evaluación ya hecha no */
+  allowFuture?: boolean;
+  /** Si se pasa, aparece el botón para volver al cálculo automático */
+  onReset?: () => void;
+  resetLabel?: string;
+  onSave: (isoDate: string) => { success: boolean; message: string } | void;
   onClose: () => void;
 }
 
 const localIso = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-/** Convierte lo guardado (AAAA-MM-DD o dd/mm/aaaa) a AAAA-MM-DD para el campo de fecha. */
-const toInputDate = (value?: string): string => {
-  if (!value) return localIso();
-  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
-  const p = value.split('/');
-  if (p.length === 3 && p[2].length === 4) return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-  return localIso();
-};
-
-/** Ventana para cambiar la fecha de una evaluación ya registrada. */
-export const EvaluationDateModal: React.FC<EvaluationDateModalProps> = ({ evaluation, onSave, onClose }) => {
-  const [value, setValue] = useState(() => toInputDate(evaluation?.evaluationDate));
+/** Ventana para cambiar una fecha de evaluación (la de una evaluación hecha o la fecha anual de un proveedor). */
+export const EvaluationDateModal: React.FC<EvaluationDateModalProps> = ({
+  title,
+  subtitle,
+  label,
+  hint,
+  initialValue,
+  allowFuture,
+  onReset,
+  resetLabel,
+  onSave,
+  onClose,
+}) => {
+  const [value, setValue] = useState(() => {
+    const d = parseLocalDate(initialValue);
+    return d ? localIso(d) : localIso();
+  });
   const [error, setError] = useState<string | null>(null);
-  if (!evaluation) return null;
-
-  const kind = evaluation.evaluationType === 'INICIAL' ? 'inicial' : `anual${evaluation.annualCycleNumber ? ` (año ${evaluation.annualCycleNumber})` : ''}`;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +47,7 @@ export const EvaluationDateModal: React.FC<EvaluationDateModalProps> = ({ evalua
       setError('Elija una fecha.');
       return;
     }
-    const res = onSave(evaluation, value);
+    const res = onSave(value);
     if (res && res.success === false) {
       setError(res.message);
       return;
@@ -57,10 +68,8 @@ export const EvaluationDateModal: React.FC<EvaluationDateModalProps> = ({ evalua
               <CalendarDays className="w-5 h-5" />
             </span>
             <div className="min-w-0">
-              <p className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">Cambiar fecha de la evaluación</p>
-              <p className="text-xs text-[#5d7392] dark:text-slate-400 truncate">
-                {evaluation.supplierName} · {kind}
-              </p>
+              <p className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">{title}</p>
+              {subtitle && <p className="text-xs text-[#5d7392] dark:text-slate-400 truncate">{subtitle}</p>}
             </div>
           </div>
           <button
@@ -75,13 +84,13 @@ export const EvaluationDateModal: React.FC<EvaluationDateModalProps> = ({ evalua
 
         <div className="px-5 py-5 space-y-3">
           <label htmlFor="eval-date-edit" className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] block">
-            Fecha en que se hizo la evaluación
+            {label}
           </label>
           <input
             id="eval-date-edit"
             type="date"
             value={value}
-            max={localIso()}
+            max={allowFuture ? undefined : localIso()}
             onChange={(e) => {
               setValue(e.target.value);
               setError(null);
@@ -90,19 +99,33 @@ export const EvaluationDateModal: React.FC<EvaluationDateModalProps> = ({ evalua
             required
             className="w-full h-11 px-3.5 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30"
           />
-          <p className="text-xs text-[#5d7392] dark:text-slate-400 leading-relaxed">
-            La nueva fecha queda en el acta y desde ella se cuenta el año de la siguiente evaluación anual. El cambio queda en la bitácora.
-          </p>
+          <p className="text-xs text-[#5d7392] dark:text-slate-400 leading-relaxed">{hint}</p>
           {error && <p className="text-xs font-semibold text-red-600 dark:text-red-300">{error}</p>}
         </div>
 
-        <div className="px-5 py-4 flex justify-end gap-2 border-t border-black/10 dark:border-white/10">
-          <button type="button" onClick={onClose} className={`${secondaryBtn} h-10 px-4`}>
-            Cancelar
-          </button>
-          <button type="submit" className={`${primaryBtn} h-10 px-5`}>
-            Guardar fecha
-          </button>
+        <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-2 border-t border-black/10 dark:border-white/10">
+          {onReset ? (
+            <button
+              type="button"
+              onClick={() => {
+                onReset();
+                onClose();
+              }}
+              className="text-xs font-semibold text-[#2c84c4] hover:underline cursor-pointer"
+            >
+              {resetLabel || 'Volver al cálculo automático'}
+            </button>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <button type="button" onClick={onClose} className={`${secondaryBtn} h-10 px-4`}>
+              Cancelar
+            </button>
+            <button type="submit" className={`${primaryBtn} h-10 px-5`}>
+              Guardar fecha
+            </button>
+          </div>
         </div>
       </form>
     </div>

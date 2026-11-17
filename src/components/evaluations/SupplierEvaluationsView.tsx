@@ -54,11 +54,14 @@ export const SupplierEvaluationsView: React.FC = () => {
     setSelectedEvaluationDossierId,
     deleteSupplierEvaluation,
     updateSupplierEvaluationDate,
+    setAnnualEvaluationDueDate,
     showToast,
   } = useApp();
 
   // Evaluación cuya fecha se está cambiando
   const [evaluationToEditDate, setEvaluationToEditDate] = useState<SupplierEvaluation | null>(null);
+  // Proveedor cuya fecha de evaluación anual se está fijando
+  const [annualDateRow, setAnnualDateRow] = useState<(typeof supplierEvaluationRows)[number] | null>(null);
 
   // Active View Tab: 'matrix' (proveedores y sus estados 1/2) vs 'history' (todas las evaluaciones guardadas)
   const [activeTab, setActiveTab] = useState<'matrix' | 'history'>('matrix');
@@ -534,9 +537,24 @@ export const SupplierEvaluationsView: React.FC = () => {
                         <StatusPill tone={annual.tone}>{annual.text}</StatusPill>
                         {r.annualStatus !== 'NO_APLICA_INACTIVO' && (
                           <div className="mt-1 text-sm text-[#3a5274] leading-snug">
-                            <div>Toca el <strong className="font-semibold text-fs-navy dark:text-white">{fmtDate(r.annualDueDate)}</strong></div>
+                            <div className="flex items-center gap-1.5">
+                              <span>Toca el <strong className="font-semibold text-fs-navy dark:text-white">{fmtDate(r.annualDueDate)}</strong></span>
+                              {!isReadOnly && role === 'ADMIN' && (
+                                <button
+                                  type="button"
+                                  title="Cambiar la fecha de la evaluación anual"
+                                  aria-label="Cambiar la fecha de la evaluación anual"
+                                  onClick={() => setAnnualDateRow(r)}
+                                  className="w-6 h-6 grid place-items-center rounded-md text-fs-muted hover:text-fs-blue hover:bg-fs-blue/10 cursor-pointer"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
                             <div className="text-fs-muted">
-                              Se cuenta desde {fmtDate(r.annualBaseDate)} · {r.annualBaseSource === 'CREACION' ? 'creación del proveedor' : 'última evaluación anual'}
+                              {r.annualBaseSource === 'MANUAL'
+                                ? 'Fecha fijada por el administrador'
+                                : `Se cuenta desde ${fmtDate(r.annualBaseDate)} · ${r.annualBaseSource === 'CREACION' ? 'creación del proveedor' : 'última evaluación anual'}`}
                             </div>
                           </div>
                         )}
@@ -733,9 +751,29 @@ export const SupplierEvaluationsView: React.FC = () => {
       {evaluationToEditDate && (
         <EvaluationDateModal
           key={evaluationToEditDate.id}
-          evaluation={evaluationToEditDate}
-          onSave={(ev, iso) => updateSupplierEvaluationDate(ev.id, iso)}
+          title="Cambiar fecha de la evaluación"
+          subtitle={`${evaluationToEditDate.supplierName} · ${evaluationToEditDate.evaluationType === 'INICIAL' ? 'inicial' : `anual${evaluationToEditDate.annualCycleNumber ? ` (año ${evaluationToEditDate.annualCycleNumber})` : ''}`}`}
+          label="Fecha en que se hizo la evaluación"
+          hint="La nueva fecha queda en el acta y desde ella se cuenta el año de la siguiente evaluación anual. El cambio queda en la bitácora."
+          initialValue={evaluationToEditDate.evaluationDate}
+          onSave={(iso) => updateSupplierEvaluationDate(evaluationToEditDate.id, iso)}
           onClose={() => setEvaluationToEditDate(null)}
+        />
+      )}
+
+      {annualDateRow && (
+        <EvaluationDateModal
+          key={annualDateRow.dossier.id}
+          title="Fecha de la evaluación anual"
+          subtitle={supplierName(annualDateRow.dossier)}
+          label="Fecha en que toca la evaluación anual"
+          hint="Elija la fecha que indiquen los evaluadores. Reemplaza la fecha calculada y se usa para los avisos de vencimiento; al registrar la evaluación anual, el siguiente año vuelve a contarse desde esa evaluación."
+          initialValue={annualDateRow.annualDueDate}
+          allowFuture
+          onReset={annualDateRow.annualBaseSource === 'MANUAL' ? () => setAnnualEvaluationDueDate(annualDateRow.dossier.id, null) : undefined}
+          resetLabel="Volver a la fecha calculada"
+          onSave={(iso) => setAnnualEvaluationDueDate(annualDateRow.dossier.id, iso)}
+          onClose={() => setAnnualDateRow(null)}
         />
       )}
 

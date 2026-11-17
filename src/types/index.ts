@@ -370,6 +370,8 @@ export interface SupplierDossier {
   initialEvaluation?: SupplierEvaluation;
   annualEvaluation?: SupplierEvaluation;
   nextAnnualEvaluationDate?: string;
+  /** Fecha (AAAA-MM-DD) de la evaluación anual fijada a mano; si no existe se calcula sola */
+  annualDueDateOverride?: string;
   contractInfo?: SupplierContractInfo;
   manualStatusOverride?: boolean;
   manualStatusReason?: string;

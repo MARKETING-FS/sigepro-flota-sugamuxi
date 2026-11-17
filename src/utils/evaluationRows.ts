@@ -21,7 +21,7 @@ export interface EvaluationRow {
   /** Fecha desde la que se cuenta el año de la evaluación anual */
   annualBaseDate: Date;
   /** De dónde sale esa fecha: la creación del proveedor o su última evaluación anual */
-  annualBaseSource: 'CREACION' | 'ULTIMA_ANUAL';
+  annualBaseSource: 'CREACION' | 'ULTIMA_ANUAL' | 'MANUAL';
   diffDays: number;
   annualStatus: AnnualEvaluationStatus;
 }
@@ -82,7 +82,7 @@ export function buildEvaluationRow(dossier: SupplierDossier, now: Date = new Dat
   // If no annual evaluation has been done yet, it is due 1 year after creation date.
   let annualDueDate: Date;
   let annualBaseDate: Date = createdDate;
-  let annualBaseSource: 'CREACION' | 'ULTIMA_ANUAL' = 'CREACION';
+  let annualBaseSource: 'CREACION' | 'ULTIMA_ANUAL' | 'MANUAL' = 'CREACION';
   if (latestAnnualEval) {
     let baseDate: Date;
     try {
@@ -98,6 +98,14 @@ export function buildEvaluationRow(dossier: SupplierDossier, now: Date = new Dat
   } else {
     annualDueDate = new Date(createdDate);
     annualDueDate.setFullYear(annualDueDate.getFullYear() + 1);
+  }
+
+  // Fecha fijada a mano por el administrador: manda sobre la calculada
+  const manualDue = parseLocalDate(dossier.annualDueDateOverride);
+  if (manualDue) {
+    annualDueDate = manualDue;
+    annualBaseDate = manualDue;
+    annualBaseSource = 'MANUAL';
   }
 
   const diffTime = annualDueDate.getTime() - now.getTime();
