@@ -31,7 +31,7 @@ import {
   SupplierEvaluation,
   ProcessStatus,
 } from '../../types';
-import { getContractualStatus } from '../../utils/contractValidity';
+import { getContractualStatus, getProcessStatusLabel } from '../../utils/contractValidity';
 import {
   exportMasterSupplierDirectory,
   exportDocumentComplianceReport,
@@ -863,14 +863,9 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                 className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium cursor-pointer"
               >
                 <option value="ALL">Todos los Estados ({dossiers.length})</option>
-                <option value="PROVEEDOR_HABILITADO">Habilitado Operativamente</option>
-                <option value="APROBADO">Aprobado</option>
-                <option value="EN_REVISION">En Revisión</option>
-                <option value="CORREGIDO_EN_REVISION">Corregido en Revisión</option>
-                <option value="REQUIERE_CORRECCION">Requiere Corrección</option>
-                <option value="DOCUMENTACION_PENDIENTE">Documentación Pendiente</option>
-                <option value="SUSPENDIDO">Suspendido</option>
-                <option value="RECHAZADO">Rechazado</option>
+                <option value="DOCUMENTACION_PENDIENTE">Pendiente</option>
+                <option value="PROVEEDOR_HABILITADO">Habilitado</option>
+                <option value="DOCUMENTACION_VENCIDA">Documento vencido</option>
               </select>
             </div>
 
@@ -1003,10 +998,9 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                 className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium cursor-pointer"
               >
                 <option value="ALL">Todos los Estados</option>
-                <option value="PROVEEDOR_HABILITADO">Habilitado Operativamente</option>
-                <option value="EN_REVISION">En Revisión Técnica</option>
-                <option value="REQUIERE_CORRECCION">Requiere Corrección</option>
-                <option value="DOCUMENTACION_PENDIENTE">Documentación Pendiente</option>
+                <option value="DOCUMENTACION_PENDIENTE">Pendiente</option>
+                <option value="PROVEEDOR_HABILITADO">Habilitado</option>
+                <option value="DOCUMENTACION_VENCIDA">Documento vencido</option>
               </select>
             </div>
 
@@ -1591,7 +1585,7 @@ export const OfficialReportWorkspace: React.FC<Props> = ({
                         <td className="p-2.5 text-slate-600 dark:text-slate-400">{d.selectedCategory}</td>
                         <td className="p-2.5">
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">
-                            {d.processStatus}
+                            {getProcessStatusLabel(d.processStatus)}
                           </span>
                         </td>
                         <td className="p-2.5">

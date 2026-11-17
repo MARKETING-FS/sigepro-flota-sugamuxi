@@ -69,16 +69,13 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     const stageCounts = STAGES.map((s) => ({ key: s.key, label: s.label, tone: s.tone, count: 0 }));
     const due: DueItem[] = [];
     let habilitados = 0;
-    let enRevision = 0;
     let conVencimientos = 0;
     let conContrato = 0;
 
     dossiers.forEach((d) => {
-      const creation = getCreationStatus(d);
-      const stage = stageOf(creation.status);
+      const stage = stageOf(d.processStatus);
       stageCounts.find((s) => s.key === stage.key)!.count++;
-      if (stage.key === 'habilitado' || stage.key === 'aprobado') habilitados++;
-      if (stage.key === 'revision') enRevision++;
+      if (stage.key === 'habilitado') habilitados++;
 
       const exp = getDossierDocumentExpirationSummary(d);
       exp.expiredDocs.forEach((doc) => due.push({ dossier: d, what: doc.name, kind: 'Documento', days: -Math.max(1, doc.daysOverdue) }));
@@ -162,7 +159,6 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       stageCounts,
       due: due.filter((x) => x.days <= HORIZON_DAYS),
       habilitados,
-      enRevision,
       conVencimientos,
       conContrato,
       evalUpToDate: active.filter((r) => r.annualStatus === 'AL_DIA' && r.initialEval).length,

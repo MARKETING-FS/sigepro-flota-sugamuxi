@@ -231,21 +231,50 @@ export function calculateContractValidity(input?: string | SupplierContractInfo)
   }
 }
 
+/** Un documento cuenta como aprobado solo cuando el administrador le dio "Aprobar". */
+export function isDocumentApproved(doc?: { status?: string } | null): boolean {
+  return Boolean(doc && (doc.status === 'APROBADO' || doc.status === 'VIGENTE' || doc.status === 'POR_VENCER'));
+}
+
 /**
- * Resolves the Creation/Homologation status of a supplier (Dimensión 1: Ciclo de Creación y Verificación Documental)
- * - PROVEEDOR_HABILITADO: 100% de documentos aprobados y sin ningún soporte vencido.
- * - DOCUMENTACION_VENCIDA: Cuenta con al menos un documento obligatorio expirado (Inhabilitado preventivamente).
- * - DOCUMENTACION_POR_VENCER: Aprobado pero con documentos en alerta preventiva de expiración (≤30 días).
- * - EN_REVISION / CORREGIDO_EN_REVISION: Expediente en verificación por Revisor Técnico.
- * - REQUIERE_CORRECCION: Presenta observaciones documentales pendientes de subsanar.
- * - DOCUMENTACION_PENDIENTE / BORRADOR: Expediente incompleto, cargando soportes.
- * - RECHAZADO: Dictamen desfavorable o incumplimiento de requisitos.
+ * Cuántos documentos obligatorios tiene aprobados el proveedor. Los formatos FS.GA-FOR-009 y 039 siempre cuentan;
+ * se suman los que exige la categoría (`matrixMandatoryCodes`) y los que el expediente marca como obligatorios.
  */
-export function getCreationStatus(dossier: SupplierDossier): {
+export function getRequiredDocsProgress(
+  dossier: SupplierDossier,
+  matrixMandatoryCodes: string[] = []
+): { approved: number; total: number } {
+  const docs = dossier.documents || {};
+  const codes = new Set<string>(['FS_GA_FOR_009', 'FS_GA_FOR_039', ...matrixMandatoryCodes]);
+  Object.entries(docs).forEach(([code, d]) => {
+    if (d?.isRequired) codes.add(code);
+  });
+  let approved = 0;
+  codes.forEach((code) => {
+    if (isDocumentApproved(docs[code])) approved += 1;
+  });
+  return { approved, total: codes.size };
+}
+
+/**
+ * Estado del proveedor. Solo hay tres, y salen siempre de sus documentos (nada se cambia a mano):
+ * - PROVEEDOR_HABILITADO: todos los documentos obligatorios están aprobados y ninguno está vencido.
+ * - DOCUMENTACION_VENCIDA: al menos un documento está vencido.
+ * - DOCUMENTACION_PENDIENTE: todavía faltan documentos por cargar o por aprobar.
+ *
+ * `counts` permite usar el conteo exacto de la pantalla del expediente (incluye los documentos que la
+ * categoría exige y que aún no se han cargado).
+ */
+export function getCreationStatus(
+  dossier: SupplierDossier,
+  counts?: { approved: number; total: number }
+): {
   status: ProcessStatus;
   label: string;
   badgeClass: string;
   isApproved: boolean;
+  approvedCount: number;
+  totalCount: number;
   hasExpiredDocs: boolean;
   hasExpiringSoonDocs: boolean;
   expiredCount: number;
@@ -254,163 +283,63 @@ export function getCreationStatus(dossier: SupplierDossier): {
   expiringDocNames?: string[];
 } {
   const expSummary = getDossierDocumentExpirationSummary(dossier);
+  const progress = counts ?? getRequiredDocsProgress(dossier);
+  const total = progress.total;
+  const approved = progress.approved;
 
-  // If manual override is explicitly about creation status
-  if (
-    dossier.manualStatusOverride &&
-    (dossier.processStatus === 'PROVEEDOR_HABILITADO' ||
-      dossier.processStatus === 'DOCUMENTACION_VENCIDA' ||
-      dossier.processStatus === 'DOCUMENTACION_POR_VENCER' ||
-      dossier.processStatus === 'RECHAZADO' ||
-      dossier.processStatus === 'REQUIERE_CORRECCION' ||
-      dossier.processStatus === 'EN_REVISION' ||
-      dossier.processStatus === 'DOCUMENTACION_PENDIENTE')
-  ) {
-    return {
-      status: dossier.processStatus,
-      label: getProcessStatusLabel(dossier.processStatus),
-      badgeClass: getCreationBadgeClass(dossier.processStatus),
-      isApproved: dossier.processStatus === 'PROVEEDOR_HABILITADO',
-      hasExpiredDocs: expSummary.hasExpiredDocs,
-      hasExpiringSoonDocs: expSummary.hasExpiringSoonDocs,
-      expiredCount: expSummary.expiredCount,
-      expiringSoonCount: expSummary.expiringSoonCount,
-      expiredDocNames: expSummary.expiredDocs.map((d) => d.name),
-      expiringDocNames: expSummary.expiringSoonDocs.map((d) => d.name),
-    };
-  }
+  const common = {
+    approvedCount: approved,
+    totalCount: total,
+    hasExpiringSoonDocs: expSummary.hasExpiringSoonDocs,
+    expiringSoonCount: expSummary.expiringSoonCount,
+    expiringDocNames: expSummary.expiringSoonDocs.map((d) => d.name),
+  };
 
-  // Calculate based on required documents
-  const docs = Object.values(dossier.documents || {});
-  const requiredDocs = docs.filter((d) => d.isRequired !== false);
-  const total = requiredDocs.length;
-  const approved = requiredDocs.filter((d) => d.status === 'APROBADO' || d.status === 'VIGENTE' || d.status === 'POR_VENCER').length;
-  const requiresCorrection = requiredDocs.filter((d) => d.status === 'REQUIERE_CORRECCION').length;
-  const inReview = requiredDocs.filter((d) => d.status === 'EN_REVISION').length;
-  const is100Approved = total > 0 && approved === total;
-
-  if (dossier.processStatus === 'RECHAZADO') {
-    return {
-      status: 'RECHAZADO',
-      label: 'Rechazado',
-      badgeClass: 'bg-slate-800 text-slate-200 border-slate-700',
-      isApproved: false,
-      hasExpiredDocs: expSummary.hasExpiredDocs,
-      hasExpiringSoonDocs: expSummary.hasExpiringSoonDocs,
-      expiredCount: expSummary.expiredCount,
-      expiringSoonCount: expSummary.expiringSoonCount,
-      expiredDocNames: expSummary.expiredDocs.map((d) => d.name),
-      expiringDocNames: expSummary.expiringSoonDocs.map((d) => d.name),
-    };
-  }
-
-  // CRITICAL BUSINESS RULE: If any document is EXPIRED, the supplier CANNOT be enabled!
-  // State switches automatically to DOCUMENTACION_VENCIDA
+  // Un documento vencido inhabilita al proveedor hasta que se renueve
   if (expSummary.hasExpiredDocs) {
     return {
+      ...common,
       status: 'DOCUMENTACION_VENCIDA',
-      label: `Doc. Vencida (${expSummary.expiredCount})`,
-      badgeClass: 'bg-slate-900 text-white border-slate-700 font-bold',
+      label: `Documento vencido (${expSummary.expiredCount})`,
+      badgeClass: getCreationBadgeClass('DOCUMENTACION_VENCIDA'),
       isApproved: false,
       hasExpiredDocs: true,
-      hasExpiringSoonDocs: expSummary.hasExpiringSoonDocs,
       expiredCount: expSummary.expiredCount,
-      expiringSoonCount: expSummary.expiringSoonCount,
       expiredDocNames: expSummary.expiredDocs.map((d) => d.name),
-      expiringDocNames: expSummary.expiringSoonDocs.map((d) => d.name),
     };
   }
 
-  if (is100Approved) {
-    if (expSummary.hasExpiringSoonDocs) {
-      return {
-        status: 'DOCUMENTACION_POR_VENCER',
-        label: `Habilitado (${expSummary.expiringSoonCount} por vencer)`,
-        badgeClass: 'bg-blue-50 text-blue-900 border-blue-300 font-bold',
-        isApproved: true,
-        hasExpiredDocs: false,
-        hasExpiringSoonDocs: true,
-        expiredCount: 0,
-        expiringSoonCount: expSummary.expiringSoonCount,
-        expiredDocNames: [],
-        expiringDocNames: expSummary.expiringSoonDocs.map((d) => d.name),
-      };
-    }
-
+  if (total > 0 && approved >= total) {
     return {
+      ...common,
       status: 'PROVEEDOR_HABILITADO',
-      label: 'Habilitado (100% Aprobado)',
-      badgeClass: 'bg-blue-900 text-white border-blue-700 font-bold',
+      label: 'Habilitado',
+      badgeClass: getCreationBadgeClass('PROVEEDOR_HABILITADO'),
       isApproved: true,
       hasExpiredDocs: false,
-      hasExpiringSoonDocs: false,
       expiredCount: 0,
-      expiringSoonCount: 0,
       expiredDocNames: [],
-      expiringDocNames: [],
-    };
-  }
-
-  if (requiresCorrection > 0) {
-    return {
-      status: 'REQUIERE_CORRECCION',
-      label: 'Requiere Corrección',
-      badgeClass: 'bg-slate-100 text-slate-700 border-slate-300 font-medium',
-      isApproved: false,
-      hasExpiredDocs: false,
-      hasExpiringSoonDocs: expSummary.hasExpiringSoonDocs,
-      expiredCount: 0,
-      expiringSoonCount: expSummary.expiringSoonCount,
-      expiredDocNames: [],
-      expiringDocNames: expSummary.expiringSoonDocs.map((d) => d.name),
-    };
-  }
-
-  if (inReview > 0 || dossier.processStatus === 'EN_REVISION' || dossier.processStatus === 'CORREGIDO_EN_REVISION') {
-    return {
-      status: dossier.processStatus === 'CORREGIDO_EN_REVISION' ? 'CORREGIDO_EN_REVISION' : 'EN_REVISION',
-      label: dossier.processStatus === 'CORREGIDO_EN_REVISION' ? 'Corregido / En Revisión' : 'En Revisión Técnica',
-      badgeClass: 'bg-blue-50 text-blue-900 border-blue-200 font-semibold',
-      isApproved: false,
-      hasExpiredDocs: false,
-      hasExpiringSoonDocs: expSummary.hasExpiringSoonDocs,
-      expiredCount: 0,
-      expiringSoonCount: expSummary.expiringSoonCount,
-      expiredDocNames: [],
-      expiringDocNames: expSummary.expiringSoonDocs.map((d) => d.name),
     };
   }
 
   return {
+    ...common,
     status: 'DOCUMENTACION_PENDIENTE',
-    label: 'Documentación Pendiente',
-    badgeClass: 'bg-slate-100 text-slate-600 border-slate-200',
+    label: 'Pendiente',
+    badgeClass: getCreationBadgeClass('DOCUMENTACION_PENDIENTE'),
     isApproved: false,
     hasExpiredDocs: false,
-    hasExpiringSoonDocs: expSummary.hasExpiringSoonDocs,
     expiredCount: 0,
-    expiringSoonCount: expSummary.expiringSoonCount,
     expiredDocNames: [],
-    expiringDocNames: expSummary.expiringSoonDocs.map((d) => d.name),
   };
 }
 
 function getCreationBadgeClass(status: ProcessStatus): string {
   switch (status) {
     case 'PROVEEDOR_HABILITADO':
-    case 'APROBADO':
       return 'bg-blue-900 text-white border-blue-700 font-bold';
     case 'DOCUMENTACION_VENCIDA':
-      return 'bg-slate-900 text-white border-slate-700 font-bold';
-    case 'DOCUMENTACION_POR_VENCER':
-      return 'bg-blue-50 text-blue-900 border-blue-300 font-bold';
-    case 'EN_REVISION':
-    case 'CORREGIDO_EN_REVISION':
-      return 'bg-blue-50 text-blue-900 border-blue-200 font-semibold';
-    case 'REQUIERE_CORRECCION':
-      return 'bg-slate-100 text-slate-700 border-slate-300 font-medium';
-    case 'RECHAZADO':
-      return 'bg-slate-800 text-slate-200 border-slate-700';
+      return 'bg-red-500/10 text-red-600 border-red-500/30 font-bold';
     default:
       return 'bg-slate-100 text-slate-600 border-slate-200';
   }
@@ -532,33 +461,9 @@ export function getContractualStatus(dossier: SupplierDossier): {
  */
 export function getDossierEffectiveStatus(
   dossier: SupplierDossier,
-  calculatedDocStatus?: ProcessStatus
+  _calculatedDocStatus?: ProcessStatus
 ): ProcessStatus {
-  // If manual override was recorded for supplier status, respect it
-  if (dossier.manualStatusOverride && dossier.processStatus) {
-    return dossier.processStatus;
-  }
-
-  const creation = getCreationStatus(dossier);
-
-  // If dossier has expired documents, it is blocked from normal operations
-  if (creation.status === 'DOCUMENTACION_VENCIDA') {
-    return 'DOCUMENTACION_VENCIDA';
-  }
-
-  // Preserve explicit supplier status
-  if (
-    dossier.processStatus === 'SUSPENDIDO' ||
-    dossier.processStatus === 'RECHAZADO' ||
-    dossier.processStatus === 'REQUIERE_CORRECCION' ||
-    dossier.processStatus === 'EN_REVISION' ||
-    dossier.processStatus === 'CORREGIDO_EN_REVISION' ||
-    dossier.processStatus === 'PROVEEDOR_HABILITADO'
-  ) {
-    return dossier.processStatus;
-  }
-
-  return calculatedDocStatus || creation.status || dossier.processStatus;
+  return getCreationStatus(dossier).status;
 }
 
 /**
@@ -567,37 +472,18 @@ export function getDossierEffectiveStatus(
 export function getProcessStatusLabel(status: ProcessStatus): string {
   switch (status) {
     case 'PROVEEDOR_HABILITADO':
-      return 'Proveedor Habilitado (Homologado)';
-    case 'DOCUMENTACION_VENCIDA':
-      return 'Documentación Vencida (Inhabilitado)';
-    case 'DOCUMENTACION_POR_VENCER':
-      return 'Documentación Próxima a Vencer (Alerta)';
-    case 'CONTRATO_VIGENTE':
-      return 'Proveedor Habilitado (Contrato Vigente)';
-    case 'CONTRATO_POR_VENCER':
-      return 'Proveedor Habilitado (Contrato Por Vencer)';
-    case 'CONTRATO_VENCIDO':
-      return 'Proveedor con Contrato Vencido';
-    case 'SUSPENDIDO':
-      return 'Suspendido Administrativamente';
     case 'APROBADO':
-      return 'Aprobado';
-    case 'EN_REVISION':
-      return 'En Revisión Técnica';
-    case 'CORREGIDO_EN_REVISION':
-      return 'Corregido / En Revisión';
-    case 'REQUIERE_CORRECCION':
-      return 'Requiere Corrección';
-    case 'DOCUMENTACION_PENDIENTE':
-      return 'Documentación Pendiente';
-    case 'LISTO_PARA_ENVIO':
-      return 'Listo para Envío';
-    case 'BORRADOR':
-      return 'Borrador';
-    case 'RECHAZADO':
-      return 'Rechazado / No Habilitado';
+    case 'DOCUMENTACION_POR_VENCER':
+    case 'CONTRATO_VIGENTE':
+    case 'CONTRATO_POR_VENCER':
+      return 'Habilitado';
+    case 'DOCUMENTACION_VENCIDA':
+      return 'Documento vencido';
+    case 'CONTRATO_VENCIDO':
+      return 'Contrato vencido';
     default:
-      return status;
+      // Todo lo demás (por cargar, en revisión, con observaciones…) es un expediente pendiente
+      return 'Pendiente';
   }
 }
 

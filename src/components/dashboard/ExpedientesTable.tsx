@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { Search, Award } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SupplierDossier } from '../../types';
-import { getCreationStatus } from '../../utils/contractValidity';
 import {
   Meter,
   rowCls,
@@ -32,13 +31,6 @@ export interface ExpedienteFilters {
 
 export const EMPTY_FILTERS: ExpedienteFilters = { search: '', stage: 'ALL', tier: 'ALL', category: 'ALL' };
 
-// Avance de requisitos: documentos obligatorios aprobados
-const documentProgress = (d: SupplierDossier) => {
-  const required = Object.values(d.documents || {}).filter((doc) => doc.isRequired !== false);
-  const approved = required.filter((doc) => doc.status === 'APROBADO');
-  return { approved: approved.length, total: required.length || 1 };
-};
-
 interface Props {
   dossiers: SupplierDossier[];
   filters: ExpedienteFilters;
@@ -46,7 +38,7 @@ interface Props {
 }
 
 export const ExpedientesTable: React.FC<Props> = ({ dossiers, filters, onChange }) => {
-  const { openSupplierReview, openSupplierEvaluation } = useApp();
+  const { openSupplierReview, openSupplierEvaluation, getDossierProgress } = useApp();
 
   const categories = useMemo(
     () => Array.from(new Set(dossiers.map((d) => d.selectedCategory).filter(Boolean))).sort(),
@@ -56,7 +48,7 @@ export const ExpedientesTable: React.FC<Props> = ({ dossiers, filters, onChange 
   const rows = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
     return dossiers.filter((d) => {
-      const stage = stageOf(getCreationStatus(d).status);
+      const stage = stageOf(d.processStatus);
       if (filters.stage !== 'ALL' && stage.key !== filters.stage) return false;
       if (filters.tier !== 'ALL' && d.supplierTier !== filters.tier) return false;
       if (filters.category !== 'ALL' && d.selectedCategory !== filters.category) return false;
@@ -135,8 +127,8 @@ export const ExpedientesTable: React.FC<Props> = ({ dossiers, filters, onChange 
               </tr>
             ) : (
               rows.map((d) => {
-                const stage = stageOf(getCreationStatus(d).status);
-                const prog = documentProgress(d);
+                const stage = stageOf(d.processStatus);
+                const prog = getDossierProgress(d);
                 return (
                   <tr key={d.id} className={rowCls}>
                     <td className="py-3.5 px-4 min-w-[250px]">

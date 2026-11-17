@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, Ban, BadgeCheck, FileBadge2, SlidersHorizontal } from 'lucide-react';
+import { Award, FileBadge2 } from 'lucide-react';
 import { SupplierDossier, ContractValidityStatus } from '../../types';
 import { getCreationStatus, getContractualStatus } from '../../utils/contractValidity';
 import {
@@ -34,30 +34,21 @@ const SARLAFT_VIEW: Record<string, { label: string; tone: Tone }> = {
   PENDIENTE: { label: 'Pendiente', tone: 'muted' },
 };
 
-// Documentos obligatorios aprobados (la ficha oficial exige el 100 %)
-export const requiredDocsProgress = (d: SupplierDossier) => {
-  const required = Object.values(d.documents || {}).filter((doc) => doc.isRequired !== false);
-  const approved = required.filter((doc) => doc.status === 'APROBADO').length;
-  return { approved, total: required.length || 1 };
-};
-
 interface Props {
   rows: SupplierDossier[];
   emptyText: string;
   onOpen: (id: string) => void;
   onEvaluate: (id: string) => void;
   onCertificate: (d: SupplierDossier) => void;
-  onManualStatus: (d: SupplierDossier) => void;
-  /** Solo Administrador y superadministrador: habilitar o inhabilitar al proveedor */
-  canManage?: boolean;
+  /** Documentos aprobados de un proveedor contando lo que exige su categoría */
+  progressOf: (d: SupplierDossier) => { approved: number; total: number };
   /** Falso para el rol Usuario (solo consulta) */
   canEvaluate?: boolean;
-  onToggleEnabled?: (d: SupplierDossier) => void;
 }
 
 const iconBtn = rowIconBtn;
 
-export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, onManualStatus, canManage = false, canEvaluate = true, onToggleEnabled }) => (
+export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, progressOf, canEvaluate = true }) => (
   <div className="overflow-x-auto">
     <table className="w-full text-sm">
       <thead>
@@ -81,11 +72,11 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
         ) : (
           rows.map((d) => {
             const creation = getCreationStatus(d);
-            const stage = stageOf(creation.status);
+            const stage = stageOf(d.processStatus);
             const contract = getContractualStatus(d);
             const cv = CONTRACT_VIEW[contract.status] || CONTRACT_VIEW.SIN_CONTRATO;
-            const prog = requiredDocsProgress(d);
-            const complete = prog.approved === prog.total;
+            const prog = progressOf(d);
+            const complete = prog.total > 0 && prog.approved >= prog.total && !creation.hasExpiredDocs;
             const docNote = creation.expiredCount
               ? `${creation.expiredCount} vencido${creation.expiredCount > 1 ? 's' : ''}`
               : creation.expiringSoonCount
@@ -148,22 +139,6 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                     >
                       <FileBadge2 className="w-4 h-4" />
                     </button>
-                    {canManage && (
-                      <button type="button" className={iconBtn} title="Cambiar estado o contrato" aria-label="Cambiar estado o contrato" onClick={() => onManualStatus(d)}>
-                        <SlidersHorizontal className="w-4 h-4" />
-                      </button>
-                    )}
-                    {canManage && onToggleEnabled && (
-                      <button
-                        type="button"
-                        className={iconBtn}
-                        title={d.processStatus === 'SUSPENDIDO' ? 'Habilitar proveedor' : 'Inhabilitar proveedor'}
-                        aria-label={d.processStatus === 'SUSPENDIDO' ? 'Habilitar proveedor' : 'Inhabilitar proveedor'}
-                        onClick={() => onToggleEnabled(d)}
-                      >
-                        {d.processStatus === 'SUSPENDIDO' ? <BadgeCheck className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
-                      </button>
-                    )}
                     <button
                       type="button"
                       onClick={() => onOpen(d.id)}

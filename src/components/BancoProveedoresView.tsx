@@ -5,51 +5,26 @@ import { SupplierDossier } from '../types';
 import { AdminCreateSupplierModal } from './AdminCreateSupplierModal';
 import { InternalReviewDossierDetail } from './InternalReviewDossierDetail';
 import { SupplierCertificateModal } from './SupplierCertificateModal';
-import { ManualStatusChangeModal } from './dossier/ManualStatusChangeModal';
 import { getCreationStatus, getContractualStatus } from '../utils/contractValidity';
 import { BancoTable } from './banco/BancoTable';
-import { useConfirm } from './ui/ConfirmDialog';
-import { supplierName } from './ui/archive';
 import { HeroTabs, IconField, PageBody, PageHeader, cardCls, heroPrimaryBtn, heroSecondaryBtn, inputCls, secondaryBtn, selectCls } from './ui/archive';
 
-// Filtro rápido de estado: mismas claves que usa el filtro de creación
+// Filtro rápido de estado: Pendiente, Habilitado y Documento vencido (más el aviso de "por vencer")
 const QUICK_FILTERS: Array<{ key: string; label: string }> = [
   { key: 'ALL', label: 'Todos' },
+  { key: 'DOCUMENTACION_PENDIENTE', label: 'Pendientes' },
   { key: 'PROVEEDOR_HABILITADO', label: 'Habilitados' },
-  { key: 'EN_REVISION', label: 'En revisión' },
-  { key: 'REQUIERE_CORRECCION', label: 'Corrección' },
   { key: 'DOCUMENTACION_VENCIDA', label: 'Documentos vencidos' },
   { key: 'DOCUMENTACION_POR_VENCER', label: 'Por vencer' },
 ];
 
 export const BancoProveedoresView: React.FC = () => {
-  const { role, isReadOnly, canManageProviders, dossiers, setCurrentDossierId, setActiveView, updateDossierStatus, openSupplierEvaluation } = useApp();
-  const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
-
-  // Habilitar / inhabilitar (Administrador y superadministrador)
-  const handleToggleEnabled = (d: SupplierDossier) => {
-    const disabling = d.processStatus !== 'SUSPENDIDO';
-    askConfirm({
-      title: disabling ? 'Inhabilitar proveedor' : 'Habilitar proveedor',
-      message: disabling
-        ? `${supplierName(d)} quedará inhabilitado y no podrá recibir contratos.`
-        : `${supplierName(d)} volverá a estar habilitado.`,
-      hint: disabling ? 'Puede volver a habilitarlo con el mismo botón.' : 'Puede inhabilitarlo de nuevo con el mismo botón.',
-      confirmLabel: disabling ? 'Inhabilitar' : 'Habilitar',
-      onConfirm: () =>
-        updateDossierStatus(
-          d.id,
-          disabling ? 'SUSPENDIDO' : 'PROVEEDOR_HABILITADO',
-          disabling ? 'Proveedor inhabilitado desde el Banco de proveedores.' : 'Proveedor habilitado desde el Banco de proveedores.'
-        ),
-    });
-  };
+  const { isReadOnly, dossiers, setCurrentDossierId, setActiveView, openSupplierEvaluation, getDossierProgress } = useApp();
 
   // Expediente abierto dentro del Banco (mantiene la navegación del Banco)
   const [selectedDossierIdForReview, setSelectedDossierIdForReview] = useState<string | null>(null);
 
   const [isAdminCreateModalOpen, setIsAdminCreateModalOpen] = useState(false);
-  const [selectedDossierForManualStatus, setSelectedDossierForManualStatus] = useState<SupplierDossier | null>(null);
   const [selectedDossierForCertificate, setSelectedDossierForCertificate] = useState<SupplierDossier | null>(null);
 
   // Filtros: estado de creación y vinculación contractual por separado
@@ -84,12 +59,9 @@ export const BancoProveedoresView: React.FC = () => {
 
       const matchesCreation =
         creationStatusFilter === 'ALL' ||
-        (creationStatusFilter === 'DOCUMENTACION_VENCIDA' && (creation.status === 'DOCUMENTACION_VENCIDA' || creation.hasExpiredDocs)) ||
-        (creationStatusFilter === 'DOCUMENTACION_POR_VENCER' && (creation.status === 'DOCUMENTACION_POR_VENCER' || (!creation.hasExpiredDocs && creation.hasExpiringSoonDocs))) ||
-        (creationStatusFilter === 'PROVEEDOR_HABILITADO' && (creation.status === 'PROVEEDOR_HABILITADO' || creation.status === 'APROBADO')) ||
-        (creationStatusFilter === 'EN_REVISION' && (creation.status === 'EN_REVISION' || creation.status === 'CORREGIDO_EN_REVISION')) ||
-        (creationStatusFilter === 'REQUIERE_CORRECCION' && creation.status === 'REQUIERE_CORRECCION') ||
-        creation.status === creationStatusFilter;
+        (creationStatusFilter === 'DOCUMENTACION_POR_VENCER'
+          ? !creation.hasExpiredDocs && creation.hasExpiringSoonDocs
+          : d.processStatus === creationStatusFilter);
 
       const matchesContract =
         contractStatusFilter === 'ALL' ||
@@ -134,12 +106,11 @@ export const BancoProveedoresView: React.FC = () => {
   const quickCount = (key: string) => {
     if (key === 'ALL') return dossiers.length;
     return dossiers.filter((d) => {
-      const c = getCreationStatus(d);
-      if (key === 'PROVEEDOR_HABILITADO') return c.status === 'PROVEEDOR_HABILITADO' || c.status === 'APROBADO';
-      if (key === 'EN_REVISION') return c.status === 'EN_REVISION' || c.status === 'CORREGIDO_EN_REVISION';
-      if (key === 'DOCUMENTACION_VENCIDA') return c.status === 'DOCUMENTACION_VENCIDA' || c.hasExpiredDocs;
-      if (key === 'DOCUMENTACION_POR_VENCER') return c.status === 'DOCUMENTACION_POR_VENCER' || (!c.hasExpiredDocs && c.hasExpiringSoonDocs);
-      return c.status === key;
+      if (key === 'DOCUMENTACION_POR_VENCER') {
+        const c = getCreationStatus(d);
+        return !c.hasExpiredDocs && c.hasExpiringSoonDocs;
+      }
+      return d.processStatus === key;
     }).length;
   };
 
@@ -275,10 +246,8 @@ export const BancoProveedoresView: React.FC = () => {
           onOpen={handleOpenDossier}
           onEvaluate={openSupplierEvaluation}
           onCertificate={setSelectedDossierForCertificate}
-          onManualStatus={setSelectedDossierForManualStatus}
-          canManage={canManageProviders}
+          progressOf={getDossierProgress}
           canEvaluate={!isReadOnly}
-          onToggleEnabled={handleToggleEnabled}
         />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[#e8eef5] dark:border-slate-800 text-sm text-fs-muted">
@@ -329,18 +298,6 @@ export const BancoProveedoresView: React.FC = () => {
         isOpen={Boolean(selectedDossierForCertificate)}
         onClose={() => setSelectedDossierForCertificate(null)}
         dossier={selectedDossierForCertificate}
-      />
-
-      {confirmDialog}
-
-      <ManualStatusChangeModal
-        isOpen={Boolean(selectedDossierForManualStatus)}
-        onClose={() => setSelectedDossierForManualStatus(null)}
-        dossier={selectedDossierForManualStatus}
-        onConfirmStatusChange={(dossierId, newStatus, reason, reviewer, updatedContract) => {
-          updateDossierStatus(dossierId, newStatus, reason, reviewer, true, updatedContract);
-          setSelectedDossierForManualStatus(null);
-        }}
       />
     </div>
   );

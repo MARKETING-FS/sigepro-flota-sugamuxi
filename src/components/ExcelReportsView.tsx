@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SupplierDossier, ProcessStatus, SupplierType } from '../types';
+import { getProcessStatusLabel } from '../utils/contractValidity';
 import {
   exportMasterSupplierDirectory,
   exportDocumentComplianceReport,
@@ -361,14 +362,9 @@ export const ExcelReportsView: React.FC = () => {
       node: (
         <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className={fieldCls}>
           <option value="ALL">Todos los estados ({dossiers.length})</option>
-          <option value="PROVEEDOR_HABILITADO">Habilitado operativamente</option>
-          <option value="APROBADO">Aprobado</option>
-          <option value="EN_REVISION">En revisión</option>
-          <option value="CORREGIDO_EN_REVISION">Corregido en revisión</option>
-          <option value="REQUIERE_CORRECCION">Requiere corrección</option>
-          <option value="DOCUMENTACION_PENDIENTE">Documentación pendiente</option>
-          <option value="BORRADOR">Borrador</option>
-          <option value="RECHAZADO">Rechazado</option>
+          <option value="DOCUMENTACION_PENDIENTE">Pendiente</option>
+          <option value="PROVEEDOR_HABILITADO">Habilitado</option>
+          <option value="DOCUMENTACION_VENCIDA">Documento vencido</option>
         </select>
       ),
     },
@@ -648,7 +644,7 @@ export const ExcelReportsView: React.FC = () => {
                       <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{d.basicInfo?.city || 'Sogamoso'}</td>
                       <td className="px-3 py-3 text-[#3a5274] dark:text-slate-400">{d.selectedCategory}</td>
                       <td className="px-3 py-3">
-                        <span className="px-2.5 h-6 inline-flex items-center whitespace-nowrap rounded-full text-[10px] font-bold bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]">{d.processStatus}</span>
+                        <span className="px-2.5 h-6 inline-flex items-center whitespace-nowrap rounded-full text-[10px] font-bold bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]">{getProcessStatusLabel(d.processStatus)}</span>
                       </td>
                       <td className="px-3 py-3">
                         <span className={`px-2.5 h-6 inline-flex items-center whitespace-nowrap rounded-full text-[10px] font-bold ${sarlaft === 'SIN_COINCIDENCIAS' ? 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]' : 'bg-black/[0.06] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'}`}>

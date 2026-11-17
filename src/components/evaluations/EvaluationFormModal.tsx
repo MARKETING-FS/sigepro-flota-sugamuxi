@@ -13,6 +13,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { getProcessStatusLabel } from '../../utils/contractValidity';
 import { BrandSwoosh } from '../ui/BrandSwoosh';
 import {
   SupplierDossier,
@@ -379,7 +380,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                   <div>
                     <span className="text-[#6b84a3] block text-[11px] mb-1">Estado del proveedor</span>
                     <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-[10px] font-bold ${isSupplierActive ? 'bg-gradient-action text-white' : 'bg-black/[0.06] dark:bg-white/10 text-[#1c3354] dark:text-slate-200'}`}>
-                      {isSupplierActive ? 'ACTIVO / HABILITADO' : selectedDossier.processStatus}
+                      {isSupplierActive ? 'ACTIVO / HABILITADO' : getProcessStatusLabel(selectedDossier.processStatus).toUpperCase()}
                     </span>
                   </div>
                   <div>

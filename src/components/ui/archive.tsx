@@ -35,21 +35,21 @@ const TONE_TEXT: Record<Tone, string> = {
   ok: 'text-[#1d5fa8] bg-[#dbeaf7] dark:!text-white dark:bg-[#2c84c4]',
 };
 
-// Etapas del expediente en el orden en que avanzan, con su color de pestaña
+// Estados del proveedor: solo tres, y salen de sus documentos
 export const STAGES: Array<{ key: string; label: string; tone: Tone; statuses: ProcessStatus[] }> = [
-  { key: 'borrador', label: 'Borrador', tone: 'muted', statuses: ['BORRADOR', 'LISTO_PARA_ENVIO'] },
-  { key: 'pendiente', label: 'Documentos pendientes', tone: 'muted', statuses: ['DOCUMENTACION_PENDIENTE'] },
-  { key: 'revision', label: 'En revisión', tone: 'blue', statuses: ['EN_REVISION', 'CORREGIDO_EN_REVISION'] },
-  { key: 'correccion', label: 'Corrección', tone: 'warn', statuses: ['REQUIERE_CORRECCION'] },
-  { key: 'vencida', label: 'Documentos vencidos', tone: 'bad', statuses: ['DOCUMENTACION_VENCIDA'] },
-  { key: 'aprobado', label: 'Aprobado', tone: 'cyan', statuses: ['APROBADO'] },
+  {
+    key: 'pendiente',
+    label: 'Pendiente',
+    tone: 'muted',
+    statuses: ['BORRADOR', 'LISTO_PARA_ENVIO', 'DOCUMENTACION_PENDIENTE', 'EN_REVISION', 'CORREGIDO_EN_REVISION', 'REQUIERE_CORRECCION', 'SUSPENDIDO', 'RECHAZADO'],
+  },
   {
     key: 'habilitado',
     label: 'Habilitado',
     tone: 'navy',
-    statuses: ['PROVEEDOR_HABILITADO', 'DOCUMENTACION_POR_VENCER', 'CONTRATO_VIGENTE', 'CONTRATO_POR_VENCER', 'CONTRATO_VENCIDO'],
+    statuses: ['PROVEEDOR_HABILITADO', 'APROBADO', 'DOCUMENTACION_POR_VENCER', 'CONTRATO_VIGENTE', 'CONTRATO_POR_VENCER', 'CONTRATO_VENCIDO'],
   },
-  { key: 'suspendido', label: 'Suspendido o rechazado', tone: 'bad', statuses: ['SUSPENDIDO', 'RECHAZADO'] },
+  { key: 'vencida', label: 'Documento vencido', tone: 'bad', statuses: ['DOCUMENTACION_VENCIDA'] },
 ];
 
 export const stageOf = (status: ProcessStatus) =>

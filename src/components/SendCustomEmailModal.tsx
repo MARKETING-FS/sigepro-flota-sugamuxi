@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SupplierDossier } from '../types';
+import { getProcessStatusLabel } from '../utils/contractValidity';
 import { Mail, Send, X, AlertCircle, Building2, User, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -159,7 +160,7 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
                         : `NIT: ${d.basicInfo?.nit || 'S/N'}`;
                     return (
                       <option key={d.id} value={d.id}>
-                        {d.fileNumber} — {name} ({doc}) &bull; {d.basicInfo?.email || 'Sin correo'} [{d.processStatus}]
+                        {d.fileNumber} — {name} ({doc}) &bull; {d.basicInfo?.email || 'Sin correo'} [{getProcessStatusLabel(d.processStatus)}]
                       </option>
                     );
                   })}
@@ -180,7 +181,7 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
                     {targetName}
                   </div>
                   <div className="text-[11px] text-[#3a5274] dark:text-slate-300">
-                    Correo destinatario: <span className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">{targetEmail}</span> &bull; Estado actual: <span className="font-bold text-[#0b1d3a] dark:text-white">{targetDossier.processStatus}</span>
+                    Correo destinatario: <span className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">{targetEmail}</span> &bull; Estado actual: <span className="font-bold text-[#0b1d3a] dark:text-white">{getProcessStatusLabel(targetDossier.processStatus)}</span>
                   </div>
                 </div>
               </div>

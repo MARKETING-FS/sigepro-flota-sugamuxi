@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { SupplierDossier, SystemAuditEntry, Convocatoria, SupplierEvaluation } from '../types';
+import { getProcessStatusLabel } from './contractValidity';
 
 /**
  * Utility for generating professional Excel (.xlsx) workbooks for SIGEPRO - Flota Sugamuxi S.A.
@@ -116,7 +117,7 @@ export const exportMasterSupplierDirectory = (dossiers: SupplierDossier[], filte
       sanitize(d.internalConcepts?.procuraduriaPoliciaCheck?.result || 'PENDIENTE'),
       sanitize(d.documents?.FS_GA_FOR_009?.status || 'PENDIENTE'),
       sanitize(d.documents?.FS_GA_FOR_039?.status || 'PENDIENTE'),
-      sanitize(d.processStatus),
+      sanitize(getProcessStatusLabel(d.processStatus)),
       sanitize(d.createdAt),
       sanitize(isHabilitado ? 'HABILITADO OPERATIVAMENTE' : 'NO HABILITADO / EN TRÁMITE'),
     ];
@@ -198,7 +199,7 @@ export const exportDocumentComplianceReport = (dossiers: SupplierDossier[], filt
       approvedDocs.length,
       pendingCount,
       `${percent}%`,
-      sanitize(d.processStatus),
+      sanitize(getProcessStatusLabel(d.processStatus)),
       getDocStatus('FS_GA_FOR_009'),
       getDocStatus('FS_GA_FOR_039'),
       getDocStatus('RUT'),
@@ -281,7 +282,7 @@ export const exportSarlaftReport = (dossiers: SupplierDossier[], filterSummary?:
       sanitize(proc?.result || 'PENDIENTE'),
       sanitize(proc?.checkedAt || 'N/A'),
       sanitize(d.documents?.DECLARACION_SARLAFT?.status || 'PENDIENTE'),
-      sanitize(d.processStatus),
+      sanitize(getProcessStatusLabel(d.processStatus)),
     ];
   });
 
@@ -357,7 +358,7 @@ export const exportFinancialBankReport = (dossiers: SupplierDossier[], filterSum
       fin?.netWorth || 0,
       fin?.annualRevenue || 0,
       sanitize(fin?.financialCutoffDate || '31/12/2025'),
-      sanitize(d.processStatus),
+      sanitize(getProcessStatusLabel(d.processStatus)),
     ];
   });
 
@@ -620,8 +621,8 @@ export const exportExecutiveMasterWorkbook = (
   // Sheet 1: Resumen Ejecutivo KPIs
   const totalDossiers = dossiers.length;
   const habilitados = dossiers.filter((d) => d.processStatus === 'PROVEEDOR_HABILITADO' || d.processStatus === 'APROBADO').length;
-  const enRevision = dossiers.filter((d) => d.processStatus === 'EN_REVISION' || d.processStatus === 'CORREGIDO_EN_REVISION').length;
-  const pendientes = dossiers.filter((d) => d.processStatus === 'REQUIERE_CORRECCION' || d.processStatus === 'DOCUMENTACION_PENDIENTE').length;
+  const pendientes = dossiers.filter((d) => d.processStatus === 'DOCUMENTACION_PENDIENTE').length;
+  const vencidos = dossiers.filter((d) => d.processStatus === 'DOCUMENTACION_VENCIDA').length;
   const personasJuridicas = dossiers.filter((d) => d.basicInfo?.supplierType === 'JURIDICA').length;
   const personasNaturales = dossiers.filter((d) => d.basicInfo?.supplierType === 'NATURAL').length;
   const tierA = dossiers.filter((d) => (d.supplierTier || d.basicInfo?.supplierTier) === 'A').length;
@@ -636,8 +637,8 @@ export const exportExecutiveMasterWorkbook = (
     ['INDICADOR DE GESTIÓN', 'CANTIDAD / VALOR', '% SOBRE EL TOTAL'],
     ['Total Proveedores Registrados en Banco', totalDossiers, '100%'],
     ['Proveedores Habilitados Operativamente (Activos)', habilitados, `${Math.round((habilitados / (totalDossiers || 1)) * 100)}%`],
-    ['Proveedores en Revisión Técnica y Documental', enRevision, `${Math.round((enRevision / (totalDossiers || 1)) * 100)}%`],
-    ['Proveedores con Observaciones / Pendientes', pendientes, `${Math.round((pendientes / (totalDossiers || 1)) * 100)}%`],
+    ['Proveedores Pendientes (faltan documentos por cargar o aprobar)', pendientes, `${Math.round((pendientes / (totalDossiers || 1)) * 100)}%`],
+    ['Proveedores con Documento Vencido', vencidos, `${Math.round((vencidos / (totalDossiers || 1)) * 100)}%`],
     ['Proveedores - Personas Jurídicas', personasJuridicas, `${Math.round((personasJuridicas / (totalDossiers || 1)) * 100)}%`],
     ['Proveedores - Personas Naturales', personasNaturales, `${Math.round((personasNaturales / (totalDossiers || 1)) * 100)}%`],
     ['Proveedores Tipo A (Crítico / Estratégico)', tierA, `${Math.round((tierA / (totalDossiers || 1)) * 100)}%`],
@@ -680,7 +681,7 @@ export const exportExecutiveMasterWorkbook = (
       sanitize(d.basicInfo?.email),
       sanitize(d.basicInfo?.phone),
       sanitize(d.selectedCategory),
-      sanitize(d.processStatus),
+      sanitize(getProcessStatusLabel(d.processStatus)),
       sanitize(d.internalConcepts?.sarlatfCheck?.result || 'PENDIENTE'),
     ];
   });
@@ -789,7 +790,7 @@ export const exportCustomExcelReport = (config: CustomExportConfig) => {
     totalLiabilities: { header: 'Pasivos Totales (COP)', getValue: (d) => d.basicInfo?.financialInfo?.totalLiabilities || 0 },
     netWorth: { header: 'Patrimonio Neto (COP)', getValue: (d) => d.basicInfo?.financialInfo?.netWorth || 0 },
     annualRevenue: { header: 'Ingresos Anuales (COP)', getValue: (d) => d.basicInfo?.financialInfo?.annualRevenue || 0 },
-    processStatus: { header: 'Estado del Proceso', getValue: (d) => d.processStatus },
+    processStatus: { header: 'Estado del Proceso', getValue: (d) => getProcessStatusLabel(d.processStatus) },
     compliancePercent: {
       header: '% Cumplimiento Documental',
       getValue: (d) => {

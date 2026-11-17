@@ -31,7 +31,6 @@ import {
   Briefcase,
   Layers,
   ShieldAlert,
-  RefreshCw,
   MapPin,
   Tag,
 } from 'lucide-react';
@@ -52,13 +51,11 @@ import { SupplierDataEditorTab } from './SupplierDataEditorTab';
 import { DocumentEditorModal } from './DocumentEditorModal';
 import { AddCustomDocumentModal } from './AddCustomDocumentModal';
 import { SupplierCertificateModal } from './SupplierCertificateModal';
-import { ManualStatusChangeModal } from './dossier/ManualStatusChangeModal';
 import {
   calculateContractValidity,
   calculateDocumentExpiration,
   getDossierDocumentExpirationSummary,
-  getProcessStatusLabel,
-  getDossierEffectiveStatus,
+  getRequiredDocsProgress,
   getCreationStatus,
   getContractualStatus,
 } from '../utils/contractValidity';
@@ -80,7 +77,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     updateSupplierDocument,
     addCustomSupplierDocument,
     annexNewDocument,
-    updateDossierStatus,
     institutionalForms,
     systemAuditLogs,
     categoriesConfig,
@@ -133,7 +129,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   }, [reviewFocus, dossierId]);
   const [selectedFormForModal, setSelectedFormForModal] = useState<any>(null);
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
-  const [isManualStatusModalOpen, setIsManualStatusModalOpen] = useState(false);
 
   // Document Editing & Creation Modals
   const [isDocEditorOpen, setIsDocEditorOpen] = useState(false);
@@ -273,78 +268,40 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   const supportApprovedCount = supportDocsList.filter(([_, d]) => d.isRequired && (d.status === 'APROBADO' || d.status === 'VIGENTE' || d.status === 'POR_VENCER')).length;
   const supportTotalCount = mandatorySupportCount;
 
-  const totalMandatoryDocs = institutionalTotalCount + mandatorySupportCount;
-  const approvedDocsCount = institutionalApprovedCount + supportApprovedCount;
+  const progress = getRequiredDocsProgress(dossier, matrixMandatoryCodes);
+  const totalMandatoryDocs = progress.total;
+  const approvedDocsCount = progress.approved;
   const allDocumentsApproved = totalMandatoryDocs > 0 && approvedDocsCount >= totalMandatoryDocs;
   const totalDocs = totalMandatoryDocs;
 
-  // Estado efectivo resolviendo: 1. Cambio manual con motivo, 2. Vigencia de contrato, 3. Cumplimiento documental
-  const effectiveStatus: ProcessStatus = getDossierEffectiveStatus(dossier);
   const contractValidity = calculateContractValidity(dossier.contractInfo?.endDate);
-  const creationStatus = getCreationStatus(dossier);
+  const creationStatus = getCreationStatus(dossier, progress);
   const contractualStatus = getContractualStatus(dossier);
   const expSummary = getDossierDocumentExpirationSummary(dossier);
 
   const renderCreationBadge = () => {
-    switch (creationStatus.status) {
-      case 'DOCUMENTACION_VENCIDA':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-900 text-white border border-slate-700 shadow-2xs">
-            <ShieldAlert className="w-3.5 h-3.5 text-cyan-300" />
-            <span>Documentación Vencida ({creationStatus.expiredCount} expirados)</span>
-          </span>
-        );
-      case 'DOCUMENTACION_POR_VENCER':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>Habilitado ({creationStatus.expiringSoonCount} por vencer ≤30d)</span>
-          </span>
-        );
-      case 'PROVEEDOR_HABILITADO':
-      case 'APROBADO':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-900 text-white dark:bg-blue-950 dark:text-cyan-300 border border-blue-700 shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-cyan-300" />
-            <span>Proveedor Habilitado (100% Homologado)</span>
-          </span>
-        );
-      case 'EN_REVISION':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
-            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>En Revisión Técnica</span>
-          </span>
-        );
-      case 'CORREGIDO_EN_REVISION':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-sky-50 text-sky-900 border border-sky-200">
-            <RefreshCw className="w-3.5 h-3.5 text-sky-600" />
-            <span>Subsanado — En Revisión</span>
-          </span>
-        );
-      case 'REQUIERE_CORRECCION':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
-            <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>Requiere Corrección</span>
-          </span>
-        );
-      case 'RECHAZADO':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-100 border border-slate-700">
-            <ShieldAlert className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-            <span>Rechazado (No Conforme)</span>
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
-            <FileText className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-            <span>Documentación Pendiente</span>
-          </span>
-        );
+    if (creationStatus.status === 'DOCUMENTACION_VENCIDA') {
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-300 border border-red-500/30 shadow-2xs">
+          <ShieldAlert className="w-3.5 h-3.5" />
+          <span>Documento vencido ({creationStatus.expiredCount})</span>
+        </span>
+      );
     }
+    if (creationStatus.status === 'PROVEEDOR_HABILITADO') {
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-900 text-white dark:bg-blue-950 dark:text-cyan-300 border border-blue-700 shadow-2xs">
+          <ShieldCheck className="w-3.5 h-3.5 text-cyan-300" />
+          <span>Habilitado</span>
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
+        <FileText className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
+        <span>Pendiente</span>
+      </span>
+    );
   };
 
   const renderContractualBadge = () => {
@@ -381,108 +338,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         return (
           <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
             <span>Sin Contrato Activo</span>
-          </span>
-        );
-    }
-  };
-
-  const getStatusBadge = (status: ProcessStatus) => {
-    switch (status) {
-      case 'CONTRATO_VIGENTE':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>Contrato Vigente (Activo)</span>
-          </span>
-        );
-      case 'CONTRATO_POR_VENCER':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10 shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>Contrato Próximo a Vencer (≤30d)</span>
-          </span>
-        );
-      case 'CONTRATO_VENCIDO':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
-            <AlertCircle className="w-3.5 h-3.5 text-[#3a5274] dark:text-slate-300" />
-            <span>Contrato Vencido</span>
-          </span>
-        );
-      case 'SUSPENDIDO':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.08] dark:bg-white/10 text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
-            <ShieldAlert className="w-3.5 h-3.5 text-[#3a5274] dark:text-slate-300" />
-            <span>Suspendido</span>
-          </span>
-        );
-      case 'PROVEEDOR_HABILITADO':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>Proveedor Habilitado (Homologado)</span>
-          </span>
-        );
-      case 'APROBADO':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>Aprobado</span>
-          </span>
-        );
-      case 'EN_REVISION':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
-            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>En Revisión Técnica</span>
-          </span>
-        );
-      case 'CORREGIDO_EN_REVISION':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-sky-50 text-sky-900 border border-sky-200">
-            <RefreshCw className="w-3.5 h-3.5 text-sky-600" />
-            <span>Subsanado</span>
-          </span>
-        );
-      case 'REQUIERE_CORRECCION':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
-            <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>Requiere Corrección</span>
-          </span>
-        );
-      case 'DOCUMENTACION_PENDIENTE':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
-            <FileText className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-            <span>Documentación Pendiente</span>
-          </span>
-        );
-      case 'DOCUMENTACION_VENCIDA':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-900 text-white border border-slate-700 shadow-2xs">
-            <ShieldAlert className="w-3.5 h-3.5 text-cyan-300" />
-            <span>Documentación Vencida (Inhabilitado)</span>
-          </span>
-        );
-      case 'DOCUMENTACION_POR_VENCER':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
-            <span>Documentación Próxima a Vencer (≤30d)</span>
-          </span>
-        );
-      case 'RECHAZADO':
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
-            <ShieldAlert className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400" />
-            <span>No Habilitado</span>
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300 border border-black/10 dark:border-white/10">
-            {getProcessStatusLabel(status)}
           </span>
         );
     }
@@ -693,18 +548,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 </span>
               </button>
             )}
-
-            {!isReadOnly && (
-              <button
-                type="button"
-                onClick={() => setIsManualStatusModalOpen(true)}
-                className="h-11 px-5 rounded-xl bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-sm text-white font-semibold text-sm flex items-center gap-2 transition-colors cursor-pointer"
-                title="Gestionar estado por vigencia de contrato o registrar cambio manual con motivo / observación"
-              >
-                <Briefcase className="w-4 h-4" />
-                <span>Gestionar estado</span>
-              </button>
-            )}
           </div>
         </div>
       </section>
@@ -728,7 +571,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 {Math.round((approvedDocsCount / (totalDocs || 1)) * 100)}%
               </p>
               <p className="mt-1 text-[11px] text-[#3a5274] dark:text-slate-400">
-                {approvedDocsCount}/{totalDocs} aprobados
+                {approvedDocsCount} de {totalDocs} documentos aprobados
               </p>
             </div>
           </div>
@@ -754,7 +597,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   Expediente 100% conforme
                 </span>
               ) : (
-                <span>{totalDocs - approvedDocsCount} soporte(s) pendiente(s)</span>
+                <span>{totalDocs - approvedDocsCount === 1 ? 'Falta 1 por aprobar' : `Faltan ${totalDocs - approvedDocsCount} por aprobar`}</span>
               )}
             </div>
           </div>
@@ -863,41 +706,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           >
             Ver documentos
           </button>
-        </div>
-      )}
-
-      {dossier.manualStatusOverride && (
-        <div className="rounded-2xl border border-[#2c84c4]/35 bg-[#2c84c4]/10 p-4 text-xs flex items-start justify-between gap-3 animate-fade-up">
-          <div className="flex items-start gap-3">
-            <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center">
-              <ShieldCheck className="w-4.5 h-4.5" />
-            </span>
-            <div>
-              <div className="font-semibold flex items-center gap-2 flex-wrap text-[#0b1d3a] dark:text-white">
-                <span>Estado establecido manualmente:</span>
-                <span className="px-2.5 py-0.5 rounded-lg bg-[#2c84c4]/20 text-[#1d5fa8] dark:text-[#69bdd7] font-mono text-[11px] font-bold">
-                  {getProcessStatusLabel(dossier.processStatus)}
-                </span>
-                {dossier.manualStatusChangedBy && (
-                  <span className="text-[11px] font-normal text-[#3a5274] dark:text-slate-400">
-                    por <strong>{dossier.manualStatusChangedBy}</strong> {dossier.manualStatusChangedAt && `el ${dossier.manualStatusChangedAt}`}
-                  </span>
-                )}
-              </div>
-              <p className="mt-2 text-[11px] text-[#3a5274] dark:text-slate-300 bg-white/60 dark:bg-white/[0.05] p-2.5 rounded-xl border border-black/10 dark:border-white/10">
-                <span className="font-semibold text-[#5d7392] dark:text-slate-400">Motivo / observación registrada:</span> "{dossier.manualStatusReason || 'Sin observación registrada'}"
-              </p>
-            </div>
-          </div>
-          {!isReadOnly && (
-            <button
-              type="button"
-              onClick={() => setIsManualStatusModalOpen(true)}
-              className="text-[11px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline shrink-0 cursor-pointer"
-            >
-              Cambiar estado
-            </button>
-          )}
         </div>
       )}
 
@@ -1860,17 +1668,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         isOpen={isCertificateModalOpen}
         onClose={() => setIsCertificateModalOpen(false)}
         dossier={dossier}
-      />
-
-      {/* Manual Status & Contract Validity Management Modal */}
-      <ManualStatusChangeModal
-        isOpen={isManualStatusModalOpen}
-        onClose={() => setIsManualStatusModalOpen(false)}
-        dossier={dossier}
-        onConfirmStatusChange={(dossierId, newStatus, reason, reviewer, updatedContract) => {
-          updateDossierStatus(dossierId, newStatus, reason, reviewer, true, updatedContract);
-          showToast(`Estado actualizado a "${getProcessStatusLabel(newStatus)}" con observación registrada.`, 'success', 'ESTADO ACTUALIZADO');
-        }}
       />
 
     </div>

@@ -60,6 +60,7 @@ import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/initialEmails';
 import { generateEmailContent } from '../utils/emailTemplates';
 import { DEFAULT_FORM_PDFS } from '../utils/formPdf';
 import { supabaseService } from '../services/supabaseService';
+import { getCreationStatus, getRequiredDocsProgress } from '../utils/contractValidity';
 import { sendEmail } from '../services/emailService';
 import { useSupabaseAuth, AuthProfile, AuthResult } from '../auth/useSupabaseAuth';
 import { IS_DEMO_MODE, buildDemoData } from '../dev/demoData';
@@ -175,6 +176,8 @@ interface AppContextType {
     dossier: SupplierDossier,
     newCategory: string
   ) => { documents: Record<string, SupplierDocument>; removed: string[]; removedLoaded: string[]; added: string[] };
+  /** Documentos obligatorios aprobados de un proveedor, contando lo que exige su categoría */
+  getDossierProgress: (dossier: SupplierDossier) => { approved: number; total: number };
   updateCategoryConfig: (categoryName: string, updatedConfig: Partial<CategoryRequirementConfig>) => void;
   addCategoryConfig: (newConfig: CategoryRequirementConfig) => { success: boolean; message: string };
   deleteCategoryConfig: (categoryName: string) => { success: boolean; message: string };
@@ -431,7 +434,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAllDossiers((prev) => {
       // Rol Usuario: solo consulta, ningún cambio sobre expedientes se aplica ni se guarda
       if (isReadOnly) return prev;
-      const next = typeof updater === 'function' ? (updater as any)(prev) : updater;
+      const raw = typeof updater === 'function' ? (updater as any)(prev) : updater;
+      // El estado del proveedor siempre se calcula de sus documentos; lo que se guarda es ese estado
+      const next: SupplierDossier[] = raw.map((d: SupplierDossier) => {
+        if (prev.find((p) => p.id === d.id) === d) return d;
+        const st = computeProcessStatus(d);
+        return d.processStatus === st ? d : { ...d, processStatus: st };
+      });
       if (supabaseService.isConfigured()) {
         // Persistir proveedores creados o modificados
         next.forEach((d: SupplierDossier) => {
@@ -450,18 +459,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return next;
     });
   };
-
-  // Filtered dossiers for viewing based on role and active user:
-  // Revisor 1 only sees the 8 suppliers assigned to him!
-  const visibleDossiers = React.useMemo(() => {
-    if (role === 'ADMIN') {
-      return allDossiers;
-    }
-    if (role === 'REVISOR') {
-      return allDossiers.filter((d) => d.assignedReviewerId === activeUserId);
-    }
-    return allDossiers;
-  }, [allDossiers, role, activeUserId]);
 
   // Enforce editing permissions by user:
   // Admin can edit any dossier. A revisor can only edit suppliers assigned to him.
@@ -1869,16 +1866,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             },
           };
 
-          // Check if ALL required documents are now approved
-          const reqDocs = Object.values(updatedDocs).filter((item: any) => item.isRequired !== false);
-          const allApproved = reqDocs.length > 0 && reqDocs.every((item: any) => item.status === 'APROBADO' || item.status === 'VIGENTE' || item.status === 'POR_VENCER');
+          // ¿Con este documento ya están aprobados todos los obligatorios?
+          const progress = getRequiredDocsProgress(
+            { ...d, documents: updatedDocs },
+            getRequiredDocumentsForSupplier(d.basicInfo.supplierType, d.selectedCategory).allMandatory
+          );
+          const allApproved = progress.total > 0 && progress.approved >= progress.total;
           becameFullyApproved = allApproved;
 
-          const nextProcessStatus: ProcessStatus = allApproved
-            ? 'PROVEEDOR_HABILITADO'
-            : (d.processStatus === 'REQUIERE_CORRECCION' && !reqDocs.some((item: any) => item.status === 'REQUIERE_CORRECCION')
-                ? 'EN_REVISION'
-                : d.processStatus);
+          const nextProcessStatus: ProcessStatus = allApproved ? 'PROVEEDOR_HABILITADO' : 'DOCUMENTACION_PENDIENTE';
 
           const auditLogs = [
             ...d.auditHistory,
@@ -3746,6 +3742,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentDossierIdState('dossier-002');
   };
 
+  /** Estado del proveedor según sus documentos (Pendiente, Habilitado o Documento vencido). */
+  function getDossierProgress(d: SupplierDossier): { approved: number; total: number } {
+    const reqs = getRequiredDocumentsForSupplier(d.basicInfo?.supplierType, d.selectedCategory);
+    return getRequiredDocsProgress(d, reqs.allMandatory);
+  }
+
+  function computeProcessStatus(d: SupplierDossier): ProcessStatus {
+    return getCreationStatus(d, getDossierProgress(d)).status;
+  }
+
+  // Todo el sistema lee el estado ya calculado, así los reportes y filtros nunca ven estados viejos
+  const dossiersWithStatus = React.useMemo(
+    () =>
+      allDossiers.map((d) => {
+        const st = computeProcessStatus(d);
+        return d.processStatus === st ? d : { ...d, processStatus: st };
+      }),
+    [allDossiers, categoriesConfig, documentDefinitions, baseRequirementsConfig]
+  );
+  const visibleDossiersWithStatus = React.useMemo(
+    () =>
+      role === 'REVISOR'
+        ? dossiersWithStatus.filter((d) => d.assignedReviewerId === activeUserId)
+        : dossiersWithStatus,
+    [dossiersWithStatus, role, activeUserId]
+  );
+
   return (
     <AppContext.Provider
       value={{
@@ -3770,8 +3793,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         theme,
         toggleTheme,
         setTheme,
-        dossiers: visibleDossiers,
-        allDossiers,
+        dossiers: visibleDossiersWithStatus,
+        allDossiers: dossiersWithStatus,
         activeUserId,
         activeUser,
         systemUsers: INITIAL_SYSTEM_USERS,
@@ -3839,6 +3862,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         toggleBaseDocumentRequirement,
         getRequiredDocumentsForSupplier,
         previewCategoryChange,
+        getDossierProgress,
         updateCategoryConfig,
         addCategoryConfig,
         deleteCategoryConfig,

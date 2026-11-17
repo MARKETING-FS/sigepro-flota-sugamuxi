@@ -114,13 +114,27 @@ export const DocumentEditorModal: React.FC<Props> = ({
   const [customUrl, setCustomUrl] = useState<string>(document.customUrl || document.previewUrl || '');
   const [fileError, setFileError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [status, setStatus] = useState<DocumentStatus>(document.status);
   const [expirationDate, setExpirationDate] = useState(showExpiration ? document.expirationDate || '' : '');
   const [notes, setNotes] = useState(document.notes || '');
   const [justification, setJustification] = useState('Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.');
   const [hasFile, setHasFile] = useState(Boolean(document.fileName));
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  // El estado del documento se calcula solo. Aprobar se hace con el botón «Aprobar» del expediente:
+  // sin archivo queda Pendiente; con archivo nuevo queda Cargado; un documento ya aprobado sigue aprobado
+  // mientras no se cambie el archivo; con la fecha vencida queda Vencido.
+  const originalUrl = document.customUrl || document.previewUrl || '';
+  const fileChanged = fileName !== (document.fileName || '') || customUrl !== originalUrl;
+  const wasApproved = document.status === 'APROBADO' || document.status === 'VIGENTE' || document.status === 'POR_VENCER';
+  const dateInfo = showExpiration && expirationDate ? calculateDocumentExpiration(expirationDate) : null;
+  const status: DocumentStatus = !hasFile
+    ? 'PENDIENTE'
+    : dateInfo?.status === 'VENCIDO'
+    ? 'VENCIDO'
+    : wasApproved && !fileChanged
+    ? 'APROBADO'
+    : 'CARGADO';
 
   const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -135,29 +149,6 @@ export const DocumentEditorModal: React.FC<Props> = ({
     const initialExpDate = showExpiration ? document.expirationDate || '' : '';
     setExpirationDate(initialExpDate);
 
-    // Sincronización del estado inicial basada en la fecha de vigencia y parametrización de matriz
-    if (initialExpDate) {
-      const expInfo = calculateDocumentExpiration(initialExpDate);
-      if (expInfo.status === 'VENCIDO') {
-        setStatus('VENCIDO');
-      } else if (expInfo.status === 'POR_VENCER') {
-        setStatus('POR_VENCER');
-      } else if (expInfo.status === 'VIGENTE') {
-        setStatus(document.status === 'APROBADO' ? 'APROBADO' : 'VIGENTE');
-      } else {
-        setStatus(document.status);
-      }
-    } else if (showExpiration && (document.status === 'VENCIDO' || document.status === 'POR_VENCER' || document.status === 'VIGENTE')) {
-      setStatus(document.status);
-    } else if (!showExpiration && (document.status === 'VENCIDO' || document.status === 'POR_VENCER' || document.status === 'VIGENTE')) {
-      // Sin control de fecha no hay vencimiento: queda aprobado si tiene archivo, pendiente si no
-      setStatus(document.fileName ? 'APROBADO' : 'PENDIENTE');
-    } else if (document.fileName && (document.status === 'CARGADO' || document.status === 'PENDIENTE')) {
-      setStatus('APROBADO');
-    } else {
-      setStatus(document.status);
-    }
-
     setNotes(document.notes || '');
     setHasFile(Boolean(document.fileName));
     setJustification('Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.');
@@ -169,7 +160,6 @@ export const DocumentEditorModal: React.FC<Props> = ({
     setFileSize('');
     setCustomUrl('');
     setHasFile(false);
-    setStatus('PENDIENTE');
     if (fileInputRef.current) fileInputRef.current.value = '';
     setFileError(`No se pudo guardar el archivo${reason ? `: ${reason}` : ''}. Intente de nuevo.`);
   };
@@ -225,20 +215,6 @@ export const DocumentEditorModal: React.FC<Props> = ({
       };
       reader.readAsDataURL(file);
     }
-
-    // Sincronizar estado al subir archivo considerando vigencia existente
-    if (expirationDate) {
-      const expInfo = calculateDocumentExpiration(expirationDate);
-      if (expInfo.status === 'VENCIDO') {
-        setStatus('VENCIDO');
-      } else if (expInfo.status === 'POR_VENCER') {
-        setStatus('POR_VENCER');
-      } else {
-        setStatus('VIGENTE');
-      }
-    } else {
-      setStatus('APROBADO');
-    }
   };
 
   const handleSimulateFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -274,55 +250,16 @@ export const DocumentEditorModal: React.FC<Props> = ({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    setStatus('PENDIENTE');
   };
 
-  // Manejo reactivo de cambio de fecha de vigencia / expiración
+  // Cambio de la fecha de vigencia / expiración
   const handleExpirationDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setExpirationDate(val);
     setFormError(null);
-
-    if (val && val.trim()) {
-      const expInfo = calculateDocumentExpiration(val);
-      if (expInfo.status === 'VENCIDO') {
-        // Al ingresar una fecha vencida, se cambia inmediatamente a VENCIDO
-        setStatus('VENCIDO');
-      } else if (expInfo.status === 'POR_VENCER') {
-        // Si restan 30 días o menos, se cambia a POR_VENCER
-        setStatus('POR_VENCER');
-      } else if (expInfo.status === 'VIGENTE') {
-        // Si la fecha es válida a futuro, se cambia a VIGENTE
-        setStatus('VIGENTE');
-      }
-    } else {
-      if (isExpirationRequired) {
-        setFormError('Atención: Este requisito exige fecha de vencimiento según la Matriz de Requisitos.');
-      }
-      if (hasFile) {
-        setStatus('APROBADO');
-      } else {
-        setStatus('PENDIENTE');
-      }
+    if (!val.trim() && isExpirationRequired) {
+      setFormError('Atención: Este requisito exige fecha de vencimiento según la Matriz de Requisitos.');
     }
-  };
-
-  // Validación si el usuario cambia manualmente el estado en el select
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value as DocumentStatus;
-    setFormError(null);
-
-    // Si intenta poner VIGENTE o APROBADO pero la fecha ya está vencida
-    if ((newStatus === 'VIGENTE' || newStatus === 'APROBADO') && expirationDate) {
-      const expInfo = calculateDocumentExpiration(expirationDate);
-      if (expInfo.status === 'VENCIDO') {
-        setFormError(`Inconsistencia: La fecha ingresada (${expirationDate}) ya expiró hace ${expInfo.daysOverdue} días. No puede seleccionarse ${newStatus}; el documento se registra como VENCIDO.`);
-        setStatus('VENCIDO');
-        return;
-      }
-    }
-
-    setStatus(newStatus);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -340,26 +277,10 @@ export const DocumentEditorModal: React.FC<Props> = ({
       return;
     }
 
-    // Validación 2: Si el estado es APROBADO o VIGENTE, es obligatorio tener archivo soporte
-    if ((status === 'APROBADO' || status === 'VIGENTE') && (!hasFile || !fileName || !fileName.trim())) {
-      setFormError(`Para certificar el requisito con estado ${status}, es indispensable adjuntar el archivo soporte correspondiente.`);
-      return;
-    }
-
     // Validación 3: Si la Matriz exige fecha de vencimiento, debe ingresarse obligatoriamente
     if (isExpirationRequired && (!expirationDate || !expirationDate.trim())) {
       setFormError('Este requisito está parametrizado en la Matriz de Requisitos por Actividad Económica con exigencia obligatoria de Fecha de Vigencia / Expiración. Por favor ingrese la fecha de caducidad.');
       return;
-    }
-
-    // Validación 4: Coherencia temporal: Si la fecha está vencida, no puede guardarse como VIGENTE o APROBADO
-    if (expirationDate && (status === 'VIGENTE' || status === 'APROBADO')) {
-      const expInfo = calculateDocumentExpiration(expirationDate);
-      if (expInfo.status === 'VENCIDO') {
-        setFormError(`Inconsistencia de Vigencia: La fecha de expiración ingresada (${expirationDate}) está vencida hace ${expInfo.daysOverdue} días. No puede guardarse como ${status}; debe registrarse como VENCIDO.`);
-        setStatus('VENCIDO');
-        return;
-      }
     }
 
     // Validación 5: Justificación de auditoría obligatoria
@@ -389,35 +310,29 @@ export const DocumentEditorModal: React.FC<Props> = ({
   // Cálculo en tiempo real de semáforo de expiración para renderizar alerta
   const currentExp = expirationDate ? calculateDocumentExpiration(expirationDate) : null;
 
-  const STATUS_OPTIONS: { value: DocumentStatus; label: string }[] = isExpirationRequired
-    ? [
-        { value: 'VIGENTE', label: 'VIGENTE (aprobado y en vigencia)' },
-        { value: 'POR_VENCER', label: 'POR VENCER (alerta preventiva)' },
-        { value: 'VENCIDO', label: 'VENCIDO (expirado, inhabilita al proveedor)' },
-        { value: 'APROBADO', label: 'APROBADO (habilitado)' },
-        { value: 'CARGADO', label: 'CARGADO (en revisión)' },
-        { value: 'REQUIERE_CORRECCION', label: 'REQUIERE CORRECCIÓN' },
-        { value: 'PENDIENTE', label: 'PENDIENTE' },
-        { value: 'RECHAZADO', label: 'RECHAZADO' },
-      ]
-    : showExpiration
-    ? [
-        { value: 'APROBADO', label: 'APROBADO (habilitado)' },
-        { value: 'VIGENTE', label: 'VIGENTE' },
-        { value: 'POR_VENCER', label: 'POR VENCER' },
-        { value: 'VENCIDO', label: 'VENCIDO (expirado)' },
-        { value: 'CARGADO', label: 'CARGADO (en revisión)' },
-        { value: 'REQUIERE_CORRECCION', label: 'REQUIERE CORRECCIÓN' },
-        { value: 'PENDIENTE', label: 'PENDIENTE' },
-        { value: 'RECHAZADO', label: 'RECHAZADO' },
-      ]
-    : [
-        { value: 'APROBADO', label: 'APROBADO (habilitado)' },
-        { value: 'CARGADO', label: 'CARGADO (en revisión)' },
-        { value: 'REQUIERE_CORRECCION', label: 'REQUIERE CORRECCIÓN' },
-        { value: 'PENDIENTE', label: 'PENDIENTE' },
-        { value: 'RECHAZADO', label: 'RECHAZADO' },
-      ];
+  const STATUS_VIEW: Record<string, { label: string; hint: string; cls: string }> = {
+    PENDIENTE: {
+      label: 'Pendiente',
+      hint: 'Todavía no tiene archivo.',
+      cls: 'border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white',
+    },
+    CARGADO: {
+      label: 'Cargado · falta aprobar',
+      hint: 'Para aprobarlo use el botón «Aprobar» del documento.',
+      cls: 'border-[#2c84c4]/50 text-[#1d5fa8] dark:text-[#69bdd7]',
+    },
+    APROBADO: {
+      label: 'Aprobado',
+      hint: 'Sigue aprobado mientras no se cambie el archivo.',
+      cls: 'border-[#2c84c4]/50 text-[#1d5fa8] dark:text-[#69bdd7]',
+    },
+    VENCIDO: {
+      label: 'Vencido',
+      hint: 'La fecha ya pasó: hay que cargar el documento renovado.',
+      cls: 'border-red-500 text-red-600 dark:text-red-300',
+    },
+  };
+  const statusView = STATUS_VIEW[status] || STATUS_VIEW.PENDIENTE;
 
   const labelCls = 'block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-1.5';
   const stepNum = (n: number) => (
@@ -632,30 +547,15 @@ export const DocumentEditorModal: React.FC<Props> = ({
                       </span>
                     )}
                   </div>
-                  <select
-                    value={status}
-                    onChange={handleStatusChange}
-                    className={`w-full px-3.5 h-11 rounded-xl border font-semibold focus:outline-hidden focus:ring-2 focus:ring-[#2c84c4] ${
-                      status === 'VENCIDO'
-                        ? 'border-red-500 text-red-600 dark:text-red-300'
-                        : status === 'VIGENTE' || status === 'APROBADO' || status === 'POR_VENCER'
-                        ? 'border-[#2c84c4]/50 text-[#1d5fa8] dark:text-[#69bdd7]'
-                        : 'border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white'
-                    }`}
+                  <div
+                    role="status"
+                    className={`w-full px-3.5 h-11 rounded-xl border font-semibold flex items-center bg-black/[0.02] dark:bg-white/[0.04] ${statusView.cls}`}
                   >
-                    {STATUS_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
+                    {statusView.label}
+                  </div>
                   <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1.5 flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" />
-                    <span>
-                      {showExpiration
-                        ? 'Se sincroniza automáticamente al evaluar o ingresar la vigencia.'
-                        : 'Este documento no tiene fecha de vencimiento.'}
-                    </span>
+                    <span>{statusView.hint}</span>
                   </p>
                 </div>
 
