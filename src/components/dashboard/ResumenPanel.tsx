@@ -63,7 +63,7 @@ const dueLabel = (days: number) =>
     : `En ${days} d`;
 
 export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegister, tabs, scopeLabel, dateLabel }) => {
-  const { role, accountRole, isReadOnly, activeUser, currentDossierId, systemAuditLogs, systemUsers, openSupplierReview, openSupplierEvaluation, setActiveView } = useApp();
+  const { role, accountRole, isReadOnly, activeUser, currentDossierId, systemAuditLogs, systemUsers, authProfile, openSupplierReview, openSupplierEvaluation, setActiveView } = useApp();
 
   const stats = useMemo(() => {
     const stageCounts = STAGES.map((s) => ({ key: s.key, label: s.label, tone: s.tone, count: 0 }));
@@ -167,9 +167,15 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     };
   }, [dossiers]);
 
-  // Solo personas reales con cuenta; los expedientes sin responsable conocido se cuentan aparte
-  const reviewers = systemUsers.map((u) => ({ user: u, count: dossiers.filter((d) => d.assignedReviewerId === u.id).length }));
-  const unassigned = dossiers.filter((d) => !systemUsers.some((u) => u.id === d.assignedReviewerId)).length;
+  // Solo los administradores (el superadministrador no entra); lo que no es de un administrador se cuenta aparte
+  // Un expediente es de una persona si lleva su identificador de siempre o el de su cuenta
+  const admins = systemUsers.filter((u) => u.shortName === 'Administrador');
+  const ownerOf = (d: { assignedReviewerId?: string }) =>
+    admins.find(
+      (u) => u.id === d.assignedReviewerId || (d.assignedReviewerId === authProfile?.id && !!u.email && u.email === authProfile?.email)
+    );
+  const reviewers = admins.map((u) => ({ user: u, count: dossiers.filter((d) => ownerOf(d)?.id === u.id).length }));
+  const unassigned = dossiers.filter((d) => !ownerOf(d)).length;
   const maxLoad = Math.max(1, unassigned, ...reviewers.map((r) => r.count));
 
   const juridicas = dossiers.filter((d) => d.basicInfo?.supplierType !== 'NATURAL').length;
@@ -281,7 +287,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
                 {unassigned > 0 && (
                   <li>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-[#5d7392] dark:text-slate-400">Sin responsable asignado</span>
+                      <span className="text-[#5d7392] dark:text-slate-400">Sin administrador asignado</span>
                       <span className="font-semibold tabular-nums text-fs-navy dark:text-white">{unassigned}</span>
                     </div>
                     <Meter value={unassigned} max={maxLoad} />

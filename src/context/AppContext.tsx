@@ -389,13 +389,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return {
       id: activeUserId,
       name,
-      shortName: role === 'ADMIN' ? 'Admin General' : 'Revisor',
+      shortName: accountRole === 'ADMIN' ? 'Administrador' : accountRole === 'SUPERADMIN' ? 'Superadministrador' : 'Revisor',
       role,
       email: authProfile?.email || '',
       avatarText: initials,
       department: role === 'ADMIN' ? 'Administración' : 'Evaluación de Proveedores',
     };
-  }, [authProfile, activeUserId, role]);
+  }, [authProfile, activeUserId, role, accountRole]);
 
   // Equipo real: las personas con cuenta en SIGEPRO (superadministrador y administradores). Solo el
   // superadministrador puede consultar la lista completa; los demás roles se ven a sí mismos.
@@ -417,6 +417,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const json = await res.json();
         const list: SystemUser[] = (json.users || [])
           .filter((u: { role: string }) => u.role !== 'USUARIO' && u.role !== 'REVISOR')
+          // La persona de la sesión usa su identificador de siempre (p. ej. 'admin-1'), para no contarla dos veces
+          .map((u: { id: string; name: string; email: string; role: string }) =>
+            u.id === authProfile?.id && activeUserId ? { ...u, id: activeUserId } : u
+          )
           .map((u: { id: string; name: string; email: string; role: string }) => {
             const nm = u.name || u.email;
             const isSuperUser = u.role === 'SUPERADMIN' || u.role === 'ADMIN';
