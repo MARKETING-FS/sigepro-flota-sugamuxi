@@ -103,20 +103,22 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
   const [activeTab, setActiveTab] = useState<'datos' | 'contrato' | 'documentos' | 'auditoria'>('datos');
   // Documento resaltado al llegar desde una alerta
-  const [highlightDoc, setHighlightDoc] = useState<string | null>(null);
+  const [highlightDocs, setHighlightDocs] = useState<string[]>([]);
+  const isHighlighted = (...codes: Array<string | undefined>) => codes.some((c) => !!c && highlightDocs.includes(c));
 
   /** Abre la pestaña de documentos y deja a la vista (resaltado) el documento indicado. */
-  const focusDocument = (docCode?: string) => {
+  const focusDocument = (docCodes?: string | string[]) => {
     setActiveTab('documentos');
-    if (!docCode) return;
-    setHighlightDoc(docCode);
-    // Se espera a que la pestaña pinte sus filas antes de desplazar
+    const codes = (Array.isArray(docCodes) ? docCodes : [docCodes]).filter((c): c is string => !!c);
+    if (codes.length === 0) return;
+    setHighlightDocs(codes);
+    // Se espera a que la pestaña pinte sus filas antes de desplazar al primero
     window.setTimeout(() => {
-      const sel = `[data-doc-code="${CSS.escape(docCode)}"], [data-doc-alt="${CSS.escape(docCode)}"]`;
+      const sel = `[data-doc-code="${CSS.escape(codes[0])}"], [data-doc-alt="${CSS.escape(codes[0])}"]`;
       const el = document.querySelector<HTMLElement>(sel);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 200);
-    window.setTimeout(() => setHighlightDoc((cur) => (cur === docCode ? null : cur)), 6000);
+    window.setTimeout(() => setHighlightDocs((cur) => (cur === codes || cur.join() === codes.join() ? [] : cur)), 9000);
   };
 
   // Llegada desde una alerta: salta a la pestaña y al documento que la originó
@@ -663,7 +665,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             </span>
             <div className="min-w-0">
               <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">
-                Requisitos vencidos ({expSummary.expiredCount}) · <span className="text-red-500">Inhabilitado</span>
+                Requisitos vencidos ({expSummary.expiredCount}) · <span className="text-red-500">Documento vencido</span>
               </p>
               <p className="text-[11px] text-[#3a5274] dark:text-slate-300 truncate max-w-xl hidden md:block">
                 {expSummary.expiredDocs.map((d) => `${getDocInstitutionalName(d.code, d.name)} (${d.daysOverdue}d)`).join(', ')}
@@ -672,7 +674,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           </div>
           <button
             type="button"
-            onClick={() => focusDocument(expSummary.expiredDocs[0]?.code)}
+            onClick={() => focusDocument(expSummary.expiredDocs.map((d) => d.code))}
             className="h-9 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-semibold shrink-0 hover:opacity-95 transition-opacity cursor-pointer"
           >
             Revisar documentos
@@ -701,7 +703,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           </div>
           <button
             type="button"
-            onClick={() => focusDocument(expSummary.expiringSoonDocs[0]?.code)}
+            onClick={() => focusDocument(expSummary.expiringSoonDocs.map((d) => d.code))}
             className="h-9 px-4 rounded-xl border border-black/15 dark:border-white/20 text-[#0b1d3a] dark:text-white text-xs font-semibold shrink-0 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
             Ver documentos
@@ -906,7 +908,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               {/* Institutional Form Form 009 Row */}
             <div
               data-doc-code="FS_GA_FOR_009"
-              className={`fs-card lift rounded-[22px] p-5 space-y-4 transition-shadow duration-300 ${highlightDoc === 'FS_GA_FOR_009' ? 'ring-2 ring-[#2c84c4] shadow-[0_0_0_6px_rgba(44,132,196,0.18)]' : ''}`}
+              className={`fs-card lift rounded-[22px] p-5 space-y-4 transition-shadow duration-300 ${isHighlighted('FS_GA_FOR_009') ? 'doc-alumbrado' : ''}`}
             >
               <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
@@ -1020,7 +1022,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             {/* Institutional Form Form 039 Row */}
             <div
               data-doc-code="FS_GA_FOR_039"
-              className={`fs-card lift rounded-[22px] p-5 space-y-4 transition-shadow duration-300 ${highlightDoc === 'FS_GA_FOR_039' ? 'ring-2 ring-[#2c84c4] shadow-[0_0_0_6px_rgba(44,132,196,0.18)]' : ''}`}
+              className={`fs-card lift rounded-[22px] p-5 space-y-4 transition-shadow duration-300 ${isHighlighted('FS_GA_FOR_039') ? 'doc-alumbrado' : ''}`}
             >
               <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
@@ -1192,10 +1194,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         data-doc-code={code}
                         data-doc-alt={doc.code || code}
                         className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
-                          highlightDoc === code || (doc.code && highlightDoc === doc.code) ? 'ring-2 ring-inset ring-[#2c84c4] bg-[#2c84c4]/10 ' : ''
+                          isHighlighted(code, doc.code) ? 'doc-alumbrado ' : ''
                         }${
                           docExp.status === 'VENCIDO'
-                            ? 'bg-slate-900/5 border-l-4 border-l-slate-900 dark:border-l-cyan-400'
+                            ? 'bg-red-500/[0.07] border-l-4 border-l-red-500'
                             : docExp.status === 'POR_VENCER'
                             ? 'bg-[#2c84c4]/10 border-l-4 border-l-blue-600'
                             : doc.status === 'REQUIERE_CORRECCION'
