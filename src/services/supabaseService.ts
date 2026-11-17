@@ -14,6 +14,19 @@ import {
 } from '../types';
 import { storageService } from './storageService';
 
+/** Convierte AAAA-MM-DD, dd/mm/aaaa o una fecha ISO completa a AAAA-MM-DD (null si no se entiende). */
+function toIsoDate(value?: string | null): string | null {
+  if (!value) return null;
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  const parts = value.split('/');
+  if (parts.length === 3 && parts[2].length === 4) {
+    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+  }
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+}
+
 export const supabaseService = {
   isConfigured: isSupabaseConfigured,
 
@@ -407,6 +420,24 @@ export const supabaseService = {
   },
 
   /**
+   * Elimina una evaluación de Supabase.
+   */
+  async deleteEvaluation(id: string): Promise<boolean> {
+    if (!isSupabaseConfigured() || !supabase) return false;
+    try {
+      const { error } = await supabase.from('supplier_evaluations').delete().eq('id', id);
+      if (error) {
+        console.error('Error eliminando evaluación en Supabase:', error.message);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('Excepción al eliminar evaluación en Supabase:', err);
+      return false;
+    }
+  },
+
+  /**
    * Guarda o actualiza una evaluación de proveedor en Supabase.
    */
   async saveEvaluation(evaluation: SupplierEvaluation): Promise<boolean> {
@@ -424,8 +455,9 @@ export const supabaseService = {
         evaluation_type: evaluation.evaluationType,
         annual_cycle_number: evaluation.annualCycleNumber || null,
         period_year: evaluation.periodYear || null,
-        evaluation_date: evaluation.evaluationDate,
-        due_date: evaluation.dueDate || null,
+        // La columna es de tipo fecha: se envía siempre como AAAA-MM-DD (dd/mm/aaaa lo rechaza o lo confunde con mes/día)
+        evaluation_date: toIsoDate(evaluation.evaluationDate) || toIsoDate(evaluation.createdAt) || new Date().toISOString().slice(0, 10),
+        due_date: toIsoDate(evaluation.dueDate),
         evaluator_id: evaluation.evaluatorId,
         evaluator_name: evaluation.evaluatorName,
         evaluator_role: evaluation.evaluatorRole || null,

@@ -243,7 +243,9 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     });
 
     const nowIso = new Date().toISOString();
-    const formattedDate = new Date().toLocaleDateString('es-CO');
+    const today = new Date();
+    // AAAA-MM-DD en hora local: así la base de datos nunca confunde el día con el mes
+    const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     // Calculate next due date (1 year later if initial, or 1 year after current if annual)
     const nextDate = new Date();

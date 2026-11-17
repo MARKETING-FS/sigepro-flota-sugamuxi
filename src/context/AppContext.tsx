@@ -352,6 +352,23 @@ const LOCAL_STORAGE_KEY_SYSTEM_PARAMETERS = 'flota_sugamuxi_system_parameters_v1
 const LOCAL_STORAGE_KEY_EVALUATIONS = 'flota_sugamuxi_evaluations_v1';
 const LOCAL_STORAGE_KEY_EVALUATION_METHOD = 'flota_sugamuxi_eval_method_v1';
 const LOCAL_STORAGE_KEY_EVAL_SELECTED_ID = 'flota_sugamuxi_eval_selected_id_v1';
+// Evaluaciones que no se pudieron guardar en la base de datos: se reintentan al volver a entrar
+const LOCAL_STORAGE_KEY_EVALS_PENDING = 'flota_sugamuxi_evals_pending_v1';
+const readPendingEvals = (): string[] => {
+  try {
+    const v = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALS_PENDING) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+};
+const writePendingEvals = (ids: string[]) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY_EVALS_PENDING, JSON.stringify(ids));
+  } catch {
+    /* sin almacenamiento */
+  }
+};
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
@@ -901,7 +918,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       supabaseService.getEvaluations().then((remoteEvaluations) => {
         if (remoteEvaluations !== null) {
-          setSupplierEvaluations(remoteEvaluations);
+          // La base manda, salvo las evaluaciones que no alcanzaron a guardarse: esas se conservan y se reintentan
+          const pending = readPendingEvals();
+          let unsynced: SupplierEvaluation[] = [];
+          if (pending.length > 0) {
+            try {
+              const local: SupplierEvaluation[] = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '[]');
+              const remoteIds = new Set(remoteEvaluations.map((e) => e.id));
+              unsynced = local.filter((e) => pending.includes(e.id) && !remoteIds.has(e.id));
+            } catch {
+              unsynced = [];
+            }
+            writePendingEvals(unsynced.map((e) => e.id));
+            unsynced.forEach((e) => {
+              supabaseService.saveEvaluation(e).then((ok) => {
+                if (ok) writePendingEvals(readPendingEvals().filter((id) => id !== e.id));
+              });
+            });
+          }
+          setSupplierEvaluations([...unsynced, ...remoteEvaluations]);
         }
       });
       supabaseService.getAuditLogs().then((remoteLogs) => {
@@ -3638,7 +3673,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setSupplierEvaluations((prev) => [newEvaluation, ...prev]);
     if (supabaseService.isConfigured()) {
-      supabaseService.saveEvaluation(newEvaluation);
+      supabaseService.saveEvaluation(newEvaluation).then((ok) => {
+        if (!ok) {
+          // Que no se pierda en silencio: se avisa y se reintenta al volver a entrar
+          writePendingEvals([...readPendingEvals(), newEvaluation.id]);
+          showToast(
+            'La evaluación quedó guardada en este equipo, pero no se pudo guardar en la base de datos. Se reintentará sola al volver a entrar.',
+            'warning',
+            'SIN GUARDAR EN LA BASE'
+          );
+        }
+      });
     }
 
     // Update the supplier dossier record with the new evaluation
@@ -3704,6 +3749,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
     setSupplierEvaluations((prev) => prev.filter((e) => e.id !== id));
+    // También se quita de la ficha del proveedor, para que no siga apareciendo
+    setAllDossiers((prev) =>
+      prev.map((d) =>
+        (d.evaluations || []).some((e) => e.id === id) || d.initialEvaluation?.id === id || d.annualEvaluation?.id === id
+          ? {
+              ...d,
+              evaluations: (d.evaluations || []).filter((e) => e.id !== id),
+              initialEvaluation: d.initialEvaluation?.id === id ? undefined : d.initialEvaluation,
+              annualEvaluation: d.annualEvaluation?.id === id ? undefined : d.annualEvaluation,
+            }
+          : d
+      )
+    );
+    writePendingEvals(readPendingEvals().filter((p) => p !== id));
+    if (supabaseService.isConfigured()) {
+      supabaseService.deleteEvaluation(id).then((ok) => {
+        if (!ok) {
+          showToast('No se pudo eliminar la evaluación de la base de datos: puede reaparecer al volver a entrar.', 'warning', 'SIN ELIMINAR EN LA BASE');
+        }
+      });
+    }
     showToast('Registro de calificación eliminado.', 'info');
     return { success: true, message: 'Evaluación eliminada correctamente.' };
   };
