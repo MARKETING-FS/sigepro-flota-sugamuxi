@@ -40,6 +40,7 @@ import { ContractTab } from './dossier/ContractTab';
 import {
   SupplierDossier,
   SupplierDocument,
+  DocumentDefinition,
   ProcessStatus,
   DocumentCorrection,
   DocumentStatus,
@@ -78,6 +79,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     requestDocumentCorrection,
     updateSupplierDocument,
     addCustomSupplierDocument,
+    annexNewDocument,
     updateDossierStatus,
     institutionalForms,
     systemAuditLogs,
@@ -515,9 +517,12 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     updateSupplierDocument(dossier.id, code, updates, reviewerName, role, justification);
   };
 
-  const handleAddCustomDoc = (newDoc: SupplierDocument, justification: string) => {
-    addCustomSupplierDocument(dossier.id, newDoc, reviewerName, role, justification);
-  };
+  const handleAnnexDoc = (
+    definition: DocumentDefinition,
+    mandatory: boolean,
+    newDoc: SupplierDocument,
+    justification: string
+  ) => annexNewDocument(dossier.id, definition, mandatory, newDoc, reviewerName, role, justification);
 
   const handleOpenCorrectionModal = (docCode: string, docName: string) => {
     setTargetDocCode(docCode);
@@ -1840,8 +1845,14 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
       <AddCustomDocumentModal
         isOpen={isAddDocOpen}
         onClose={() => setIsAddDocOpen(false)}
-        existingDocCodes={Object.keys(dossier.documents)}
-        onAdd={handleAddCustomDoc}
+        dossierId={dossier.id}
+        fileNumber={dossier.fileNumber}
+        supplierName={supplierName}
+        categoryName={dossier.selectedCategory || undefined}
+        userRole={role}
+        reviewerName={reviewerName}
+        takenCodes={[...Object.keys(dossier.documents), ...(documentDefinitions || []).map((d) => d.code)]}
+        onAnnex={handleAnnexDoc}
       />
 
       {/* Ficha Oficial & Certificado de Habilitación de Proveedor Modal */}

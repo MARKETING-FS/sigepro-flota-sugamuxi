@@ -215,8 +215,19 @@ interface AppContextType {
     doc: SupplierDocument,
     updatedBy: string,
     userRole: UserRole,
-    justification?: string
+    justification?: string,
+    extraNote?: string
   ) => void;
+  /** Anexa un documento nuevo: lo registra en Parametrización, lo une a la categoría del proveedor y lo agrega al expediente */
+  annexNewDocument: (
+    dossierId: string,
+    definition: DocumentDefinition,
+    mandatory: boolean,
+    doc: SupplierDocument,
+    updatedBy: string,
+    userRole: UserRole,
+    justification: string
+  ) => Promise<{ success: boolean; message: string }>;
   submitDossierForReview: (dossierId: string) => { success: boolean; message: string };
   
   // Revisor Actions
@@ -1586,7 +1597,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     doc: SupplierDocument,
     updatedBy: string,
     userRole: UserRole,
-    justification?: string
+    justification?: string,
+    extraNote?: string
   ) => {
     const timestamp = getNowFormatted();
     let supplierTarget: SupplierDossier | undefined;
@@ -1641,10 +1653,75 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     showToast(
-      `Nuevo documento ${doc.name} anexado al expediente.`,
+      `Nuevo documento ${doc.name} anexado al expediente.${extraNote ? ` ${extraNote}` : ''}`,
       'success',
       'DOCUMENTO ANEXADO'
     );
+  };
+
+  /**
+   * Un administrador necesita un documento que todavía no existe: se crea en Parametrización (catálogo maestro),
+   * se une a la categoría del proveedor para que los próximos proveedores de esa categoría también lo pidan
+   * y se anexa a este expediente.
+   */
+  const annexNewDocument = async (
+    dossierId: string,
+    definition: DocumentDefinition,
+    mandatory: boolean,
+    doc: SupplierDocument,
+    updatedBy: string,
+    userRole: UserRole,
+    justification: string
+  ): Promise<{ success: boolean; message: string }> => {
+    const code = definition.code.trim().toUpperCase().replace(/\s+/g, '_');
+    const name = definition.name.trim();
+    if (!code || !name) return { success: false, message: 'El código y el nombre del documento son obligatorios.' };
+    if (documentDefinitions.some((d) => d.code.toUpperCase() === code)) {
+      return { success: false, message: `Ya existe un documento con el código ${code} en Parametrización. Use otro código.` };
+    }
+    const target = allDossiers.find((d) => d.id === dossierId);
+    if (!target) return { success: false, message: 'No se encontró el expediente.' };
+    if (target.documents?.[code]) return { success: false, message: `El expediente ya tiene un documento con el código ${code}.` };
+
+    const norm = (v = '') => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const catConfig = target.selectedCategory
+      ? categoriesConfig.find((c) => norm(c.category) === norm(target.selectedCategory))
+      : undefined;
+    const def: DocumentDefinition = { ...definition, code, name, isActive: true };
+
+    // En producción se guarda primero en la base de datos: si falla, no se cambia nada
+    if (supabaseService.isConfigured()) {
+      const res = await supabaseService.attachDocumentToCategory(def, catConfig?.category ?? null, mandatory);
+      if (!res.success) {
+        return { success: false, message: `No se pudo guardar el documento en Parametrización${res.error ? `: ${res.error}` : ''}.` };
+      }
+    }
+
+    setDocumentDefinitions((prev) => (prev.some((d) => d.code === code) ? prev : [...prev, def]));
+    if (catConfig) {
+      const withCode = (list?: string[]) => (list || []).includes(code) ? list || [] : [...(list || []), code];
+      setCategoriesConfig((prev) =>
+        prev.map((c) =>
+          c.category !== catConfig.category
+            ? c
+            : mandatory
+              ? { ...c, mandatoryForNatural: withCode(c.mandatoryForNatural), mandatoryForJuridica: withCode(c.mandatoryForJuridica) }
+              : { ...c, optionalForNatural: withCode(c.optionalForNatural), optionalForJuridica: withCode(c.optionalForJuridica) }
+        )
+      );
+    }
+
+    addCustomSupplierDocument(
+      dossierId,
+      { ...doc, code, name, isRequired: mandatory },
+      updatedBy,
+      userRole,
+      justification,
+      catConfig
+        ? `Quedó en Parametrización y en la categoría «${catConfig.category}».`
+        : 'Quedó en Parametrización.'
+    );
+    return { success: true, message: 'Documento anexado.' };
   };
 
   // 6. Submit Dossier for Review
@@ -3742,6 +3819,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         removeDocument,
         updateSupplierDocument,
         addCustomSupplierDocument,
+        annexNewDocument,
         submitDossierForReview,
         approveDocument,
         requestDocumentCorrection,

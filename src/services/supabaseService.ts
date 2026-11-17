@@ -719,6 +719,34 @@ export const supabaseService = {
     }
   },
 
+  /**
+   * Agrega un documento al catálogo maestro y lo une a una categoría (personas naturales y jurídicas).
+   * Lo hace una función de la base de datos que deja anexar a los administradores sin abrirles la edición
+   * del resto de la parametrización.
+   */
+  async attachDocumentToCategory(
+    docDef: DocumentDefinition,
+    categoryName: string | null,
+    mandatory: boolean
+  ): Promise<{ success: boolean; linked: boolean; error?: string }> {
+    if (!isSupabaseConfigured() || !supabase) return { success: false, linked: false, error: 'Sin conexión a la base de datos' };
+    try {
+      const { data, error } = await supabase.rpc('sigepro_anexar_documento', {
+        p_doc: docDef,
+        p_category: categoryName,
+        p_mandatory: mandatory,
+      });
+      if (error) {
+        console.error('[Supabase] Error anexando documento a la parametrización:', error);
+        return { success: false, linked: false, error: error.message };
+      }
+      return { success: true, linked: Boolean((data as { linked?: boolean } | null)?.linked) };
+    } catch (err) {
+      console.error('[Supabase] Excepción anexando documento a la parametrización:', err);
+      return { success: false, linked: false, error: 'Error de conexión' };
+    }
+  },
+
   async getBaseRequirementsConfig(): Promise<Record<'NATURAL' | 'JURIDICA', PersonTypeBaseRequirementConfig> | null> {
     if (!isSupabaseConfigured() || !supabase) return null;
     try {
