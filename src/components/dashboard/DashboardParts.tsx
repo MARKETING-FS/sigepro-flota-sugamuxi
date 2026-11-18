@@ -8,20 +8,40 @@ const greeting = () => {
   return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
 };
 
-const Chip: React.FC<{ label: string; value: number; dot: string; decimals?: boolean }> = ({ label, value, dot }) => {
-  const n = useCountUp(value);
+/** Indicador del encabezado: cifra grande y, debajo, de dónde sale (value = null muestra una raya) */
+const Chip: React.FC<{ label: string; value: number | null; suffix?: string; hint?: string; dot: string; onClick?: () => void }> = ({
+  label,
+  value,
+  suffix = '',
+  hint,
+  dot,
+  onClick,
+}) => {
+  const n = useCountUp(value ?? 0);
+  const Tag = onClick ? 'button' : 'div';
   return (
-    <div className="min-w-44 rounded-2xl bg-[#0b1329]/35 border border-white/20 backdrop-blur-[2px] [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] px-4 py-3">
+    <Tag
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+      className={`min-w-52 text-left rounded-2xl bg-[#0b1329]/35 border border-white/20 backdrop-blur-[2px] [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] px-4 py-3 ${
+        onClick ? 'cursor-pointer hover:bg-[#0b1329]/55 transition-colors' : ''
+      }`}
+    >
       <p className="flex items-center gap-2 text-[11px] text-white/80">
         <span className={`w-1.5 h-1.5 rounded-full ${dot}`} /> {label}
       </p>
-      <p className="mt-1 font-display text-2xl font-semibold">{n}</p>
-    </div>
+      <p className="mt-1 font-display text-2xl font-semibold leading-none">
+        {value === null ? '—' : n}
+        {value !== null && suffix && <span className="ml-0.5 text-lg">{suffix}</span>}
+      </p>
+      {hint && <p className="mt-1.5 text-[11px] leading-snug text-white/70">{hint}</p>}
+    </Tag>
   );
 };
 
 /** Medidor circular animado */
-const Gauge: React.FC<{ value: number }> = ({ value }) => {
+const Gauge: React.FC<{ value: number | null }> = ({ value: raw }) => {
+  const value = raw ?? 0;
   const n = useCountUp(value);
   const r = 62;
   const c = 2 * Math.PI * r;
@@ -44,8 +64,8 @@ const Gauge: React.FC<{ value: number }> = ({ value }) => {
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
-          <div className="font-display text-3xl font-semibold leading-none">{n}%</div>
-          <div className="mt-1 text-[10px] text-white/60">cumplimiento</div>
+          <div className="font-display text-3xl font-semibold leading-none">{raw === null ? '—' : `${n}%`}</div>
+          <div className="mt-1 text-[10px] text-white/60">al día</div>
         </div>
       </div>
     </div>
@@ -91,13 +111,19 @@ export const DashboardHero: React.FC<{
   scopeLabel: string;
   critical: number;
   pendingEval: number;
-  health: number;
+  health: number | null;
+  healthHint: string;
   alerts: number;
+  alertsHint: string;
   habilitados: number;
+  habilitadosHint: string;
   avg: number | null;
+  avgHint: string;
+  onAlerts?: () => void;
+  onHabilitados?: () => void;
   onRegister: () => void;
   onEvaluate: () => void;
-}> = ({ userName, dateLabel, scopeLabel, critical, pendingEval, health, alerts, habilitados, avg, onRegister, onEvaluate }) => (
+}> = ({ userName, dateLabel, scopeLabel, critical, pendingEval, health, healthHint, alerts, alertsHint, habilitados, habilitadosHint, avg, avgHint, onAlerts, onHabilitados, onRegister, onEvaluate }) => (
   <section className="relative overflow-hidden rounded-[28px] bg-[#131b2e] text-white shadow-glow animate-fade-up">
     <HeroBackdrop />
     <div className="absolute inset-0 bg-gradient-to-r from-[#131b2e]/95 via-[#131b2e]/60 to-transparent" />
@@ -140,11 +166,12 @@ export const DashboardHero: React.FC<{
         <div className="rounded-3xl bg-[#0b1329]/35 border border-white/20 backdrop-blur-[2px] [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] p-5">
           <p className="text-xs text-white/80">Salud documental</p>
           <Gauge value={health} />
+          <p className="mt-2 max-w-[10.5rem] mx-auto text-center text-[11px] leading-snug text-white/70">{healthHint}</p>
         </div>
         <div className="hidden flex-col gap-3 sm:flex">
-          <Chip label="Alertas abiertas" value={alerts} dot="bg-red-500" />
-          <Chip label="Proveedores habilitados" value={habilitados} dot="bg-[#2c84c4]" />
-          <Chip label="Puntaje promedio" value={avg === null ? 0 : Math.round(avg)} dot="bg-[#69bdd7]" />
+          <Chip label="Alertas abiertas" value={alerts} hint={alertsHint} dot="bg-red-500" onClick={onAlerts} />
+          <Chip label="Proveedores habilitados" value={habilitados} hint={habilitadosHint} dot="bg-[#2c84c4]" onClick={onHabilitados} />
+          <Chip label="Puntaje promedio" value={avg === null ? null : Math.round(avg)} suffix={avg === null ? '' : ' %'} hint={avgHint} dot="bg-[#69bdd7]" />
         </div>
       </div>
     </div>

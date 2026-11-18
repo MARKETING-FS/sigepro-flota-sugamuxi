@@ -1382,7 +1382,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           result: input.complianceChecks?.sarlaftResult || (isDirectlyApproved ? 'SIN_COINCIDENCIAS' : 'PENDIENTE'),
           checkedBy: input.createdByName,
           checkedAt: timestamp,
-          notes: 'Consulta automatizada en listas restrictivas OFAC, ONU, PEPs y Procuraduría.',
+          notes: input.complianceChecks?.sarlaftFile
+            ? 'Consulta SARLAFT cargada en PDF y aprobada al registrar al proveedor.'
+            : 'Consulta automatizada en listas restrictivas OFAC, ONU, PEPs y Procuraduría.',
+          ...(input.complianceChecks?.sarlaftFile
+            ? {
+                fileName: input.complianceChecks.sarlaftFile.fileName,
+                fileSize: input.complianceChecks.sarlaftFile.fileSize,
+                fileUrl: input.complianceChecks.sarlaftFile.fileUrl,
+                approved: true,
+              }
+            : {}),
         },
         ofacCheck: {
           checked: true,

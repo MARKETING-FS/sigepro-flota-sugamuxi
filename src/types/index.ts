@@ -278,6 +278,12 @@ export interface InternalConcepts {
     checkedBy?: string;
     checkedAt?: string;
     notes?: string;
+    /** PDF de la consulta SARLAFT subido al registrar al proveedor */
+    fileName?: string;
+    fileSize?: string;
+    fileUrl?: string;
+    /** El administrador revisó el PDF y le dio «Aprobar» */
+    approved?: boolean;
   };
   ofacCheck: {
     checked: boolean;
@@ -606,6 +612,7 @@ export interface AdminCreateSupplierInput {
   assignedReviewerName?: string;
   complianceChecks?: {
     sarlaftResult?: 'SIN_COINCIDENCIAS' | 'REQUIERE_VERIFICACION' | 'PENDIENTE';
+    sarlaftFile?: { fileName: string; fileSize: string; fileUrl: string };
     ofacResult?: 'LIMPIO' | 'ALERTA' | 'PENDIENTE';
     procuraduriaResult?: 'VIGENTE_SIN_ANTECEDENTES' | 'CON_ANTECEDENTES' | 'PENDIENTE';
     legalConcept?: 'APROBADO' | 'OBSERVADO' | 'PENDIENTE';

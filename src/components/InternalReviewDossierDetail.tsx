@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ContractTab } from './dossier/ContractTab';
+import { SarlaftCard } from './dossier/SarlaftCard';
 import {
   SupplierDossier,
   SupplierDocument,
@@ -817,7 +818,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
         {/* Tab 0: Supplier Data & Full Editing */}
         {activeTab === 'datos' && (
-          <div className="p-4 sm:p-5">
+          <div className="p-4 sm:p-5 space-y-4">
+            <SarlaftCard dossier={dossier} />
             {/* Rol Usuario: se ven los datos pero ningún campo ni botón de edición responde */}
             <fieldset disabled={isReadOnly} className="contents">
               <SupplierDataEditorTab dossier={dossier} reviewerName={reviewerName} />

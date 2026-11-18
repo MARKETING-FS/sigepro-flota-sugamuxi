@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Plus, FileSpreadsheet, ChevronLeft, ChevronRight, Users, LayoutGrid, Tag, Folder, Filter } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SupplierDossier } from '../types';
-import { AdminCreateSupplierModal } from './AdminCreateSupplierModal';
 import { InternalReviewDossierDetail } from './InternalReviewDossierDetail';
 import { SupplierCertificateModal } from './SupplierCertificateModal';
 import { getCreationStatus, getContractualStatus } from '../utils/contractValidity';
@@ -24,7 +23,6 @@ export const BancoProveedoresView: React.FC = () => {
   // Expediente abierto dentro del Banco (mantiene la navegación del Banco)
   const [selectedDossierIdForReview, setSelectedDossierIdForReview] = useState<string | null>(null);
 
-  const [isAdminCreateModalOpen, setIsAdminCreateModalOpen] = useState(false);
   const [selectedDossierForCertificate, setSelectedDossierForCertificate] = useState<SupplierDossier | null>(null);
 
   // Filtros: estado de creación y vinculación contractual por separado
@@ -318,14 +316,6 @@ export const BancoProveedoresView: React.FC = () => {
         </div>
       </section>
       </PageBody>
-
-      <AdminCreateSupplierModal
-        isOpen={isAdminCreateModalOpen}
-        onClose={() => setIsAdminCreateModalOpen(false)}
-        onSuccess={() => {
-          setIsAdminCreateModalOpen(false);
-        }}
-      />
 
       <SupplierCertificateModal
         isOpen={Boolean(selectedDossierForCertificate)}

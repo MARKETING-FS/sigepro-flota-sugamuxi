@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Plus, Home } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { InternalReviewDossierDetail } from './InternalReviewDossierDetail';
-import { AdminCreateSupplierModal } from './AdminCreateSupplierModal';
 import { ResumenPanel } from './dashboard/ResumenPanel';
 import { ExpedientesTable, ExpedienteFilters, EMPTY_FILTERS } from './dashboard/ExpedientesTable';
 import { HeroTabs, PageBody, PageHeader, heroPrimaryBtn } from './ui/archive';
@@ -13,13 +12,12 @@ const todayLabel = () =>
   new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 
 export const InternalReviewView: React.FC = () => {
-  const { dossiers, allDossiers, role, reviewSelectedDossierId, setReviewSelectedDossierId, openSupplierReview } = useApp();
+  const { dossiers, allDossiers, role, reviewSelectedDossierId, setReviewSelectedDossierId, openSupplierReview, setActiveView } = useApp();
 
   const [tab, setTab] = useState<Tab>('RESUMEN');
   // Los revisores ven su cartera por defecto y pueden mirar todos los expedientes
   const [scope, setScope] = useState<'CARTERA' | 'GLOBAL'>('CARTERA');
   const [filters, setFilters] = useState<ExpedienteFilters>(EMPTY_FILTERS);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   if (reviewSelectedDossierId) {
     return <InternalReviewDossierDetail dossierId={reviewSelectedDossierId} onBack={() => setReviewSelectedDossierId(null)} />;
@@ -61,7 +59,7 @@ export const InternalReviewView: React.FC = () => {
         <ResumenPanel
           dossiers={dataset}
           onFilterStage={showStage}
-          onRegister={() => setIsCreateOpen(true)}
+          onRegister={() => setActiveView('registrarProveedor')}
           scopeLabel={role === 'ADMIN' || scope === 'GLOBAL' ? 'Todos los expedientes' : 'Su cartera asignada'}
           dateLabel={todayLabel()}
           tabs={tabsNode}
@@ -77,7 +75,7 @@ export const InternalReviewView: React.FC = () => {
                 : `Su cartera asignada · ${todayLabel()}`
             }
             actions={
-              <button type="button" className={heroPrimaryBtn} onClick={() => setIsCreateOpen(true)}>
+              <button type="button" className={heroPrimaryBtn} onClick={() => setActiveView('registrarProveedor')}>
                 <Plus className="w-4 h-4" /> Registrar proveedor
               </button>
             }
@@ -89,14 +87,6 @@ export const InternalReviewView: React.FC = () => {
         </>
       )}
 
-      <AdminCreateSupplierModal
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onSuccess={(dossierId) => {
-          setIsCreateOpen(false);
-          openSupplierReview(dossierId);
-        }}
-      />
     </div>
   );
 };

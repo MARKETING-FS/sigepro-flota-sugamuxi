@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { AlertTriangle, ArrowRight, Building2, BadgeCheck, Hourglass, FileClock, FileSignature } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SupplierDossier } from '../../types';
-import { getCreationStatus, getContractualStatus, getDossierDocumentExpirationSummary } from '../../utils/contractValidity';
+import { getContractualStatus, getDossierDocumentExpirationSummary, getRequiredDocsProgress } from '../../utils/contractValidity';
 import { buildEvaluationRow } from '../../utils/evaluationRows';
 import { DashboardHero, Kpi, Podium, StageDonut } from './DashboardParts';
 import { ActivityTimeline, BarList, GradeBars, PriorityAlerts, TrendChart } from './DashboardCharts';
@@ -66,7 +66,7 @@ const dueLabel = (days: number) =>
     : `En ${days} d`;
 
 export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegister, tabs, scopeLabel, dateLabel }) => {
-  const { role, accountRole, isReadOnly, activeUser, currentDossierId, systemAuditLogs, systemUsers, authProfile, openSupplierReview, openSupplierEvaluation, setActiveView } = useApp();
+  const { role, accountRole, isReadOnly, activeUser, currentDossierId, systemAuditLogs, systemUsers, authProfile, openSupplierReview, openSupplierEvaluation, setActiveView, getRequiredDocumentsForSupplier } = useApp();
 
   const stats = useMemo(() => {
     const stageCounts = STAGES.map((s) => ({ key: s.key, label: s.label, tone: s.tone, count: 0 }));
@@ -74,6 +74,9 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     let habilitados = 0;
     let conVencimientos = 0;
     let conContrato = 0;
+    // Salud documental: de todos los documentos obligatorios que se les piden a los proveedores, cuántos están aprobados y vigentes
+    let reqTotal = 0;
+    let reqOk = 0;
 
     dossiers.forEach((d) => {
       const stage = stageOf(d.processStatus);
@@ -81,6 +84,10 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       if (stage.key === 'habilitado') habilitados++;
 
       const exp = getDossierDocumentExpirationSummary(d);
+      const reqs = getRequiredDocumentsForSupplier(d.basicInfo?.supplierType, d.selectedCategory);
+      const progress = getRequiredDocsProgress(d, reqs.allMandatory);
+      reqTotal += progress.total;
+      reqOk += Math.max(0, progress.approved - exp.expiredCount);
       exp.expiredDocs.forEach((doc) => due.push({ dossier: d, what: doc.name, kind: 'Documento', days: -Math.max(1, doc.daysOverdue) }));
       exp.expiringSoonDocs.forEach((doc) => due.push({ dossier: d, what: doc.name, kind: 'Documento', days: doc.daysRemaining }));
 
@@ -100,7 +107,12 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     const active = evalRows.filter((r) => r.isSupplierActive);
     // Por calificar: los que todavía no tienen evaluación inicial
     const evalDue = evalRows.filter((r) => !r.initialEval && r.dossier.processStatus !== 'RECHAZADO');
-    const scores = evalRows.flatMap((r) => [r.initialEval, r.latestAnnualEval]).filter(Boolean).map((e) => evaluationPercent(e!));
+    // Puntaje promedio: la última evaluación de cada proveedor, en porcentaje (la inicial es sobre 120 y la anual sobre 100)
+    const scores = evalRows
+      .filter((r) => r.dossier.processStatus !== 'RECHAZADO')
+      .map((r) => r.latestAnnualEval || r.initialEval)
+      .filter(Boolean)
+      .map((e) => evaluationPercent(e!));
     const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
 
     // Puntaje promedio por mes (últimos 12 meses) y clasificación por último puntaje
@@ -152,6 +164,9 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       evalUpToDate: evalRows.filter((r) => r.initialEval).length,
       evalDue,
       avg,
+      evaluated: scores.length,
+      reqTotal,
+      reqOk,
     };
   }, [dossiers]);
 
@@ -201,7 +216,10 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
   const pct = (n: number) => (dossiers.length ? Math.round((n / dossiers.length) * 100) : 0);
 
   const priorityAlerts = useMemo(() => computePushAlerts(dossiers, role, currentDossierId).alerts.slice(0, 6), [dossiers, role, currentDossierId]);
-  const health = dossiers.length ? Math.round(((dossiers.length - stats.conVencimientos) / dossiers.length) * 100) : 100;
+  const health = stats.reqTotal ? Math.round((stats.reqOk / stats.reqTotal) * 100) : null;
+  const overdueCount = stats.due.filter((x) => x.days < 0).length;
+  const dueSoonCount = stats.due.length - overdueCount;
+  const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
   return (
     <div className="space-y-7">
@@ -212,9 +230,14 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         critical={stats.conVencimientos}
         pendingEval={stats.evalDue.length}
         health={health}
+        healthHint={stats.reqTotal ? `${stats.reqOk} de ${stats.reqTotal} documentos obligatorios aprobados y vigentes` : 'Aún no hay documentos obligatorios'}
         alerts={stats.due.length}
+        alertsHint={stats.due.length ? `${plural(overdueCount, 'vencido', 'vencidos')} · ${plural(dueSoonCount, 'por vencer', 'por vencer')} en ${HORIZON_DAYS} días` : `Nada vencido ni por vencer en ${HORIZON_DAYS} días`}
         habilitados={stats.habilitados}
+        habilitadosHint={`de ${plural(dossiers.length, 'proveedor', 'proveedores')} · ${pct(stats.habilitados)} %`}
         avg={stats.avg}
+        avgHint={stats.evaluated ? `Promedio de ${plural(stats.evaluated, 'proveedor evaluado', 'proveedores evaluados')}` : 'Todavía no hay evaluaciones'}
+        onHabilitados={() => onFilterStage('habilitado')}
         onRegister={onRegister}
         onEvaluate={() => setActiveView('evaluaciones')}
       />
