@@ -13,6 +13,7 @@ import {
   VolumeX,
   Laptop,
   Check,
+  UserCheck,
 } from 'lucide-react';
 import { BrandSwoosh } from '../ui/BrandSwoosh';
 import { useApp } from '../../context/AppContext';
@@ -36,12 +37,15 @@ export const PushAlertsPopover: React.FC<Props> = () => {
     dossiers,
     currentDossierId,
     openSupplierReview,
+    showSupplierInBank,
+    activeUser,
+    activeUserId,
     setActiveView,
     showToast,
   } = useApp();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [filterTab, setFilterTab] = useState<'ALL' | 'EXPIRED' | 'EXPIRING' | 'CONTRACTS'>('ALL');
+  const [filterTab, setFilterTab] = useState<'ALL' | 'ASSIGNED' | 'EXPIRED' | 'EXPIRING' | 'CONTRACTS'>('ALL');
   const [dismissedVersion, setDismissedVersion] = useState(0);
   const [hasPermission, setHasPermission] = useState<NotificationPermission>('default');
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -49,9 +53,12 @@ export const PushAlertsPopover: React.FC<Props> = () => {
 
   // Compute active alerts reactively
   const alertsSummary = useMemo(() => {
-    return computePushAlerts(dossiers, role, currentDossierId);
+    return computePushAlerts(dossiers, role, currentDossierId, {
+      userId: activeUserId,
+      selfLabel: `${activeUser.name} (${activeUser.shortName})`,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dossiers, role, currentDossierId, dismissedVersion]);
+  }, [dossiers, role, currentDossierId, dismissedVersion, activeUserId]);
 
   // Check initial browser notification permission
   useEffect(() => {
@@ -77,6 +84,7 @@ export const PushAlertsPopover: React.FC<Props> = () => {
 
   const filteredAlerts = useMemo(() => {
     return alertsSummary.alerts.filter((alert) => {
+      if (filterTab === 'ASSIGNED') return alert.type === 'ASSIGNED';
       if (filterTab === 'EXPIRED') return alert.severity === 'CRITICAL';
       if (filterTab === 'EXPIRING') return alert.severity === 'WARNING';
       if (filterTab === 'CONTRACTS') return alert.type === 'CONTRACT_EXPIRED' || alert.type === 'CONTRACT_EXPIRING';
@@ -116,6 +124,12 @@ export const PushAlertsPopover: React.FC<Props> = () => {
     setIsOpen(false);
     dismissPushAlert(alert.id);
     setDismissedVersion((v) => v + 1);
+
+    // Asignación: va al Banco y deja ese proveedor alumbrado en azul
+    if (alert.type === 'ASSIGNED') {
+      showSupplierInBank(alert.dossierId);
+      return;
+    }
 
     // Abre el expediente justo donde hay que actuar: el documento vencido o la pestaña del contrato
     const isContract = alert.type === 'CONTRACT_EXPIRED' || alert.type === 'CONTRACT_EXPIRING';
@@ -227,6 +241,7 @@ export const PushAlertsPopover: React.FC<Props> = () => {
             <div className="flex items-center gap-1 flex-wrap">
               {([
                 ['ALL', 'Todas'],
+                ['ASSIGNED', 'Asignados'],
                 ['EXPIRED', 'Vencidos'],
                 ['EXPIRING', 'Por vencer'],
                 ['CONTRACTS', 'Contratos'],
@@ -263,13 +278,14 @@ export const PushAlertsPopover: React.FC<Props> = () => {
                   <CheckCircle2 className="w-6 h-6" />
                 </span>
                 <h4 className="mt-3 text-base font-bold text-[#0b1d3a] dark:text-white">Sin alertas</h4>
-                <p className="text-sm text-[#3a5274] mt-1">No hay vencimientos pendientes en este filtro.</p>
+                <p className="text-sm text-[#3a5274] mt-1">No hay avisos pendientes en este filtro.</p>
               </div>
             ) : (
               <ul className="divide-y divide-[#e6edf5] dark:divide-[#1d3a70]">
                 {filteredAlerts.map((alert) => {
                   const isCrit = alert.severity === 'CRITICAL';
-                  const label = alert.daysOverdue
+                  const isAssigned = alert.type === 'ASSIGNED';
+                  const label = isAssigned ? 'Nuevo' : alert.daysOverdue
                     ? `Vencido hace ${alert.daysOverdue} d`
                     : alert.daysRemaining !== undefined
                     ? alert.daysRemaining === 0
@@ -285,10 +301,10 @@ export const PushAlertsPopover: React.FC<Props> = () => {
                       >
                         <span
                           className={`mt-0.5 w-10 h-10 rounded-xl grid place-items-center shrink-0 text-white ${
-                            isCrit ? 'bg-[#dc2626]' : 'bg-[#69bdd7]'
+                            isCrit ? 'bg-[#dc2626]' : isAssigned ? 'bg-[#1d5fa8]' : 'bg-[#69bdd7]'
                           }`}
                         >
-                          {isCrit ? <AlertCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                          {isCrit ? <AlertCircle className="w-5 h-5" /> : isAssigned ? <UserCheck className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block text-[15px] font-bold text-[#0b1d3a] dark:text-white leading-snug">{alert.title}</span>

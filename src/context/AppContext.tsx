@@ -113,6 +113,11 @@ interface AppContextType {
   /** Adónde debe saltar el expediente al abrirse (pestaña y documento); se consume una sola vez */
   reviewFocus: { dossierId: string; docCode?: string; tab?: 'documentos' | 'contrato' } | null;
   clearReviewFocus: () => void;
+  /** Proveedor que se debe mostrar resaltado en azul en el Banco (al llegar desde un aviso de asignación) */
+  highlightedSupplierId: string | null;
+  /** Lleva al Banco de proveedores y deja ese proveedor alumbrado en azul */
+  showSupplierInBank: (dossierId: string) => void;
+  clearHighlightedSupplier: () => void;
   openExecutiveDashboard: () => void;
 
   // Supplier Evaluation & Grading SIG (Revisor & Admin)
@@ -1087,6 +1092,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     tab?: 'documentos' | 'contrato';
   } | null>(null);
   const clearReviewFocus = () => setReviewFocus(null);
+
+  const [highlightedSupplierId, setHighlightedSupplierId] = useState<string | null>(null);
+  const clearHighlightedSupplier = () => setHighlightedSupplierId(null);
+  const showSupplierInBank = (dossierId: string) => {
+    setReviewSelectedDossierIdState(null);
+    setHighlightedSupplierId(dossierId);
+    setActiveViewState('bancoProveedores');
+  };
 
   const openSupplierReview = (dossierId: string, focus?: { docCode?: string; tab?: 'documentos' | 'contrato' }) => {
     setCurrentDossierIdState(dossierId);
@@ -4075,6 +4088,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         openSupplierReview,
         reviewFocus,
         clearReviewFocus,
+        highlightedSupplierId,
+        showSupplierInBank,
+        clearHighlightedSupplier,
         openExecutiveDashboard,
         supplierEvaluations,
         evaluationMethod,

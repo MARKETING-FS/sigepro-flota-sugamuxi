@@ -20,14 +20,21 @@ export const PushAlertFloatingToast: React.FC = () => {
     dossiers,
     currentDossierId,
     openSupplierReview,
+    showSupplierInBank,
+    activeUser,
+    activeUserId,
   } = useApp();
 
   const [isVisible, setIsVisible] = useState(false);
   const [hasPromptedThisSession, setHasPromptedThisSession] = useState(false);
 
   const alertsSummary = useMemo(() => {
-    return computePushAlerts(dossiers, role, currentDossierId);
-  }, [dossiers, role, currentDossierId]);
+    return computePushAlerts(dossiers, role, currentDossierId, {
+      userId: activeUserId,
+      selfLabel: `${activeUser.name} (${activeUser.shortName})`,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dossiers, role, currentDossierId, activeUserId]);
 
   useEffect(() => {
     // Only prompt once per browser session if there are unread alerts
@@ -67,6 +74,10 @@ export const PushAlertFloatingToast: React.FC = () => {
   const handleOpenAlert = () => {
     setIsVisible(false);
     if (!topAlert) return;
+    if (topAlert.type === 'ASSIGNED') {
+      showSupplierInBank(topAlert.dossierId);
+      return;
+    }
 
     const isContract = topAlert.type === 'CONTRACT_EXPIRED' || topAlert.type === 'CONTRACT_EXPIRING';
     openSupplierReview(topAlert.dossierId, isContract ? { tab: 'contrato' } : { tab: 'documentos', docCode: topAlert.docCode });
@@ -83,11 +94,13 @@ export const PushAlertFloatingToast: React.FC = () => {
             </span>
             <div className="min-w-0 flex-1">
               <div className={`text-[10px] font-semibold uppercase tracking-[0.16em] ${isCritical ? 'text-red-600 dark:text-red-400' : 'text-[#2c84c4] dark:text-[#69bdd7]'}`}>
-                {isCritical ? 'Alerta crítica' : 'Aviso preventivo'}
+                {isCritical ? 'Alerta crítica' : topAlert?.type === 'ASSIGNED' ? 'Nueva asignación' : 'Aviso preventivo'}
               </div>
               <h4 className="font-display font-semibold text-[15px] leading-tight text-[#0b1d3a] dark:text-white mt-0.5">
                 {isCritical
                   ? `${alertsSummary.criticalCount} requisito(s) vencido(s)`
+                  : topAlert?.type === 'ASSIGNED'
+                  ? 'Te asignaron un proveedor'
                   : `${alertsSummary.warningCount} próximo(s) a vencer`}
               </h4>
             </div>

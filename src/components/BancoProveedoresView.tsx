@@ -19,7 +19,7 @@ const QUICK_FILTERS: Array<{ key: string; label: string }> = [
 ];
 
 export const BancoProveedoresView: React.FC = () => {
-  const { isReadOnly, dossiers, setCurrentDossierId, setActiveView, openSupplierEvaluation, getDossierProgress } = useApp();
+  const { isReadOnly, dossiers, setCurrentDossierId, setActiveView, openSupplierEvaluation, getDossierProgress, highlightedSupplierId, clearHighlightedSupplier } = useApp();
 
   // Expediente abierto dentro del Banco (mantiene la navegación del Banco)
   const [selectedDossierIdForReview, setSelectedDossierIdForReview] = useState<string | null>(null);
@@ -96,6 +96,38 @@ export const BancoProveedoresView: React.FC = () => {
   const paginatedDossiers = useMemo(() => {
     return filteredDossiers.slice(startIndex, endIndex);
   }, [filteredDossiers, startIndex, endIndex]);
+
+  // Llegada desde un aviso de asignación: se quitan los filtros, se abre la página donde está y se alumbra en azul
+  const [blueId, setBlueId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!highlightedSupplierId) return;
+    setBlueId(highlightedSupplierId);
+    setSelectedDossierIdForReview(null);
+    setSearchTerm('');
+    setCreationStatusFilter('ALL');
+    setContractStatusFilter('ALL');
+    setCategoryFilter('ALL');
+    setTypeFilter('ALL');
+    setTierFilter('ALL');
+    setSarlaftFilter('ALL');
+    clearHighlightedSupplier();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlightedSupplierId]);
+
+  useEffect(() => {
+    if (!blueId) return;
+    const idx = filteredDossiers.findIndex((d) => d.id === blueId);
+    if (idx >= 0) setCurrentPage(Math.floor(idx / ITEMS_PER_PAGE) + 1);
+    const t1 = window.setTimeout(() => {
+      document.querySelector<HTMLElement>(`[data-dossier-id="${CSS.escape(blueId)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 350);
+    const t2 = window.setTimeout(() => setBlueId(null), 10000);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blueId, filteredDossiers.length]);
 
 
   const categories = useMemo(
@@ -248,6 +280,7 @@ export const BancoProveedoresView: React.FC = () => {
           onCertificate={setSelectedDossierForCertificate}
           progressOf={getDossierProgress}
           canEvaluate={!isReadOnly}
+          highlightId={blueId}
         />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[#e8eef5] dark:border-slate-800 text-sm text-fs-muted">

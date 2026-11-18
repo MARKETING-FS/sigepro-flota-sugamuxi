@@ -12,7 +12,8 @@ export type PushAlertType =
   | 'CONTRACT_EXPIRED'
   | 'CONTRACT_EXPIRING'
   | 'CORRECTION_NEEDED'
-  | 'PENDING_DOCS';
+  | 'PENDING_DOCS'
+  | 'ASSIGNED';
 
 export interface PushAlert {
   id: string;
@@ -192,13 +193,49 @@ export function computeDossierPushAlerts(dossier: SupplierDossier): PushAlert[] 
   return alerts;
 }
 
+/** Quien recibe el aviso de asignación: su id y la etiqueta con la que firma sus propias asignaciones */
+export interface AssignmentRecipient {
+  userId: string;
+  selfLabel: string;
+}
+
+/**
+ * Avisos "te asignaron un proveedor": uno por cada expediente que tiene a esta persona como revisora.
+ * El id lleva la fecha de la asignación, así una reasignación vuelve a avisar.
+ */
+export function computeAssignmentAlerts(dossiers: SupplierDossier[], me: AssignmentRecipient): PushAlert[] {
+  if (!me.userId) return [];
+  const alerts: PushAlert[] = [];
+  for (const d of dossiers) {
+    if (!d.assignedReviewerId || d.assignedReviewerId !== me.userId || !d.assignedAt) continue;
+    // Si se asignó a sí misma no hace falta avisarle
+    if (d.assignedBy && d.assignedBy === me.selfLabel) continue;
+    const supplierName = d.basicInfo.companyName || d.basicInfo.fullName || 'Proveedor';
+    alerts.push({
+      id: `alert-assigned-${d.id}-${d.assignedAt}`,
+      type: 'ASSIGNED',
+      severity: 'INFO',
+      title: 'Te asignaron un proveedor',
+      message: `${d.assignedBy || 'El administrador'} te asignó a ${supplierName} para que lo revises.`,
+      dossierId: d.id,
+      supplierName,
+      fileNumber: d.fileNumber,
+      date: d.assignedAt,
+      createdAt: d.assignedAt,
+      actionView: 'bancoProveedores',
+    });
+  }
+  return alerts;
+}
+
 /**
  * Compute system-wide push alerts, filtered by role and current dossier
  */
 export function computePushAlerts(
   dossiers: SupplierDossier[],
   role: UserRole,
-  currentDossierId?: string
+  currentDossierId?: string,
+  recipient?: AssignmentRecipient
 ): PushAlertsSummary {
   let targetDossiers: SupplierDossier[] = [];
 
@@ -209,6 +246,7 @@ export function computePushAlerts(
   for (const d of targetDossiers) {
     allAlerts.push(...computeDossierPushAlerts(d));
   }
+  if (recipient) allAlerts.push(...computeAssignmentAlerts(targetDossiers, recipient));
 
   // Filter out dismissed alerts
   const dismissedIds = new Set(getDismissedAlertIds());
@@ -220,6 +258,8 @@ export function computePushAlerts(
   // Sort: Critical first, then Warning, then Info; unread first
   activeAlerts.sort((a, b) => {
     if (a.read !== b.read) return a.read ? 1 : -1;
+    // Lo que te acaban de asignar va primero
+    if ((a.type === 'ASSIGNED') !== (b.type === 'ASSIGNED')) return a.type === 'ASSIGNED' ? -1 : 1;
     const severityScore = { CRITICAL: 3, WARNING: 2, INFO: 1 };
     return severityScore[b.severity] - severityScore[a.severity];
   });

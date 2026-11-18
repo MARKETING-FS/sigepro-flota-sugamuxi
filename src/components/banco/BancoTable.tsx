@@ -44,11 +44,13 @@ interface Props {
   progressOf: (d: SupplierDossier) => { approved: number; total: number };
   /** Falso para el rol Usuario (solo consulta) */
   canEvaluate?: boolean;
+  /** Proveedor que se muestra alumbrado en azul (llegada desde un aviso de asignación) */
+  highlightId?: string | null;
 }
 
 const iconBtn = rowIconBtn;
 
-export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, progressOf, canEvaluate = true }) => (
+export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, progressOf, canEvaluate = true, highlightId = null }) => (
   <div className="overflow-x-auto">
     <table className="w-full text-sm">
       <thead>
@@ -83,7 +85,15 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
               ? `${creation.expiringSoonCount} por vencer`
               : null;
             return (
-              <tr key={d.id} className={rowCls}>
+              <tr
+                key={d.id}
+                data-dossier-id={d.id}
+                className={`${rowCls} ${
+                  highlightId === d.id
+                    ? 'bg-[#2c84c4]/20 dark:bg-[#2c84c4]/30 shadow-[inset_0_0_0_2px_#2c84c4,0_0_22px_-2px_rgba(44,132,196,0.85)] animate-pulse'
+                    : ''
+                }`}
+              >
                 <td className="py-3 pl-5 pr-3">
                   <button type="button" onClick={() => onOpen(d.id)} className="text-left text-base font-bold text-[#0b1d3a] dark:text-white hover:text-[#1d5fa8] cursor-pointer">
                     {supplierName(d)}
