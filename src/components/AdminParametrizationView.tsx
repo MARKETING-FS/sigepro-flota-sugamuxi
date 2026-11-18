@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import {
   CategoryRequirementConfig,
@@ -82,6 +82,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
     updateCategoryConfig,
     deleteCategoryConfig,
     toggleDocumentRequirement,
+    toggleBaseDocumentRequirement,
     systemParameters,
     updateGlobalSettings,
     addBankParameter,
@@ -143,6 +144,16 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
   const [newDocDescription, setNewDocDescription] = useState('');
   const [newDocValidityRule, setNewDocValidityRule] = useState('');
   const [newDocRequiresExp, setNewDocRequiresExp] = useState(false);
+  // ¿Dónde se pide el documento nuevo? '' = sin elegir; NONE = solo catálogo; BASE_* = a toda persona; CAT::nombre = a una actividad
+  const [newDocDest, setNewDocDest] = useState('');
+  const [newDocMode, setNewDocMode] = useState<'MANDATORY' | 'OPTIONAL'>('MANDATORY');
+
+  useEffect(() => {
+    if (isNewDocModalOpen) {
+      setNewDocDest(targetCategoryForNewDoc ? `CAT::${targetCategoryForNewDoc}` : '');
+      setNewDocMode('MANDATORY');
+    }
+  }, [isNewDocModalOpen, targetCategoryForNewDoc]);
 
   const docCodeSuggestions = useMemo(() => {
     return generateDocumentCodeSuggestions(newDocName);
@@ -212,6 +223,10 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       showToast('El código y nombre del documento son obligatorios.', 'error');
       return;
     }
+    if (!newDocDest) {
+      showToast('Elija dónde se pide el documento (o «Solo guardarlo en el catálogo»).', 'error');
+      return;
+    }
 
     const finalDocCode = newDocCode.trim().toUpperCase().replace(/\s+/g, '_');
     const res = addDocumentDefinition({
@@ -226,12 +241,19 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
     });
 
     if (res.success) {
-      if (targetCategoryForNewDoc) {
-        toggleDocumentRequirement(targetCategoryForNewDoc, finalDocCode, 'JURIDICA', 'MANDATORY');
-        toggleDocumentRequirement(targetCategoryForNewDoc, finalDocCode, 'NATURAL', 'MANDATORY');
-        showToast(`Documento "${newDocName.trim()}" registrado y vinculado como OBLIGATORIO a ${targetCategoryForNewDoc}.`, 'success');
+      const modeLabel = newDocMode === 'MANDATORY' ? 'obligatorio' : 'opcional';
+      if (newDocDest.startsWith('CAT::')) {
+        const catName = newDocDest.slice(5);
+        toggleDocumentRequirement(catName, finalDocCode, 'JURIDICA', newDocMode);
+        toggleDocumentRequirement(catName, finalDocCode, 'NATURAL', newDocMode);
+        showToast(`Documento "${newDocName.trim()}" registrado y pedido como ${modeLabel} a ${catName}.`, 'success');
+      } else if (newDocDest === 'BASE_NATURAL' || newDocDest === 'BASE_JURIDICA' || newDocDest === 'BASE_BOTH') {
+        if (newDocDest !== 'BASE_JURIDICA') toggleBaseDocumentRequirement('NATURAL', finalDocCode, newDocMode);
+        if (newDocDest !== 'BASE_NATURAL') toggleBaseDocumentRequirement('JURIDICA', finalDocCode, newDocMode);
+        const who = newDocDest === 'BASE_NATURAL' ? 'persona natural' : newDocDest === 'BASE_JURIDICA' ? 'persona jurídica' : 'persona natural y jurídica';
+        showToast(`Documento "${newDocName.trim()}" registrado y pedido como ${modeLabel} a ${who}.`, 'success');
       } else {
-        showToast(res.message, 'success');
+        showToast(`Documento "${newDocName.trim()}" guardado en el catálogo. Aún no se pide a nadie.`, 'success');
       }
       setIsNewDocModalOpen(false);
       setTargetCategoryForNewDoc(null);
@@ -241,6 +263,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
       setNewDocDescription('');
       setNewDocValidityRule('');
       setNewDocRequiresExp(false);
+      setNewDocDest('');
     } else {
       showToast(res.message, 'error');
     }
@@ -2592,6 +2615,47 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                   </div>
                 </div>
               )}
+
+              {/* DESTINO: ¿para quién se pide? */}
+              <div className="p-3 rounded-xl bg-[#2c84c4]/[0.07] border border-[#2c84c4]/25 space-y-2.5">
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">¿A quién se le pide este documento? *</label>
+                  <select
+                    required
+                    value={newDocDest}
+                    onChange={(e) => setNewDocDest(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Elija dónde se pide…</option>
+                    <optgroup label="A toda persona, sin importar su actividad">
+                      <option value="BASE_NATURAL">Toda persona natural</option>
+                      <option value="BASE_JURIDICA">Toda persona jurídica</option>
+                      <option value="BASE_BOTH">Persona natural y jurídica</option>
+                    </optgroup>
+                    <optgroup label="Solo a una actividad económica">
+                      {categoriesConfig.map((c) => (
+                        <option key={c.category} value={`CAT::${c.category}`}>
+                          {c.category}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Todavía no">
+                      <option value="NONE">Solo guardarlo en el catálogo</option>
+                    </optgroup>
+                  </select>
+                </div>
+                {newDocDest && newDocDest !== 'NONE' && (
+                  <div className="flex items-center gap-4">
+                    <span className="font-bold text-slate-700 dark:text-slate-300">Se exige como:</span>
+                    {(['MANDATORY', 'OPTIONAL'] as const).map((m) => (
+                      <label key={m} className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700 dark:text-slate-300">
+                        <input type="radio" name="newDocMode" checked={newDocMode === m} onChange={() => setNewDocMode(m)} />
+                        {m === 'MANDATORY' ? 'Obligatorio' : 'Opcional (si aplica)'}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
