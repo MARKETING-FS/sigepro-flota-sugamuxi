@@ -126,7 +126,6 @@ export type DocumentCode =
   | 'DOCUMENTACION_LEGAL_ACTIVIDAD'
   | 'DECLARACION_RENTA'
   | 'POLIZA_RCE'
-  | 'SST_PLAN'
   | 'CERTIFICADO_CALIDAD'
   | 'DECLARACION_SARLAFT'
   | string;

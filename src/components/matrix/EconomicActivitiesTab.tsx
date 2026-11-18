@@ -104,7 +104,6 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
       'DOCUMENTACION_LEGAL_ACTIVIDAD',
       'CERTIFICADO_CONFORMIDAD',
       'POLIZA_RCE',
-      'SST_PLAN',
       'CERTIFICADO_CALIDAD',
     ]);
   }, [naturalBaseConfig, juridicaBaseConfig]);

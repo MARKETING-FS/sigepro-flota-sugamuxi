@@ -41,7 +41,6 @@ export const INITIAL_BASE_REQUIREMENTS: Record<'NATURAL' | 'JURIDICA', PersonTyp
       'CERTIFICACION_BANCARIA',
       'ESTADOS_FINANCIEROS',
       'DOCUMENTACION_LEGAL_ACTIVIDAD',
-      'SST_PLAN',
     ],
     optionalDocs: [],
     legalBasisNotes: 'XII. DOCUMENTOS A ANEXAR CON LA SOLICITUD - PERSONAS JURÍDICAS: Carpeta de servicios/Brochure/Cotización, Fotocopia de la Cédula del Representante Legal, Original o copia de Cámara de Comercio con máximo 30 días de antelación a la fecha de radicación, Pago de seguridad social vigente con factura, Fotocopia del RUT, Certificación bancaria, Estados Financieros dictaminados o certificados (si aplica), Documentación legal exigida para actividad (según aplique), Certificado de conformidad (si aplica) y Formato para autorización de datos personales (FS.GA-FOR-039 suministrado por Flota Sugamuxi S.A.).',
@@ -284,16 +283,6 @@ export const INITIAL_DOCUMENT_DEFINITIONS: DocumentDefinition[] = [
     isActive: true,
   },
   {
-    code: 'SST_PLAN',
-    name: 'Certificado / Estándares Mínimos SG-SST (Res. 0312)',
-    category: 'HSEQ',
-    description: 'Autoevaluación de estándares mínimos del Sistema de Gestión de Seguridad y Salud en el Trabajo.',
-    validityRule: 'Vigencia anual certificada.',
-    suggestedFileTypes: ['PDF'],
-    requiresExpirationDate: true,
-    isActive: true,
-  },
-  {
     code: 'CERTIFICADO_CALIDAD',
     name: 'Certificación de Calidad (ISO 9001 / 14001 / 45001)',
     category: 'HSEQ',
@@ -388,11 +377,6 @@ export const DOCUMENT_CATALOG_INFO: Record<
     name: 'Póliza de Responsabilidad Civil Extracontractual (RCE)',
     description: 'Póliza de seguro que ampare daños a terceros derivada de la operación o mantenimiento.',
     validityRule: 'Vigencia mínima de 6 meses.',
-  },
-  SST_PLAN: {
-    name: 'Certificado / Estándares Mínimos SG-SST (Res. 0312)',
-    description: 'Autoevaluación de estándares mínimos del Sistema de Gestión de Seguridad y Salud en el Trabajo.',
-    validityRule: 'Vigencia anual certificada.',
   },
   CERTIFICADO_CALIDAD: {
     name: 'Certificación de Calidad (ISO 9001 / 14001 / 45001)',
