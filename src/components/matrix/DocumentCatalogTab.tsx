@@ -32,6 +32,8 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
     documentDefinitions,
     updateDocumentDefinition,
     deleteDocumentDefinition,
+    baseRequirementsConfig,
+    categoriesConfig,
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,6 +111,139 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
   };
 
   const { ask, dialog } = useConfirm();
+
+  const handleDeleteDoc = (doc: DocumentDefinition) =>
+    ask({
+      title: `¿Eliminar «${doc.name}»?`,
+      message: 'Se elimina de forma permanente el tipo de documento y se desvincula de los requisitos base y de todas las actividades.',
+      hint: 'Los expedientes que ya lo tienen cargado conservan el archivo.',
+      confirmLabel: 'Sí, eliminar',
+      onConfirm: () => {
+        const res = deleteDocumentDefinition(doc.code);
+        onShowToast(res.message, res.success ? 'success' : 'error');
+      },
+    });
+
+  // ¿De dónde sale cada documento? Se arma a partir de los requisitos base y de las actividades económicas
+  const INSTITUTIONAL = ['FS_GA_FOR_009', 'FS_GA_FOR_039'];
+  const origin = useMemo(() => {
+    const nat = new Set<string>([...(baseRequirementsConfig?.NATURAL?.mandatoryDocs || []), ...(baseRequirementsConfig?.NATURAL?.optionalDocs || [])]);
+    const jur = new Set<string>([...(baseRequirementsConfig?.JURIDICA?.mandatoryDocs || []), ...(baseRequirementsConfig?.JURIDICA?.optionalDocs || [])]);
+    const catCodes = (c: (typeof categoriesConfig)[number]) =>
+      Array.from(new Set([...(c.mandatoryForJuridica || []), ...(c.mandatoryForNatural || []), ...(c.optionalForJuridica || []), ...(c.optionalForNatural || [])]));
+    const usedBy = new Map<string, string[]>();
+    categoriesConfig.forEach((c) => catCodes(c).forEach((code) => usedBy.set(code, [...(usedBy.get(code) || []), c.category])));
+    return { nat, jur, usedBy, catCodes };
+  }, [baseRequirementsConfig, categoriesConfig]);
+
+  const sections = useMemo(() => {
+    const byCode = new Map(filteredDocs.map((d) => [d.code, d]));
+    const isBase = (code: string) => origin.nat.has(code) || origin.jur.has(code);
+    const inst = filteredDocs.filter((d) => INSTITUTIONAL.includes(d.code));
+    const both = filteredDocs.filter((d) => !INSTITUTIONAL.includes(d.code) && origin.nat.has(d.code) && origin.jur.has(d.code));
+    const onlyNat = filteredDocs.filter((d) => !INSTITUTIONAL.includes(d.code) && origin.nat.has(d.code) && !origin.jur.has(d.code));
+    const onlyJur = filteredDocs.filter((d) => !INSTITUTIONAL.includes(d.code) && origin.jur.has(d.code) && !origin.nat.has(d.code));
+    const activities = categoriesConfig
+      .map((c) => ({
+        name: c.category,
+        riskLevel: c.riskLevel,
+        docs: origin.catCodes(c).filter((code) => !isBase(code) && !INSTITUTIONAL.includes(code)).map((code) => byCode.get(code)).filter(Boolean) as DocumentDefinition[],
+      }))
+      .filter((a) => a.docs.length > 0);
+    const unused = filteredDocs.filter((d) => !INSTITUTIONAL.includes(d.code) && !isBase(d.code) && !origin.usedBy.has(d.code));
+    return { inst, both, onlyNat, onlyJur, activities, unused };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredDocs, origin, categoriesConfig]);
+
+  const renderDocRow = (doc: DocumentDefinition, ctx: { currentCategory?: string }) => {
+    const isInstitutional = INSTITUTIONAL.includes(doc.code);
+    const isAct = doc.isActive !== false;
+    const others = (origin.usedBy.get(doc.code) || []).filter((n) => n !== ctx.currentCategory);
+    const inNat = origin.nat.has(doc.code);
+    const inJur = origin.jur.has(doc.code);
+    return (
+      <div key={`${ctx.currentCategory || 'x'}-${doc.code}`} className={`px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${!isAct ? 'opacity-60' : ''}`}>
+        <div className="min-w-0 space-y-1">
+          <p className="font-display text-[13px] font-semibold text-[#0b1d3a] dark:text-white leading-snug">{doc.name}</p>
+          <div className="flex flex-wrap items-center gap-1.5 text-[10.5px] text-[#5d7392] dark:text-slate-400">
+            {(inNat || inJur) && (
+              <span className="font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">
+                Se pide a: {inNat && inJur ? 'persona natural y jurídica' : inNat ? 'persona natural' : 'persona jurídica'}
+              </span>
+            )}
+            {!inNat && !inJur && others.length > 0 && <span>También en: {others.join(' · ')}</span>}
+            {!isAct && <span className="font-bold">INACTIVO</span>}
+            <span>{doc.requiresExpirationDate ? 'Pide fecha de vencimiento' : 'Sin vencimiento'}</span>
+            <span className="font-mono opacity-70">{doc.code}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {isInstitutional ? (
+            <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-bold flex items-center gap-1 mr-1">
+              <Lock className="w-3 h-3" /> Formato fijo
+            </span>
+          ) : (
+            <button
+              onClick={() => handleToggleDocActive(doc)}
+              className={`text-[11px] font-bold px-2 py-1 rounded-lg border transition-colors cursor-pointer ${
+                isAct
+                  ? 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/15 border-black/10 dark:border-white/15'
+                  : 'bg-gradient-action text-white border-transparent shadow-glow'
+              }`}
+              title={isAct ? 'Inactivar documento' : 'Activar documento'}
+            >
+              {isAct ? 'Inactivar' : 'Activar'}
+            </button>
+          )}
+          <button
+            onClick={() => handleOpenEdit(doc)}
+            className="p-1.5 text-[#2c84c4] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/15"
+            title="Editar el documento"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+          </button>
+          {!isInstitutional && (
+            <button
+              onClick={() => handleDeleteDoc(doc)}
+              className="p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/15"
+              title="Eliminar documento"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderSection = (title: string, hint: string, docs: DocumentDefinition[], ctx: { currentCategory?: string } = {}, collapsible = false) => {
+    if (docs.length === 0) return null;
+    const head = (
+      <div className="min-w-0">
+        <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{title}</p>
+        <p className="text-[11.5px] text-[#5d7392] dark:text-slate-400">{hint}</p>
+      </div>
+    );
+    const count = <span className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] whitespace-nowrap">{docs.length} documento{docs.length === 1 ? '' : 's'}</span>;
+    const rows = <div className="divide-y divide-black/10 dark:divide-white/10">{docs.map((d) => renderDocRow(d, ctx))}</div>;
+    return collapsible ? (
+      <details key={title} className="fs-card rounded-2xl overflow-hidden group" open={searchQuery !== ''}>
+        <summary className="px-4 py-3 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-2 cursor-pointer list-none">
+          {head}
+          {count}
+        </summary>
+        {rows}
+      </details>
+    ) : (
+      <section key={title} className="fs-card rounded-2xl overflow-hidden">
+        <div className="px-4 py-3 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-2">
+          {head}
+          {count}
+        </div>
+        {rows}
+      </section>
+    );
+  };
 
   // Quick toggle active / inactive
   const doToggleDocActive = (doc: DocumentDefinition) => {
@@ -233,148 +368,33 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
         </div>
       </div>
 
-      {/* Grid of Documents */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Documentos agrupados por origen */}
+      <div className="space-y-5">
         {filteredDocs.length === 0 ? (
-          <div className="fs-card col-span-full p-12 rounded-2xl text-center text-[#3a5274] dark:text-slate-400 text-xs">
+          <div className="fs-card p-12 rounded-2xl text-center text-[#3a5274] dark:text-slate-400 text-xs">
             No se encontraron documentos en el catálogo con los filtros especificados.
           </div>
         ) : (
-          filteredDocs.map((doc) => {
-            const isInstitutional = doc.code === 'FS_GA_FOR_009' || doc.code === 'FS_GA_FOR_039';
-            const isAct = doc.isActive !== false;
-
-            const categoryColors: Record<string, string> = {
-              LEGAL: 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30',
-              FINANCIERO: 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30',
-              TECNICO: 'bg-black/5 dark:bg-white/10 text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/15',
-              HSEQ: 'bg-[#69bdd7]/15 text-[#0e6d8a] dark:text-[#69bdd7] border-[#69bdd7]/40',
-              SARLAFT: 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30',
-              OPERATIVO: 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-300 border-black/10 dark:border-white/15',
-            };
-
-            return (
-              <div
-                key={doc.code}
-                className={`fs-card lift p-4 rounded-2xl flex flex-col justify-between space-y-3 transition-all ${
-                  !isAct ? 'opacity-60' : ''
-                }`}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-300 tabular-nums">
-                      {doc.code}
-                    </span>
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
-                        isAct
-                          ? 'bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
-                          : 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-400 border-black/10 dark:border-white/15'
-                      }`}
-                    >
-                      {isAct ? 'ACTIVO' : 'INACTIVO'}
-                    </span>
-                  </div>
-
-                  <h4 className="font-display text-[13px] font-semibold text-[#0b1d3a] dark:text-white leading-snug">
-                    {doc.name}
-                  </h4>
-
-                  <p className="text-[11px] text-[#3a5274] dark:text-slate-400 line-clamp-2">
-                    {doc.description}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-black/[0.07] dark:border-white/10 space-y-1.5 text-[10px] text-[#3a5274] dark:text-slate-400">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#5d7392] dark:text-slate-500">Categoría SIG:</span>
-                    <span
-                      className={`font-bold px-1.5 py-0.5 rounded border text-xs ${
-                        categoryColors[doc.category] || 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
-                      }`}
-                    >
-                      {doc.category}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#5d7392] dark:text-slate-500">Regla Vigencia:</span>
-                    <span className="font-semibold text-[#0b1d3a] dark:text-slate-200 truncate max-w-[170px]" title={doc.validityRule}>
-                      {doc.validityRule || 'No especificada'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#5d7392] dark:text-slate-500">Fecha Vencimiento:</span>
-                    <span className="font-semibold text-[#0b1d3a] dark:text-slate-200">
-                      {doc.requiresExpirationDate ? 'Exigida al radicar' : 'No requerida'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Actions Bar */}
-                <div className="pt-3 border-t border-black/[0.07] dark:border-white/10 flex items-center justify-between text-xs">
-                  {isInstitutional ? (
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-bold flex items-center gap-1">
-                        <Lock className="w-3 h-3" /> Formato Institucional SIG
-                      </span>
-                      <button
-                        onClick={() => handleOpenEdit(doc)}
-                        className="p-1.5 text-[#2c84c4] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 rounded-lg transition-colors cursor-pointer border border-[#2c84c4]/30"
-                        title="Editar parámetros del formato institucional"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Inactivate / Activate button */}
-                      <button
-                        onClick={() => handleToggleDocActive(doc)}
-                        className={`text-[11px] font-bold px-2 py-1 rounded-lg border transition-colors cursor-pointer ${
-                          isAct
-                            ? 'bg-black/5 dark:bg-white/10 text-[#3a5274] dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/15 border-black/10 dark:border-white/15'
-                            : 'bg-gradient-action text-white border-transparent shadow-glow'
-                        }`}
-                        title={isAct ? 'Inactivar documento' : 'Activar documento'}
-                      >
-                        {isAct ? 'Inactivar' : 'Activar'}
-                      </button>
-
-                      <div className="flex items-center gap-1">
-                        {/* Edit button */}
-                        <button
-                          onClick={() => handleOpenEdit(doc)}
-                          className="p-1.5 text-[#2c84c4] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/15"
-                          title="Editar todos los campos del documento"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Delete button */}
-                        <button
-                          onClick={() => {
-                            if (
-                              window.confirm(
-                                `¿Está seguro de eliminar permanentemente el tipo de documento "${doc.name}"? Se desvinculará de los requisitos base y de todas las actividades.`
-                              )
-                            ) {
-                              const res = deleteDocumentDefinition(doc.code);
-                              if (res.success) onShowToast(res.message);
-                              else onShowToast(res.message, 'error');
-                            }
-                          }}
-                          className="p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/15"
-                          title="Eliminar documento"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </>
+          <>
+            {renderSection('Formatos institucionales', 'Los dos formatos de Flota Sugamuxi que todo proveedor diligencia (FS.GA-FOR-009 y FS.GA-FOR-039).', sections.inst)}
+            {renderSection('Documentos de toda persona (natural y jurídica)', 'Formulario FS.GA-FOR-009, sección XII: se piden a todos los proveedores, sin importar su actividad.', sections.both)}
+            {renderSection('Documentos solo de persona natural', 'Formulario FS.GA-FOR-009, sección XII, numeral 1.', sections.onlyNat)}
+            {renderSection('Documentos solo de persona jurídica', 'Formulario FS.GA-FOR-009, sección XII, numeral 2, y SG-SST (sección XIV).', sections.onlyJur)}
+            {sections.activities.length > 0 && (
+              <div className="pt-1">
+                <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Requisitos por actividad económica</p>
+                <p className="text-[11.5px] text-[#5d7392] dark:text-slate-400 mb-3">
+                  Formulario FS.GA-FOR-009, sección XIII: lo que se pide además de los documentos de la persona, según la categoría del proveedor.
+                </p>
+                <div className="space-y-3">
+                  {sections.activities.map((a) =>
+                    renderSection(a.name, a.riskLevel ? `Riesgo ${a.riskLevel}` : 'Documentos propios de esta actividad', a.docs, { currentCategory: a.name }, true)
                   )}
                 </div>
               </div>
-            );
-          })
+            )}
+            {renderSection('Sin uso en ninguna lista', 'Están en el catálogo pero ningún requisito base ni actividad los pide. Se pueden eliminar o asignar a una actividad.', sections.unused)}
+          </>
         )}
       </div>
 

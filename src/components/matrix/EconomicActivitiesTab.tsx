@@ -256,17 +256,11 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
           <div>
             <h2 className="text-sm font-bold text-[#0b1d3a] dark:text-white flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
-              <span>Matriz de Requisitos Específicos por Actividad Económica</span>
-              <span className="text-[10px] bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30 font-bold px-2 py-0.5 rounded-full">
-                Edición Total de Campos Habilitada
-              </span>
-              <span className="text-[10px] bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] border border-[#2c84c4]/35 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2c84c4] animate-pulse"></span>
-                Supabase Sincronizado
-              </span>
+              <span>Qué se le pide a cada actividad económica</span>
             </h2>
-            <p className="text-xs text-[#5d7392] dark:text-slate-400">
-              Parametrice los documentos técnicos, pólizas, condiciones y soportes exigibles para cada línea de bienes y servicios.
+            <p className="text-xs text-[#5d7392] dark:text-slate-400 max-w-2xl">
+              Formulario FS.GA-FOR-009, sección XIII. Abra una actividad para ver sus documentos propios; los documentos que se piden a toda persona
+              (sección XII) se configuran en la pestaña «1. Requisitos Base».
             </p>
           </div>
 
@@ -377,7 +371,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
           </div>
         </div>
         <div className="text-[11px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium">
-          💡 Los requisitos específicos se suman a los Requisitos Base del Tipo de Persona.
+          Cada actividad pide sus documentos propios y, además, los de la persona (natural o jurídica).
         </div>
       </div>
 
@@ -529,17 +523,19 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
 
                     {/* Delete Activity Button */}
                     <button
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            `¿Está seguro de eliminar permanentemente la actividad "${cat.category}"?`
-                          )
-                        ) {
-                          const res = deleteCategoryConfig(cat.category);
-                          if (res.success) onShowToast(res.message);
-                          else onShowToast(res.message, 'error');
-                        }
-                      }}
+                      onClick={() =>
+                        ask({
+                          title: `¿Eliminar la actividad «${cat.category}»?`,
+                          message: 'Se elimina de forma permanente la actividad y su lista de documentos exigidos.',
+                          hint: 'Los proveedores que ya están en esta categoría conservan sus documentos.',
+                          confirmLabel: 'Sí, eliminar',
+                          onConfirm: () => {
+                            const res = deleteCategoryConfig(cat.category);
+                            if (res.success) onShowToast(res.message);
+                            else onShowToast(res.message, 'error');
+                          },
+                        })
+                      }
                       className="p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#0b1d3a] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/10"
                       title="Eliminar actividad"
                     >
@@ -566,7 +562,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                   <div className="p-4 sm:p-5 space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="text-xs text-[#3a5274] dark:text-slate-300">
-                        Configure los documentos exigidos específicamente para la actividad <strong>{cat.category}</strong>:
+                        Documentos que se piden a un proveedor de <strong>{cat.category}</strong>:
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -648,7 +644,9 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                 (d.validityRule && d.validityRule.toLowerCase().includes(q))
                               );
                             })
-                            .map((doc) => {
+                            .sort((x, y) => (baseDocCodes.has(x.code) ? 1 : 0) - (baseDocCodes.has(y.code) ? 1 : 0))
+                            .map((doc, idx, arr) => {
+                              const startsGroup = idx === 0 || baseDocCodes.has(arr[idx - 1].code) !== baseDocCodes.has(doc.code);
                               const natState = getCategoryDocState(cat, doc.code, 'NATURAL');
                               const jurState = getCategoryDocState(cat, doc.code, 'JURIDICA');
                               const isBaseDoc = baseDocCodes.has(doc.code);
@@ -657,8 +655,20 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                               const isInactiveDoc = doc.isActive === false;
 
                               return (
+                                <React.Fragment key={doc.code}>
+                                {startsGroup && (
+                                  <tr>
+                                    <td colSpan={7} className="px-4 py-2.5 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] text-[13px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] normal-case tracking-normal">
+                                      {isBaseDoc ? 'Documentos de la persona' : `Propios de la actividad ${cat.category}`}{' '}
+                                      <span className="font-normal text-[#5d7392] dark:text-slate-400">
+                                        {isBaseDoc
+                                          ? '· los pide el formulario a toda persona (sección XII); se cambian en «1. Requisitos Base»'
+                                          : '· los pide el formulario solo a esta actividad (sección XIII)'}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                )}
                                 <tr
-                                  key={doc.code}
                                   className={`hover:bg-black/5 dark:hover:bg-white/10 transition-colors ${
                                     isInactiveDoc ? 'bg-black/[0.04] dark:bg-white/[0.06] opacity-60' : ''
                                   }`}
@@ -893,6 +903,7 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                                     </div>
                                   </td>
                                 </tr>
+                                </React.Fragment>
                               );
                             })}
                         </tbody>

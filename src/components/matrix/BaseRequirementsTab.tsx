@@ -332,14 +332,12 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
       {/* Top Selector: Persona Natural vs Persona Juridica */}
       <div className="fs-card p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-[#0b1d3a] dark:text-white flex items-center gap-2">
-            <span>Configuración de Requisitos Base por Régimen Jurídico</span>
-            <span className="text-[10px] bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] font-bold px-2 py-0.5 rounded-full">
-              Edición Total Habilitada
-            </span>
-          </h2>
-          <p className="text-sm text-[#5d7392] dark:text-slate-400">
-            Como Administrador General, puede editar cualquier título, texto orientador, obligatoriedad o regla de validez.
+          <h2 className="text-lg font-bold text-[#0b1d3a] dark:text-white">Documentos que se piden a todo proveedor</h2>
+          <p className="text-sm text-[#5d7392] dark:text-slate-400 max-w-2xl">
+            {selectedPersonType === 'NATURAL'
+              ? 'Formulario FS.GA-FOR-009, sección XII, numeral 1: lo que se exige a toda persona natural, sin importar su actividad.'
+              : 'Formulario FS.GA-FOR-009, sección XII, numeral 2 (y SG-SST, sección XIV): lo que se exige a toda empresa, sin importar su actividad.'}{' '}
+            Lo que se pide además según la actividad económica se configura en la pestaña «2. Requisitos por Actividad Económica».
           </p>
         </div>
 
@@ -520,6 +518,11 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
               </tr>
             </thead>
             <tbody className={tbodyCls}>
+              <tr>
+                <td colSpan={5} className="px-4 py-2.5 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] text-[13px] font-bold text-[#1d5fa8] dark:text-[#69bdd7]">
+                  Formatos institucionales <span className="font-normal text-[#5d7392] dark:text-slate-400">· los diligencia todo proveedor, no se pueden quitar</span>
+                </td>
+              </tr>
               {/* Formato 1: FS.GA-FOR-009 (Institucional) */}
               <tr className={rowCls}>
                 <td className="px-4 py-3">
@@ -584,13 +587,29 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                   </td>
                 </tr>
               ) : (
-                filteredBaseDocs.map((doc) => {
+                [...filteredBaseDocs]
+                  .sort((x, y) => (getDocBaseStatus(x.code) === 'MANDATORY' ? 0 : 1) - (getDocBaseStatus(y.code) === 'MANDATORY' ? 0 : 1))
+                  .map((doc, idx, arr) => {
                   const status = getDocBaseStatus(doc.code);
+                  const groupOf = (c: string) => (getDocBaseStatus(c) === 'MANDATORY' ? 'MANDATORY' : 'OPTIONAL');
+                  const startsGroup = idx === 0 || groupOf(arr[idx - 1].code) !== groupOf(doc.code);
                   const isInactiveInCatalog = doc.isActive === false;
 
                   return (
+                    <React.Fragment key={doc.code}>
+                    {startsGroup && (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-2.5 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] text-[13px] font-bold text-[#1d5fa8] dark:text-[#69bdd7]">
+                          {groupOf(doc.code) === 'MANDATORY' ? 'Obligatorios' : 'Opcionales'}{' '}
+                          <span className="font-normal text-[#5d7392] dark:text-slate-400">
+                            {groupOf(doc.code) === 'MANDATORY'
+                              ? `· sin ellos el proveedor de persona ${selectedPersonType === 'NATURAL' ? 'natural' : 'jurídica'} no queda completo`
+                              : '· se piden solo cuando aplican ("si aplica" en el formulario)'}
+                          </span>
+                        </td>
+                      </tr>
+                    )}
                     <tr
-                      key={doc.code}
                       className={`${rowCls} ${isInactiveInCatalog ? 'opacity-60' : ''}`}
                     >
                       <td className="px-4 py-3">
@@ -706,6 +725,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                         </div>
                       </td>
                     </tr>
+                    </React.Fragment>
                   );
                 })
               )}
