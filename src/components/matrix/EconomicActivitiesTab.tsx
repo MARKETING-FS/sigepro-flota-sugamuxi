@@ -631,8 +631,8 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                           {documentDefinitions
                             .filter((d) => {
                               if (d.code === 'FS_GA_FOR_009' || d.code === 'FS_GA_FOR_039') return false;
-                              // Solo traer los documentos base universales o los creados/configurados para esta actividad
-                              const belongsToThisActivity = baseDocCodes.has(d.code) || catSpecificCodes.has(d.code);
+                              // Solo los documentos propios de esta actividad; los de la persona (base) se configuran en Requisitos Base
+                              const belongsToThisActivity = catSpecificCodes.has(d.code) && !baseDocCodes.has(d.code);
                               if (!belongsToThisActivity) return false;
 
                               if (!innerDocSearch.trim()) return true;
@@ -909,6 +909,10 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                         </tbody>
                       </table>
                     </div>
+                    <p className="px-1 pt-3 text-[12px] text-[#5d7392] dark:text-slate-400">
+                      Además de estos, todo proveedor de esta actividad presenta los documentos que se piden a la persona (natural o jurídica) y los dos formatos
+                      institucionales. Esos se cambian en «1. Requisitos Base».
+                    </p>
                   </div>
                 </div>
               );
