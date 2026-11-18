@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   Building2,
   User,
@@ -37,6 +37,8 @@ import { supabase } from '../lib/supabase';
 import { SupplierType, SupplierTier, ProcessStatus, AdminCreateSupplierInput } from '../types';
 import { FlotaSugamuxiLogo } from './FlotaSugamuxiLogo';
 import { PageHeader, heroPrimaryBtn, heroSecondaryBtn } from './ui/archive';
+import { useSupplierFormValidation } from './supplier/useSupplierFormValidation';
+import { ExistingSupplierRef, SupplierFormValues, fieldsOfStep, normalizeSupplierValues } from '../utils/supplierFieldRules';
 
 const getCategoryIcon = (categoryName: string) => {
   const lower = categoryName.toLowerCase();
@@ -62,6 +64,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
     activeUserId,
     activeUser,
     accountRole,
+    allDossiers,
   } = useApp();
 
   // Solo el superadministrador asigna evaluador; los demás roles quedan como responsables de lo que crean
@@ -158,6 +161,29 @@ export const AdminRegisterSupplierView: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Validación campo por campo, en tiempo real
+  const setFieldValue = useCallback((name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrorMessage('');
+  }, []);
+  const existingSuppliers = useMemo<ExistingSupplierRef[]>(
+    () =>
+      (allDossiers || []).map((d) => ({
+        fileNumber: d.fileNumber,
+        name: d.basicInfo.companyName || d.basicInfo.fullName || '',
+        document: (d.supplierType === 'JURIDICA' ? d.basicInfo.nit : d.basicInfo.documentNumber) || '',
+        email: d.basicInfo.email || '',
+      })),
+    [allDossiers]
+  );
+  const v = useSupplierFormValidation({
+    values: formData as SupplierFormValues,
+    setValue: setFieldValue,
+    supplierType,
+    existing: existingSuppliers,
+  });
+  const { fieldProps, invalidCls, fieldError } = v;
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -182,10 +208,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
       documentNumber: '',
       professionOrTrade: '',
       companyName: 'Distribuidora de Combustibles & Lubricantes Sugamuxi Oil S.A.S.',
-      nit: '900892410-4',
+      nit: '900892410-8',
       representativeLegalName: 'Hernando Rojas Villamil',
       representativeLegalDocType: 'CC',
-      representativeLegalDocNumber: '74.312.809',
+      representativeLegalDocNumber: '74312809',
       notes: 'Proveedor estratégico regional con convenio directo de suministro de combustible para terminal de Sogamoso y Duitama.',
     });
     showToast('Datos de demostración para Persona Jurídica cargados.', 'info', 'DEMO JURÍDICA');
@@ -204,7 +230,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
       economicActivity: '',
       fullName: 'Dra. Claudia Patricia Becerra Silva',
       documentType: 'CC',
-      documentNumber: '40.045.678',
+      documentNumber: '40045678',
       professionOrTrade: 'Especialista en Gerencia HSEQ y Auditoría Vial',
       companyName: '',
       nit: '',
@@ -238,74 +264,22 @@ export const AdminRegisterSupplierView: React.FC = () => {
     scrollToTop(true);
   }, [currentStep]);
 
+  /** Revisa un paso. Si hay errores marca las casillas en rojo, lleva a la primera y no deja avanzar */
   const validateStep = (step: number) => {
-    if (step === 1) {
-      if (!selectedCategory) {
-        setErrorMessage('Seleccione una categoría de suministro o servicio.');
-        scrollToTop(true);
-        return false;
-      }
+    if (step === 1 && !selectedCategory) {
+      setErrorMessage('Seleccione una categoría de suministro o servicio.');
+      scrollToTop(true);
+      return false;
     }
-    if (step === 2) {
-      if (supplierType === 'JURIDICA') {
-        if (!formData.companyName.trim()) {
-          const msg = 'Ingrese la Razón Social de la empresa.';
-          setErrorMessage(msg);
-          showToast(msg, 'error', 'Campo Requerido');
-          scrollToTop(true);
-          return false;
-        }
-        if (!formData.nit.trim()) {
-          const msg = 'Ingrese el NIT de la empresa.';
-          setErrorMessage(msg);
-          showToast(msg, 'error', 'Campo Requerido');
-          scrollToTop(true);
-          return false;
-        }
-        if (!formData.representativeLegalName.trim()) {
-          const msg = 'Ingrese el nombre del Representante Legal.';
-          setErrorMessage(msg);
-          showToast(msg, 'error', 'Campo Requerido');
-          scrollToTop(true);
-          return false;
-        }
-      } else {
-        if (!formData.fullName.trim()) {
-          const msg = 'Ingrese el Nombre Completo de la persona natural.';
-          setErrorMessage(msg);
-          showToast(msg, 'error', 'Campo Requerido');
-          scrollToTop(true);
-          return false;
-        }
-        if (!formData.documentNumber.trim()) {
-          const msg = 'Ingrese el Número de Documento de Identidad.';
-          setErrorMessage(msg);
-          showToast(msg, 'error', 'Campo Requerido');
-          scrollToTop(true);
-          return false;
-        }
-      }
-    }
-    if (step === 3) {
-      if (!formData.email.trim() || !formData.email.includes('@')) {
-        const msg = 'Ingrese un correo electrónico corporativo válido.';
+    if (step >= 2) {
+      const bad = v.checkStep(step);
+      if (bad.length > 0) {
+        const msg =
+          bad.length === 1
+            ? 'Hay 1 campo con error: está marcado en rojo.'
+            : `Hay ${bad.length} campos con error: están marcados en rojo.`;
         setErrorMessage(msg);
-        showToast(msg, 'error', 'Campo Requerido');
-        scrollToTop(true);
-        return false;
-      }
-      if (!formData.phone.trim()) {
-        const msg = 'Ingrese al menos un número telefónico de contacto.';
-        setErrorMessage(msg);
-        showToast(msg, 'error', 'Campo Requerido');
-        scrollToTop(true);
-        return false;
-      }
-      if (!formData.city.trim()) {
-        const msg = 'Ingrese la ciudad o municipio principal.';
-        setErrorMessage(msg);
-        showToast(msg, 'error', 'Campo Requerido');
-        scrollToTop(true);
+        showToast(msg, 'error', 'Revise el formulario');
         return false;
       }
     }
@@ -336,35 +310,52 @@ export const AdminRegisterSupplierView: React.FC = () => {
       return;
     }
 
-    if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
-      scrollToTop(true);
+    if (!selectedCategory) {
+      setCurrentStep(1);
+      setErrorMessage('Seleccione una categoría de suministro o servicio.');
+      return;
+    }
+    const badStep = v.firstStepWithErrors();
+    if (badStep) {
+      const fields = [2, 3, 4].flatMap((st) => fieldsOfStep(st, supplierType));
+      const bad = v.checkFields(fields, false);
+      const first = bad[0];
+      const msg =
+        bad.length === 1
+          ? 'Hay 1 campo con error: está marcado en rojo.'
+          : `Hay ${bad.length} campos con error: están marcados en rojo.`;
+      setErrorMessage(msg);
+      showToast(msg, 'error', 'Revise el formulario');
+      if (badStep !== currentStep) setCurrentStep(badStep);
+      window.setTimeout(() => v.focusField(first), badStep !== currentStep ? 450 : 80);
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      const fd = normalizeSupplierValues(formData);
       const payload: AdminCreateSupplierInput = {
         basicInfo: {
           supplierType,
           supplierTier,
-          email: formData.email.trim(),
-          phone: formData.phone.trim() || '300 000 0000',
-          city: formData.city.trim() || 'Sogamoso, Boyacá',
-          address: formData.address.trim(),
+          email: fd.email.trim(),
+          phone: fd.phone.trim() || '300 000 0000',
+          city: fd.city.trim() || 'Sogamoso, Boyacá',
+          address: fd.address.trim(),
           ...(supplierType === 'JURIDICA'
             ? {
-                companyName: formData.companyName.trim(),
-                nit: formData.nit.trim(),
-                representativeLegalName: formData.representativeLegalName.trim(),
-                representativeLegalDocType: formData.representativeLegalDocType,
-                representativeLegalDocNumber: formData.representativeLegalDocNumber.trim(),
+                companyName: fd.companyName.trim(),
+                nit: fd.nit.trim(),
+                representativeLegalName: fd.representativeLegalName.trim(),
+                representativeLegalDocType: fd.representativeLegalDocType,
+                representativeLegalDocNumber: fd.representativeLegalDocNumber.trim(),
               }
             : {
-                fullName: formData.fullName.trim(),
-                documentType: formData.documentType,
-                documentNumber: formData.documentNumber.trim(),
-                professionOrTrade: formData.professionOrTrade.trim(),
+                fullName: fd.fullName.trim(),
+                documentType: fd.documentType,
+                documentNumber: fd.documentNumber.trim(),
+                professionOrTrade: fd.professionOrTrade.trim(),
               }),
         },
         selectedCategory,
@@ -372,7 +363,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
         economicActivity: '',
         initialStatus: 'DOCUMENTACION_PENDIENTE',
         isEmailVerified,
-        notes: formData.notes.trim(),
+        notes: fd.notes.trim(),
         createdByRole: role === 'ADMIN' ? 'ADMIN' : 'REVISOR',
         createdByName: role === 'ADMIN' ? 'Administrador General' : activeUser.name || 'Revisor Técnico Evaluador',
         assignedReviewerId: isSuper ? assignedReviewerId : activeUserId,
@@ -490,6 +481,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
           }
         }}
         className="space-y-6"
+        noValidate
       >
         <div className="fs-card rounded-[24px] overflow-hidden p-6 sm:p-8 animate-fade-up">
           
@@ -941,13 +933,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       Razón Social o Nombre Comercial *
                     </label>
                     <input
-                      type="text"
-                      name="companyName"
-                      value={formData.companyName}
-                      onChange={handleInputChange}
-                      placeholder="Ej. Distribuidora Sugamuxi de Boyacá S.A.S."
-                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                      type="text" {...fieldProps('companyName')}
+                      placeholder="Ej. Distribuidora Sugamuxi de Boyacá S.A.S." className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('companyName')}`}
                     />
+{fieldError('companyName')}
                   </div>
 
                   <div className="space-y-1.5">
@@ -955,13 +944,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       Número de Identificación Tributaria (NIT con Dígito) *
                     </label>
                     <input
-                      type="text"
-                      name="nit"
-                      value={formData.nit}
-                      onChange={handleInputChange}
-                      placeholder="Ej. 900892410-4"
-                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                      type="text" {...fieldProps('nit')}
+                      placeholder="Ej. 900892410-8" className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('nit')}`}
                     />
+{fieldError('nit')}
                   </div>
 
                   <div className="space-y-1.5">
@@ -969,13 +955,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       Nombre Completo del Representante Legal *
                     </label>
                     <input
-                      type="text"
-                      name="representativeLegalName"
-                      value={formData.representativeLegalName}
-                      onChange={handleInputChange}
-                      placeholder="Ej. Hernando Rojas Villamil"
-                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                      type="text" {...fieldProps('representativeLegalName')}
+                      placeholder="Ej. Hernando Rojas Villamil" className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('representativeLegalName')}`}
                     />
+{fieldError('representativeLegalName')}
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
@@ -1004,13 +987,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         Documento Rep. Legal
                       </label>
                       <input
-                        type="text"
-                        name="representativeLegalDocNumber"
-                        value={formData.representativeLegalDocNumber}
-                        onChange={handleInputChange}
-                        placeholder="Ej. 74.312.809"
-                        className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                        type="text" {...fieldProps('representativeLegalDocNumber')}
+                        placeholder="Ej. 74.312.809" className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('representativeLegalDocNumber')}`}
                       />
+{fieldError('representativeLegalDocNumber')}
                     </div>
                   </div>
                 </div>
@@ -1021,13 +1001,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       Nombre Completo de la Persona Natural *
                     </label>
                     <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      placeholder="Ej. Dra. Claudia Patricia Becerra Silva"
-                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                      type="text" {...fieldProps('fullName')}
+                      placeholder="Ej. Dra. Claudia Patricia Becerra Silva" className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('fullName')}`}
                     />
+{fieldError('fullName')}
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
@@ -1056,13 +1033,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                         Número de Documento *
                       </label>
                       <input
-                        type="text"
-                        name="documentNumber"
-                        value={formData.documentNumber}
-                        onChange={handleInputChange}
-                        placeholder="Ej. 40.045.678"
-                        className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                        type="text" {...fieldProps('documentNumber')}
+                        placeholder="Ej. 40.045.678" className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('documentNumber')}`}
                       />
+{fieldError('documentNumber')}
                     </div>
                   </div>
 
@@ -1071,13 +1045,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                       Profesión / Oficio / Especialidad
                     </label>
                     <input
-                      type="text"
-                      name="professionOrTrade"
-                      value={formData.professionOrTrade}
-                      onChange={handleInputChange}
-                      placeholder="Ej. Ingeniero Mecánico / Auditor Vial"
-                      className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                      type="text" {...fieldProps('professionOrTrade')}
+                      placeholder="Ej. Ingeniero Mecánico / Auditor Vial" className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('professionOrTrade')}`}
                     />
+{fieldError('professionOrTrade')}
                   </div>
                 </div>
               )}
@@ -1105,13 +1076,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                   <div className="relative">
                     <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                     <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="comercial@proveedor.com"
-                      className="fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                      type="email" {...fieldProps('email')}
+                      placeholder="comercial@proveedor.com" className={`fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('email')}`}
                     />
+{fieldError('email')}
                   </div>
                 </div>
 
@@ -1122,13 +1090,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                   <div className="relative">
                     <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                     <input
-                      type="text"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="(608) 770-1234 / 310 555 6789"
-                      className="fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                      type="text" {...fieldProps('phone')}
+                      placeholder="(608) 770-1234 / 310 555 6789" className={`fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('phone')}`}
                     />
+{fieldError('phone')}
                   </div>
                 </div>
 
@@ -1139,14 +1104,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                   <div className="relative">
                     <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                     <input
-                      type="text"
-                      name="city"
-                      list="admin-cities-datalist"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      placeholder="Sogamoso, Boyacá"
-                      className="fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                      type="text" list="admin-cities-datalist" {...fieldProps('city')}
+                      placeholder="Sogamoso, Boyacá" className={`fs-card w-full pl-10 pr-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('city')}`}
                     />
+{fieldError('city')}
                     <datalist id="admin-cities-datalist">
                       {(systemParameters?.cityOptions || [])
                         .filter((c) => c.isActive)
@@ -1162,13 +1123,10 @@ export const AdminRegisterSupplierView: React.FC = () => {
                     Dirección Comercial / Domicilio Principal
                   </label>
                   <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="Carrera 11 # 24-80, Sector Industrial"
-                    className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                    type="text" {...fieldProps('address')}
+                    placeholder="Carrera 11 # 24-80, Sector Industrial" className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('address')}`}
                   />
+{fieldError('address')}
                 </div>
               </div>
             </div>
@@ -1327,14 +1285,11 @@ export const AdminRegisterSupplierView: React.FC = () => {
                   <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Justificación / Notas de Registro
                   </label>
-                  <textarea
-                    name="notes"
+                  <textarea {...fieldProps('notes')}
                     rows={2}
-                    value={formData.notes}
-                    onChange={handleInputChange}
-                    placeholder="Indique los motivos de la inclusión directa o antecedentes del proveedor..."
-                    className="fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900"
+                    placeholder="Indique los motivos de la inclusión directa o antecedentes del proveedor..." className={`fs-card w-full px-4 py-2.5 rounded-2xl border-slate-300 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-900 ${invalidCls('notes')}`}
                   />
+{fieldError('notes')}
                 </div>
               </div>
             </div>

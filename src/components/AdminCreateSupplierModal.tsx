@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import {
   X,
@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SupplierType, SupplierTier, ProcessStatus, AdminCreateSupplierInput } from '../types';
+import { useSupplierFormValidation } from './supplier/useSupplierFormValidation';
+import { ExistingSupplierRef, SupplierFormValues, ALL_FIELDS, normalizeSupplierValues } from '../utils/supplierFieldRules';
 
 interface AdminCreateSupplierModalProps {
   isOpen: boolean;
@@ -34,7 +36,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
   onClose,
   onSuccess,
 }) => {
-  const { role, categoriesConfig, createSupplierAdmin, setCurrentDossierId, systemUsers, activeUserId, activeUser, showToast, accountRole } = useApp();
+  const { role, categoriesConfig, createSupplierAdmin, setCurrentDossierId, systemUsers, activeUserId, activeUser, showToast, accountRole, allDossiers } = useApp();
 
   // Solo el superadministrador asigna evaluador; los demás roles quedan como responsables de lo que crean
   const isSuper = accountRole === 'SUPERADMIN';
@@ -124,6 +126,29 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Validación campo por campo, en tiempo real
+  const setFieldValue = useCallback((name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrorMessage('');
+  }, []);
+  const existingSuppliers = useMemo<ExistingSupplierRef[]>(
+    () =>
+      (allDossiers || []).map((d) => ({
+        fileNumber: d.fileNumber,
+        name: d.basicInfo.companyName || d.basicInfo.fullName || '',
+        document: (d.supplierType === 'JURIDICA' ? d.basicInfo.nit : d.basicInfo.documentNumber) || '',
+        email: d.basicInfo.email || '',
+      })),
+    [allDossiers]
+  );
+  const v = useSupplierFormValidation({
+    values: formData as SupplierFormValues,
+    setValue: setFieldValue,
+    supplierType,
+    existing: existingSuppliers,
+  });
+  const { fieldProps, invalidCls, fieldError } = v;
+
   if (!isOpen) return null;
 
   const handleInputChange = (
@@ -150,10 +175,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
       documentNumber: '',
       professionOrTrade: '',
       companyName: 'Distribuidora de Combustibles & Lubricantes Sugamuxi Oil S.A.S.',
-      nit: '900.892.410-4',
+      nit: '900892410-8',
       representativeLegalName: 'Hernando Rojas Villamil',
       representativeLegalDocType: 'CC',
-      representativeLegalDocNumber: '74.312.809',
+      representativeLegalDocNumber: '74312809',
       notes: 'Proveedor estratégico regional con convenio directo de suministro de combustible para terminal de Sogamoso y Duitama.',
     });
   };
@@ -171,7 +196,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
       economicActivity: '',
       fullName: 'Dra. Claudia Patricia Becerra Silva',
       documentType: 'CC',
-      documentNumber: '40.045.678',
+      documentNumber: '40045678',
       professionOrTrade: 'Especialista en Gerencia HSEQ y Auditoría Vial',
       companyName: '',
       nit: '',
@@ -186,46 +211,16 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
     e.preventDefault();
     setErrorMessage('');
 
-    // Validation
-    if (!formData.email.trim()) {
-      const msg = 'El correo electrónico corporativo es obligatorio.';
+    // Marca en rojo cada casilla con error y lleva a la primera
+    const bad = v.checkFields(ALL_FIELDS, true);
+    if (bad.length > 0) {
+      const msg =
+        bad.length === 1
+          ? 'Hay 1 campo con error: está marcado en rojo.'
+          : `Hay ${bad.length} campos con error: están marcados en rojo.`;
       setErrorMessage(msg);
-      showToast(msg, 'error', 'Campo Requerido');
+      showToast(msg, 'error', 'Revise el formulario');
       return;
-    }
-
-    if (supplierType === 'JURIDICA') {
-      if (!formData.companyName.trim()) {
-        const msg = 'La razón social de la empresa es obligatoria.';
-        setErrorMessage(msg);
-        showToast(msg, 'error', 'Campo Requerido');
-        return;
-      }
-      if (!formData.nit.trim()) {
-        const msg = 'El NIT de la empresa es obligatorio.';
-        setErrorMessage(msg);
-        showToast(msg, 'error', 'Campo Requerido');
-        return;
-      }
-      if (!formData.representativeLegalName.trim()) {
-        const msg = 'El nombre del Representante Legal es obligatorio.';
-        setErrorMessage(msg);
-        showToast(msg, 'error', 'Campo Requerido');
-        return;
-      }
-    } else {
-      if (!formData.fullName.trim()) {
-        const msg = 'El nombre completo de la persona natural es obligatorio.';
-        setErrorMessage(msg);
-        showToast(msg, 'error', 'Campo Requerido');
-        return;
-      }
-      if (!formData.documentNumber.trim()) {
-        const msg = 'El número de documento de identidad es obligatorio.';
-        setErrorMessage(msg);
-        showToast(msg, 'error', 'Campo Requerido');
-        return;
-      }
     }
 
     setIsSubmitting(true);
@@ -236,27 +231,28 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
           ? 'Administrador General'
           : 'Revisor Técnico Evaluador';
 
+      const fd = normalizeSupplierValues(formData);
       const input: AdminCreateSupplierInput = {
         basicInfo: {
           supplierType,
           supplierTier,
-          email: formData.email.trim(),
-          phone: formData.phone.trim() || '300 000 0000',
-          city: formData.city.trim() || 'Sogamoso, Boyacá',
-          address: formData.address.trim(),
+          email: fd.email.trim(),
+          phone: fd.phone.trim() || '300 000 0000',
+          city: fd.city.trim() || 'Sogamoso, Boyacá',
+          address: fd.address.trim(),
           ...(supplierType === 'JURIDICA'
             ? {
-                companyName: formData.companyName.trim(),
-                nit: formData.nit.trim(),
-                representativeLegalName: formData.representativeLegalName.trim(),
-                representativeLegalDocType: formData.representativeLegalDocType,
-                representativeLegalDocNumber: formData.representativeLegalDocNumber.trim(),
+                companyName: fd.companyName.trim(),
+                nit: fd.nit.trim(),
+                representativeLegalName: fd.representativeLegalName.trim(),
+                representativeLegalDocType: fd.representativeLegalDocType,
+                representativeLegalDocNumber: fd.representativeLegalDocNumber.trim(),
               }
             : {
-                fullName: formData.fullName.trim(),
-                documentType: formData.documentType,
-                documentNumber: formData.documentNumber.trim(),
-                professionOrTrade: formData.professionOrTrade.trim(),
+                fullName: fd.fullName.trim(),
+                documentType: fd.documentType,
+                documentNumber: fd.documentNumber.trim(),
+                professionOrTrade: fd.professionOrTrade.trim(),
               }),
         },
         selectedCategory,
@@ -264,7 +260,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
         economicActivity: '',
         initialStatus: 'DOCUMENTACION_PENDIENTE',
         isEmailVerified,
-        notes: formData.notes.trim(),
+        notes: fd.notes.trim(),
         createdByRole: role === 'ADMIN' ? 'ADMIN' : 'REVISOR',
         createdByName: creatorName,
         assignedReviewerId: isSuper ? assignedReviewerId : activeUserId,
@@ -370,7 +366,7 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
         </div>
 
         {/* Form Body with Scroll */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           
           {errorMessage && (
             <div className="p-3.5 bg-slate-900 border border-blue-600 rounded-xl text-white text-xs flex items-center gap-2 shadow-xs animate-shake">
@@ -603,14 +599,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     Razón Social / Nombre Comercial <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <input
-                    type="text"
-                    name="companyName"
-                    value={formData.companyName}
-                    onChange={handleInputChange}
-                    placeholder="Ej. Comercializadora de Boyacá S.A.S."
-                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
-                    required
+                    type="text" {...fieldProps('companyName')}
+                    placeholder="Ej. Comercializadora de Boyacá S.A.S." className={`w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden ${invalidCls('companyName')}`}
                   />
+{fieldError('companyName')}
                 </div>
 
                 <div>
@@ -618,14 +610,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     NIT con Dígito de Verificación <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <input
-                    type="text"
-                    name="nit"
-                    value={formData.nit}
-                    onChange={handleInputChange}
-                    placeholder="Ej. 901234567-8"
-                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-600 outline-hidden"
-                    required
+                    type="text" {...fieldProps('nit')}
+                    placeholder="Ej. 901234567-8" className={`w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-600 outline-hidden ${invalidCls('nit')}`}
                   />
+{fieldError('nit')}
                 </div>
 
                 <div className="sm:col-span-2">
@@ -633,14 +621,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     Nombre del Representante Legal <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <input
-                    type="text"
-                    name="representativeLegalName"
-                    value={formData.representativeLegalName}
-                    onChange={handleInputChange}
-                    placeholder="Ej. Carlos Alberto Morales Rodríguez"
-                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
-                    required
+                    type="text" {...fieldProps('representativeLegalName')}
+                    placeholder="Ej. Carlos Alberto Morales Rodríguez" className={`w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden ${invalidCls('representativeLegalName')}`}
                   />
+{fieldError('representativeLegalName')}
                 </div>
 
                 <div className="grid grid-cols-3 gap-1.5">
@@ -660,13 +644,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                   <div className="col-span-2">
                     <label className="block text-[11px] font-bold text-[#3a5274] dark:text-slate-300 mb-1">Doc. Rep. Legal</label>
                     <input
-                      type="text"
-                      name="representativeLegalDocNumber"
-                      value={formData.representativeLegalDocNumber}
-                      onChange={handleInputChange}
-                      placeholder="74.123.456"
-                      className="w-full px-2.5 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
+                      type="text" {...fieldProps('representativeLegalDocNumber')}
+                      placeholder="74.123.456" className={`w-full px-2.5 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs ${invalidCls('representativeLegalDocNumber')}`}
                     />
+{fieldError('representativeLegalDocNumber')}
                   </div>
                 </div>
               </div>
@@ -677,14 +658,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     Nombre Completo del Postulante <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                   </label>
                   <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    placeholder="Ej. Ing. Juan Fernando Silva Gómez"
-                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
-                    required
+                    type="text" {...fieldProps('fullName')}
+                    placeholder="Ej. Ing. Juan Fernando Silva Gómez" className={`w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden ${invalidCls('fullName')}`}
                   />
+{fieldError('fullName')}
                 </div>
 
                 <div className="grid grid-cols-3 gap-1.5">
@@ -706,14 +683,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                       No. Documento <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">*</span>
                     </label>
                     <input
-                      type="text"
-                      name="documentNumber"
-                      value={formData.documentNumber}
-                      onChange={handleInputChange}
-                      placeholder="Ej. 74.281.990"
-                      className="w-full px-2.5 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-mono"
-                      required
+                      type="text" {...fieldProps('documentNumber')}
+                      placeholder="Ej. 74.281.990" className={`w-full px-2.5 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs font-mono ${invalidCls('documentNumber')}`}
                     />
+{fieldError('documentNumber')}
                   </div>
                 </div>
 
@@ -722,13 +695,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                     Profesión, Oficio o Especialidad Técnica
                   </label>
                   <input
-                    type="text"
-                    name="professionOrTrade"
-                    value={formData.professionOrTrade}
-                    onChange={handleInputChange}
-                    placeholder="Ej. Técnico en Inyección Diésel y Mantenimiento de Flotas"
-                    className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
+                    type="text" {...fieldProps('professionOrTrade')}
+                    placeholder="Ej. Técnico en Inyección Diésel y Mantenimiento de Flotas" className={`w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs ${invalidCls('professionOrTrade')}`}
                   />
+{fieldError('professionOrTrade')}
                 </div>
               </div>
             )}
@@ -743,14 +713,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               <div className="relative">
                 <Mail className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-3 top-2.5" />
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="proveedor@empresa.com"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
-                  required
+                  type="email" {...fieldProps('email')}
+                  placeholder="proveedor@empresa.com" className={`w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden ${invalidCls('email')}`}
                 />
+{fieldError('email')}
               </div>
             </div>
 
@@ -761,13 +727,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               <div className="relative">
                 <Phone className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-3 top-2.5" />
                 <input
-                  type="text"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="310 000 0000"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
+                  type="text" {...fieldProps('phone')}
+                  placeholder="310 000 0000" className={`w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs ${invalidCls('phone')}`}
                 />
+{fieldError('phone')}
               </div>
             </div>
 
@@ -778,13 +741,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               <div className="relative">
                 <MapPin className="w-3.5 h-3.5 text-[#5d7392] dark:text-slate-400 absolute left-3 top-2.5" />
                 <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  placeholder="Sogamoso, Boyacá"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
+                  type="text" {...fieldProps('city')}
+                  placeholder="Sogamoso, Boyacá" className={`w-full pl-9 pr-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs ${invalidCls('city')}`}
                 />
+{fieldError('city')}
               </div>
             </div>
 
@@ -793,13 +753,10 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
                 Dirección Comercial / Taller
               </label>
               <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="Calle 11 # 20-30"
-                className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs"
+                type="text" {...fieldProps('address')}
+                placeholder="Calle 11 # 20-30" className={`w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs ${invalidCls('address')}`}
               />
+{fieldError('address')}
             </div>
           </div>
 
@@ -898,14 +855,11 @@ export const AdminCreateSupplierModal: React.FC<AdminCreateSupplierModalProps> =
               <label className="block text-[11px] font-bold text-[#0b1d3a] dark:text-white mb-1">
                 Justificación de la Inscripción / Observaciones de Auditoría Interna
               </label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
+              <textarea {...fieldProps('notes')}
                 rows={2}
-                placeholder="Indique motivo de alta directa, número de contrato, histórico de servicio o acuerdo comercial..."
-                className="w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden"
+                placeholder="Indique motivo de alta directa, número de contrato, histórico de servicio o acuerdo comercial..." className={`w-full px-3 py-2 bg-white border border-black/10 dark:border-white/10 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-hidden ${invalidCls('notes')}`}
               />
+{fieldError('notes')}
             </div>
           </div>
 
