@@ -230,9 +230,19 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   };
 
   // Organizar todos los soportes estrictamente en el orden parametrizado y creado en la Matriz de Requisitos (documentDefinitions)
+  // Origen de cada soporte: lo pide el formulario a toda persona natural/jurídica, o solo por la actividad, o se agregó aparte
+  const supportGroupOf = (code: string): 'BASE' | 'ACTIVIDAD' | 'ADICIONAL' => {
+    if (supplierCategoryReqs?.baseMandatory?.includes(code) || supplierCategoryReqs?.baseOptional?.includes(code)) return 'BASE';
+    if (supplierCategoryReqs?.activityMandatory?.includes(code) || supplierCategoryReqs?.activityOptional?.includes(code)) return 'ACTIVIDAD';
+    return 'ADICIONAL';
+  };
+  const supportGroupRank = { BASE: 0, ACTIVIDAD: 1, ADICIONAL: 2 } as const;
   const allSupportCodes = Array.from(
     new Set([...matrixMandatoryCodes, ...matrixOptionalCodes, ...customSupportCodes])
   ).sort((a, b) => {
+    const rankA = supportGroupRank[supportGroupOf(a)];
+    const rankB = supportGroupRank[supportGroupOf(b)];
+    if (rankA !== rankB) return rankA - rankB;
     const idxA = getMatrixDocOrderIndex(a);
     const idxB = getMatrixDocOrderIndex(b);
     if (idxA !== idxB) return idxA - idxB;
@@ -269,6 +279,28 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
       },
     ];
   });
+
+  const supportGroupInfo = {
+    BASE: {
+      title: isNatural ? 'Documentos de persona natural' : 'Documentos de persona jurídica',
+      hint: isNatural
+        ? 'Los pide el formulario FS.GA-FOR-009 (XII, numeral 1) a toda persona natural, sin importar su actividad.'
+        : 'Los pide el formulario FS.GA-FOR-009 (XII, numeral 2) a toda empresa, sin importar su actividad.',
+    },
+    ACTIVIDAD: {
+      title: `Requisitos de la actividad: ${dossier.selectedCategory || 'sin categoría'}`,
+      hint: 'Los pide el formulario FS.GA-FOR-009 (XIII) según la actividad económica del proveedor.',
+    },
+    ADICIONAL: {
+      title: 'Soportes adicionales',
+      hint: 'Agregados a este expediente por el equipo; no hacen parte de la lista oficial del formulario.',
+    },
+  } as const;
+  const supportGroupProgress = (g: 'BASE' | 'ACTIVIDAD' | 'ADICIONAL') => {
+    const rows = supportDocsList.filter(([c, d]) => supportGroupOf(c) === g && d.isRequired);
+    const ok = rows.filter(([_, d]) => d.status === 'APROBADO' || d.status === 'VIGENTE' || d.status === 'POR_VENCER').length;
+    return { ok, total: rows.length };
+  };
 
   const mandatorySupportCount = supportDocsList.filter(([_, d]) => d.isRequired).length;
   const supportApprovedCount = supportDocsList.filter(([_, d]) => d.isRequired && (d.status === 'APROBADO' || d.status === 'VIGENTE' || d.status === 'POR_VENCER')).length;
@@ -1216,7 +1248,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             </div>
 
               <div className="fs-card divide-y divide-black/10 dark:divide-white/10 rounded-2xl overflow-hidden">
-                {supportDocsList.map(([code, doc]) => {
+                {supportDocsList.map(([code, doc], index) => {
                     const docDef = (documentDefinitions || []).find((d) => d.code === code);
                     const catalog = DOCUMENT_CATALOG_INFO[code];
                     const docTitle = docDef?.name || doc.name || catalog?.name || code;
@@ -1234,9 +1266,26 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     const docStatusLabel =
                       ({ POR_VENCER: 'Por vencer', VENCIDO: 'Vencido', APROBADO: 'Aprobado', VIGENTE: 'Vigente', PENDIENTE: 'Pendiente', CARGADO: 'Cargado', REQUIERE_CORRECCION: 'Requiere corrección', RECHAZADO: 'Rechazado' } as Record<string, string>)[shownStatus] || shownStatus;
 
+                    const groupKey = supportGroupOf(code);
+                    const startsGroup = index === 0 || supportGroupOf(supportDocsList[index - 1][0]) !== groupKey;
+                    const groupProgress = supportGroupProgress(groupKey);
+
                     return (
+                      <React.Fragment key={code}>
+                      {startsGroup && (
+                        <div className="px-4 py-3 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                          <div className="min-w-0">
+                            <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{supportGroupInfo[groupKey].title}</p>
+                            <p className="text-[11.5px] text-[#5d7392] dark:text-slate-400">{supportGroupInfo[groupKey].hint}</p>
+                          </div>
+                          {groupProgress.total > 0 && (
+                            <span className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] whitespace-nowrap">
+                              {groupProgress.ok} de {groupProgress.total} aprobados
+                            </span>
+                          )}
+                        </div>
+                      )}
                       <div
-                        key={code}
                         data-doc-code={code}
                         data-doc-alt={doc.code || code}
                         className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
@@ -1389,6 +1438,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           )}
                         </div>
                       </div>
+                      </React.Fragment>
                     );
                   })}
               </div>
