@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AlertTriangle, ArrowRight, Building2, BadgeCheck, Hourglass, FileClock, FileSignature } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SupplierDossier } from '../../types';
@@ -7,7 +7,7 @@ import { buildEvaluationRow } from '../../utils/evaluationRows';
 import { DashboardHero, Kpi, Podium, StageDonut } from './DashboardParts';
 import { ActivityTimeline, BarList, GradeBars, PriorityAlerts, TrendChart } from './DashboardCharts';
 import { computePushAlerts } from '../../utils/pushAlertsService';
-import { evaluationGrade, evaluationPercent } from '../../utils/evaluationScale';
+import { evaluationGrade, evaluationMaxScore, evaluationPercent } from '../../utils/evaluationScale';
 import { parseLocalDate } from '../../utils/dateOnly';
 import {
   ArchiveTab,
@@ -17,6 +17,7 @@ import {
   Radicado,
   STAGES,
   StatusPill,
+  inputCls,
   stageOf,
   supplierName,
 } from '../ui/archive';
@@ -97,20 +98,10 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
 
     const evalRows = dossiers.map((d) => buildEvaluationRow(d));
     const active = evalRows.filter((r) => r.isSupplierActive);
-    const evalDue = evalRows.filter(
-      (r) => !r.initialEval || r.annualStatus === 'VENCIDA_REQUIERE_EVAL' || r.annualStatus === 'PROXIMA_VENCER'
-    );
+    // Por calificar: los que todavía no tienen evaluación inicial
+    const evalDue = evalRows.filter((r) => !r.initialEval && r.dossier.processStatus !== 'RECHAZADO');
     const scores = evalRows.flatMap((r) => [r.initialEval, r.latestAnnualEval]).filter(Boolean).map((e) => evaluationPercent(e!));
     const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
-
-    const ranked = evalRows
-      .map((r) => {
-        const e = r.latestAnnualEval || r.initialEval;
-        return e ? { id: r.dossier.id, name: supplierName(r.dossier), sub: r.dossier.fileNumber || '', score: evaluationPercent(e) } : null;
-      })
-      .filter((x): x is { id: string; name: string; sub: string; score: number } => !!x)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
 
     // Puntaje promedio por mes (últimos 12 meses) y clasificación por último puntaje
     const parseD = (v?: string) => {
@@ -153,13 +144,12 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       trend,
       grades,
       byCat,
-      ranked,
       stageCounts,
       due: due.filter((x) => x.days <= HORIZON_DAYS),
       habilitados,
       conVencimientos,
       conContrato,
-      evalUpToDate: active.filter((r) => r.annualStatus === 'AL_DIA' && r.initialEval).length,
+      evalUpToDate: evalRows.filter((r) => r.initialEval).length,
       evalDue,
       avg,
     };
@@ -175,6 +165,37 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
   const reviewers = admins.map((u) => ({ user: u, count: dossiers.filter((d) => ownerOf(d)?.id === u.id).length }));
   const unassigned = dossiers.filter((d) => !ownerOf(d)).length;
   const maxLoad = Math.max(1, unassigned, ...reviewers.map((r) => r.count));
+
+  // Ranking: la última evaluación de cada proveedor llevada a porcentaje (la inicial es sobre 120 y la anual sobre 100).
+  // No cuentan los rechazados. Si hay empate gana la evaluación más reciente.
+  const [rankOwner, setRankOwner] = useState<string>('ALL');
+  const rankedAll = dossiers
+    .filter((d) => d.processStatus !== 'RECHAZADO')
+    .map((d) => {
+      const row = buildEvaluationRow(d);
+      const e = row.latestAnnualEval || row.initialEval;
+      if (!e) return null;
+      const owner = ownerOf(d);
+      return {
+        id: d.id,
+        name: supplierName(d),
+        sub: d.fileNumber || '',
+        category: d.selectedCategory || 'Sin categoría',
+        ownerId: owner?.id || '',
+        ownerName: owner?.name || 'Sin asignar',
+        score: evaluationPercent(e),
+        detail: `${e.totalScore} / ${evaluationMaxScore(e)} puntos`,
+        grade: evaluationGrade(e),
+        time: (parseLocalDate(e.evaluationDate) || new Date(e.createdAt)).getTime() || 0,
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => !!x)
+    .sort((a, b) => b.score - a.score || b.time - a.time || a.name.localeCompare(b.name));
+  const isSuper = accountRole === 'SUPERADMIN';
+  const rankShown =
+    isSuper && rankOwner !== 'ALL' ? rankedAll.filter((x) => (rankOwner === 'NONE' ? !x.ownerId : x.ownerId === rankOwner)) : rankedAll;
+  const rankTop = rankShown.slice(0, 10);
+  const fmtPct = (n: number) => `${String(Math.round(n * 10) / 10).replace('.', ',')} %`;
 
   const juridicas = dossiers.filter((d) => d.basicInfo?.supplierType !== 'NATURAL').length;
   const pct = (n: number) => (dossiers.length ? Math.round((n / dossiers.length) * 100) : 0);
@@ -240,7 +261,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
             <div className="grid grid-cols-2 gap-4 py-2">
               <div>
                 <div className="text-3xl font-bold tabular-nums text-fs-navy dark:text-white">{stats.evalUpToDate}</div>
-                <div className="text-[13px] text-[#3a5274]">al día</div>
+                <div className="text-[13px] text-[#3a5274]">con evaluación</div>
               </div>
               <div>
                 <div className={`text-3xl font-bold tabular-nums ${stats.evalDue.length ? 'text-fs-warn' : 'text-fs-navy dark:text-white'}`}>
@@ -258,7 +279,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
                 className="w-full flex items-center justify-between gap-3 py-2 border-t border-[#edf1f6] dark:border-slate-800 text-left text-sm hover:text-fs-blue cursor-pointer"
               >
                 <span className="truncate text-fs-navy dark:text-slate-200">{supplierName(r.dossier)}</span>
-                <span className="text-xs text-fs-muted whitespace-nowrap">{r.initialEval ? 'Anual' : 'Inicial'}</span>
+                <span className="text-xs text-fs-muted whitespace-nowrap">Inicial</span>
               </button>
             ))}
             <button
@@ -297,8 +318,68 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         </div>
       </div>
 
-      {stats.ranked.length > 0 && (
-        <Podium items={stats.ranked} onOpen={openSupplierReview} />
+      {rankedAll.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h3 className="font-display text-lg font-semibold text-fs-navy dark:text-white">Ranking de proveedores</h3>
+              <p className="text-[13px] text-[#3a5274] dark:text-slate-400">
+                {isSuper ? 'Los mejor evaluados entre todos los administradores' : 'Los mejor evaluados de su cartera'} · según la última evaluación de cada proveedor, en porcentaje
+              </p>
+            </div>
+            {isSuper && (
+              <select
+                className={`${inputCls} h-11 w-64 font-semibold`}
+                value={rankOwner}
+                onChange={(e) => setRankOwner(e.target.value)}
+                aria-label="Administrador del ranking"
+              >
+                <option value="ALL">Todos los administradores</option>
+                {admins.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+                <option value="NONE">Sin administrador asignado</option>
+              </select>
+            )}
+          </div>
+
+          {rankTop.length === 0 ? (
+            <div className="fs-card rounded-2xl p-8 text-center text-sm text-[#3a5274] dark:text-slate-400">Este administrador todavía no tiene proveedores evaluados.</div>
+          ) : (
+            <>
+              <Podium
+                items={rankTop.slice(0, 3).map((x) => ({ id: x.id, name: x.name, sub: x.sub, score: x.score, detail: x.detail, owner: isSuper ? x.ownerName : undefined }))}
+                onOpen={openSupplierReview}
+              />
+              {rankTop.length > 3 && (
+                <div className="fs-card rounded-2xl divide-y divide-[#edf1f6] dark:divide-slate-800 overflow-hidden">
+                  {rankTop.slice(3).map((x, i) => (
+                    <button
+                      key={x.id}
+                      type="button"
+                      onClick={() => openSupplierReview(x.id)}
+                      className="w-full flex items-center gap-4 px-5 py-3 text-left hover:bg-[#eaf2fb] dark:hover:bg-[#0c2350]/70 transition-colors cursor-pointer"
+                    >
+                      <span className="w-8 text-center font-display text-base font-semibold text-[#3a5274] dark:text-slate-400 tabular-nums">{i + 4}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold text-fs-navy dark:text-white">{x.name}</span>
+                        <span className="block truncate text-xs text-[#3a5274] dark:text-slate-400">
+                          {x.category}
+                          {isSuper ? ` · ${x.ownerName}` : ''}
+                        </span>
+                      </span>
+                      <span className="hidden sm:block text-xs text-[#3a5274] dark:text-slate-400 whitespace-nowrap">{x.detail}</span>
+                      <span className="w-7 h-7 grid place-items-center rounded-lg bg-[#e3eaf3] dark:bg-white/10 text-xs font-bold text-fs-navy dark:text-white">{x.grade}</span>
+                      <span className="w-20 text-right font-display font-semibold text-fs-navy dark:text-white tabular-nums">{fmtPct(x.score)}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </section>
       )}
 
       <div className="grid gap-6 grid-cols-1 xl:grid-cols-12 [&>*]:min-w-0">

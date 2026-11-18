@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getProcessStatusLabel } from '../../utils/contractValidity';
-import { buildEvaluationRow } from '../../utils/evaluationRows';
 import { BrandSwoosh } from '../ui/BrandSwoosh';
 import {
   DOC006_CODE,
@@ -183,19 +182,6 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   const supplierCreatedDate = selectedDossier?.createdAt
     ? new Date(selectedDossier.createdAt).toLocaleDateString('es-CO')
     : 'No registrada';
-
-  // Cuándo le toca la evaluación anual y desde qué fecha se cuenta el año
-  const annualInfo = useMemo(() => {
-    if (!selectedDossier) return null;
-    const row = buildEvaluationRow(selectedDossier);
-    const fmt = (d: Date) => d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
-    return {
-      due: fmt(row.annualDueDate),
-      base: fmt(row.annualBaseDate),
-      source: row.annualBaseSource === 'CREACION' ? 'la creación del proveedor' : row.annualBaseSource === 'MANUAL' ? 'la evaluación anual fijada por el administrador' : 'la última evaluación anual',
-      daysLeft: row.diffDays,
-    };
-  }, [selectedDossier]);
 
   const handleScoreChange = (critId: string, val: number) => {
     const clamped = Math.max(0, Math.min(100, Math.round(val)));
@@ -416,18 +402,11 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                     <span>Evaluaciones anuales previas: <strong className="text-[#0b1d3a] dark:text-white font-mono">{existingAnnualEvals.length}</strong></span>
                     <span>Calificando: <strong className="text-[#0b1d3a] dark:text-white">Año {selectedCycleNumber}</strong></span>
                   </div>
-                  {annualInfo && (
-                    <p className="text-xs text-[#3a5274] dark:text-slate-300 leading-relaxed">
-                      Esta evaluación anual toca el <strong className="text-[#0b1d3a] dark:text-white">{annualInfo.due}</strong>
-                      {annualInfo.daysLeft < 0 ? ` (venció hace ${Math.abs(annualInfo.daysLeft)} días)` : ` (faltan ${annualInfo.daysLeft} días)`}. El año se cuenta desde el{' '}
-                      <strong className="text-[#0b1d3a] dark:text-white">{annualInfo.base}</strong>, fecha de {annualInfo.source}.
-                    </p>
-                  )}
                 </div>
               )}
 
               {selectedDossier && (
-                <div className="pt-4 border-t border-black/[0.07] dark:border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="pt-4 border-t border-black/[0.07] dark:border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-4">
                   <div>
                     <span className="text-[#6b84a3] block text-[11px] mb-1">Estado del proveedor</span>
                     <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-[10px] font-bold ${isSupplierActive ? 'bg-gradient-action text-white' : 'bg-black/[0.06] dark:bg-white/10 text-[#1c3354] dark:text-slate-200'}`}>
@@ -437,13 +416,6 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
                   <div>
                     <span className="text-[#6b84a3] block text-[11px] mb-1">Fecha de creación</span>
                     <span className="font-semibold flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />{supplierCreatedDate}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#6b84a3] block text-[11px] mb-1">
-                      {evalType === 'INICIAL' ? 'Primera evaluación anual toca el' : 'Evaluación anual toca el'}
-                    </span>
-                    <span className="font-semibold flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />{annualInfo?.due || 'Pendiente'}</span>
-                    {annualInfo && <span className="block text-[11px] text-[#6b84a3] mt-0.5">Se cuenta desde {annualInfo.base}</span>}
                   </div>
                   <div>
                     <span className="text-[#6b84a3] block text-[11px] mb-1">Revisor asignado</span>

@@ -265,9 +265,9 @@ export const StageDonut: React.FC<{
   );
 };
 
-/** Podio de los tres mejores puntajes */
+/** Podio de los tres mejores puntajes (en porcentaje, para poder comparar evaluaciones de distinta escala) */
 export const Podium: React.FC<{
-  items: Array<{ id: string; name: string; sub: string; score: number }>;
+  items: Array<{ id: string; name: string; sub: string; score: number; detail?: string; owner?: string }>;
   onOpen: (id: string) => void;
 }> = ({ items, onOpen }) => (
   <div className="grid gap-4 md:grid-cols-3">
@@ -291,11 +291,11 @@ export const Podium: React.FC<{
           <div className="min-w-0 flex-1">
             <p className="text-[11px] uppercase tracking-widest text-[#3a5274] dark:text-slate-400">{i === 0 ? 'Mejor proveedor' : `Puesto ${i + 1}`}</p>
             <p className="truncate font-semibold text-[#0b1d3a] dark:text-white">{it.name}</p>
-            <p className="truncate text-xs text-[#3a5274] dark:text-slate-400">{it.sub}</p>
+            <p className="truncate text-xs text-[#3a5274] dark:text-slate-400">{it.sub}{it.owner ? ` · ${it.owner}` : ''}</p>
           </div>
           <div className="text-right">
-            <p className="font-display text-2xl font-semibold text-gradient-primary">{Math.round(it.score)}</p>
-            <p className="text-[11px] text-[#3a5274] dark:text-slate-400">puntos</p>
+            <p className="font-display text-2xl font-semibold text-gradient-primary whitespace-nowrap">{String(Math.round(it.score * 10) / 10).replace('.', ',')} %</p>
+            <p className="text-[11px] text-[#3a5274] dark:text-slate-400 whitespace-nowrap">{it.detail || 'de la nota máxima'}</p>
           </div>
         </div>
       </button>

@@ -130,8 +130,6 @@ interface AppContextType {
     evalData: Omit<SupplierEvaluation, 'id' | 'createdAt' | 'certificateCode'>
   ) => SupplierEvaluation;
   deleteSupplierEvaluation: (id: string) => { success: boolean; message: string };
-  updateSupplierEvaluationDate: (id: string, isoDate: string) => { success: boolean; message: string };
-  setAnnualEvaluationDueDate: (dossierId: string, isoDate: string | null) => { success: boolean; message: string };
   updateEvaluationMethod: (updated: Partial<EvaluationMethodConfig>) => void;
   addEvaluationCriterion: (criterion: Omit<EvaluationCriterionConfig, 'id'>) => { success: boolean; message: string };
   updateEvaluationCriterion: (id: string, updated: Partial<EvaluationCriterionConfig>) => void;
@@ -3739,7 +3737,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ...(evalData.evaluationType === 'INICIAL' ? { initialEvaluation: newEvaluation } : {}),
             ...(isAnnual
               ? {
-                  annualDueDateOverride: undefined,
                   annualEvaluation: newEvaluation,
                   nextAnnualEvaluationDate: evalData.nextEvaluationDueDate,
                 }
@@ -3810,108 +3807,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     showToast('Registro de calificación eliminado.', 'info');
     return { success: true, message: 'Evaluación eliminada correctamente.' };
-  };
-
-  /** Fija a mano la fecha de la evaluación anual de un proveedor (null = volver al cálculo automático). */
-  const setAnnualEvaluationDueDate = (dossierId: string, isoDate: string | null) => {
-    if (isReadOnly) {
-      showToast('Su rol es de solo consulta: no puede cambiar la fecha de la evaluación anual.', 'warning', 'ACCIÓN BLOQUEADA');
-      return { success: false, message: 'Rol de solo consulta.' };
-    }
-    if (isoDate !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate) || isNaN(new Date(`${isoDate}T12:00:00`).getTime()))) {
-      return { success: false, message: 'La fecha no es válida.' };
-    }
-    const dossier = allDossiers.find((d) => d.id === dossierId);
-    if (!dossier) return { success: false, message: 'No se encontró el proveedor.' };
-    const previous = dossier.annualDueDateOverride || null;
-    if (previous === isoDate) return { success: true, message: 'La fecha no cambió.' };
-
-    setDossiers((prev) => prev.map((d) => (d.id === dossierId ? { ...d, annualDueDateOverride: isoDate || undefined } : d)));
-
-    addSystemAuditLog({
-      dossierId,
-      supplierName: dossier.basicInfo?.companyName || dossier.basicInfo?.fullName || 'Proveedor',
-      supplierDoc: dossier.basicInfo?.nit || dossier.basicInfo?.documentNumber || '',
-      fileNumber: dossier.fileNumber,
-      user: activeUser?.name || 'Administrador',
-      userRole: role,
-      action: 'EDICION_CAMPO',
-      section: 'Evaluación y Desempeño SIG',
-      fieldChanged: 'Fecha de la evaluación anual',
-      oldValue: previous || 'Calculada automáticamente',
-      newValue: isoDate || 'Calculada automáticamente',
-      justification: isoDate ? 'Fecha de la evaluación anual fijada a la indicada por los evaluadores.' : 'Se volvió al cálculo automático de la fecha anual.',
-    });
-    showToast(isoDate ? 'Fecha de la evaluación anual actualizada.' : 'La fecha anual vuelve a calcularse sola.', 'success', 'Evaluación anual');
-    return { success: true, message: 'Fecha actualizada.' };
-  };
-
-  /** Cambia la fecha de una evaluación (la que indiquen los evaluadores) y la guarda en la base. */
-  const updateSupplierEvaluationDate = (id: string, isoDate: string) => {
-    if (isReadOnly) {
-      showToast('Su rol es de solo consulta: no puede cambiar fechas de evaluaciones.', 'warning', 'ACCIÓN BLOQUEADA');
-      return { success: false, message: 'Rol de solo consulta.' };
-    }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate) || isNaN(new Date(`${isoDate}T12:00:00`).getTime())) {
-      return { success: false, message: 'La fecha no es válida.' };
-    }
-    const t = new Date();
-    const localToday = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-    if (isoDate > localToday) {
-      return { success: false, message: 'La fecha de una evaluación no puede ser futura.' };
-    }
-    const current = supplierEvaluations.find((e) => e.id === id);
-    if (!current) return { success: false, message: 'No se encontró la evaluación.' };
-    if (current.evaluationDate === isoDate) return { success: true, message: 'La fecha no cambió.' };
-
-    const nextDue = new Date(`${isoDate}T12:00:00`);
-    nextDue.setFullYear(nextDue.getFullYear() + 1);
-    const updated: SupplierEvaluation = {
-      ...current,
-      evaluationDate: isoDate,
-      periodYear: Number(isoDate.slice(0, 4)),
-      nextEvaluationDueDate: nextDue.toLocaleDateString('es-CO'),
-    };
-
-    setSupplierEvaluations((prev) => prev.map((e) => (e.id === id ? updated : e)));
-    setAllDossiers((prev) =>
-      prev.map((d) => {
-        if (d.initialEvaluation?.id !== id && d.annualEvaluation?.id !== id && !(d.evaluations || []).some((e) => e.id === id)) return d;
-        return {
-          ...d,
-          evaluations: (d.evaluations || []).map((e) => (e.id === id ? updated : e)),
-          initialEvaluation: d.initialEvaluation?.id === id ? updated : d.initialEvaluation,
-          annualEvaluation: d.annualEvaluation?.id === id ? updated : d.annualEvaluation,
-          nextAnnualEvaluationDate: d.annualEvaluation?.id === id ? updated.nextEvaluationDueDate : d.nextAnnualEvaluationDate,
-        };
-      })
-    );
-
-    if (supabaseService.isConfigured()) {
-      supabaseService.saveEvaluation(updated).then((ok) => {
-        if (!ok) {
-          writePendingEvals([...readPendingEvals(), id]);
-          showToast('La nueva fecha quedó en este equipo, pero no se pudo guardar en la base de datos. Se reintentará sola al volver a entrar.', 'warning', 'SIN GUARDAR EN LA BASE');
-        }
-      });
-    }
-
-    addSystemAuditLog({
-      dossierId: current.dossierId,
-      supplierName: current.supplierName,
-      supplierDoc: current.supplierDoc,
-      fileNumber: current.fileNumber,
-      user: activeUser?.name || 'Administrador',
-      userRole: role,
-      action: 'EDICION_CAMPO',
-      section: 'Evaluación y Desempeño SIG',
-      fieldChanged: 'Fecha de la evaluación',
-      oldValue: current.evaluationDate,
-      newValue: isoDate,
-      justification: 'Fecha corregida a la indicada por los evaluadores.',
-    });
-    showToast('Fecha de la evaluación actualizada.', 'success', 'Evaluación');
-    return { success: true, message: 'Fecha actualizada.' };
   };
 
   const updateEvaluationMethod = (updated: Partial<EvaluationMethodConfig>) => {
@@ -4099,8 +3994,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         openSupplierEvaluation,
         recordSupplierEvaluation,
         deleteSupplierEvaluation,
-        updateSupplierEvaluationDate,
-        setAnnualEvaluationDueDate,
         updateEvaluationMethod,
         addEvaluationCriterion,
         updateEvaluationCriterion,

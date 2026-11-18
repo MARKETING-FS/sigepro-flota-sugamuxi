@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle, Pencil } from 'lucide-react';
+import { Search, Plus, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   SupplierDossier,
@@ -32,7 +32,6 @@ import {
 import { EvaluationFormModal } from './EvaluationFormModal';
 import { EvaluationCertificateModal } from './EvaluationCertificateModal';
 import { EvaluationPdfModal } from './EvaluationPdfModal';
-import { EvaluationDateModal } from './EvaluationDateModal';
 import { parseLocalDate } from '../../utils/dateOnly';
 import { useConfirm } from '../ui/ConfirmDialog';
 import { preloadPdfTools } from '../../utils/certificatePdf';
@@ -53,15 +52,8 @@ export const SupplierEvaluationsView: React.FC = () => {
     selectedEvaluationDossierId,
     setSelectedEvaluationDossierId,
     deleteSupplierEvaluation,
-    updateSupplierEvaluationDate,
-    setAnnualEvaluationDueDate,
     showToast,
   } = useApp();
-
-  // Evaluación cuya fecha se está cambiando
-  const [evaluationToEditDate, setEvaluationToEditDate] = useState<SupplierEvaluation | null>(null);
-  // Proveedor cuya fecha de evaluación anual se está fijando
-  const [annualDateRow, setAnnualDateRow] = useState<(typeof supplierEvaluationRows)[number] | null>(null);
 
   // Active View Tab: 'matrix' (proveedores y sus estados 1/2) vs 'history' (todas las evaluaciones guardadas)
   const [activeTab, setActiveTab] = useState<'matrix' | 'history'>('matrix');
@@ -154,9 +146,6 @@ export const SupplierEvaluationsView: React.FC = () => {
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<
-    'ALL' | 'PENDING_INITIAL' | 'DUE_ANNUAL' | 'UP_TO_DATE' | 'ACTIVE_ONLY'
-  >('ALL');
   const [tierFilter, setTierFilter] = useState<'ALL' | 'A' | 'B' | 'C'>('ALL');
 
   // Modals state
@@ -184,10 +173,8 @@ export const SupplierEvaluationsView: React.FC = () => {
 
   // Helper: compute dates, recurring cycles, and statuses for each supplier of this evaluator
   const supplierEvaluationRows = useMemo(() => {
-    const now = new Date();
-
     return relevantDossiers.map((dossier) => ({
-      ...buildEvaluationRow(dossier, now),
+      ...buildEvaluationRow(dossier),
       isAssignedToMe: activeUser?.id ? dossier.assignedReviewerId === activeUser.id : false,
     }));
   }, [relevantDossiers, activeUser]);
@@ -195,7 +182,7 @@ export const SupplierEvaluationsView: React.FC = () => {
   // Filtered rows
   const filteredRows = useMemo(() => {
     return supplierEvaluationRows.filter((row) => {
-      const { dossier, initialEval, annualStatus, isSupplierActive } = row;
+      const { dossier } = row;
 
       // Search filter
       if (searchTerm) {
@@ -209,24 +196,6 @@ export const SupplierEvaluationsView: React.FC = () => {
         if (!matchName && !matchDoc && !matchFile && !matchCat && !matchRev) return false;
       }
 
-      // Status filter
-      if (statusFilter === 'PENDING_INITIAL' && initialEval) return false;
-      if (
-        statusFilter === 'DUE_ANNUAL' &&
-        (!isSupplierActive || (annualStatus !== 'VENCIDA_REQUIERE_EVAL' && annualStatus !== 'PROXIMA_VENCER'))
-      ) {
-        return false;
-      }
-      if (
-        statusFilter === 'UP_TO_DATE' &&
-        (!initialEval || (isSupplierActive && annualStatus === 'VENCIDA_REQUIERE_EVAL'))
-      ) {
-        return false;
-      }
-      if (statusFilter === 'ACTIVE_ONLY' && !isSupplierActive) {
-        return false;
-      }
-
       // Tier filter
       if (tierFilter !== 'ALL' && dossier.supplierTier !== tierFilter) {
         return false;
@@ -234,7 +203,7 @@ export const SupplierEvaluationsView: React.FC = () => {
 
       return true;
     });
-  }, [supplierEvaluationRows, searchTerm, statusFilter, tierFilter]);
+  }, [supplierEvaluationRows, searchTerm, tierFilter]);
 
   // Filtered evaluations corresponding to selected evaluator
   const relevantEvaluations = useMemo(() => {
@@ -291,11 +260,7 @@ export const SupplierEvaluationsView: React.FC = () => {
     const activeSuppliers = supplierEvaluationRows.filter((r) => r.isSupplierActive).length;
     const initialCompleted = supplierEvaluationRows.filter((r) => r.initialEval).length;
     const initialPending = total - initialCompleted;
-
-    const activeRows = supplierEvaluationRows.filter((r) => r.isSupplierActive);
-    const annualUpToDate = activeRows.filter((r) => r.annualStatus === 'AL_DIA').length;
-    const annualDue = activeRows.filter((r) => r.annualStatus === 'VENCIDA_REQUIERE_EVAL').length;
-    const annualUpcoming = activeRows.filter((r) => r.annualStatus === 'PROXIMA_VENCER').length;
+    const annualDone = supplierEvaluationRows.filter((r) => r.isSupplierActive && r.latestAnnualEval).length;
 
     // Average Score
     const allScores = relevantEvaluations.map((e) => evaluationPercent(e));
@@ -311,9 +276,7 @@ export const SupplierEvaluationsView: React.FC = () => {
       activeSuppliers,
       initialCompleted,
       initialPending,
-      annualUpToDate,
-      annualDue,
-      annualUpcoming,
+      annualDone,
       avgScore,
       totalEvaluationsRecorded: relevantEvaluations.length,
     };
@@ -352,15 +315,10 @@ export const SupplierEvaluationsView: React.FC = () => {
       },
     });
 
-  const isDueRow = (r: (typeof supplierEvaluationRows)[number]) =>
-    r.dossier.processStatus !== 'RECHAZADO' &&
-    (!r.initialEval || r.annualStatus === 'VENCIDA_REQUIERE_EVAL' || r.annualStatus === 'PROXIMA_VENCER');
+  // Por calificar: proveedores que todavía no tienen evaluación inicial
+  const isDueRow = (r: (typeof supplierEvaluationRows)[number]) => r.dossier.processStatus !== 'RECHAZADO' && !r.initialEval;
 
-  const dueRows = filteredRows.filter(isDueRow).sort((a, b) => {
-    // Primero las anuales vencidas, luego las próximas, luego iniciales pendientes
-    const rank = (r: typeof a) => (r.annualStatus === 'VENCIDA_REQUIERE_EVAL' ? 0 : r.annualStatus === 'PROXIMA_VENCER' ? 1 : 2);
-    return rank(a) - rank(b) || a.diffDays - b.diffDays;
-  });
+  const dueRows = filteredRows.filter(isDueRow);
   const dueTotal = supplierEvaluationRows.filter(isDueRow).length;
   const tableRows = view === 'due' ? dueRows : filteredRows;
 
@@ -372,24 +330,6 @@ export const SupplierEvaluationsView: React.FC = () => {
 
   const conceptTone = (concept?: string): Tone =>
     concept === 'SOBRESALIENTE' ? 'navy' : concept === 'CONFORME' ? 'blue' : concept === 'CONDICIONAL_MEJORA' ? 'warn' : 'bad';
-
-  const annualView = (r: (typeof supplierEvaluationRows)[number]): { text: string; tone: Tone } => {
-    switch (r.annualStatus) {
-      case 'VENCIDA_REQUIERE_EVAL':
-        return { text: `Vencida hace ${Math.abs(r.diffDays)} d`, tone: 'bad' };
-      case 'PROXIMA_VENCER':
-        return { text: `Vence en ${r.diffDays} d`, tone: 'warn' };
-      case 'AL_DIA':
-        return { text: `Al día hasta ${fmtDate(r.annualDueDate)}`, tone: 'navy' };
-      case 'NO_APLICA_INACTIVO':
-        return { text: 'No aplica', tone: 'muted' };
-      default:
-        return { text: 'Cuando esté habilitado', tone: 'muted' };
-    }
-  };
-
-  const rowTone = (r: (typeof supplierEvaluationRows)[number]): Tone =>
-    r.annualStatus === 'VENCIDA_REQUIERE_EVAL' ? 'bad' : isDueRow(r) ? 'warn' : r.isSupplierActive ? 'navy' : 'muted';
 
   const tabBtn = (key: 'due' | 'all' | 'history', label: string) => (
     <button
@@ -410,7 +350,7 @@ export const SupplierEvaluationsView: React.FC = () => {
       <PageHeader
         icon={Star}
         title="Evaluaciones"
-        subtitle="Inicial al registrar · anual mientras esté habilitado"
+        subtitle="Elija si la evaluación es inicial o anual al calificar"
         actions={
           <>
             <button type="button" className={heroSecondaryBtn} onClick={handleExportEvaluationsExcel}>
@@ -444,9 +384,9 @@ export const SupplierEvaluationsView: React.FC = () => {
       <PageBody>
       <FigureBand
         items={[
-          { label: 'Por calificar', value: dueTotal, note: `${metrics.initialPending} iniciales · ${metrics.annualDue + metrics.annualUpcoming} anuales`, tone: dueTotal ? 'warn' : undefined, onClick: () => setView('due'), active: view === 'due' },
+          { label: 'Por calificar', value: dueTotal, note: 'sin evaluación inicial', tone: dueTotal ? 'warn' : undefined, onClick: () => setView('due'), active: view === 'due' },
           { label: 'Evaluación inicial', value: `${metrics.initialCompleted} de ${metrics.total}`, note: 'proveedores calificados' },
-          { label: 'Anual al día', value: `${metrics.annualUpToDate} de ${metrics.activeSuppliers}`, note: 'proveedores habilitados' },
+          { label: 'Evaluación anual', value: `${metrics.annualDone} de ${metrics.activeSuppliers}`, note: 'habilitados con evaluación anual' },
           {
             label: 'Promedio',
             value: metrics.avgScore === 'N/A' ? '—' : String(metrics.avgScore).replace('.', ','),
@@ -507,9 +447,7 @@ export const SupplierEvaluationsView: React.FC = () => {
               ) : (
                 tableRows.map((r) => {
                   const { dossier, initialEval, latestAnnualEval } = r;
-                  const annual = annualView(r);
                   const needsInitial = !initialEval;
-                  const needsAnnual = r.annualStatus === 'VENCIDA_REQUIERE_EVAL' || r.annualStatus === 'PROXIMA_VENCER';
                   return (
                     <tr key={dossier.id} className={rowCls}>
                       <td className="py-3.5 px-4 min-w-[250px]">
@@ -534,34 +472,16 @@ export const SupplierEvaluationsView: React.FC = () => {
                         )}
                       </td>
                       <td className="py-3.5 px-3 whitespace-nowrap">
-                        <StatusPill tone={annual.tone}>{annual.text}</StatusPill>
-                        {r.annualStatus !== 'NO_APLICA_INACTIVO' && (
-                          <div className="mt-1 text-sm text-[#3a5274] leading-snug">
-                            <div className="flex items-center gap-1.5">
-                              <span>Toca el <strong className="font-semibold text-fs-navy dark:text-white">{fmtDate(r.annualDueDate)}</strong></span>
-                              {!isReadOnly && role === 'ADMIN' && (
-                                <button
-                                  type="button"
-                                  title="Cambiar la fecha de la evaluación anual"
-                                  aria-label="Cambiar la fecha de la evaluación anual"
-                                  onClick={() => setAnnualDateRow(r)}
-                                  className="w-6 h-6 grid place-items-center rounded-md text-fs-muted hover:text-fs-blue hover:bg-fs-blue/10 cursor-pointer"
-                                >
-                                  <Pencil className="w-3.5 h-3.5" />
-                                </button>
-                              )}
+                        {latestAnnualEval ? (
+                          <button type="button" onClick={() => setSelectedEvaluationForCert(latestAnnualEval)} className="text-left cursor-pointer group" title="Ver acta">
+                            <span className="text-base font-bold tabular-nums text-fs-navy dark:text-white group-hover:text-fs-blue">{latestAnnualEval.totalScore}</span>
+                            <span className="text-sm text-[#3a5274]"> / {evaluationMaxScore(latestAnnualEval)} · {evaluationConceptLabel(latestAnnualEval)}</span>
+                            <div className="text-sm text-[#3a5274]">
+                              Año {latestAnnualEval.annualCycleNumber || r.completedAnnualCycles} · {fmtDate(latestAnnualEval.evaluationDate)}
                             </div>
-                            <div className="text-fs-muted">
-                              {r.annualBaseSource === 'MANUAL'
-                                ? 'Fecha fijada por el administrador'
-                                : `Se cuenta desde ${fmtDate(r.annualBaseDate)} · ${r.annualBaseSource === 'CREACION' ? 'creación del proveedor' : 'última evaluación anual'}`}
-                            </div>
-                          </div>
-                        )}
-                        {latestAnnualEval && (
-                          <button type="button" onClick={() => setSelectedEvaluationForCert(latestAnnualEval)} className="block text-sm text-[#3a5274] hover:text-fs-blue mt-1 cursor-pointer">
-                            Última: {latestAnnualEval.totalScore} / {evaluationMaxScore(latestAnnualEval)} · {fmtDate(latestAnnualEval.evaluationDate)}
                           </button>
+                        ) : (
+                          <span className="text-sm text-fs-muted">Sin evaluación anual</span>
                         )}
                       </td>
                       <td className="py-3.5 px-4">
@@ -577,17 +497,6 @@ export const SupplierEvaluationsView: React.FC = () => {
                                 {canDeleteEvaluation(lastEval) && (
                                   <button
                                     type="button"
-                                    title="Cambiar la fecha de la última evaluación"
-                                    aria-label="Cambiar la fecha de la última evaluación"
-                                    onClick={() => setEvaluationToEditDate(lastEval)}
-                                    className="w-8 h-8 grid place-items-center rounded-md text-fs-muted hover:text-fs-blue hover:bg-fs-blue/10 cursor-pointer"
-                                  >
-                                    <Pencil className="w-4 h-4" />
-                                  </button>
-                                )}
-                                {canDeleteEvaluation(lastEval) && (
-                                  <button
-                                    type="button"
                                     title="Eliminar la última evaluación"
                                     aria-label="Eliminar la última evaluación"
                                     onClick={() => askDeleteEvaluation(lastEval)}
@@ -599,23 +508,15 @@ export const SupplierEvaluationsView: React.FC = () => {
                               </>
                             );
                           })()}
-                          {isReadOnly ? null : needsInitial || needsAnnual ? (
+                          {!isReadOnly && (
                             <button
                               type="button"
                               onClick={() => handleOpenEvaluationModal(dossier, needsInitial ? 'INICIAL' : 'ANUAL_1_ANO')}
-                              className={rowPrimaryBtn}
+                              className={needsInitial ? rowPrimaryBtn : `${secondaryBtn} h-8 px-3 whitespace-nowrap`}
                             >
-                              {needsInitial ? 'Evaluar inicial' : `Evaluar año ${r.nextCycleNumber}`}
+                              Evaluar
                             </button>
-                          ) : r.isSupplierActive ? (
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEvaluationModal(dossier, 'ANUAL_1_ANO')}
-                              className={`${secondaryBtn} h-8 px-3 whitespace-nowrap`}
-                            >
-                              Evaluar anual
-                            </button>
-                          ) : null}
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -672,17 +573,6 @@ export const SupplierEvaluationsView: React.FC = () => {
                         <button type="button" onClick={() => setSelectedEvaluationForCert(ev)} className={`${secondaryBtn} h-8 px-3`}>
                           <Printer className="w-4 h-4" /> Acta
                         </button>
-                        {canDeleteEvaluation(ev) && (
-                          <button
-                            type="button"
-                            title="Cambiar fecha de la evaluación"
-                            aria-label="Cambiar fecha de la evaluación"
-                            onClick={() => setEvaluationToEditDate(ev)}
-                            className="w-8 h-8 grid place-items-center rounded-md text-fs-muted hover:text-fs-blue hover:bg-fs-blue/10 cursor-pointer"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                        )}
                         {canDeleteEvaluation(ev) && (
                           <button
                             type="button"
@@ -747,35 +637,6 @@ export const SupplierEvaluationsView: React.FC = () => {
       )}
 
       {confirmDialog}
-
-      {evaluationToEditDate && (
-        <EvaluationDateModal
-          key={evaluationToEditDate.id}
-          title="Cambiar fecha de la evaluación"
-          subtitle={`${evaluationToEditDate.supplierName} · ${evaluationToEditDate.evaluationType === 'INICIAL' ? 'inicial' : `anual${evaluationToEditDate.annualCycleNumber ? ` (año ${evaluationToEditDate.annualCycleNumber})` : ''}`}`}
-          label="Fecha en que se hizo la evaluación"
-          hint="La nueva fecha queda en el acta y desde ella se cuenta el año de la siguiente evaluación anual. El cambio queda en la bitácora."
-          initialValue={evaluationToEditDate.evaluationDate}
-          onSave={(iso) => updateSupplierEvaluationDate(evaluationToEditDate.id, iso)}
-          onClose={() => setEvaluationToEditDate(null)}
-        />
-      )}
-
-      {annualDateRow && (
-        <EvaluationDateModal
-          key={annualDateRow.dossier.id}
-          title="Fecha de la evaluación anual"
-          subtitle={supplierName(annualDateRow.dossier)}
-          label="Fecha en que toca la evaluación anual"
-          hint="Elija la fecha que indiquen los evaluadores. Reemplaza la fecha calculada y se usa para los avisos de vencimiento; al registrar la evaluación anual, el siguiente año vuelve a contarse desde esa evaluación."
-          initialValue={annualDateRow.annualDueDate}
-          allowFuture
-          onReset={annualDateRow.annualBaseSource === 'MANUAL' ? () => setAnnualEvaluationDueDate(annualDateRow.dossier.id, null) : undefined}
-          resetLabel="Volver a la fecha calculada"
-          onSave={(iso) => setAnnualEvaluationDueDate(annualDateRow.dossier.id, iso)}
-          onClose={() => setAnnualDateRow(null)}
-        />
-      )}
 
       {/* Parameterization Modal */}
       {isConfigModalOpen && (
