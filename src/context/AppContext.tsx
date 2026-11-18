@@ -3028,8 +3028,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const catConfig =
       categoriesConfig.find((c) => normalizeStr(c.category) === normalizeStr(categoryName) && c.isActive !== false) ||
       categoriesConfig.find((c) => normalizeStr(c.category) === normalizeStr(categoryName)) ||
-      categoriesConfig.find((c) => c.category === categoryName) ||
-      categoriesConfig[0];
+      categoriesConfig.find((c) => c.category === categoryName);
+    // Si la categoría del proveedor no existe, solo se le exigen los documentos base de la persona
+    // (antes se le aplicaba la primera categoría de la lista, Centros médicos, sin que le correspondiera)
 
     const rawActivityMandatory = catConfig
       ? isNatural
