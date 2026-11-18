@@ -193,7 +193,7 @@ export function sanitizeField(name: FieldName, raw: string, ctx: { docType?: str
 
 const REQUIRED_MSG: Record<FieldName, string> = {
   companyName: 'Escriba la razón social de la empresa.',
-  nit: 'Escriba el NIT con su dígito de verificación (ej. 900892410-8).',
+  nit: 'Escriba el NIT de la empresa.',
   representativeLegalName: 'Escriba el nombre del representante legal.',
   representativeLegalDocNumber: '',
   fullName: 'Escriba el nombre completo de la persona.',
@@ -276,20 +276,8 @@ const emailError = (value: string): string => {
 const nitError = (value: string): string => {
   const v = value.trim();
   if (!v) return REQUIRED_MSG.nit;
-  if (!v.includes('-')) {
-    const n = digitsOf(v).length;
-    return n >= 6
-      ? 'Falta el dígito de verificación: escriba el NIT con guion (ej. 900892410-8).'
-      : 'El NIT es muy corto: debe tener entre 6 y 10 números antes del guion.';
-  }
-  const [bodyRaw, dvRaw] = v.split('-');
-  const body = digitsOf(bodyRaw);
-  if (body.length < 6 || body.length > 10) return `El NIT debe tener entre 6 y 10 números antes del guion (lleva ${body.length}).`;
-  if (!dvRaw) return `Falta el dígito de verificación después del guion (debería ser ${nitCheckDigit(body)}).`;
-  const expected = nitCheckDigit(body);
-  if (Number(dvRaw) !== expected) {
-    return `El dígito de verificación no corresponde: para ${body} debería ser ${expected}, no ${dvRaw}.`;
-  }
+  // Solo se exige que lo escriba y que lleve números; no se revisa el dígito de verificación
+  if (digitsOf(v).length === 0) return REQUIRED_MSG.nit;
   return '';
 };
 
