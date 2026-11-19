@@ -6,7 +6,7 @@ import {
   SupplierEvaluation,
   SupplierEvaluationType,
 } from '../../types';
-import { exportEvaluationsReport } from '../../utils/excelExport';
+import { exportEvaluationsExcel } from '../../utils/reports/quickExport';
 import { buildEvaluationRow } from '../../utils/evaluationRows';
 import {
   FigureBand,
@@ -241,17 +241,22 @@ export const SupplierEvaluationsView: React.FC = () => {
     );
   }, [relevantEvaluations, searchTerm]);
 
-  const handleExportEvaluationsExcel = () => {
+  const handleExportEvaluationsExcel = async () => {
     const summary =
       selectedEvaluatorId === 'ALL'
-        ? `Consolidado General de Todos los Evaluadores (${filteredEvaluations.length} evaluaciones)`
-        : `Evaluador: ${currentEvaluatorUser?.name || selectedEvaluatorId} (${filteredEvaluations.length} evaluaciones)`;
-    exportEvaluationsReport(filteredEvaluations, summary);
-    showToast(
-      `¡Reporte de Evaluaciones exportado en Excel con éxito (${filteredEvaluations.length} registros)!`,
-      'success',
-      'EXPORTACIÓN EXITOSA'
-    );
+        ? 'Todos los evaluadores'
+        : `Evaluador: ${currentEvaluatorUser?.name || selectedEvaluatorId}`;
+    try {
+      await exportEvaluationsExcel(filteredEvaluations, summary, activeUser?.name || 'Usuario SIGEPRO');
+      showToast(
+        `Excel descargado: ${filteredEvaluations.length} evaluaciones.`,
+        'success',
+        'EXPORTACIÓN EXITOSA'
+      );
+    } catch (err) {
+      console.error(err);
+      showToast('No se pudo generar el Excel. Intenta de nuevo.', 'error');
+    }
   };
 
   // Global KPIs corresponding to this evaluator
