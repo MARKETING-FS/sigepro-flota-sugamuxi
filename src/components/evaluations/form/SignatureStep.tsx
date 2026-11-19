@@ -137,18 +137,18 @@ export const SignatureStep: React.FC<SignatureStepProps> = ({ evaluatorName, use
                   e.preventDefault();
                   pick(e.dataTransfer.files?.[0]);
                 }}
-                className="flex flex-col items-center justify-center gap-2 min-h-[190px] rounded-xl bg-white border-2 border-dashed border-[#0f6b8f]/40 hover:border-[#0f6b8f] text-center px-4 cursor-pointer transition-colors"
+                className="flex flex-col items-center justify-center gap-2 min-h-[190px] rounded-xl bg-white border-2 border-dashed border-[#2c84c4]/40 hover:border-[#2c84c4] text-center px-4 cursor-pointer transition-colors"
               >
                 {busy ? (
-                  <Loader2 className="w-6 h-6 animate-spin text-[#0f6b8f]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-[#2c84c4]" />
                 ) : uploaded ? (
                   <>
                     <img src={uploaded} alt="Su firma" className="max-h-[120px] max-w-full object-contain" />
-                    <span className="text-xs font-semibold text-[#0a5473]">Cambiar imagen</span>
+                    <span className="text-xs font-semibold text-[#1d5fa8]">Cambiar imagen</span>
                   </>
                 ) : (
                   <>
-                    <ImagePlus className="w-7 h-7 text-[#0f6b8f]" />
+                    <ImagePlus className="w-7 h-7 text-[#2c84c4]" />
                     <span className="text-sm font-semibold text-[#0b1d3a]">Elija o arrastre la imagen de su firma</span>
                     <span className="text-xs text-[#5d7392]">PNG, JPG o WebP. Mejor sobre papel blanco; el fondo se quita solo.</span>
                   </>
@@ -164,7 +164,7 @@ export const SignatureStep: React.FC<SignatureStepProps> = ({ evaluatorName, use
 
           {mode === 'saved' && saved && (
             <div>
-              <div className="rounded-xl bg-white border border-[#0f6b8f]/30 min-h-[190px] grid place-items-center p-4">
+              <div className="rounded-xl bg-white border border-[#2c84c4]/30 min-h-[190px] grid place-items-center p-4">
                 <img src={saved} alt="Su firma guardada" className="max-h-[130px] max-w-full object-contain" />
               </div>
               <div className="mt-2 flex justify-end">
@@ -185,7 +185,7 @@ export const SignatureStep: React.FC<SignatureStepProps> = ({ evaluatorName, use
 
           {mode !== 'saved' && (
             <label className="flex items-start gap-2.5 text-xs text-[#3a5274] dark:text-slate-300 cursor-pointer">
-              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="mt-0.5 accent-[#0f6b8f]" />
+              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="mt-0.5 accent-[#2c84c4]" />
               <span>
                 <span className="font-semibold text-[#0b1d3a] dark:text-slate-100 inline-flex items-center gap-1">
                   <Save className="w-3.5 h-3.5" /> Guardar mi firma en este equipo
@@ -209,7 +209,7 @@ export const SignatureStep: React.FC<SignatureStepProps> = ({ evaluatorName, use
             <button
               type="button"
               onClick={onCancel}
-              className="h-11 px-4 rounded-xl border border-[#0f6b8f]/35 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 text-sm font-semibold cursor-pointer"
+              className="h-11 px-4 rounded-xl border border-[#2c84c4]/35 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold cursor-pointer"
             >
               Volver
             </button>

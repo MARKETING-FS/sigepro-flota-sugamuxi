@@ -147,8 +147,8 @@ export const PushAlertsPopover: React.FC<Props> = () => {
         onClick={() => setIsOpen(!isOpen)}
         className={`relative w-10 h-10 rounded-xl transition-colors cursor-pointer grid place-items-center ${
           isOpen
-            ? 'bg-[#0f6b8f]/15 text-[#0b1d3a] dark:bg-white/15 dark:text-white'
-            : 'hover:bg-[#0f6b8f]/10 dark:hover:bg-white/10 text-[#1c3354] dark:text-white'
+            ? 'bg-[#2c84c4]/15 text-[#0b1d3a] dark:bg-white/15 dark:text-white'
+            : 'hover:bg-[#2c84c4]/10 dark:hover:bg-white/10 text-[#1c3354] dark:text-white'
         }`}
         title="Centro de Alertas de Vencimiento y Notificaciones Push"
         aria-label="Alertas y Notificaciones"
@@ -183,7 +183,7 @@ export const PushAlertsPopover: React.FC<Props> = () => {
                 </span>
                 <div className="min-w-0">
                   <h3 className="text-xl font-bold leading-tight">Alertas</h3>
-                  <p className="text-sm text-[#dbeff7]">
+                  <p className="text-sm text-[#dbe9f7]">
                     {unreadCount === 0 ? 'Todo al día' : `${unreadCount} sin atender`}
                   </p>
                 </div>
@@ -215,7 +215,7 @@ export const PushAlertsPopover: React.FC<Props> = () => {
                 { label: 'Total', value: unreadCount },
               ].map((k) => (
                 <div key={k.label} className="rounded-2xl bg-[#061433]/55 px-3 py-2">
-                  <div className="text-[13px] text-[#dbeff7]">{k.label}</div>
+                  <div className="text-[13px] text-[#dbe9f7]">{k.label}</div>
                   <div className="text-2xl font-bold leading-tight tabular-nums">{k.value}</div>
                 </div>
               ))}
@@ -223,14 +223,14 @@ export const PushAlertsPopover: React.FC<Props> = () => {
           </div>
 
           {hasPermission === 'default' && (
-            <div className="flex items-center justify-between gap-3 px-5 py-3 bg-[#eaf1f9] dark:bg-[#0b3347] shrink-0">
+            <div className="flex items-center justify-between gap-3 px-5 py-3 bg-[#eaf1f9] dark:bg-[#0c2350] shrink-0">
               <span className="flex items-center gap-2 text-sm text-[#0b1d3a] dark:text-white">
                 <Laptop className="w-4 h-4 shrink-0" /> Recibir avisos en el escritorio
               </span>
               <button
                 type="button"
                 onClick={handleRequestPushPermission}
-                className="h-9 px-4 rounded-xl bg-[#0a4561] hover:bg-[#0b455c] dark:bg-[#1a8bb0] text-white text-sm font-bold cursor-pointer"
+                className="h-9 px-4 rounded-xl bg-[#0f3d75] hover:bg-[#0b2f5c] dark:bg-[#1f7ae8] text-white text-sm font-bold cursor-pointer"
               >
                 Activar
               </button>
@@ -252,8 +252,8 @@ export const PushAlertsPopover: React.FC<Props> = () => {
                   onClick={() => setFilterTab(key)}
                   className={`h-9 px-3 rounded-full text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                     filterTab === key
-                      ? 'bg-[#0a4561] text-white dark:bg-[#0f5b79] dark:ring-2 dark:ring-[#6cc8ed]'
-                      : 'bg-[#e6edf6] text-[#0b1d3a] hover:bg-[#d8e3f0] dark:bg-[#072636]/70 dark:ring-1 dark:ring-[#3fadd8] dark:text-white'
+                      ? 'bg-[#0f3d75] text-white dark:bg-[#0e3a7a] dark:ring-2 dark:ring-[#5aa8ff]'
+                      : 'bg-[#e6edf6] text-[#0b1d3a] hover:bg-[#d8e3f0] dark:bg-[#071636]/70 dark:ring-1 dark:ring-[#3f7fd8] dark:text-white'
                   }`}
                 >
                   {label}
@@ -264,7 +264,7 @@ export const PushAlertsPopover: React.FC<Props> = () => {
               <button
                 type="button"
                 onClick={handleDismissAll}
-                className="text-sm font-semibold text-[#0a5473] dark:text-[#83d1f0] hover:underline shrink-0 cursor-pointer"
+                className="text-sm font-semibold text-[#1d5fa8] dark:text-[#74b4ff] hover:underline shrink-0 cursor-pointer"
               >
                 Limpiar
               </button>
@@ -274,14 +274,14 @@ export const PushAlertsPopover: React.FC<Props> = () => {
           <div className="overflow-y-auto flex-1 px-3 py-2">
             {filteredAlerts.length === 0 ? (
               <div className="py-10 text-center">
-                <span className="w-12 h-12 rounded-full bg-[#e1f1f8] dark:bg-[#124f67] text-[#0a5473] dark:text-white grid place-items-center mx-auto">
+                <span className="w-12 h-12 rounded-full bg-[#e1ecf8] dark:bg-[#123267] text-[#1d5fa8] dark:text-white grid place-items-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </span>
                 <h4 className="mt-3 text-base font-bold text-[#0b1d3a] dark:text-white">Sin alertas</h4>
                 <p className="text-sm text-[#3a5274] mt-1">No hay avisos pendientes en este filtro.</p>
               </div>
             ) : (
-              <ul className="divide-y divide-[#e6edf5] dark:divide-[#1d5870]">
+              <ul className="divide-y divide-[#e6edf5] dark:divide-[#1d3a70]">
                 {filteredAlerts.map((alert) => {
                   const isCrit = alert.severity === 'CRITICAL';
                   const isAssigned = alert.type === 'ASSIGNED';
@@ -297,11 +297,11 @@ export const PushAlertsPopover: React.FC<Props> = () => {
                       <button
                         type="button"
                         onClick={() => handleAction(alert)}
-                        className="w-full text-left flex items-start gap-3 px-2 py-3.5 rounded-2xl hover:bg-[#e6f2f6] dark:hover:bg-[#0b3347] transition-colors cursor-pointer"
+                        className="w-full text-left flex items-start gap-3 px-2 py-3.5 rounded-2xl hover:bg-[#eaf2fb] dark:hover:bg-[#0c2350] transition-colors cursor-pointer"
                       >
                         <span
                           className={`mt-0.5 w-10 h-10 rounded-xl grid place-items-center shrink-0 text-white ${
-                            isCrit ? 'bg-[#dc2626]' : isAssigned ? 'bg-[#0a5473]' : 'bg-[#5db2c9]'
+                            isCrit ? 'bg-[#dc2626]' : isAssigned ? 'bg-[#1d5fa8]' : 'bg-[#69bdd7]'
                           }`}
                         >
                           {isCrit ? <AlertCircle className="w-5 h-5" /> : isAssigned ? <UserCheck className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
@@ -318,7 +318,7 @@ export const PushAlertsPopover: React.FC<Props> = () => {
                               className={`text-[13px] font-bold px-2.5 py-1 rounded-full shrink-0 ${
                                 isCrit
                                   ? 'bg-[#fde3e3] text-[#b91c1c] dark:bg-[#dc2626] dark:text-white'
-                                  : 'bg-[#d6eef6] text-[#0e6d8a] dark:bg-[#5db2c9] dark:!text-[#131b2e]'
+                                  : 'bg-[#d6eef6] text-[#0e6d8a] dark:bg-[#69bdd7] dark:!text-[#131b2e]'
                               }`}
                             >
                               {label}
@@ -341,7 +341,7 @@ export const PushAlertsPopover: React.FC<Props> = () => {
             )}
           </div>
 
-          <div className="px-5 py-3 border-t border-[#e6edf5] dark:border-[#1d5870] flex items-center justify-between shrink-0">
+          <div className="px-5 py-3 border-t border-[#e6edf5] dark:border-[#1d3a70] flex items-center justify-between shrink-0">
             <span className="text-sm text-[#5d7392]">Flota Sugamuxi S.A.</span>
             <button
               type="button"
@@ -349,7 +349,7 @@ export const PushAlertsPopover: React.FC<Props> = () => {
                 setIsOpen(false);
                 setActiveView('bancoProveedores');
               }}
-              className="text-sm font-bold text-[#0a5473] dark:text-[#83d1f0] hover:underline flex items-center gap-1.5 cursor-pointer"
+              className="text-sm font-bold text-[#1d5fa8] dark:text-[#74b4ff] hover:underline flex items-center gap-1.5 cursor-pointer"
             >
               Banco de proveedores <ExternalLink className="w-4 h-4" />
             </button>

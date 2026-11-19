@@ -38,7 +38,7 @@ const DIMENSIONS: { value: DocumentDefinition['category']; label: string }[] = [
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const inputCls =
-  'w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#0f6b8f]';
+  'w-full px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#2c84c4]';
 const labelCls = 'block text-xs font-bold text-[#0b1d3a] dark:text-white mb-1';
 
 export const AddCustomDocumentModal: React.FC<Props> = (props) => {
@@ -194,9 +194,9 @@ const AddCustomDocumentForm: React.FC<Props> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
       <div className="fs-card rounded-2xl shadow-2xl max-w-xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
-        <div className="bg-[#0f6b8f]/10 dark:bg-[#0b1329] text-[#0b1d3a] dark:text-white px-5 sm:px-6 py-4 border-b border-black/10 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <div className="bg-[#2c84c4]/10 dark:bg-[#0b1329] text-[#0b1d3a] dark:text-white px-5 sm:px-6 py-4 border-b border-black/10 dark:border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0f6b8f] to-[#5db2c9] text-white">
+            <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#2c84c4] to-[#69bdd7] text-white">
               <FilePlus className="w-5 h-5" />
             </span>
             <div className="min-w-0">
@@ -218,7 +218,7 @@ const AddCustomDocumentForm: React.FC<Props> = ({
 
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs text-[#3a5274] dark:text-slate-300">
-            <div className="flex items-start gap-2.5 rounded-xl border border-[#0f6b8f]/30 bg-[#0f6b8f]/10 px-3.5 py-3 text-[#0a5473] dark:text-[#5db2c9]">
+            <div className="flex items-start gap-2.5 rounded-xl border border-[#2c84c4]/30 bg-[#2c84c4]/10 px-3.5 py-3 text-[#1d5fa8] dark:text-[#69bdd7]">
               <Layers className="w-4 h-4 shrink-0 mt-0.5" />
               <p className="leading-relaxed">
                 {categoryName ? (
@@ -268,13 +268,13 @@ const AddCustomDocumentForm: React.FC<Props> = ({
                         setIsCodeCustomized(false);
                         setCode(generateDocumentCodeSuggestions(name).primary);
                       }}
-                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#0a5473] dark:text-[#5db2c9] hover:underline cursor-pointer"
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer"
                     >
                       <Zap className="w-2.5 h-2.5" />
                       Autocalcular
                     </button>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-1.5 rounded text-[10px] font-bold bg-[#0f6b8f]/12 text-[#0a5473] dark:text-[#5db2c9] border border-[#0f6b8f]/35">
+                    <span className="inline-flex items-center gap-1 px-1.5 rounded text-[10px] font-bold bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/35">
                       <Zap className="w-2.5 h-2.5" />
                       Automático
                     </span>
@@ -361,7 +361,7 @@ const AddCustomDocumentForm: React.FC<Props> = ({
                       aria-pressed={mandatory === o.v}
                       className={`h-9 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                         mandatory === o.v
-                          ? 'bg-gradient-to-r from-[#0f6b8f] to-[#5db2c9] text-white shadow-sm'
+                          ? 'bg-gradient-to-r from-[#2c84c4] to-[#69bdd7] text-white shadow-sm'
                           : 'text-[#3a5274] dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10'
                       }`}
                     >
@@ -407,7 +407,7 @@ const AddCustomDocumentForm: React.FC<Props> = ({
                   </button>
                 </div>
               ) : (
-                <label className="flex items-center justify-center gap-2 h-11 rounded-lg border border-dashed border-[#0f6b8f]/50 text-[#0a5473] dark:text-[#5db2c9] font-semibold hover:bg-[#0f6b8f]/10 transition-colors cursor-pointer">
+                <label className="flex items-center justify-center gap-2 h-11 rounded-lg border border-dashed border-[#2c84c4]/50 text-[#1d5fa8] dark:text-[#69bdd7] font-semibold hover:bg-[#2c84c4]/10 transition-colors cursor-pointer">
                   <FileUp className="w-4 h-4" />
                   Elegir archivo
                   <input

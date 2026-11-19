@@ -141,9 +141,9 @@ export const AuditLogView: React.FC = () => {
 
   const hasFilters = Boolean(searchTerm) || actionFilter !== 'ALL' || roleFilter !== 'ALL' || sectionFilter !== 'ALL';
   const fieldCls =
-    'w-full h-11 px-3.5 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#0f6b8f] focus:ring-2 focus:ring-[#0f6b8f]/30';
+    'w-full h-11 px-3.5 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30';
   const tileCls = 'rounded-2xl bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 p-3.5';
-  const labelCls = 'text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f6b8f] dark:text-[#5db2c9]';
+  const labelCls = 'text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]';
 
   const kpis = [
     { label: 'Total de registros', value: systemAuditLogs.length, hint: 'En la bitácora', icon: History },
@@ -231,7 +231,7 @@ export const AuditLogView: React.FC = () => {
             <button
               type="button"
               onClick={() => { setSearchTerm(''); setActionFilter('ALL'); setRoleFilter('ALL'); setSectionFilter('ALL'); }}
-              className="font-semibold text-[#0f6b8f] dark:text-[#5db2c9] hover:underline cursor-pointer"
+              className="font-semibold text-[#2c84c4] dark:text-[#69bdd7] hover:underline cursor-pointer"
             >
               Restablecer filtros
             </button>
@@ -254,11 +254,11 @@ export const AuditLogView: React.FC = () => {
                 <span className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full bg-gradient-action text-white text-xs font-semibold shadow-glow">
                   <Calendar className="w-3.5 h-3.5" /> {day}
                 </span>
-                <span className="flex-1 h-px bg-gradient-to-r from-[#0f6b8f]/40 to-transparent" />
+                <span className="flex-1 h-px bg-gradient-to-r from-[#2c84c4]/40 to-transparent" />
                 <span className="text-xs text-[#3a5274] dark:text-slate-400">{logs.length} {logs.length === 1 ? 'evento' : 'eventos'}</span>
               </div>
               <ol className="relative space-y-3 pl-6 sm:pl-9">
-                <span aria-hidden="true" className="absolute left-[7px] sm:left-[10px] top-3 bottom-3 w-px bg-gradient-to-b from-[#0f6b8f] via-[#5db2c9]/50 to-transparent" />
+                <span aria-hidden="true" className="absolute left-[7px] sm:left-[10px] top-3 bottom-3 w-px bg-gradient-to-b from-[#2c84c4] via-[#69bdd7]/50 to-transparent" />
                 {logs.map((log) => {
                   const meta = ACTION_META[log.action] || { label: log.action, icon: FileText };
                   const Icon = meta.icon;
@@ -266,31 +266,31 @@ export const AuditLogView: React.FC = () => {
                   const isEdit = log.action === 'EDICION_CAMPO';
                   return (
                     <li key={log.id} className="relative">
-                      <span aria-hidden="true" className="absolute -left-6 sm:-left-9 top-6 w-[15px] h-[15px] sm:w-5 sm:h-5 rounded-full bg-gradient-action ring-4 ring-[#0f6b8f]/15" />
+                      <span aria-hidden="true" className="absolute -left-6 sm:-left-9 top-6 w-[15px] h-[15px] sm:w-5 sm:h-5 rounded-full bg-gradient-action ring-4 ring-[#2c84c4]/15" />
                       <article className="fs-card lift rounded-[22px] p-4 sm:p-5 animate-fade-up">
                         <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
-                          <span className="w-11 h-11 rounded-2xl bg-[#0f6b8f]/10 dark:bg-[#0f6b8f]/20 text-[#0a5473] dark:text-[#5db2c9] grid place-items-center shrink-0 border border-[#0f6b8f]/20">
+                          <span className="w-11 h-11 rounded-2xl bg-[#2c84c4]/10 dark:bg-[#2c84c4]/20 text-[#1d5fa8] dark:text-[#69bdd7] grid place-items-center shrink-0 border border-[#2c84c4]/20">
                             <Icon className="w-5 h-5" />
                           </span>
                           <div className="min-w-0 flex-1 basis-[260px]">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="inline-flex items-center h-6 px-2.5 rounded-full bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/25 text-[11px] font-semibold text-[#0a5473] dark:text-[#5db2c9]">{meta.label}</span>
+                              <span className="inline-flex items-center h-6 px-2.5 rounded-full bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[11px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">{meta.label}</span>
                               {log.section && <span className="text-xs text-[#3a5274] dark:text-slate-400">{log.section}</span>}
                             </div>
                             <h3 className="mt-1.5 font-display text-base font-semibold text-[#0b1d3a] dark:text-white break-words">{log.fieldChanged}</h3>
                             <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#3a5274] dark:text-slate-400">
-                              <Building2 className="w-3.5 h-3.5 text-[#0f6b8f] dark:text-[#5db2c9]" />
+                              <Building2 className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />
                               <span className="font-semibold text-[#0b1d3a] dark:text-slate-100 break-words">{log.supplierName}</span>
-                              <span className="font-mono rounded-md px-1.5 py-0.5 bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9]">{log.fileNumber}</span>
+                              <span className="font-mono rounded-md px-1.5 py-0.5 bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7]">{log.fileNumber}</span>
                               <span className="font-mono">{log.supplierDoc}</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-3 sm:ml-auto">
                             <div className="text-right">
-                              <div className="flex items-center justify-end gap-1.5 text-xs font-semibold text-[#0b1d3a] dark:text-slate-100"><Clock className="w-3.5 h-3.5 text-[#0f6b8f] dark:text-[#5db2c9]" />{time}</div>
+                              <div className="flex items-center justify-end gap-1.5 text-xs font-semibold text-[#0b1d3a] dark:text-slate-100"><Clock className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" />{time}</div>
                               <div className="mt-0.5 flex items-center justify-end gap-1.5 text-xs text-[#3a5274] dark:text-slate-400">
                                 <span className="truncate max-w-[200px]">{log.user}</span>
-                                <span className={`px-1.5 h-5 inline-flex items-center rounded-md text-[10px] font-bold ${log.userRole === 'ADMIN' ? 'bg-gradient-action text-white' : 'bg-[#5db2c9]/25 text-[#0e6d8a] dark:text-[#5db2c9]'}`}>{log.userRole === 'ADMIN' ? 'ADMIN' : 'REVISOR'}</span>
+                                <span className={`px-1.5 h-5 inline-flex items-center rounded-md text-[10px] font-bold ${log.userRole === 'ADMIN' ? 'bg-gradient-action text-white' : 'bg-[#69bdd7]/25 text-[#0e6d8a] dark:text-[#69bdd7]'}`}>{log.userRole === 'ADMIN' ? 'ADMIN' : 'REVISOR'}</span>
                               </div>
                             </div>
                             {log.dossierId && (
@@ -317,7 +317,7 @@ export const AuditLogView: React.FC = () => {
                             ) : (
                               <div className="flex flex-wrap items-center gap-2 text-sm">
                                 <span className="px-2.5 min-h-7 py-1 inline-flex items-center rounded-lg bg-black/[0.05] dark:bg-white/10 text-[#3a5274] dark:text-slate-300 break-words">{String(log.oldValue ?? '—')}</span>
-                                <ArrowRight className="w-4 h-4 text-[#0f6b8f] dark:text-[#5db2c9] shrink-0" />
+                                <ArrowRight className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" />
                                 <span className="px-2.5 min-h-7 py-1 inline-flex items-center rounded-lg bg-gradient-action text-white font-semibold break-words">{String(log.newValue ?? '—')}</span>
                               </div>
                             )}
@@ -325,7 +325,7 @@ export const AuditLogView: React.FC = () => {
                           <div className={tileCls}>
                             <div className={`${labelCls} mb-2`}>Justificación</div>
                             <p className="flex gap-2 text-sm text-[#3a5274] dark:text-slate-300 leading-relaxed">
-                              <Quote className="w-4 h-4 shrink-0 mt-0.5 text-[#5db2c9]" />
+                              <Quote className="w-4 h-4 shrink-0 mt-0.5 text-[#69bdd7]" />
                               <span className="break-words min-w-0">{log.justification || 'Sin justificación registrada.'}</span>
                             </p>
                           </div>

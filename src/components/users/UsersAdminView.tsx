@@ -24,9 +24,9 @@ const ROLE_OPTIONS: Array<{ value: AssignableRole; title: string; sub: string }>
   { value: 'USUARIO', title: 'Usuario', sub: 'Sube documentos y consulta proveedores' },
 ];
 
-const labelCls = 'block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f6b8f] dark:text-[#5db2c9] mb-2';
+const labelCls = 'block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-2';
 const fieldCls =
-  'w-full h-11 px-3.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.1] dark:border-white/10 text-sm text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#0f6b8f] focus:ring-2 focus:ring-[#0f6b8f]/30';
+  'w-full h-11 px-3.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.1] dark:border-white/10 text-sm text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30';
 
 const roleLabel = (r: string) =>
   r === 'SUPERADMIN' || r === 'ADMIN' ? 'Superadministrador' : r === 'ADMINISTRADOR' ? 'Administrador' : 'Usuario';
@@ -234,7 +234,7 @@ export const UsersAdminView: React.FC = () => {
                   }}
                   title="Generar contraseña segura"
                   aria-label="Generar contraseña segura"
-                  className="w-9 h-9 grid place-items-center rounded-lg text-[#0f6b8f] hover:bg-[#0f6b8f]/10 cursor-pointer"
+                  className="w-9 h-9 grid place-items-center rounded-lg text-[#2c84c4] hover:bg-[#2c84c4]/10 cursor-pointer"
                 >
                   <Wand2 className="w-4 h-4" />
                 </button>
@@ -263,7 +263,7 @@ export const UsersAdminView: React.FC = () => {
                   onClick={() => setRole(o.value)}
                   aria-pressed={role === o.value}
                   className={`min-h-16 px-3 py-2 rounded-xl flex flex-col items-center justify-center leading-tight transition-all cursor-pointer ${
-                    role === o.value ? 'bg-gradient-action text-white shadow-glow' : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#0f6b8f]/10'
+                    role === o.value ? 'bg-gradient-action text-white shadow-glow' : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#2c84c4]/10'
                   }`}
                 >
                   <span className="text-sm font-semibold">{o.title}</span>
@@ -298,7 +298,7 @@ export const UsersAdminView: React.FC = () => {
               onClick={() => void load()}
               aria-label="Actualizar lista"
               title="Actualizar lista"
-              className="w-10 h-10 grid place-items-center rounded-xl border border-[#0f6b8f]/30 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 cursor-pointer"
+              className="w-10 h-10 grid place-items-center rounded-xl border border-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -345,14 +345,14 @@ export const UsersAdminView: React.FC = () => {
                           ) : u.mustChangePassword ? (
                             <span
                               title="La persona aún no ha cambiado la contraseña temporal"
-                              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-dashed border-[#0f6b8f]/60 text-[12px] font-semibold text-[#0a5473] dark:text-[#5db2c9]"
+                              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-dashed border-[#2c84c4]/60 text-[12px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7]"
                             >
                               <Clock className="w-3.5 h-3.5" /> Temporal sin cambiar
                             </span>
                           ) : (
                             <span
                               title="La persona ya definió su propia contraseña"
-                              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-[#0f6b8f]/12 text-[12px] font-semibold text-[#0a5473] dark:text-[#5db2c9]"
+                              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-[#2c84c4]/12 text-[12px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7]"
                             >
                               <KeyRound className="w-3.5 h-3.5" /> Contraseña propia
                             </span>
@@ -367,7 +367,7 @@ export const UsersAdminView: React.FC = () => {
                                 onClick={() => openEdit(u)}
                                 title="Editar usuario"
                                 aria-label={`Editar ${u.email}`}
-                                className="w-9 h-9 grid place-items-center rounded-xl border border-[#0f6b8f]/30 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 cursor-pointer"
+                                className="w-9 h-9 grid place-items-center rounded-xl border border-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 cursor-pointer"
                               >
                                 <Pencil className="w-4 h-4" />
                               </button>
@@ -432,7 +432,7 @@ export const UsersAdminView: React.FC = () => {
                       onClick={() => setERole(o.value)}
                       aria-pressed={eRole === o.value}
                       className={`min-h-16 px-3 py-2 rounded-xl flex flex-col items-center justify-center leading-tight transition-all cursor-pointer ${
-                        eRole === o.value ? 'bg-gradient-action text-white shadow-glow' : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#0f6b8f]/10'
+                        eRole === o.value ? 'bg-gradient-action text-white shadow-glow' : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#2c84c4]/10'
                       }`}
                     >
                       <span className="text-sm font-semibold">{o.title}</span>
@@ -454,7 +454,7 @@ export const UsersAdminView: React.FC = () => {
                     autoComplete="new-password"
                   />
                   <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center">
-                    <button type="button" onClick={() => { setEPass(generateStrongPassword()); setEShowPass(true); }} title="Generar contraseña segura" aria-label="Generar contraseña segura" className="w-9 h-9 grid place-items-center rounded-lg text-[#0f6b8f] hover:bg-[#0f6b8f]/10 cursor-pointer">
+                    <button type="button" onClick={() => { setEPass(generateStrongPassword()); setEShowPass(true); }} title="Generar contraseña segura" aria-label="Generar contraseña segura" className="w-9 h-9 grid place-items-center rounded-lg text-[#2c84c4] hover:bg-[#2c84c4]/10 cursor-pointer">
                       <Wand2 className="w-4 h-4" />
                     </button>
                     <button type="button" onClick={() => setEShowPass((v) => !v)} title={eShowPass ? 'Ocultar' : 'Mostrar'} aria-label={eShowPass ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="w-9 h-9 grid place-items-center rounded-lg text-[#6b84a3] hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer">
@@ -465,7 +465,7 @@ export const UsersAdminView: React.FC = () => {
                 <p className="mt-2 text-[11px] text-[#6b84a3]">Si la cambia, la persona deberá definir una propia en su próximo ingreso.</p>
               </div>
               <div className="flex items-center justify-end gap-2 pt-1">
-                <button type="button" onClick={() => setEditing(null)} className="h-11 px-5 rounded-xl border border-[#0f6b8f]/35 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 text-sm font-semibold cursor-pointer">Cancelar</button>
+                <button type="button" onClick={() => setEditing(null)} className="h-11 px-5 rounded-xl border border-[#2c84c4]/35 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold cursor-pointer">Cancelar</button>
                 <button type="submit" disabled={eSaving} className="h-11 px-5 rounded-xl bg-gradient-action text-white text-sm font-semibold shadow-glow hover:brightness-110 disabled:opacity-60 cursor-pointer inline-flex items-center gap-2">
                   {eSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {eSaving ? 'Guardando…' : 'Guardar cambios'}

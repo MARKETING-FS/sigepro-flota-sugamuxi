@@ -75,21 +75,21 @@ export const EmailNotificationCenter: React.FC = () => {
       case 'CORRECTION_REQUESTED':
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
-            <AlertCircle className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
+            <AlertCircle className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             Corrección Solicitada
           </span>
         );
       case 'DOSSIER_HABILITADO':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border border-[#0f6b8f]/30">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             Proveedor Habilitado
           </span>
         );
       case 'DOSSIER_APPROVED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border border-[#0f6b8f]/30">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             Expediente Aprobado
           </span>
         );
@@ -109,22 +109,22 @@ export const EmailNotificationCenter: React.FC = () => {
         );
       case 'SUBMISSION_CONFIRMATION':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border border-[#0f6b8f]/30">
-            <Clock className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
+            <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             Radicación Recibida
           </span>
         );
       case 'REGISTRATION_CODE':
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
+            <ShieldCheck className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             Código de Seguridad
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border border-black/10 dark:border-white/10">
-            <Mail className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
+            <Mail className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
             Notificación
           </span>
         );
@@ -177,10 +177,10 @@ export const EmailNotificationCenter: React.FC = () => {
         <div className="bg-white rounded-xl border border-black/10 dark:border-white/10 p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#3a5274] dark:text-slate-300">Total Notificaciones</span>
-            <Inbox className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
+            <Inbox className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
           </div>
           <div className="text-2xl font-black text-[#0b1d3a] dark:text-white mt-2">{totalEmails}</div>
-          <div className="text-[11px] text-[#0a5473] dark:text-[#5db2c9] font-medium mt-1">100% Entregados con membrete</div>
+          <div className="text-[11px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium mt-1">100% Entregados con membrete</div>
         </div>
 
         <div className="bg-white rounded-xl border border-black/10 dark:border-white/10 p-4 shadow-xs">
@@ -195,16 +195,16 @@ export const EmailNotificationCenter: React.FC = () => {
         <div className="bg-white rounded-xl border border-black/10 dark:border-white/10 p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#3a5274] dark:text-slate-300">Aprobaciones / Habilitados</span>
-            <CheckCircle2 className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
+            <CheckCircle2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
           </div>
           <div className="text-2xl font-black text-[#0b1d3a] dark:text-white mt-2">{approvedEmails}</div>
-          <div className="text-[11px] text-[#0a5473] dark:text-[#5db2c9] font-medium mt-1">Dictámenes favorables SIG</div>
+          <div className="text-[11px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium mt-1">Dictámenes favorables SIG</div>
         </div>
 
         <div className="bg-white rounded-xl border border-black/10 dark:border-white/10 p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#3a5274] dark:text-slate-300">Transiciones de Estado</span>
-            <RefreshCw className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
+            <RefreshCw className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
           </div>
           <div className="text-2xl font-black text-[#0b1d3a] dark:text-white mt-2">{statusEmails}</div>
           <div className="text-[11px] text-[#5d7392] dark:text-slate-400 font-medium mt-1">Trazabilidad de avance</div>
@@ -276,7 +276,7 @@ export const EmailNotificationCenter: React.FC = () => {
                   <tr
                     key={email.id}
                     className={`hover:bg-slate-50/80 transition-colors ${
-                      !email.read ? 'bg-[#0f6b8f]/10 font-medium' : ''
+                      !email.read ? 'bg-[#2c84c4]/10 font-medium' : ''
                     }`}
                   >
                     <td className="py-3.5 px-4 whitespace-nowrap">
@@ -300,7 +300,7 @@ export const EmailNotificationCenter: React.FC = () => {
                       </div>
                       {email.metadata?.detailedObservation && (
                         <div className="text-[11px] text-[#3a5274] dark:text-slate-300 bg-black/[0.04] dark:bg-white/[0.06] rounded px-2 py-0.5 mt-1 line-clamp-1 border border-black/10 dark:border-white/10">
-                          <strong className="text-[#0a5473] dark:text-[#5db2c9]">Observación:</strong> {email.metadata.detailedObservation}
+                          <strong className="text-[#1d5fa8] dark:text-[#69bdd7]">Observación:</strong> {email.metadata.detailedObservation}
                         </div>
                       )}
                     </td>
@@ -310,14 +310,14 @@ export const EmailNotificationCenter: React.FC = () => {
                         <Clock className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />
                         <span>{email.sentAt}</span>
                       </div>
-                      <span className="text-[10px] text-[#0a5473] dark:text-[#5db2c9] font-medium">✓ Entregado</span>
+                      <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium">✓ Entregado</span>
                     </td>
 
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleViewEmail(email)}
-                          className="px-2.5 py-1.5 bg-[#0f6b8f]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#0a5473] dark:text-[#5db2c9] font-semibold rounded-md flex items-center gap-1 border border-[#0f6b8f]/30 transition-colors"
+                          className="px-2.5 py-1.5 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] font-semibold rounded-md flex items-center gap-1 border border-[#2c84c4]/30 transition-colors"
                           title="Abrir vista de correo"
                         >
                           <Eye className="w-3.5 h-3.5" />

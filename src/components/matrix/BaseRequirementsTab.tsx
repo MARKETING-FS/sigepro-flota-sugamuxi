@@ -70,9 +70,9 @@ const DocPicker: React.FC<{
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="w-full flex items-center gap-3 px-4 min-h-14 py-2.5 text-left cursor-pointer hover:bg-[#0f6b8f]/[0.06] transition-colors"
+        className="w-full flex items-center gap-3 px-4 min-h-14 py-2.5 text-left cursor-pointer hover:bg-[#2c84c4]/[0.06] transition-colors"
       >
-        <span className={`w-9 h-9 rounded-xl grid place-items-center shrink-0 ${selected ? 'bg-gradient-action text-white shadow-glow' : 'bg-[#0f6b8f]/12 text-[#0a5473] dark:text-[#5db2c9]'}`}>
+        <span className={`w-9 h-9 rounded-xl grid place-items-center shrink-0 ${selected ? 'bg-gradient-action text-white shadow-glow' : 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7]'}`}>
           <FileText className="w-4 h-4" />
         </span>
         <span className="min-w-0 flex-1">
@@ -85,7 +85,7 @@ const DocPicker: React.FC<{
             <span className="block text-sm text-[#6b84a3]">Seleccione un documento del catálogo</span>
           )}
         </span>
-        <span className={`text-[#0f6b8f] dark:text-[#5db2c9] transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true">▾</span>
+        <span className={`text-[#2c84c4] dark:text-[#69bdd7] transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true">▾</span>
       </button>
 
       {open && (
@@ -99,7 +99,7 @@ const DocPicker: React.FC<{
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Buscar por nombre, código o categoría"
-                className="w-full h-10 pl-9 pr-3 text-sm rounded-xl bg-white dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#0f6b8f] focus:ring-2 focus:ring-[#0f6b8f]/30"
+                className="w-full h-10 pl-9 pr-3 text-sm rounded-xl bg-white dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30"
               />
             </div>
           </div>
@@ -109,7 +109,7 @@ const DocPicker: React.FC<{
             )}
             {groups.map(([cat, list]) => (
               <div key={cat} className="mb-1">
-                <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f6b8f] dark:text-[#5db2c9]">
+                <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                   {CATEGORY_LABEL[cat] || cat}
                 </div>
                 {list.map((d) => {
@@ -124,14 +124,14 @@ const DocPicker: React.FC<{
                         setQuery('');
                       }}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left cursor-pointer transition-colors ${
-                        active ? 'bg-[#0f6b8f]/15 dark:bg-[#0f6b8f]/25' : 'hover:bg-[#0f6b8f]/[0.08]'
+                        active ? 'bg-[#2c84c4]/15 dark:bg-[#2c84c4]/25' : 'hover:bg-[#2c84c4]/[0.08]'
                       }`}
                     >
                       <span className="min-w-0 flex-1">
                         <span className="block text-sm font-semibold text-[#0b1d3a] dark:text-white truncate">{d.name}</span>
                         <span className="block text-[11px] font-mono text-[#3a5274] dark:text-slate-400 truncate">{d.code}</span>
                       </span>
-                      {active && <Check className="w-4 h-4 text-[#0f6b8f] dark:text-[#5db2c9] shrink-0" strokeWidth={3} />}
+                      {active && <Check className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" strokeWidth={3} />}
                     </button>
                   );
                 })}
@@ -341,7 +341,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#e6edf6] dark:bg-[#072636]/70 p-1.5 rounded-2xl">
+        <div className="flex items-center gap-2 bg-[#e6edf6] dark:bg-[#071636]/70 p-1.5 rounded-2xl">
           <button
             onClick={() => setSelectedPersonType('NATURAL')}
             className={`flex items-center gap-2 px-5 py-2.5 text-[15px] font-bold rounded-xl transition-all cursor-pointer ${
@@ -376,7 +376,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
               <h3 className="text-xl font-bold text-white">
                 {activeBaseConfig.title || (selectedPersonType === 'NATURAL' ? 'Requisitos Base Persona Natural' : 'Requisitos Base Persona Jurídica')}
               </h3>
-              <p className="text-[15px] text-[#dbeff7] font-normal">
+              <p className="text-[15px] text-[#dbe9f7] font-normal">
                 {activeBaseConfig.description}
               </p>
             </div>
@@ -414,7 +414,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
 
         {!isEditingGuideline ? (
           <div className="p-4 bg-[#061433]/50 rounded-2xl text-[15px] text-white leading-relaxed font-normal">
-            <span className="font-bold text-[#aadff4] block mb-1">Fundamento & Pauta Normativa Oficial:</span>
+            <span className="font-bold text-[#9fd8ff] block mb-1">Fundamento & Pauta Normativa Oficial:</span>
             {activeBaseConfig.legalBasisNotes || activeBaseConfig.description || 'Sin pauta normativa registrada.'}
           </div>
         ) : (
@@ -469,7 +469,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
             <span className="text-lg font-bold text-[#0b1d3a]">
               Documentos base · {selectedPersonType === 'NATURAL' ? 'Persona natural' : 'Persona jurídica'}
             </span>
-            <span className="text-sm font-semibold text-[#0a5473] bg-[#e1f1f8] dark:bg-[#124f67] dark:text-white px-3 py-1 rounded-full">
+            <span className="text-sm font-semibold text-[#1d5fa8] bg-[#e1ecf8] dark:bg-[#123267] dark:text-white px-3 py-1 rounded-full">
               {(activeBaseConfig.mandatoryDocs || []).length + 2} Obligatorios Totales
             </span>
             <span className="text-sm font-semibold text-[#3a5274] bg-[#eef2f7] dark:bg-[#22385f] dark:text-[#c9d6ea] px-3 py-1 rounded-full">
@@ -486,7 +486,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                 placeholder="Buscar documento base..."
                 value={searchDocQuery}
                 onChange={(e) => setSearchDocQuery(e.target.value)}
-                className="pl-10 pr-3 h-11 bg-white dark:bg-[#0a2c40] border border-[#d9e3ef] rounded-2xl text-[15px] text-[#0b1d3a] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f6b8f]/40 w-64"
+                className="pl-10 pr-3 h-11 bg-white dark:bg-[#0a1c44] border border-[#d9e3ef] rounded-2xl text-[15px] text-[#0b1d3a] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2b78b3]/40 w-64"
               />
             </div>
 
@@ -502,7 +502,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
         </div>
 
         <div>
-          <div className="sm:hidden px-3 py-1.5 bg-[#0f6b8f]/10 dark:bg-blue-950/40 border-b border-black/10 dark:border-white/10 dark:border-slate-800 text-[10px] text-[#0a5473] dark:text-[#5db2c9] dark:text-cyan-300 flex items-center justify-between font-medium">
+          <div className="sm:hidden px-3 py-1.5 bg-[#2c84c4]/10 dark:bg-blue-950/40 border-b border-black/10 dark:border-white/10 dark:border-slate-800 text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-cyan-300 flex items-center justify-between font-medium">
             <span>Desliza horizontalmente para ver todas las columnas</span>
             <span className="font-bold">↔</span>
           </div>
@@ -519,7 +519,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
             </thead>
             <tbody className={tbodyCls}>
               <tr>
-                <td colSpan={5} className="px-4 py-2.5 bg-[#0f6b8f]/[0.07] dark:bg-white/[0.04] text-[13px] font-bold text-[#0a5473] dark:text-[#5db2c9]">
+                <td colSpan={5} className="px-4 py-2.5 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] text-[13px] font-bold text-[#1d5fa8] dark:text-[#69bdd7]">
                   Formatos institucionales <span className="font-normal text-[#5d7392] dark:text-slate-400">· los diligencia todo proveedor, no se pueden quitar</span>
                 </td>
               </tr>
@@ -527,10 +527,10 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
               <tr className={rowCls}>
                 <td className="px-4 py-3">
                   <div className="font-bold text-[#0b1d3a] flex items-center gap-2 text-base">
-                    <Lock className="w-4 h-4 text-[#0a5473] shrink-0" />
+                    <Lock className="w-4 h-4 text-[#1d5fa8] shrink-0" />
                     <span>{form009Def?.name || 'Formulario de Inscripción y Actualización (FS.GA-FOR-009)'}</span>
                   </div>
-                  <div className="text-[13px] text-[#0a5473] tabular-nums flex items-center gap-2 mt-0.5">
+                  <div className="text-[13px] text-[#1d5fa8] tabular-nums flex items-center gap-2 mt-0.5">
                     <span>FS.GA-FOR-009</span>
                     <span>&bull;</span>
                     <span className="font-bold">v{form009Inst?.currentVersion || '14.0'}</span>
@@ -555,10 +555,10 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
               <tr className={rowCls}>
                 <td className="px-4 py-3">
                   <div className="font-bold text-[#0b1d3a] flex items-center gap-2 text-base">
-                    <Lock className="w-4 h-4 text-[#0a5473] shrink-0" />
+                    <Lock className="w-4 h-4 text-[#1d5fa8] shrink-0" />
                     <span>{form039Def?.name || 'Autorización de Tratamiento de Datos Personales (FS.GA-FOR-039)'}</span>
                   </div>
-                  <div className="text-[13px] text-[#0a5473] tabular-nums flex items-center gap-2 mt-0.5">
+                  <div className="text-[13px] text-[#1d5fa8] tabular-nums flex items-center gap-2 mt-0.5">
                     <span>FS.GA-FOR-039</span>
                     <span>&bull;</span>
                     <span className="font-bold">v{form039Inst?.currentVersion || '1.0'}</span>
@@ -599,7 +599,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                     <React.Fragment key={doc.code}>
                     {startsGroup && (
                       <tr>
-                        <td colSpan={5} className="px-4 py-2.5 bg-[#0f6b8f]/[0.07] dark:bg-white/[0.04] text-[13px] font-bold text-[#0a5473] dark:text-[#5db2c9]">
+                        <td colSpan={5} className="px-4 py-2.5 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] text-[13px] font-bold text-[#1d5fa8] dark:text-[#69bdd7]">
                           {groupOf(doc.code) === 'MANDATORY' ? 'Obligatorios' : 'Opcionales'}{' '}
                           <span className="font-normal text-[#5d7392] dark:text-slate-400">
                             {groupOf(doc.code) === 'MANDATORY'
@@ -624,7 +624,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                                 </span>
                               )}
                               {doc.requiresExpirationDate && (
-                                <span className="px-1.5 py-0.5 bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] text-xs font-bold rounded">
+                                <span className="px-1.5 py-0.5 bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded">
                                   Caducidad
                                 </span>
                               )}
@@ -639,7 +639,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                       </td>
 
                       <td className="px-4 py-3 text-center">
-                        <div className="inline-flex items-center bg-[#e6edf6] dark:bg-[#072636]/70 dark:ring-1 dark:ring-[#3fadd8] p-1 rounded-xl text-sm font-semibold">
+                        <div className="inline-flex items-center bg-[#e6edf6] dark:bg-[#071636]/70 dark:ring-1 dark:ring-[#3f7fd8] p-1 rounded-xl text-sm font-semibold">
                           <button
                             onClick={() => {
                               toggleBaseDocumentRequirement(selectedPersonType, doc.code, 'MANDATORY');
@@ -647,7 +647,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                             }}
                             className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                               status === 'MANDATORY'
-                                ? 'bg-[#0a4561] dark:bg-[#1a8bb0] text-white shadow-xs'
+                                ? 'bg-[#0f3d75] dark:bg-[#1f7ae8] text-white shadow-xs'
                                 : 'text-[#3a5274] dark:text-[#b4c7e3] hover:text-[#0b1d3a] dark:hover:text-white'
                             }`}
                           >
@@ -660,7 +660,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                             }}
                             className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                               status === 'OPTIONAL'
-                                ? 'bg-[#2fa7d6] text-white shadow-xs'
+                                ? 'bg-[#2f86d6] text-white shadow-xs'
                                 : 'text-[#3a5274] dark:text-[#b4c7e3] hover:text-[#0b1d3a] dark:hover:text-white'
                             }`}
                           >
@@ -764,7 +764,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
 
             <div className="p-6 space-y-5">
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f6b8f] dark:text-[#5db2c9] mb-2">
+                <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-2">
                   1. Documento del catálogo maestro
                 </label>
                 {availableDocsToAdd.length === 0 ? (
@@ -777,7 +777,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
               </div>
 
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f6b8f] dark:text-[#5db2c9] mb-2">
+                <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-2">
                   2. Tipo de exigibilidad en base
                 </label>
                 <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-black/[0.04] dark:bg-white/[0.05]">
@@ -793,7 +793,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                       className={`min-h-14 px-3 py-2 rounded-xl flex flex-col items-center justify-center leading-tight transition-all cursor-pointer ${
                         addMode === mode
                           ? 'bg-gradient-action text-white shadow-glow'
-                          : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#0f6b8f]/10'
+                          : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#2c84c4]/10'
                       }`}
                     >
                       <span className="text-sm font-semibold">{title}</span>
@@ -810,7 +810,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                     setIsAddDocModalOpen(false);
                     onOpenDocModal();
                   }}
-                  className="text-sm text-[#0f6b8f] dark:text-[#5db2c9] hover:underline font-semibold cursor-pointer text-left"
+                  className="text-sm text-[#2c84c4] dark:text-[#69bdd7] hover:underline font-semibold cursor-pointer text-left"
                 >
                   + Crear nuevo tipo documental
                 </button>
@@ -819,7 +819,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsAddDocModalOpen(false)}
-                    className="h-11 px-5 rounded-xl border border-[#0f6b8f]/35 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 text-sm font-semibold cursor-pointer"
+                    className="h-11 px-5 rounded-xl border border-[#2c84c4]/35 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -940,7 +940,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                     type="checkbox"
                     checked={editDocRequiresExp}
                     onChange={(e) => setEditDocRequiresExp(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#0a5473] dark:text-[#5db2c9] focus:ring-blue-500"
+                    className="w-4 h-4 rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500"
                   />
                   <span>Requiere que el proveedor ingrese Fecha de Caducidad / Vencimiento</span>
                 </label>

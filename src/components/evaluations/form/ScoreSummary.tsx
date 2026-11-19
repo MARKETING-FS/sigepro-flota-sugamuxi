@@ -30,7 +30,7 @@ interface ScoreSummaryProps {
 
 const toneCls: Record<Verdict['tone'], string> = {
   ok: 'bg-white text-[#0b1d3a]',
-  warn: 'bg-[#5db2c9] text-[#0b1d3a]',
+  warn: 'bg-[#69bdd7] text-[#0b1d3a]',
   bad: 'bg-red-500 text-white',
   pending: 'bg-white/20 text-white',
 };
@@ -127,7 +127,7 @@ export const ScoreSummary: React.FC<ScoreSummaryProps> = ({
               <button
                 type="button"
                 onClick={() => onJump(it.id)}
-                className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left hover:bg-[#0f6b8f]/[0.07] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6b8f]/50"
+                className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left hover:bg-[#2c84c4]/[0.07] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c84c4]/50"
               >
                 <span
                   className={`w-6 h-6 rounded-full grid place-items-center shrink-0 text-[11px] font-semibold tabular-nums ${

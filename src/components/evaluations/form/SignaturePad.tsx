@@ -98,7 +98,7 @@ export const SignaturePad = forwardRef<SignaturePadHandle, SignaturePadProps>(({
 
   return (
     <div>
-      <div className="relative rounded-xl bg-white border border-[#0f6b8f]/30 overflow-hidden">
+      <div className="relative rounded-xl bg-white border border-[#2c84c4]/30 overflow-hidden">
         <canvas
           ref={canvasRef}
           onPointerDown={down}
@@ -121,7 +121,7 @@ export const SignaturePad = forwardRef<SignaturePadHandle, SignaturePadProps>(({
           type="button"
           onClick={clear}
           disabled={!hasInk}
-          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
           <Eraser className="w-4 h-4" /> Borrar y empezar de nuevo
         </button>

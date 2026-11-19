@@ -60,7 +60,7 @@ export const Doc006Section: React.FC<Doc006SectionProps> = ({ points, notes, onP
                       className={`text-left rounded-xl border px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-150 cursor-pointer ${focusRing} ${
                         on
                           ? 'border-transparent bg-gradient-action text-white shadow-glow'
-                          : 'border-black/[0.1] dark:border-white/10 hover:border-[#0f6b8f]/60 hover:bg-[#0f6b8f]/[0.05]'
+                          : 'border-black/[0.1] dark:border-white/10 hover:border-[#2c84c4]/60 hover:bg-[#2c84c4]/[0.05]'
                       }`}
                     >
                       <span className="block font-display text-xl font-semibold tabular-nums leading-none">{opt.points}</span>

@@ -31,13 +31,13 @@ export const FlotaSugamuxiEmblem: React.FC<{
       >
         <defs>
           <linearGradient id="fsGradPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#5db2c9" />
-            <stop offset="50%" stopColor="#0f6b8f" />
-            <stop offset="100%" stopColor="#0a3a52" />
+            <stop offset="0%" stopColor="#38bdf8" />
+            <stop offset="50%" stopColor="#0284c7" />
+            <stop offset="100%" stopColor="#1e3a8a" />
           </linearGradient>
           <linearGradient id="fsGradSecondary" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#1a8bb0" />
-            <stop offset="100%" stopColor="#5db2c9" />
+            <stop offset="0%" stopColor="#0ea5e9" />
+            <stop offset="100%" stopColor="#60a5fa" />
           </linearGradient>
         </defs>
         <rect
@@ -47,7 +47,7 @@ export const FlotaSugamuxiEmblem: React.FC<{
           height="92"
           rx="22"
           fill={isDark ? '#0b1329' : '#f0f7ff'}
-          stroke={isDark ? '#0a3a52' : '#cbe7ef'}
+          stroke={isDark ? '#1e3a8a' : '#bae6fd'}
           strokeWidth="2.5"
         />
         <path
@@ -66,7 +66,7 @@ export const FlotaSugamuxiEmblem: React.FC<{
           d="M 72 40 C 66 36 58 37 54 41 C 50 45 52 50 58 53 C 68 58 74 63 70 71 C 66 79 54 82 44 79 C 39 77 36 74 35 70 C 39 71 44 71 48 70 C 56 68 60 64 61 59 C 62 55 57 52 50 48 C 42 43 42 35 48 29 C 55 23 68 24 76 30 C 76 33 74 37 72 40 Z"
           fill="url(#fsGradPrimary)"
         />
-        <circle cx="74" cy="32" r="4.5" fill="#5db2c9" />
+        <circle cx="74" cy="32" r="4.5" fill="#38bdf8" />
       </svg>
     );
   }
@@ -121,7 +121,7 @@ export const FlotaSugamuxiLogo: React.FC<LogoProps> = ({
             SIGEPRO
           </span>
           {showSubtitle && (
-            <span className={`mt-1 font-medium ${size === 'lg' || size === 'xl' ? 'text-[13px]' : 'text-[11px]'} ${isDark ? 'text-[#7fcfee]' : 'text-fs-blue'}`}>
+            <span className={`mt-1 font-medium ${size === 'lg' || size === 'xl' ? 'text-[13px]' : 'text-[11px]'} ${isDark ? 'text-[#7fc7ee]' : 'text-fs-blue'}`}>
               Flota Sugamuxi S.A.
             </span>
           )}

@@ -245,7 +245,7 @@ export const BancoProveedoresView: React.FC = () => {
             </select></IconField>
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-2.5 h-11 px-6 rounded-2xl bg-[#0a4561] hover:bg-[#0b455c] dark:bg-[#0f5b79] dark:ring-1 dark:ring-[#6cc8ed] dark:shadow-[0_0_18px_-4px_rgba(60,150,255,0.8)] text-white text-[15px] font-semibold transition-colors cursor-pointer whitespace-nowrap shadow-[0_8px_18px_-10px_rgba(10,69,97,0.95)]"
+              className="inline-flex items-center justify-center gap-2.5 h-11 px-6 rounded-2xl bg-[#0f3d75] hover:bg-[#0b2f5c] dark:bg-[#0e3a7a] dark:ring-1 dark:ring-[#5aa8ff] dark:shadow-[0_0_18px_-4px_rgba(60,150,255,0.8)] text-white text-[15px] font-semibold transition-colors cursor-pointer whitespace-nowrap shadow-[0_8px_18px_-10px_rgba(15,61,117,0.95)]"
               onClick={() => setShowMoreFilters(!showMoreFilters)}
               aria-expanded={showMoreFilters}
             >

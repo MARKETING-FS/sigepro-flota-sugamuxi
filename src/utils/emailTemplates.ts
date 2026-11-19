@@ -76,8 +76,8 @@ export const generateEmailContent = (
             <p style="margin: 0 0 6px 0; color: #1e293b;"><strong>Documento Observado:</strong> <span style="color: #0f172a;">${documentName || 'Documento soporte'}</span></p>
             <p style="margin: 0 0 6px 0; color: #1e293b;"><strong>Sección / Numeral / Página:</strong> <span style="color: #b45309; font-weight: 600;">${correction?.sectionOrPage || 'General'}</span></p>
             <p style="margin: 0 0 6px 0; color: #1e293b;"><strong>Motivo de la Observación:</strong> <span style="color: #b45309; font-weight: 600;">${correction?.reason || 'Información incompleta'}</span></p>
-            <div style="margin-top: 10px; padding: 10px; background-color: #f8fafc; border-left: 3px solid #1a8bb0; border-radius: 2px;">
-              <strong style="color: #0a3a52; display: block; font-size: 12px; text-transform: uppercase;">Detalle de la Observación del Revisor:</strong>
+            <div style="margin-top: 10px; padding: 10px; background-color: #f8fafc; border-left: 3px solid #3b82f6; border-radius: 2px;">
+              <strong style="color: #1e3a8a; display: block; font-size: 12px; text-transform: uppercase;">Detalle de la Observación del Revisor:</strong>
               <p style="margin: 4px 0 0 0; color: #334155; font-style: italic; font-size: 13px;">
                 "${correction?.detailedObservation || reviewerNotes || 'Por favor revisar el documento cargado y actualizar la información correspondiente.'}"
               </p>
@@ -105,9 +105,9 @@ export const generateEmailContent = (
       subject = `Notificación de Estado: Su Expediente ${fileNumber} cambió a "${getStatusLabel(newStatus)}" - Flota Sugamuxi S.A.`;
       snippet = `El estado de su solicitud de vinculación ha sido actualizado a ${getStatusLabel(newStatus)}.`;
 
-      let statusColor = '#0f6b8f';
-      let statusBg = '#eaf4f7';
-      let statusBorder = '#cbe7ef';
+      let statusColor = '#2563eb';
+      let statusBg = '#eff6ff';
+      let statusBorder = '#bfdbfe';
 
       if (isApproved) {
         statusColor = '#15803d';
@@ -196,7 +196,7 @@ export const generateEmailContent = (
           <p style="font-size: 13px; color: #475569; margin: 0 0 12px 0;">
             Utilice el siguiente código de seguridad de 6 dígitos para validar su cuenta en el Portal de Proveedores:
           </p>
-          <div style="display: inline-block; padding: 12px 24px; background-color: #0a3a52; color: #ffffff; font-family: monospace; font-size: 24px; font-weight: 800; letter-spacing: 6px; border-radius: 8px;">
+          <div style="display: inline-block; padding: 12px 24px; background-color: #1e3a8a; color: #ffffff; font-family: monospace; font-size: 24px; font-weight: 800; letter-spacing: 6px; border-radius: 8px;">
             ${verificationCode || '849201'}
           </div>
           <p style="font-size: 11px; color: #94a3b8; margin: 12px 0 0 0;">
@@ -269,11 +269,11 @@ export const generateEmailContent = (
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #cbd5e1; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
     
     <!-- Institutional Top Header -->
-    <div style="background-color: #0f172a; padding: 20px 24px; border-bottom: 3px solid #0f6b8f;">
+    <div style="background-color: #0f172a; padding: 20px 24px; border-bottom: 3px solid #2563eb;">
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
           <td>
-            <div style="display: inline-block; background-color: #0f6b8f; color: #ffffff; font-weight: 900; font-size: 16px; font-style: italic; width: 36px; height: 36px; line-height: 36px; text-align: center; border-radius: 4px; vertical-align: middle; margin-right: 10px;">
+            <div style="display: inline-block; background-color: #2563eb; color: #ffffff; font-weight: 900; font-size: 16px; font-style: italic; width: 36px; height: 36px; line-height: 36px; text-align: center; border-radius: 4px; vertical-align: middle; margin-right: 10px;">
               FS
             </div>
             <div style="display: inline-block; vertical-align: middle;">
@@ -282,7 +282,7 @@ export const generateEmailContent = (
             </div>
           </td>
           <td style="text-align: right;">
-            <span style="background-color: #1e293b; color: #8cc7d8; font-size: 10px; font-family: monospace; padding: 4px 8px; border-radius: 4px; border: 1px solid #334155;">
+            <span style="background-color: #1e293b; color: #93c5fd; font-size: 10px; font-family: monospace; padding: 4px 8px; border-radius: 4px; border: 1px solid #334155;">
               ${fileNumber}
             </span>
           </td>
@@ -310,7 +310,7 @@ export const generateEmailContent = (
 
       <!-- Access Portal Button -->
       <div style="text-align: center; margin: 28px 0 20px 0;">
-        <a href="#portal" style="display: inline-block; background-color: #0f6b8f; color: #ffffff; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 24px; border-radius: 6px; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
+        <a href="#portal" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 24px; border-radius: 6px; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
           Acceder al Portal de Proveedores Flota Sugamuxi
         </a>
       </div>
@@ -324,7 +324,7 @@ export const generateEmailContent = (
         </p>
         <p style="margin: 0 0 2px 0;">Departamento de Compras, Contratación y Gestión de Calidad</p>
         <p style="margin: 0 0 2px 0;">Flota Sugamuxi S.A. &bull; Terminal de Transportes, Sogamoso, Boyacá</p>
-        <p style="margin: 0;">PBX: (608) 770-2200 Ext. 104 | Correo: <a href="mailto:proveedores@flotasugamuxi.com" style="color: #0f6b8f; text-decoration: none;">proveedores@flotasugamuxi.com</a></p>
+        <p style="margin: 0;">PBX: (608) 770-2200 Ext. 104 | Correo: <a href="mailto:proveedores@flotasugamuxi.com" style="color: #2563eb; text-decoration: none;">proveedores@flotasugamuxi.com</a></p>
       </div>
 
     </div>

@@ -79,15 +79,15 @@ export const SarlaftUpload: React.FC<Props> = ({ file, approved, error, onFile, 
             setDragging(false);
             pick(e.dataTransfer.files?.[0]);
           }}
-          className={`w-full rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0a5473] ${
+          className={`w-full rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d5fa8] ${
             error
               ? 'border-red-500 bg-red-50/60 dark:bg-red-950/20'
               : dragging
-              ? 'border-[#0a5473] bg-[#e6f2f6] dark:bg-[#0b3347]'
-              : 'border-[#b9c8dc] dark:border-white/25 bg-[#f6f9fd] dark:bg-white/[0.03] hover:border-[#0a5473] hover:bg-[#e6f2f6] dark:hover:bg-[#0b3347]'
+              ? 'border-[#1d5fa8] bg-[#eaf2fb] dark:bg-[#0c2350]'
+              : 'border-[#b9c8dc] dark:border-white/25 bg-[#f6f9fd] dark:bg-white/[0.03] hover:border-[#1d5fa8] hover:bg-[#eaf2fb] dark:hover:bg-[#0c2350]'
           }`}
         >
-          <span className="mx-auto mb-3 grid place-items-center w-12 h-12 rounded-2xl bg-white dark:bg-white/10 text-[#0a5473] dark:text-[#5db2c9] shadow-sm">
+          <span className="mx-auto mb-3 grid place-items-center w-12 h-12 rounded-2xl bg-white dark:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] shadow-sm">
             <Upload className="w-6 h-6" strokeWidth={1.8} />
           </span>
           <span className="block text-[15px] font-semibold text-[#0b1d3a] dark:text-white">Suba el PDF de la consulta SARLAFT</span>
@@ -98,12 +98,12 @@ export const SarlaftUpload: React.FC<Props> = ({ file, approved, error, onFile, 
       ) : (
         <div
           className={`rounded-2xl border p-4 sm:p-5 ${
-            error ? 'border-red-500 bg-red-50/60 dark:bg-red-950/20' : approved ? 'border-[#0a5473] bg-[#e6f2f6] dark:bg-[#0b3347] dark:border-[#5ec3eb]' : 'border-[#d9e3ef] dark:border-white/15 bg-white dark:bg-white/[0.03]'
+            error ? 'border-red-500 bg-red-50/60 dark:bg-red-950/20' : approved ? 'border-[#1d5fa8] bg-[#eaf2fb] dark:bg-[#0c2350] dark:border-[#4a9bff]' : 'border-[#d9e3ef] dark:border-white/15 bg-white dark:bg-white/[0.03]'
           }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex items-center gap-3.5 min-w-0 flex-1">
-              <span className="grid place-items-center w-12 h-12 shrink-0 rounded-xl bg-[#e6f2f6] dark:bg-white/10 text-[#0a5473] dark:text-[#5db2c9]">
+              <span className="grid place-items-center w-12 h-12 shrink-0 rounded-xl bg-[#eaf2fb] dark:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7]">
                 <FileText className="w-6 h-6" strokeWidth={1.7} />
               </span>
               <div className="min-w-0">
@@ -117,14 +117,14 @@ export const SarlaftUpload: React.FC<Props> = ({ file, approved, error, onFile, 
               <button
                 type="button"
                 onClick={() => setViewing(true)}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-[#d6e0ec] dark:border-white/20 bg-white dark:bg-white/5 text-sm font-semibold text-[#0b1d3a] dark:text-white hover:bg-[#eaf4f7] dark:hover:bg-white/10 cursor-pointer"
+                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-[#d6e0ec] dark:border-white/20 bg-white dark:bg-white/5 text-sm font-semibold text-[#0b1d3a] dark:text-white hover:bg-[#eef5fc] dark:hover:bg-white/10 cursor-pointer"
               >
                 <Eye className="w-4 h-4" /> Ver
               </button>
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-[#d6e0ec] dark:border-white/20 bg-white dark:bg-white/5 text-sm font-semibold text-[#0b1d3a] dark:text-white hover:bg-[#eaf4f7] dark:hover:bg-white/10 cursor-pointer"
+                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-[#d6e0ec] dark:border-white/20 bg-white dark:bg-white/5 text-sm font-semibold text-[#0b1d3a] dark:text-white hover:bg-[#eef5fc] dark:hover:bg-white/10 cursor-pointer"
               >
                 <RefreshCw className="w-4 h-4" /> Reemplazar
               </button>
@@ -133,7 +133,7 @@ export const SarlaftUpload: React.FC<Props> = ({ file, approved, error, onFile, 
 
           <div className="mt-4 pt-4 border-t border-[#d9e3ef] dark:border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {approved ? (
-              <p className="inline-flex items-center gap-2 text-sm font-semibold text-[#0a4561] dark:text-[#5db2c9]">
+              <p className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f3d75] dark:text-[#69bdd7]">
                 <BadgeCheck className="w-5 h-5" /> Consulta aprobada: sin coincidencias en las listas.
               </p>
             ) : (
@@ -143,7 +143,7 @@ export const SarlaftUpload: React.FC<Props> = ({ file, approved, error, onFile, 
               <button
                 type="button"
                 onClick={onApprove}
-                className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-[#0a4561] hover:bg-[#0b455c] dark:bg-[#1a8bb0] dark:hover:bg-[#37b5e6] text-white text-[15px] font-bold cursor-pointer shadow-[0_6px_14px_-8px_rgba(10,69,97,0.9)]"
+                className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-[#0f3d75] hover:bg-[#0b2f5c] dark:bg-[#1f7ae8] dark:hover:bg-[#2b86f2] text-white text-[15px] font-bold cursor-pointer shadow-[0_6px_14px_-8px_rgba(15,61,117,0.9)]"
               >
                 <ShieldCheck className="w-5 h-5" /> Aprobar
               </button>
@@ -164,7 +164,7 @@ export const SarlaftUpload: React.FC<Props> = ({ file, approved, error, onFile, 
           <div
             role="dialog"
             aria-label={`Vista del PDF ${file.name}`}
-            className="flex flex-col w-full max-w-5xl h-[90vh] rounded-2xl overflow-hidden bg-white dark:bg-[#0a2c40] shadow-2xl"
+            className="flex flex-col w-full max-w-5xl h-[90vh] rounded-2xl overflow-hidden bg-white dark:bg-[#0a1c44] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-[#e3eaf3] dark:border-white/15">
@@ -173,7 +173,7 @@ export const SarlaftUpload: React.FC<Props> = ({ file, approved, error, onFile, 
                 type="button"
                 onClick={() => setViewing(false)}
                 aria-label="Cerrar"
-                className="grid place-items-center w-9 h-9 rounded-lg hover:bg-[#eaf4f7] dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white cursor-pointer"
+                className="grid place-items-center w-9 h-9 rounded-lg hover:bg-[#eef5fc] dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>

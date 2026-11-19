@@ -14,7 +14,7 @@ export const FormActions: React.FC<FormActionsProps> = ({ canSubmit, blockedReas
   <div className="space-y-3">
     {!canSubmit && blockedReason && (
       <p className="text-xs text-[#3a5274] dark:text-slate-300 flex items-start gap-1.5" role="status">
-        <Info className="w-4 h-4 text-[#0f6b8f] dark:text-[#5db2c9] shrink-0" />
+        <Info className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" />
         {blockedReason}
       </p>
     )}
@@ -22,7 +22,7 @@ export const FormActions: React.FC<FormActionsProps> = ({ canSubmit, blockedReas
       <button
         type="button"
         onClick={onClose}
-        className="h-11 px-4 rounded-xl border border-[#0f6b8f]/35 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 text-sm font-semibold transition-colors cursor-pointer"
+        className="h-11 px-4 rounded-xl border border-[#2c84c4]/35 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold transition-colors cursor-pointer"
       >
         Cancelar
       </button>

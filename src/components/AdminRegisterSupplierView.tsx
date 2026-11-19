@@ -699,7 +699,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setCurrentStep((prev) => Math.max(prev - 1, 1))}
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 h-11 px-5 rounded-xl border border-[#d6e0ec] dark:border-white/20 bg-white dark:bg-white/5 text-[15px] font-semibold text-[#0b1d3a] dark:text-white hover:bg-[#eaf4f7] dark:hover:bg-white/10 cursor-pointer"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 h-11 px-5 rounded-xl border border-[#d6e0ec] dark:border-white/20 bg-white dark:bg-white/5 text-[15px] font-semibold text-[#0b1d3a] dark:text-white hover:bg-[#eef5fc] dark:hover:bg-white/10 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" /> Anterior
               </button>
@@ -710,7 +710,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveView('bancoProveedores')}
-              className="inline-flex items-center justify-center h-11 px-5 rounded-xl text-[15px] font-semibold text-[#3a5274] dark:text-slate-300 hover:bg-[#eaf4f7] dark:hover:bg-white/10 cursor-pointer"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-xl text-[15px] font-semibold text-[#3a5274] dark:text-slate-300 hover:bg-[#eef5fc] dark:hover:bg-white/10 cursor-pointer"
             >
               Cancelar
             </button>

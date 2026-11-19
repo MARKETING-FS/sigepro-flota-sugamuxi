@@ -99,10 +99,10 @@ export const SetupCard: React.FC<SetupCardProps> = ({
               {isSupplierActive ? 'Habilitado' : getProcessStatusLabel(selectedDossier.processStatus)}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-[#0f6b8f] dark:text-[#5db2c9]" /> Registrado el {createdOn}
+              <Calendar className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" /> Registrado el {createdOn}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-[#0f6b8f] dark:text-[#5db2c9]" /> {reviewerName}
+              <UserCheck className="w-3.5 h-3.5 text-[#2c84c4] dark:text-[#69bdd7]" /> {reviewerName}
             </span>
           </div>
         )}
@@ -123,7 +123,7 @@ export const SetupCard: React.FC<SetupCardProps> = ({
                 aria-checked={o.on}
                 onClick={o.set}
                 className={`h-12 rounded-lg flex flex-col items-center justify-center leading-tight transition-colors cursor-pointer ${focusRing} ${
-                  o.on ? chipOn : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#0f6b8f]/10'
+                  o.on ? chipOn : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#2c84c4]/10'
                 }`}
               >
                 <span className="text-sm font-semibold">{o.title}</span>
@@ -152,7 +152,7 @@ export const SetupCard: React.FC<SetupCardProps> = ({
       </p>
 
       {isAnnual && (
-        <div className="rounded-xl bg-[#0f6b8f]/[0.07] dark:bg-[#0f6b8f]/10 border border-[#0f6b8f]/20 p-4 space-y-3">
+        <div className="rounded-xl bg-[#2c84c4]/[0.07] dark:bg-[#2c84c4]/10 border border-[#2c84c4]/20 p-4 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="text-sm font-semibold text-[#0b1d3a] dark:text-white">¿Qué año se califica?</div>

@@ -62,7 +62,7 @@ export const CriterionShell: React.FC<CriterionShellProps> = ({
             <button
               type="button"
               onClick={() => setExpanded((v) => !v)}
-              className="mt-1 text-xs font-semibold text-[#0a5473] dark:text-[#5db2c9] hover:underline underline-offset-2 cursor-pointer"
+              className="mt-1 text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline underline-offset-2 cursor-pointer"
             >
               {expanded ? 'Ver menos' : 'Ver completo'}
             </button>
@@ -87,7 +87,7 @@ export const CriterionShell: React.FC<CriterionShellProps> = ({
           <button
             type="button"
             onClick={() => setNoteOpen(true)}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0a5473] dark:text-[#5db2c9] hover:underline underline-offset-2 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline underline-offset-2 cursor-pointer"
           >
             <MessageSquarePlus className="w-4 h-4" /> Añadir observación
           </button>

@@ -73,7 +73,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
 
   const notice = (title: string, text: string, action?: React.ReactNode) => (
     <div className="m-auto max-w-md text-center px-6 py-10">
-      <span className="w-14 h-14 rounded-2xl bg-white text-[#0a5473] grid place-items-center mx-auto shadow-sm border border-slate-200">
+      <span className="w-14 h-14 rounded-2xl bg-white text-[#1d5fa8] grid place-items-center mx-auto shadow-sm border border-slate-200">
         <FileWarning className="w-7 h-7" />
       </span>
       <h3 className="mt-4 text-base font-bold text-slate-900">{title}</h3>

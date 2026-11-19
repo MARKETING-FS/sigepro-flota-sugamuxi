@@ -148,7 +148,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
       <div className="fs-card rounded-2xl overflow-hidden">
         <div className="px-6 py-4 bg-black/[0.04] dark:bg-white/[0.06] border-b border-black/10 dark:border-white/10 flex items-center justify-between">
           <h2 className="text-xs sm:text-sm font-bold text-[#0b1d3a] dark:text-white uppercase tracking-wide flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
+            <Layers className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
             Tabla Oficial de Formatos Institucionales
           </h2>
           <span className="text-xs text-[#5d7392] dark:text-slate-400">
@@ -157,7 +157,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
         </div>
 
         <div>
-          <div className="sm:hidden px-3 py-1.5 bg-[#0f6b8f]/10 dark:bg-blue-950/40 border-b border-black/10 dark:border-white/10 dark:border-slate-800 text-[10px] text-[#0a5473] dark:text-[#5db2c9] dark:text-cyan-300 flex items-center justify-between font-medium">
+          <div className="sm:hidden px-3 py-1.5 bg-[#2c84c4]/10 dark:bg-blue-950/40 border-b border-black/10 dark:border-white/10 dark:border-slate-800 text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-cyan-300 flex items-center justify-between font-medium">
             <span>Desliza horizontalmente para ver todas las columnas</span>
             <span className="font-bold">↔</span>
           </div>
@@ -177,7 +177,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
             <tbody className="divide-y divide-black/10 dark:divide-white/10 text-[#0b1d3a] dark:text-white">
               {institutionalForms.map((form) => (
                 <tr key={form.id} className="hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-extrabold text-[#0a5473] dark:text-[#5db2c9] text-xs">
+                  <td className="py-3.5 px-4 font-mono font-extrabold text-[#1d5fa8] dark:text-[#69bdd7] text-xs">
                     {form.code}
                   </td>
                   <td className="py-3.5 px-4 font-semibold text-[#0b1d3a] dark:text-white max-w-sm">
@@ -195,7 +195,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                     {form.effectiveDate}
                   </td>
                   <td className="py-3.5 px-3 text-center">
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border border-[#0f6b8f]/30">
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
                       Sí
                     </span>
                   </td>
@@ -207,7 +207,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                       title="Haga clic para alternar obligatoriedad"
                     >
                       {form.isMandatory ? (
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border border-[#0f6b8f]/30">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30">
                           Sí (Obligatorio)
                         </span>
                       ) : (
@@ -270,7 +270,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
           <div key={form.code} className="fs-card rounded-2xl overflow-hidden">
             <div className="px-5 py-3.5 bg-black/[0.04] dark:bg-white/[0.06] border-b border-black/10 dark:border-white/10 flex items-center justify-between">
               <div>
-                <span className="font-mono text-xs font-bold text-[#0a5473] dark:text-[#5db2c9]">{form.code}</span>
+                <span className="font-mono text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7]">{form.code}</span>
                 <h3 className="font-bold text-xs text-[#0b1d3a] dark:text-white">{form.name}</h3>
               </div>
               <span className="text-[10px] font-bold bg-black/[0.08] dark:bg-white/10 text-[#3a5274] dark:text-slate-300 px-2 py-0.5 rounded">
@@ -286,7 +286,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <span className={`px-2 py-0.5 rounded font-mono font-bold text-[10px] ${
                           hist.isActive
-                            ? 'bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border border-[#0f6b8f]/30'
+                            ? 'bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30'
                             : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#3a5274] dark:text-slate-300'
                         }`}>
                           v{hist.version}
@@ -296,7 +296,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                         </span>
                       </div>
                       <span className={`text-[10px] font-semibold ${
-                        hist.isActive ? 'text-[#0a5473] dark:text-[#5db2c9]' : 'text-[#5d7392] dark:text-slate-400'
+                        hist.isActive ? 'text-[#1d5fa8] dark:text-[#69bdd7]' : 'text-[#5d7392] dark:text-slate-400'
                       }`}>
                         {hist.isActive ? 'Activa Vigente' : 'No Vigente (Histórica)'}
                       </span>
@@ -308,7 +308,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handlePreview(form, hist.version)}
-                          className="inline-flex items-center gap-1 font-bold text-[#0a5473] dark:text-[#5db2c9] hover:underline cursor-pointer"
+                          className="inline-flex items-center gap-1 font-bold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer"
                         >
                           <FileText className="w-3 h-3" /> Ver PDF{hist.fileSize ? ` (${hist.fileSize})` : ''}
                         </button>
@@ -328,7 +328,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
       {editCode && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
           <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[92vh]">
-            <div className="bg-[#0f6b8f]/10 dark:bg-[#0b1329] text-[#0b1d3a] dark:text-white px-5 sm:px-6 py-4 border-b border-black/10 dark:border-slate-800 flex items-center justify-between shrink-0">
+            <div className="bg-[#2c84c4]/10 dark:bg-[#0b1329] text-[#0b1d3a] dark:text-white px-5 sm:px-6 py-4 border-b border-black/10 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div>
                 <span className="text-[10px] font-extrabold uppercase bg-blue-600 px-2 py-0.5 rounded text-white">Datos del formato</span>
                 <h3 className="text-sm sm:text-base font-bold text-[#0b1d3a] dark:text-white mt-1">Editar &bull; {editCode}</h3>
@@ -384,7 +384,7 @@ export const InstitutionalFormsAdmin: React.FC = () => {
       {isNewVersionModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
           <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 flex flex-col max-h-[92vh] sm:max-h-[88vh]">
-            <div className="bg-[#0f6b8f]/10 dark:bg-[#0b1329] text-[#0b1d3a] dark:text-white px-5 sm:px-6 py-4 border-b border-black/10 dark:border-slate-800 flex items-center justify-between shrink-0">
+            <div className="bg-[#2c84c4]/10 dark:bg-[#0b1329] text-[#0b1d3a] dark:text-white px-5 sm:px-6 py-4 border-b border-black/10 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div>
                 <span className="text-[10px] font-extrabold uppercase bg-blue-600 px-2 py-0.5 rounded text-white shadow-2xs">
                   Control de Cambios SIG
@@ -475,11 +475,11 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                   onClick={() => fileInputRef.current?.click()}
                   className={`w-full flex items-center gap-3 rounded-xl border-2 border-dashed px-4 py-3 text-left cursor-pointer transition-colors ${
                     newFile
-                      ? 'border-[#0f6b8f]/50 bg-[#0f6b8f]/10'
-                      : 'border-black/15 dark:border-white/20 hover:bg-[#0f6b8f]/5'
+                      ? 'border-[#2c84c4]/50 bg-[#2c84c4]/10'
+                      : 'border-black/15 dark:border-white/20 hover:bg-[#2c84c4]/5'
                   }`}
                 >
-                  <span className="w-10 h-10 rounded-xl bg-[#0f6b8f]/15 text-[#0a5473] dark:text-[#5db2c9] grid place-items-center shrink-0">
+                  <span className="w-10 h-10 rounded-xl bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] grid place-items-center shrink-0">
                     {newFile ? <FileText className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -502,15 +502,15 @@ export const InstitutionalFormsAdmin: React.FC = () => {
                   id="newIsMandatoryCheckbox"
                   checked={newIsMandatory}
                   onChange={(e) => setNewIsMandatory(e.target.checked)}
-                  className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9] rounded-md border-black/10 dark:border-white/10 focus:ring-blue-500 cursor-pointer"
+                  className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] rounded-md border-black/10 dark:border-white/10 focus:ring-blue-500 cursor-pointer"
                 />
                 <label htmlFor="newIsMandatoryCheckbox" className="font-semibold text-[#0b1d3a] dark:text-white cursor-pointer select-none">
                   Marcar como documento institucional obligatorio en el expediente digital
                 </label>
               </div>
 
-              <div className="bg-[#0f6b8f]/10 border border-[#0f6b8f]/30 p-3.5 rounded-xl text-[11px] text-[#3a5274] dark:text-slate-300 space-y-0.5">
-                <p className="font-bold text-[#0a5473] dark:text-[#5db2c9]">Principio de No Destrucción Documental:</p>
+              <div className="bg-[#2c84c4]/10 border border-[#2c84c4]/30 p-3.5 rounded-xl text-[11px] text-[#3a5274] dark:text-slate-300 space-y-0.5">
+                <p className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">Principio de No Destrucción Documental:</p>
                 <p>
                   Las versiones anteriores no serán eliminadas del historial y los proveedores que hayan presentado versiones previas conservarán su registro inalterado.
                 </p>

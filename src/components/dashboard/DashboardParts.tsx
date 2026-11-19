@@ -54,7 +54,7 @@ const Gauge: React.FC<{ value: number | null }> = ({ value: raw }) => {
           cy="80"
           r={r}
           fill="none"
-          stroke="#5db2c9"
+          stroke="#69bdd7"
           strokeWidth="14"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -133,7 +133,7 @@ export const DashboardHero: React.FC<{
     <div className="relative grid gap-8 p-6 md:p-10 xl:grid-cols-[1fr_auto] xl:items-center">
       <div className="max-w-2xl">
         <p className="inline-flex items-center gap-2 rounded-full glass-dark px-3 py-1 text-xs text-white/80">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#0f6b8f] animate-pulse" /> {dateLabel} · {scopeLabel}
+          <span className="w-1.5 h-1.5 rounded-full bg-[#2c84c4] animate-pulse" /> {dateLabel} · {scopeLabel}
         </p>
         <h1 className="mt-4 font-display text-3xl font-semibold leading-tight md:text-5xl">
           {greeting()},
@@ -170,8 +170,8 @@ export const DashboardHero: React.FC<{
         </div>
         <div className="hidden flex-col gap-3 sm:flex">
           <Chip label="Alertas abiertas" value={alerts} hint={alertsHint} dot="bg-red-500" onClick={onAlerts} />
-          <Chip label="Proveedores habilitados" value={habilitados} hint={habilitadosHint} dot="bg-[#0f6b8f]" onClick={onHabilitados} />
-          <Chip label="Puntaje promedio" value={avg === null ? null : Math.round(avg)} suffix={avg === null ? '' : ' %'} hint={avgHint} dot="bg-[#5db2c9]" />
+          <Chip label="Proveedores habilitados" value={habilitados} hint={habilitadosHint} dot="bg-[#2c84c4]" onClick={onHabilitados} />
+          <Chip label="Puntaje promedio" value={avg === null ? null : Math.round(avg)} suffix={avg === null ? '' : ' %'} hint={avgHint} dot="bg-[#69bdd7]" />
         </div>
       </div>
     </div>
@@ -180,9 +180,9 @@ export const DashboardHero: React.FC<{
 
 type KpiTone = 'primary' | 'info' | 'warning' | 'danger';
 const KPI_TONE: Record<KpiTone, { tile: string; bar: string; glow: string }> = {
-  primary: { tile: 'from-[#0f6b8f] to-[#5db2c9] text-white', bar: 'from-[#0f6b8f] to-[#5db2c9]', glow: 'bg-[#0f6b8f]/20' },
-  info: { tile: 'from-[#5db2c9] to-[#0f6b8f] text-white', bar: 'from-[#5db2c9] to-[#0f6b8f]', glow: 'bg-[#5db2c9]/25' },
-  warning: { tile: 'from-[#0f6b8f] to-[#5db2c9] text-[#3b2a06]', bar: 'from-[#0f6b8f] to-[#5db2c9]', glow: 'bg-[#0f6b8f]/25' },
+  primary: { tile: 'from-[#2c84c4] to-[#69bdd7] text-white', bar: 'from-[#2c84c4] to-[#69bdd7]', glow: 'bg-[#2c84c4]/20' },
+  info: { tile: 'from-[#69bdd7] to-[#2c84c4] text-white', bar: 'from-[#69bdd7] to-[#2c84c4]', glow: 'bg-[#69bdd7]/25' },
+  warning: { tile: 'from-[#2c84c4] to-[#69bdd7] text-[#3b2a06]', bar: 'from-[#2c84c4] to-[#69bdd7]', glow: 'bg-[#2c84c4]/25' },
   danger: { tile: 'from-red-500 to-red-400 text-white', bar: 'from-red-500 to-red-400', glow: 'bg-red-500/20' },
 };
 
@@ -280,7 +280,7 @@ export const StageDonut: React.FC<{
             key={p.key}
             type="button"
             onClick={() => onSelect?.(p.key)}
-            className="flex items-center gap-2.5 rounded-xl border border-[#d9e3ef] dark:border-white/10 bg-[#f1f6fc]/60 dark:bg-white/5 px-3 py-2 text-left cursor-pointer hover:border-[#0f6b8f]/50 transition-colors"
+            className="flex items-center gap-2.5 rounded-xl border border-[#d9e3ef] dark:border-white/10 bg-[#f1f6fc]/60 dark:bg-white/5 px-3 py-2 text-left cursor-pointer hover:border-[#2c84c4]/50 transition-colors"
           >
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: p.color }} />
             <span className="flex-1 text-[13px] text-[#3a5274] dark:text-slate-300 truncate">{p.label}</span>
@@ -306,7 +306,7 @@ export const Podium: React.FC<{
         style={{ animationDelay: `${i * 90}ms` }}
         className={`fs-card lift animate-fade-up relative overflow-hidden rounded-2xl text-left ${i === 0 ? 'gradient-border' : ''} cursor-pointer`}
       >
-        {i === 0 && <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-[#5db2c9]/20 blur-2xl" />}
+        {i === 0 && <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-[#69bdd7]/20 blur-2xl" />}
         <div className="relative flex items-center gap-4 p-5">
           <span
             className={`flex w-12 h-12 items-center justify-center rounded-2xl font-display text-lg font-semibold ${

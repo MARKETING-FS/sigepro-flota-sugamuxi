@@ -95,12 +95,12 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                 data-dossier-id={d.id}
                 className={`${rowCls} ${
                   highlightId === d.id
-                    ? 'bg-[#0f6b8f]/20 dark:bg-[#0f6b8f]/30 shadow-[inset_0_0_0_2px_#0f6b8f,0_0_22px_-2px_rgba(15,107,143,0.85)] animate-pulse'
+                    ? 'bg-[#2c84c4]/20 dark:bg-[#2c84c4]/30 shadow-[inset_0_0_0_2px_#2c84c4,0_0_22px_-2px_rgba(44,132,196,0.85)] animate-pulse'
                     : ''
                 }`}
               >
                 <td className="py-3 pl-5 pr-3">
-                  <button type="button" onClick={() => onOpen(d.id)} className="text-left text-base font-bold text-[#0b1d3a] dark:text-white hover:text-[#0a5473] cursor-pointer">
+                  <button type="button" onClick={() => onOpen(d.id)} className="text-left text-base font-bold text-[#0b1d3a] dark:text-white hover:text-[#1d5fa8] cursor-pointer">
                     {supplierName(d)}
                   </button>
                   <div className="flex items-center gap-x-2 mt-0.5 whitespace-nowrap">
@@ -130,7 +130,7 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                 </td>
                 <td className="py-3 px-3">
                   <div className="flex gap-2 text-[13px] mb-1.5 tabular-nums whitespace-nowrap">
-                    <span className="text-[#0a5473] font-medium">
+                    <span className="text-[#1d5fa8] font-medium">
                       {prog.approved} de {prog.total}
                     </span>
                     {docNote && <span className={`font-medium ${creation.expiredCount ? 'text-fs-bad' : 'text-fs-warn'}`}>· {docNote}</span>}

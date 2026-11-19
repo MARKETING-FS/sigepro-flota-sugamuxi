@@ -319,12 +319,12 @@ export const DocumentEditorModal: React.FC<Props> = ({
     CARGADO: {
       label: 'Cargado · falta aprobar',
       hint: 'Para aprobarlo use el botón «Aprobar» del documento.',
-      cls: 'border-[#0f6b8f]/50 text-[#0a5473] dark:text-[#5db2c9]',
+      cls: 'border-[#2c84c4]/50 text-[#1d5fa8] dark:text-[#69bdd7]',
     },
     APROBADO: {
       label: 'Aprobado',
       hint: 'Sigue aprobado mientras no se cambie el archivo.',
-      cls: 'border-[#0f6b8f]/50 text-[#0a5473] dark:text-[#5db2c9]',
+      cls: 'border-[#2c84c4]/50 text-[#1d5fa8] dark:text-[#69bdd7]',
     },
     VENCIDO: {
       label: 'Vencido',
@@ -334,7 +334,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
   };
   const statusView = STATUS_VIEW[status] || STATUS_VIEW.PENDIENTE;
 
-  const labelCls = 'block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f6b8f] dark:text-[#5db2c9] mb-1.5';
+  const labelCls = 'block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-1.5';
   const stepNum = (n: number) => (
     <span className="w-6 h-6 rounded-lg bg-gradient-action text-white text-[11px] font-semibold grid place-items-center shrink-0">{n}</span>
   );
@@ -365,7 +365,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                       Opcional
                     </span>
                   )}
-                  <span className="text-[10px] font-semibold uppercase tracking-wider bg-[#5db2c9]/30 border border-[#5db2c9]/60 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider bg-[#69bdd7]/30 border border-[#69bdd7]/60 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                     {showExpiration ? (
                       <>
                         <Clock className="w-3 h-3" /> Control de vigencia SIG
@@ -406,7 +406,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3.5 h-11 rounded-xl border border-black/10 dark:border-white/10 font-medium text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#0f6b8f]"
+                className="w-full px-3.5 h-11 rounded-xl border border-black/10 dark:border-white/10 font-medium text-[#0b1d3a] dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#2c84c4]"
                 required
               />
             </section>
@@ -418,7 +418,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                   {stepNum(2)}
                   <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Documento soporte</h4>
                 </div>
-                <span className="text-[10px] text-[#0a5473] dark:text-[#5db2c9] font-semibold bg-[#0f6b8f]/10 border border-[#0f6b8f]/30 px-2.5 py-0.5 rounded-full">
+                <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-semibold bg-[#2c84c4]/10 border border-[#2c84c4]/30 px-2.5 py-0.5 rounded-full">
                   Evaluador: {reviewerName}
                 </span>
               </div>
@@ -427,9 +427,9 @@ export const DocumentEditorModal: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={handleDownloadTemplate}
-                  className="mb-2.5 w-full flex items-center gap-3 rounded-xl border border-[#0f6b8f]/30 bg-white dark:bg-white/[0.04] px-3.5 py-2.5 text-left cursor-pointer hover:bg-[#0f6b8f]/10 transition-colors"
+                  className="mb-2.5 w-full flex items-center gap-3 rounded-xl border border-[#2c84c4]/30 bg-white dark:bg-white/[0.04] px-3.5 py-2.5 text-left cursor-pointer hover:bg-[#2c84c4]/10 transition-colors"
                 >
-                  <span className="shrink-0 w-9 h-9 rounded-lg bg-[#0f6b8f]/15 text-[#0a5473] dark:text-[#5db2c9] grid place-items-center">
+                  <span className="shrink-0 w-9 h-9 rounded-lg bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] grid place-items-center">
                     <Download className="w-4 h-4" />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -460,25 +460,25 @@ export const DocumentEditorModal: React.FC<Props> = ({
               )}
 
               {hasFile ? (
-                <div className="rounded-2xl border border-[#0f6b8f]/30 bg-[#0f6b8f]/[0.07] p-4 space-y-3">
+                <div className="rounded-2xl border border-[#2c84c4]/30 bg-[#2c84c4]/[0.07] p-4 space-y-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <span className="shrink-0 w-11 h-11 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow">
                       <FileCheck className="w-5 h-5" />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-semibold text-[#0a5473] dark:text-[#5db2c9] bg-[#0f6b8f]/15 px-2 py-0.5 rounded-full border border-[#0f6b8f]/30">
+                        <span className="text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/15 px-2 py-0.5 rounded-full border border-[#2c84c4]/30">
                           Soporte adjunto
                         </span>
                         {fileSize && <span className="text-[10px] font-semibold text-[#5d7392] dark:text-slate-400">{fileSize}</span>}
-                        {isUploading && <span className="text-[10px] font-semibold text-[#0a5473] dark:text-[#5db2c9]">Guardando archivo…</span>}
+                        {isUploading && <span className="text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">Guardando archivo…</span>}
                       </div>
                       <input
                         type="text"
                         value={fileName}
                         onChange={(e) => setFileName(e.target.value)}
                         placeholder="nombre_archivo.pdf"
-                        className="w-full mt-1.5 px-3 h-9 rounded-lg border border-black/10 dark:border-white/10 font-mono text-[11px] text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#0f6b8f] focus:outline-hidden"
+                        className="w-full mt-1.5 px-3 h-9 rounded-lg border border-black/10 dark:border-white/10 font-mono text-[11px] text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#2c84c4] focus:outline-hidden"
                         title="Nombre del archivo adjunto"
                       />
                     </div>
@@ -510,8 +510,8 @@ export const DocumentEditorModal: React.FC<Props> = ({
                   onDragLeave={handleDragLeave}
                   className={`rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-300 ${
                     isDragging
-                      ? 'border-[#0f6b8f] bg-[#0f6b8f]/15 scale-[1.01]'
-                      : 'border-[#0f6b8f]/40 bg-[#0f6b8f]/[0.05] hover:bg-[#0f6b8f]/10 hover:border-[#0f6b8f]'
+                      ? 'border-[#2c84c4] bg-[#2c84c4]/15 scale-[1.01]'
+                      : 'border-[#2c84c4]/40 bg-[#2c84c4]/[0.05] hover:bg-[#2c84c4]/10 hover:border-[#2c84c4]'
                   }`}
                 >
                   <span className="w-14 h-14 rounded-2xl bg-gradient-action text-white grid place-items-center mx-auto mb-3 shadow-glow">
@@ -542,7 +542,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                   <div className="flex items-center justify-between">
                     <label className={labelCls}>Estado del documento</label>
                     {isExpirationRequired && (
-                      <span className="text-[9.5px] font-semibold text-[#0a5473] dark:text-[#5db2c9] bg-[#0f6b8f]/12 border border-[#0f6b8f]/30 px-2 py-0.5 rounded-full mb-1.5">
+                      <span className="text-[9.5px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/12 border border-[#2c84c4]/30 px-2 py-0.5 rounded-full mb-1.5">
                         Sujeto a vigencia
                       </span>
                     )}
@@ -554,7 +554,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                     {statusView.label}
                   </div>
                   <p className="text-[10px] text-[#5d7392] dark:text-slate-400 mt-1.5 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-[#0f6b8f] dark:text-[#5db2c9] shrink-0" />
+                    <Sparkles className="w-3 h-3 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" />
                     <span>{statusView.hint}</span>
                   </p>
                 </div>
@@ -571,19 +571,19 @@ export const DocumentEditorModal: React.FC<Props> = ({
                     type="date"
                     value={expirationDate}
                     onChange={handleExpirationDateChange}
-                    className={`w-full px-3.5 h-11 rounded-xl border font-mono focus:ring-2 focus:ring-[#0f6b8f] ${
+                    className={`w-full px-3.5 h-11 rounded-xl border font-mono focus:ring-2 focus:ring-[#2c84c4] ${
                       currentExp?.status === 'VENCIDO'
                         ? 'border-red-500 text-red-600 dark:text-red-300 font-bold'
                         : currentExp?.status === 'POR_VENCER'
-                        ? 'border-[#0f6b8f]/50'
+                        ? 'border-[#2c84c4]/50'
                         : 'border-black/10 dark:border-white/10'
                     }`}
                   />
                   {isExpirationRequired && (
-                    <p className="text-[10px] text-[#0a5473] dark:text-[#5db2c9] font-medium mt-1.5">Exigida por la matriz SIG</p>
+                    <p className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium mt-1.5">Exigida por la matriz SIG</p>
                   )}
                   {currentValidityRule && (
-                    <p className="text-[10px] text-[#0a5473] dark:text-[#5db2c9] font-medium flex items-center gap-1 mt-0.5 truncate" title={currentValidityRule}>
+                    <p className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium flex items-center gap-1 mt-0.5 truncate" title={currentValidityRule}>
                       <Clock className="w-3 h-3 shrink-0" />
                       <span>Regla matriz: {currentValidityRule}</span>
                     </p>
@@ -615,16 +615,16 @@ export const DocumentEditorModal: React.FC<Props> = ({
                   )}
 
                   {currentExp.status === 'POR_VENCER' && (
-                    <div className="p-3.5 bg-[#5db2c9]/15 border border-[#0f6b8f]/40 rounded-2xl text-xs flex items-start gap-3">
-                      <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[#5db2c9] to-[#0f6b8f] text-white grid place-items-center">
+                    <div className="p-3.5 bg-[#69bdd7]/15 border border-[#2c84c4]/40 rounded-2xl text-xs flex items-start gap-3">
+                      <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[#69bdd7] to-[#2c84c4] text-white grid place-items-center">
                         <Clock className="w-4 h-4" />
                       </span>
                       <div className="flex-1">
                         <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <span className="font-display text-sm font-semibold text-[#0a5473] dark:text-[#5db2c9]">
+                          <span className="font-display text-sm font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">
                             Documento por vencer · restan {currentExp.daysRemaining} días
                           </span>
-                          <span className="text-[10px] font-mono bg-[#0f6b8f]/15 text-[#0a5473] dark:text-[#5db2c9] px-2 py-0.5 rounded-lg font-bold">{expirationDate}</span>
+                          <span className="text-[10px] font-mono bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] px-2 py-0.5 rounded-lg font-bold">{expirationDate}</span>
                         </div>
                         <p className="text-[#3a5274] dark:text-slate-300 text-[11px] mt-1 leading-snug">
                           El documento está próximo a caducar. El estado se configuró como <strong>POR VENCER</strong> para generar la alerta preventiva de renovación.
@@ -634,16 +634,16 @@ export const DocumentEditorModal: React.FC<Props> = ({
                   )}
 
                   {currentExp.status === 'VIGENTE' && (
-                    <div className="p-3.5 bg-[#0f6b8f]/10 border border-[#0f6b8f]/30 rounded-2xl text-xs flex items-start gap-3">
+                    <div className="p-3.5 bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-2xl text-xs flex items-start gap-3">
                       <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center">
                         <CheckCircle2 className="w-4 h-4" />
                       </span>
                       <div className="flex-1">
                         <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <span className="font-display text-sm font-semibold text-[#0a5473] dark:text-[#5db2c9]">
+                          <span className="font-display text-sm font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">
                             Documento vigente · {currentExp.daysRemaining} días restantes
                           </span>
-                          <span className="text-[10px] font-mono bg-[#0f6b8f]/15 text-[#0a5473] dark:text-[#5db2c9] px-2 py-0.5 rounded-lg font-bold">{expirationDate}</span>
+                          <span className="text-[10px] font-mono bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] px-2 py-0.5 rounded-lg font-bold">{expirationDate}</span>
                         </div>
                         <p className="text-[#3a5274] dark:text-slate-300 text-[11px] mt-1 leading-snug">
                           Vigencia conforme con las políticas del Sistema Integrado de Gestión de Flota Sugamuxi S.A.
@@ -669,11 +669,11 @@ export const DocumentEditorModal: React.FC<Props> = ({
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Ej. Certificado revisado en auditoría; vigencia verificada con el emisor."
-                    className="w-full px-3.5 h-11 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#0f6b8f]"
+                    className="w-full px-3.5 h-11 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#2c84c4]"
                   />
                 </div>
-                <div className="rounded-2xl bg-[#0f6b8f]/[0.07] border border-[#0f6b8f]/25 p-4 space-y-2">
-                  <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f6b8f] dark:text-[#5db2c9]">
+                <div className="rounded-2xl bg-[#2c84c4]/[0.07] border border-[#2c84c4]/25 p-4 space-y-2">
+                  <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                     Justificación de la modificación <span className="text-red-500">*</span>
                   </label>
                   <textarea
@@ -681,7 +681,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                     value={justification}
                     onChange={(e) => setJustification(e.target.value)}
                     placeholder="Escriba el motivo institucional del cargue o certificación del documento..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#0f6b8f]/30 text-[#0b1d3a] dark:text-white text-xs focus:ring-2 focus:ring-[#0f6b8f]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#2c84c4]/30 text-[#0b1d3a] dark:text-white text-xs focus:ring-2 focus:ring-[#2c84c4]"
                     required
                   />
                   <p className="text-[10px] text-[#3a5274] dark:text-slate-400">
