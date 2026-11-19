@@ -68,7 +68,7 @@ export const ClosingSection: React.FC<ClosingSectionProps> = (p) => (
               />
               <span
                 className={`w-5 h-5 rounded-md grid place-items-center border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#2c84c4]/50 ${
-                  p.planRequired ? 'bg-gradient-action border-transparent text-white' : 'border-[#5d7392]/60'
+                  p.planRequired ? 'bg-[#1d5fa8] border-[#1d5fa8] text-white' : 'border-[#5d7392]/60'
                 }`}
               >
                 {p.planRequired && <Check className="w-3.5 h-3.5" strokeWidth={3} />}

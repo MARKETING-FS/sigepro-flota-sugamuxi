@@ -314,7 +314,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
         {/* Encabezado */}
         <div className="px-5 sm:px-7 py-4 bg-white dark:bg-[#0a1122] border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3.5 min-w-0">
-            <span className="w-11 h-11 rounded-xl bg-gradient-action text-white grid place-items-center shrink-0 shadow-glow">
+            <span className="w-11 h-11 rounded-xl bg-[#1d5fa8] text-white grid place-items-center shrink-0">
               <Award className="w-5 h-5" />
             </span>
             <div className="min-w-0">

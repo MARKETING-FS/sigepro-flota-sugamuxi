@@ -93,7 +93,7 @@ export const SetupCard: React.FC<SetupCardProps> = ({
           <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#3a5274] dark:text-slate-300">
             <span
               className={`inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-bold ${
-                isSupplierActive ? 'bg-gradient-action text-white' : 'bg-black/[0.06] dark:bg-white/10 text-[#1c3354] dark:text-slate-200'
+                isSupplierActive ? 'bg-[#1d5fa8] text-white' : 'bg-black/[0.06] dark:bg-white/10 text-[#1c3354] dark:text-slate-200'
               }`}
             >
               {isSupplierActive ? 'Habilitado' : getProcessStatusLabel(selectedDossier.processStatus)}
@@ -123,11 +123,11 @@ export const SetupCard: React.FC<SetupCardProps> = ({
                 aria-checked={o.on}
                 onClick={o.set}
                 className={`h-12 rounded-lg flex flex-col items-center justify-center leading-tight transition-colors cursor-pointer ${focusRing} ${
-                  o.on ? chipOn : 'text-[#1c3354] dark:text-slate-200 hover:bg-[#2c84c4]/10'
+                  o.on ? chipOn : 'border border-transparent text-[#1c3354] dark:text-slate-200 hover:bg-[#2c84c4]/10'
                 }`}
               >
                 <span className="text-sm font-semibold">{o.title}</span>
-                <span className={`text-[11px] ${o.on ? 'text-white/85' : 'text-[#5d7392]'}`}>{o.sub}</span>
+                <span className={`text-[11px] ${o.on ? 'text-[#3a5274] dark:text-slate-300' : 'text-[#5d7392]'}`}>{o.sub}</span>
               </button>
             ))}
           </div>

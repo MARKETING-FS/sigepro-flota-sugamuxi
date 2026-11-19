@@ -133,7 +133,7 @@ export const ScoreSummary: React.FC<ScoreSummaryProps> = ({
                   className={`w-6 h-6 rounded-full grid place-items-center shrink-0 text-[11px] font-semibold tabular-nums ${
                     it.value === null
                       ? 'bg-black/[0.06] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
-                      : 'bg-gradient-action text-white'
+                      : 'bg-[#1d5fa8] text-white'
                   }`}
                 >
                   {i + 1}

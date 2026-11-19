@@ -41,7 +41,7 @@ export const CriterionShell: React.FC<CriterionShellProps> = ({
       <div className="flex items-start gap-3.5">
         <span
           className={`w-8 h-8 rounded-full grid place-items-center shrink-0 text-sm font-semibold tabular-nums transition-colors ${
-            done ? 'bg-gradient-action text-white' : 'bg-black/[0.06] dark:bg-white/10 text-[#1c3354] dark:text-slate-200'
+            done ? 'bg-[#1d5fa8] text-white' : 'bg-[#eaf2fb] dark:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7]'
           }`}
         >
           {index}

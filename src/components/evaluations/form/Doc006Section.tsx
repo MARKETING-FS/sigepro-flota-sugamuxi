@@ -59,14 +59,20 @@ export const Doc006Section: React.FC<Doc006SectionProps> = ({ points, notes, onP
                       onClick={() => onPick(criterion.id, opt.points)}
                       className={`text-left rounded-xl border px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-150 cursor-pointer ${focusRing} ${
                         on
-                          ? 'border-transparent bg-gradient-action text-white shadow-glow'
+                          ? 'border-[#1d5fa8] bg-[#eaf2fb] dark:bg-[#0c2350] dark:border-[#4a9bff] shadow-[0_0_0_1px_#1d5fa8] dark:shadow-[0_0_0_1px_#4a9bff]'
                           : 'border-black/[0.1] dark:border-white/10 hover:border-[#2c84c4]/60 hover:bg-[#2c84c4]/[0.05]'
                       }`}
                     >
-                      <span className="block font-display text-xl font-semibold tabular-nums leading-none">{opt.points}</span>
                       <span
-                        className={`block mt-1.5 text-[12.5px] leading-snug ${
-                          on ? 'text-white/90' : 'text-[#3a5274] dark:text-slate-300'
+                        className={`inline-grid place-items-center h-8 min-w-[40px] px-2 rounded-lg font-display text-lg font-semibold tabular-nums leading-none transition-colors ${
+                          on ? 'bg-[#1d5fa8] text-white' : 'bg-[#eaf2fb] dark:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7]'
+                        }`}
+                      >
+                        {opt.points}
+                      </span>
+                      <span
+                        className={`block mt-2 text-[12.5px] leading-snug ${
+                          on ? 'text-[#0b1d3a] dark:text-white' : 'text-[#3a5274] dark:text-slate-300'
                         }`}
                       >
                         {opt.label}
