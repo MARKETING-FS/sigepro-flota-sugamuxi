@@ -36,6 +36,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useConfirm } from './ui/ConfirmDialog';
 import { ContractTab } from './dossier/ContractTab';
 import { SarlaftCard } from './dossier/SarlaftCard';
 import {
@@ -106,6 +107,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [dossierId]);
 
+  const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
   const [activeTab, setActiveTab] = useState<'datos' | 'contrato' | 'documentos' | 'auditoria'>('datos');
   // Documento resaltado al llegar desde una alerta
   const [highlightDocs, setHighlightDocs] = useState<string[]>([]);
@@ -561,13 +563,32 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <select
                       value={admins.some((u) => u.id === dossier.assignedReviewerId) ? dossier.assignedReviewerId : ''}
                       onChange={(e) => {
+                        // La lista no cambia hasta que se confirme: si cancela, queda el administrador de antes
                         const picked = admins.find((u) => u.id === e.target.value);
-                        assignSupplierReviewer(dossier.id, picked?.id || '', picked?.name || '');
-                        showToast(
-                          picked ? `Expediente asignado a ${picked.name}.` : 'Expediente sin administrador asignado.',
-                          'success',
-                          'ASIGNACIÓN'
-                        );
+                        const supplierLabel = dossier.basicInfo?.companyName || dossier.basicInfo?.fullName || dossier.fileNumber;
+                        askConfirm({
+                          title: picked ? `¿Asignar a ${picked.name}?` : '¿Quitar la asignación?',
+                          message: picked
+                            ? `El expediente de «${supplierLabel}» quedará a cargo de ${picked.name}${
+                                dossier.assignedReviewerName ? ` en lugar de ${dossier.assignedReviewerName}` : ''
+                              }. Solo esa persona podrá editarlo y recibirá un aviso.`
+                            : `El expediente de «${supplierLabel}» quedará sin administrador asignado${
+                                dossier.assignedReviewerName ? ` (hoy lo tiene ${dossier.assignedReviewerName})` : ''
+                              }.`,
+                          hint: 'Puede cambiar la asignación de nuevo cuando quiera desde este mismo selector.',
+                          hintIcon: <UserCheck className="w-4 h-4 shrink-0 mt-0.5" />,
+                          icon: <UserCheck className="w-6 h-6" />,
+                          confirmLabel: picked ? 'Sí, asignar' : 'Sí, quitar',
+                          tone: 'primary',
+                          onConfirm: () => {
+                            assignSupplierReviewer(dossier.id, picked?.id || '', picked?.name || '');
+                            showToast(
+                              picked ? `Expediente asignado a ${picked.name}.` : 'Expediente sin administrador asignado.',
+                              'success',
+                              'ASIGNACIÓN'
+                            );
+                          },
+                        });
                       }}
                       className="h-7 max-w-[210px] rounded-full bg-white/15 text-white text-[11px] font-semibold px-2 outline-hidden cursor-pointer [&>option]:text-[#0b1d3a]"
                       aria-label="Administrador asignado al expediente"
@@ -1762,6 +1783,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         takenCodes={[...Object.keys(dossier.documents), ...(documentDefinitions || []).map((d) => d.code)]}
         onAnnex={handleAnnexDoc}
       />
+
+      {confirmDialog}
 
       {/* Ficha Oficial & Certificado de Habilitación de Proveedor Modal */}
       <SupplierCertificateModal

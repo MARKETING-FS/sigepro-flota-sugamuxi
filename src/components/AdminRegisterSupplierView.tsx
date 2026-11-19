@@ -406,7 +406,7 @@ export const AdminRegisterSupplierView: React.FC = () => {
         isEmailVerified,
         notes: fd.notes.trim(),
         createdByRole: role === 'ADMIN' ? 'ADMIN' : 'REVISOR',
-        createdByName: role === 'ADMIN' ? 'Administrador General' : activeUser.name || 'Revisor Técnico Evaluador',
+        createdByName: activeUser.name || (role === 'ADMIN' ? 'Administrador General' : 'Revisor Técnico Evaluador'),
         assignedReviewerId: isSuper ? assignedReviewerId : activeUserId,
         assignedReviewerName: isSuper
           ? realUsers.find((u) => u.id === assignedReviewerId)?.name || undefined

@@ -18,7 +18,7 @@ const QUICK_FILTERS: Array<{ key: string; label: string }> = [
 ];
 
 export const BancoProveedoresView: React.FC = () => {
-  const { isReadOnly, dossiers, setCurrentDossierId, setActiveView, openSupplierEvaluation, getDossierProgress, highlightedSupplierId, clearHighlightedSupplier } = useApp();
+  const { isReadOnly, accountRole, dossiers, setCurrentDossierId, setActiveView, openSupplierEvaluation, getDossierProgress, highlightedSupplierId, clearHighlightedSupplier } = useApp();
 
   // Expediente abierto dentro del Banco (mantiene la navegación del Banco)
   const [selectedDossierIdForReview, setSelectedDossierIdForReview] = useState<string | null>(null);
@@ -279,6 +279,7 @@ export const BancoProveedoresView: React.FC = () => {
           progressOf={getDossierProgress}
           canEvaluate={!isReadOnly}
           highlightId={blueId}
+          showOwners={accountRole === 'SUPERADMIN'}
         />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[#e8eef5] dark:border-slate-800 text-sm text-fs-muted">

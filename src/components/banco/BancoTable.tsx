@@ -2,6 +2,7 @@ import React from 'react';
 import { Award, FileBadge2 } from 'lucide-react';
 import { SupplierDossier, ContractValidityStatus } from '../../types';
 import { getCreationStatus, getContractualStatus } from '../../utils/contractValidity';
+import { displayDate } from '../../utils/dateOnly';
 import {
   Meter,
   Radicado,
@@ -46,11 +47,13 @@ interface Props {
   canEvaluate?: boolean;
   /** Proveedor que se muestra alumbrado en azul (llegada desde un aviso de asignación) */
   highlightId?: string | null;
+  /** Solo el superadministrador: columnas «Creado por» y «Asignado a» */
+  showOwners?: boolean;
 }
 
 const iconBtn = rowIconBtn;
 
-export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, progressOf, canEvaluate = true, highlightId = null }) => (
+export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, progressOf, canEvaluate = true, highlightId = null, showOwners = false }) => (
   <div className="overflow-x-auto">
     <table className="w-full text-sm">
       <thead>
@@ -61,13 +64,15 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
           <th className="py-3 px-3 font-bold">Estado</th>
           <th className="py-3 px-3 font-bold">Contrato</th>
           <th className="py-3 px-3 font-medium w-32">Documentos</th>
+          {showOwners && <th className="py-3 px-3 font-bold">Creado por</th>}
+          {showOwners && <th className="py-3 px-3 font-bold">Asignado a</th>}
           <th className="py-3 pl-3 pr-5 text-right font-bold">Acciones</th>
         </tr>
       </thead>
       <tbody className={tbodyCls}>
         {rows.length === 0 ? (
           <tr>
-            <td colSpan={8} className="py-14 text-center text-fs-muted">
+            <td colSpan={showOwners ? 9 : 7} className="py-14 text-center text-fs-muted">
               {emptyText}
             </td>
           </tr>
@@ -132,6 +137,21 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                   </div>
                   <Meter value={prog.approved} max={prog.total} tone={creation.expiredCount ? 'bad' : creation.expiringSoonCount ? 'warn' : 'blue'} />
                 </td>
+                {showOwners && (
+                  <td className="py-3 px-3">
+                    <div className="text-[14px] text-[#0b1d3a] dark:text-slate-200 max-w-[170px] truncate" title={d.createdByName}>{d.createdByName || <span className="text-[#9fb0c7]">—</span>}</div>
+                    <div className="text-[12px] text-[#5d7392] tabular-nums">{displayDate(d.createdAt)}</div>
+                  </td>
+                )}
+                {showOwners && (
+                  <td className="py-3 px-3">
+                    {d.assignedReviewerName ? (
+                      <div className="text-[14px] font-medium text-[#0b1d3a] dark:text-slate-200 max-w-[170px] truncate" title={d.assignedReviewerName}>{d.assignedReviewerName}</div>
+                    ) : (
+                      <span className="text-[13px] text-[#5d7392]">Sin asignar</span>
+                    )}
+                  </td>
+                )}
                 <td className="py-3 pl-3 pr-5">
                   <div className="flex justify-end gap-2">
                     {canEvaluate && (

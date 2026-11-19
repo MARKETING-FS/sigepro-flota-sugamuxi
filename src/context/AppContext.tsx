@@ -1376,6 +1376,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       assignedReviewerName: input.assignedReviewerId !== undefined ? input.assignedReviewerName || undefined : activeUser.name,
       assignedAt: timestamp,
       assignedBy: input.createdByName,
+      createdByName: input.createdByName,
       internalConcepts: {
         sarlatfCheck: {
           checked: true,

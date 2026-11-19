@@ -7,6 +7,8 @@ export interface ConfirmOptions {
   /** Aviso sobre cómo volver a activarlo */
   hint?: string;
   confirmLabel?: string;
+  /** 'danger' (rojo, por defecto) para acciones que quitan algo; 'primary' (azul) para las demás */
+  tone?: 'danger' | 'primary';
   /** Icono grande de la ventana (por defecto, el triángulo de aviso) */
   icon?: React.ReactNode;
   /** Icono del recuadro de aviso (por defecto, la flecha de restaurar) */
@@ -60,7 +62,11 @@ export const ConfirmDialog: React.FC<{ options: ConfirmOptions | null; onClose: 
               onClose();
               fn();
             }}
-            className="h-11 px-5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white text-sm font-semibold shadow-[0_8px_20px_-10px_rgba(220,38,38,0.8)] hover:opacity-95 transition-opacity cursor-pointer"
+            className={`h-11 px-5 rounded-xl text-white text-sm font-semibold hover:opacity-95 transition-opacity cursor-pointer ${
+              options.tone === 'primary'
+                ? 'bg-gradient-action shadow-glow'
+                : 'bg-gradient-to-r from-red-600 to-red-500 shadow-[0_8px_20px_-10px_rgba(220,38,38,0.8)]'
+            }`}
           >
             {options.confirmLabel || 'Sí, inactivar'}
           </button>

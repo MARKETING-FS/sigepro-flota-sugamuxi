@@ -371,6 +371,8 @@ export interface SupplierDossier {
   assignedReviewerName?: string; // e.g. 'Revisor 1 - Carlos Mendoza'
   assignedAt?: string;
   assignedBy?: string;
+  /** Quién registró al proveedor (nombre de la persona que hizo el alta) */
+  createdByName?: string;
   evaluations?: SupplierEvaluation[];
   initialEvaluation?: SupplierEvaluation;
   annualEvaluation?: SupplierEvaluation;
