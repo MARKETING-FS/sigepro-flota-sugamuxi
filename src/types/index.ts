@@ -481,6 +481,10 @@ export interface EvaluationMethodConfig {
   criteria: EvaluationCriterionConfig[];
   /** Partes que el administrador agrega a la evaluación inicial, además de los 6 criterios del formato. */
   initialExtras?: InitialExtraPart[];
+  /** Los seis criterios de la evaluación inicial con el texto y los puntos que la administración dejó (ver data/evaluationDoc006). */
+  initialCriteria?: import('../data/evaluationDoc006').Doc006Criterion[];
+  /** Puntos mínimos para aprobar la evaluación inicial; si falta, se usa la proporción del formato (76 de 120). */
+  initialPassingPoints?: number;
 }
 
 export type ConvocatoriaAccessRule = 'OPCION_A' | 'OPCION_B' | 'OPCION_C';

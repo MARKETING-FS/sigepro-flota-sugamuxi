@@ -8,6 +8,8 @@ import { Stepper } from './Stepper';
 import { activeWeight, balanceTo100, moveItem, newId, weightOf } from './methodDraft';
 
 interface AnnualTabProps {
+  passing: number;
+  onPassing: (value: number) => void;
   criteria: EvaluationCriterionConfig[];
   onChange: (next: EvaluationCriterionConfig[]) => void;
   onAskDelete: (name: string, run: () => void) => void;
@@ -16,7 +18,7 @@ interface AnnualTabProps {
 const SHADES = ['#0f3d75', '#1d5fa8', '#2c84c4', '#69bdd7', '#4a9bff', '#8fb6d9'];
 
 /** Evaluación anual: criterios ponderados que deben sumar 100 %. */
-export const AnnualTab: React.FC<AnnualTabProps> = ({ criteria, onChange, onAskDelete }) => {
+export const AnnualTab: React.FC<AnnualTabProps> = ({ passing, onPassing, criteria, onChange, onAskDelete }) => {
   const sum = activeWeight(criteria);
   const exact = sum === 100;
   const active = criteria.filter((c) => c.isActive !== false);
@@ -26,6 +28,16 @@ export const AnnualTab: React.FC<AnnualTabProps> = ({ criteria, onChange, onAskD
 
   return (
     <div className="space-y-6">
+      <section className={`${cardCls} p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4`} aria-label="Mínimo para aprobar">
+        <div className="min-w-0">
+          <h4 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">Mínimo para aprobar</h4>
+          <p className="text-[13px] text-[#3a5274] dark:text-slate-400 mt-0.5">
+            La calificación va de 0 a 100. Con este puntaje o más queda <strong>Aprobado</strong>; con menos, <strong>No aprobado</strong>. Se repite cada 365 días.
+          </p>
+        </div>
+        <Stepper value={passing} min={1} max={100} step={5} unit="pts" label="Puntos mínimos para aprobar la evaluación anual" onChange={onPassing} />
+      </section>
+
       <section
         aria-label="Reparto de los pesos"
         className={`${cardCls} p-4 sm:p-5 space-y-3 ${exact ? '' : '!border-amber-500/50'}`}

@@ -123,3 +123,40 @@ export const DOC006_MAX_SCORE = DOC006_CRITERIA.length * DOC006_MAX_PER_CRITERIO
  */
 export const doc006PassingFor = (maxScore: number): number =>
   Math.ceil((maxScore * DOC006_PASSING_SCORE) / DOC006_MAX_SCORE);
+
+/** Puntos más altos que puede dar un criterio (el de su mejor opción). */
+export const doc006MaxOf = (c: Doc006Criterion): number => c.options.reduce((m, o) => Math.max(m, o.points), 0);
+
+/** Máximo de puntos de una lista de criterios. */
+export const doc006TotalMax = (list: Doc006Criterion[]): number => list.reduce((sum, c) => sum + doc006MaxOf(c), 0);
+
+const clampInt = (v: unknown, min: number, max: number, fallback: number): number => {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
+};
+
+/**
+ * Criterios de la evaluación inicial que la administración pudo editar (texto de la pregunta y de cada opción,
+ * y los puntos de cada opción). Siempre devuelve los seis criterios del formato; lo que falte o venga mal
+ * se completa con el texto oficial.
+ */
+export function normalizeInitialCriteria(raw: unknown): Doc006Criterion[] {
+  const saved = Array.isArray(raw) ? (raw as Partial<Doc006Criterion>[]) : [];
+  return DOC006_CRITERIA.map((base) => {
+    const found = saved.find((s) => s && s.id === base.id);
+    const text = (v: unknown, fb: string) => (typeof v === 'string' && v.trim() ? v.trim() : fb);
+    return {
+      ...base,
+      name: text(found?.name, base.name),
+      description: typeof found?.description === 'string' ? found.description : base.description,
+      options: base.options.map((o, i) => ({
+        points: clampInt(found?.options?.[i]?.points, 0, 100, o.points),
+        label: text(found?.options?.[i]?.label, o.label),
+      })),
+    };
+  });
+}
+
+/** Puntaje mínimo efectivo: el que fijó la administración (si cabe dentro del máximo) o el proporcional del formato. */
+export const resolveInitialPassing = (explicit: number | undefined, maxScore: number): number =>
+  typeof explicit === 'number' && explicit >= 1 && explicit <= maxScore ? Math.round(explicit) : doc006PassingFor(maxScore);

@@ -334,7 +334,7 @@ export const SupplierEvaluationsView: React.FC = () => {
   };
 
   const conceptTone = (concept?: string): Tone =>
-    concept === 'SOBRESALIENTE' ? 'navy' : concept === 'CONFORME' ? 'blue' : concept === 'CONDICIONAL_MEJORA' ? 'warn' : 'bad';
+    concept === 'SOBRESALIENTE' ? 'navy' : concept === 'CONFORME' ? 'blue' : 'bad';
 
   const tabBtn = (key: 'due' | 'all' | 'history', label: string) => (
     <button

@@ -9,8 +9,9 @@ import {
   DOC006_CRITERIA,
   DOC006_DATE,
   DOC006_FOOTER,
-  DOC006_MAX_SCORE,
   doc006PassingFor,
+  doc006TotalMax,
+  Doc006Criterion,
   DOC006_TITLE,
   DOC006_VERSION,
 } from '../data/evaluationDoc006';
@@ -24,6 +25,10 @@ export interface EvaluationPdfInput {
   supplierDoc: string;
   address: string;
   city: string;
+  /** Preguntas y puntos del formato (con lo que la administración editó). Si no vienen, se usa el texto oficial. */
+  criteria?: Doc006Criterion[];
+  /** Puntos mínimos para aprobar; si no viene, la proporción del formato. */
+  passing?: number;
   /** Puntos obtenidos por criterio, en el orden del formato (I a VI). */
   scores: number[];
   /** Observación por criterio, en el mismo orden. */
@@ -66,6 +71,7 @@ export const evaluationPdfFileName = (supplierName: string) =>
     .slice(0, 40)}.pdf`;
 
 export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blob> {
+  const criteriaList = input.criteria ?? DOC006_CRITERIA;
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: true });
   const W = doc.internal.pageSize.getWidth();
@@ -246,7 +252,7 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
   y += 14;
 
   const rowH = 27;
-  DOC006_CRITERIA.forEach((crit, i) => {
+  criteriaList.forEach((crit, i) => {
     box(L, y, c1 - L, rowH);
     box(c1, y, c2 - c1, rowH);
     box(c2, y, R - c2, rowH);
@@ -276,8 +282,8 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
   }
 
   const total = input.scores.reduce((a, b) => a + (b || 0), 0) + extras.reduce((a, e) => a + (e.points || 0), 0);
-  const maxTotal = DOC006_MAX_SCORE + extras.reduce((a, e) => a + e.max, 0);
-  const passing = doc006PassingFor(maxTotal);
+  const maxTotal = doc006TotalMax(criteriaList) + extras.reduce((a, e) => a + e.max, 0);
+  const passing = input.passing ?? doc006PassingFor(maxTotal);
   const approved = total >= passing;
   box(L, y, c1 - L, 17, GRAY_FILL);
   box(c1, y, c2 - c1, 17, GRAY_FILL);
@@ -369,7 +375,7 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
   y += 17;
 
   const lead = 9.2;
-  DOC006_CRITERIA.forEach((crit, i) => {
+  criteriaList.forEach((crit, i) => {
     const picked = input.scores[i];
     font('helvetica', 'normal', 7.8);
     const descLines = doc.splitTextToSize(crit.description, d2 - d1 - 14) as string[];

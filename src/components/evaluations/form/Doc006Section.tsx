@@ -1,9 +1,10 @@
 import React from 'react';
-import { DOC006_CRITERIA, DOC006_MAX_PER_CRITERION } from '../../../data/evaluationDoc006';
+import { Doc006Criterion, doc006MaxOf } from '../../../data/evaluationDoc006';
 import { CriterionShell } from './CriterionShell';
 import { cardCls, focusRing } from './formStyles';
 
 interface Doc006SectionProps {
+  criteria: Doc006Criterion[];
   points: { [criterionId: string]: number };
   notes: { [criterionId: string]: string };
   onPick: (criterionId: string, points: number) => void;
@@ -11,18 +12,18 @@ interface Doc006SectionProps {
 }
 
 /** Evaluación inicial: seis criterios del formato FS.GA-DOC-006, una opción por criterio. */
-export const Doc006Section: React.FC<Doc006SectionProps> = ({ points, notes, onPick, onNotes }) => {
-  const answered = DOC006_CRITERIA.filter((c) => points[c.id] !== undefined).length;
+export const Doc006Section: React.FC<Doc006SectionProps> = ({ criteria, points, notes, onPick, onNotes }) => {
+  const answered = criteria.filter((c) => points[c.id] !== undefined).length;
   return (
     <section className="space-y-3">
       <div className="flex items-baseline justify-between gap-3">
         <h4 className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white">Criterios de selección</h4>
         <span className="text-xs font-semibold text-[#3a5274] dark:text-slate-300 tabular-nums">
-          {answered} de {DOC006_CRITERIA.length} calificados
+          {answered} de {criteria.length} calificados
         </span>
       </div>
       <ol className={`${cardCls} divide-y divide-black/[0.07] dark:divide-white/10`}>
-        {DOC006_CRITERIA.map((criterion, idx) => {
+        {criteria.map((criterion, idx) => {
           const picked = points[criterion.id];
           return (
             <CriterionShell
@@ -35,7 +36,7 @@ export const Doc006Section: React.FC<Doc006SectionProps> = ({ points, notes, onP
               aside={
                 <div className="shrink-0 text-right font-display text-xl font-semibold tabular-nums text-[#0b1d3a] dark:text-white leading-none pt-1">
                   {picked ?? '–'}
-                  <span className="text-xs font-medium text-[#5d7392]"> /{DOC006_MAX_PER_CRITERION}</span>
+                  <span className="text-xs font-medium text-[#5d7392]"> /{doc006MaxOf(criterion)}</span>
                 </div>
               }
               notes={notes[criterion.id] || ''}

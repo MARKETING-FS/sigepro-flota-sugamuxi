@@ -1,18 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ClipboardCheck, CalendarClock, Gauge, RotateCcw, Sliders, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ClipboardCheck, CalendarClock, RotateCcw, Sliders, Trash2, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useConfirm } from '../ui/ConfirmDialog';
 import { chipOff, chipOn, focusRing } from './form/formStyles';
 import { InitialTab } from './method/InitialTab';
 import { AnnualTab } from './method/AnnualTab';
-import { ThresholdsTab } from './method/ThresholdsTab';
 import { MethodDraft, draftFromMethod, patchFromDraft, sameDraft } from './method/methodDraft';
 
 interface EvaluationMethodConfigModalProps {
   onClose: () => void;
 }
 
-type TabId = 'initial' | 'annual' | 'ranges';
+type TabId = 'initial' | 'annual';
 
 /** «Método de evaluación»: qué partes se califican, cuántos puntos vale cada una y los rangos del concepto. */
 export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalProps> = ({ onClose }) => {
@@ -27,10 +26,12 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
   useEffect(() => setDraft(saved), [saved]);
 
   const dirty = !sameDraft(draft, saved);
-  const t = draft.thresholds;
   const issues: string[] = [];
-  if (!(t.sobresalienteMin > t.conformeMin && t.conformeMin > t.condicionalMin && t.condicionalMin > 0)) {
-    issues.push('Revise los rangos del concepto: deben ir de menor a mayor.');
+  if (draft.initialCriteria.some((c) => new Set(c.options.map((o) => o.points)).size !== c.options.length)) {
+    issues.push('Hay un criterio de la evaluación inicial con dos opciones de los mismos puntos.');
+  }
+  if (draft.initialCriteria.some((c) => !c.name.trim() || c.options.some((o) => !o.label.trim()))) {
+    issues.push('Hay una pregunta o una opción de la evaluación inicial sin texto.');
   }
   if (draft.criteria.some((c) => !c.name.trim()) || draft.extras.some((x) => !x.name.trim())) {
     issues.push('Hay una parte sin nombre.');
@@ -68,7 +69,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
   const restore = () =>
     ask({
       title: '¿Restaurar el método?',
-      message: 'Los criterios, pesos, rangos y partes adicionales volverán a los valores institucionales.',
+      message: 'Las preguntas, los puntos, los pesos y las partes adicionales volverán a los valores institucionales.',
       hint: 'Las evaluaciones ya registradas no cambian.',
       hintIcon: <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />,
       confirmLabel: 'Sí, restaurar',
@@ -76,9 +77,8 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
     });
 
   const tabs: { id: TabId; label: string; icon: React.ElementType; count?: number }[] = [
-    { id: 'initial', label: 'Evaluación inicial', icon: ClipboardCheck, count: 6 + draft.extras.filter((x) => x.isActive).length },
+    { id: 'initial', label: 'Evaluación inicial', icon: ClipboardCheck, count: draft.initialCriteria.length + draft.extras.filter((x) => x.isActive).length },
     { id: 'annual', label: 'Evaluación anual', icon: CalendarClock, count: draft.criteria.filter((c) => c.isActive !== false).length },
-    { id: 'ranges', label: 'Rangos del concepto', icon: Gauge },
   ];
 
   return (
@@ -134,13 +134,24 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
 
         <div className="flex-1 min-h-0 overflow-y-auto px-5 sm:px-7 py-6">
           {tab === 'initial' && (
-            <InitialTab extras={draft.extras} onChange={(extras) => setDraft((d) => ({ ...d, extras }))} onAskDelete={askDelete} />
+            <InitialTab
+              criteria={draft.initialCriteria}
+              onCriteria={(initialCriteria) => setDraft((d) => ({ ...d, initialCriteria }))}
+              passing={draft.initialPassing}
+              onPassing={(initialPassing) => setDraft((d) => ({ ...d, initialPassing }))}
+              extras={draft.extras}
+              onChange={(extras) => setDraft((d) => ({ ...d, extras }))}
+              onAskDelete={askDelete}
+            />
           )}
           {tab === 'annual' && (
-            <AnnualTab criteria={draft.criteria} onChange={(criteria) => setDraft((d) => ({ ...d, criteria }))} onAskDelete={askDelete} />
-          )}
-          {tab === 'ranges' && (
-            <ThresholdsTab value={draft.thresholds} onChange={(thresholds) => setDraft((d) => ({ ...d, thresholds }))} />
+            <AnnualTab
+              passing={draft.thresholds.conformeMin ?? 70}
+              onPassing={(conformeMin) => setDraft((d) => ({ ...d, thresholds: { ...d.thresholds, conformeMin } }))}
+              criteria={draft.criteria}
+              onChange={(criteria) => setDraft((d) => ({ ...d, criteria }))}
+              onAskDelete={askDelete}
+            />
           )}
         </div>
 

@@ -4,9 +4,10 @@ import { useApp } from '../../context/AppContext';
 import {
   DOC006_CODE,
   DOC006_CRITERIA,
-  DOC006_MAX_PER_CRITERION,
-  DOC006_MAX_SCORE,
-  doc006PassingFor,
+  doc006MaxOf,
+  doc006TotalMax,
+  normalizeInitialCriteria,
+  resolveInitialPassing,
 } from '../../data/evaluationDoc006';
 import {
   SupplierDossier,
@@ -139,14 +140,19 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     () => (evaluationMethod?.initialExtras || []).filter((p) => p.isActive !== false),
     [evaluationMethod?.initialExtras]
   );
-  const initialCount = DOC006_CRITERIA.length + extraParts.length;
-  const initialMax = DOC006_MAX_SCORE + extraParts.reduce((sum, p) => sum + p.maxPoints, 0);
-  const initialPassing = doc006PassingFor(initialMax);
+  // Las seis preguntas con el texto y los puntos que la administración dejó en «Método de evaluación»
+  const initialCriteria = useMemo(
+    () => normalizeInitialCriteria(evaluationMethod?.initialCriteria),
+    [evaluationMethod?.initialCriteria]
+  );
+  const initialCount = initialCriteria.length + extraParts.length;
+  const initialMax = doc006TotalMax(initialCriteria) + extraParts.reduce((sum, p) => sum + p.maxPoints, 0);
+  const initialPassing = resolveInitialPassing(evaluationMethod?.initialPassingPoints, initialMax);
   const doc006Answered =
-    DOC006_CRITERIA.filter((c) => doc006Points[c.id] !== undefined).length +
+    initialCriteria.filter((c) => doc006Points[c.id] !== undefined).length +
     extraParts.filter((p) => doc006Points[p.id] !== undefined).length;
   const doc006Total =
-    DOC006_CRITERIA.reduce((sum, c) => sum + (doc006Points[c.id] ?? 0), 0) +
+    initialCriteria.reduce((sum, c) => sum + (doc006Points[c.id] ?? 0), 0) +
     extraParts.reduce((sum, p) => sum + (doc006Points[p.id] ?? 0), 0);
   const doc006Complete = doc006Answered === initialCount;
 
@@ -176,10 +182,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   );
   const computedConcept = useMemo<EvaluationConcept>(() => {
     if (isInitialDoc) return totalScore >= initialPassing ? 'CONFORME' : 'NO_CONFORME';
-    if (totalScore >= (thresholds.sobresalienteMin ?? 90)) return 'SOBRESALIENTE';
-    if (totalScore >= (thresholds.conformeMin ?? 70)) return 'CONFORME';
-    if (totalScore >= (thresholds.condicionalMin ?? 60)) return 'CONDICIONAL_MEJORA';
-    return 'NO_CONFORME';
+    return totalScore >= (thresholds.conformeMin ?? 70) ? 'CONFORME' : 'NO_CONFORME';
   }, [totalScore, thresholds, isInitialDoc, initialPassing]);
 
   const handleScoreChange = (critId: string, val: number) => {
@@ -205,13 +208,13 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     setIsSubmitting(true);
 
     const scoresList: EvaluationCriterionScore[] = isInitialDoc
-      ? DOC006_CRITERIA.map((c) => ({
+      ? initialCriteria.map((c) => ({
           criterionId: c.id,
           criterionName: c.name,
           category: DOC006_CODE,
-          weight: DOC006_MAX_PER_CRITERION,
+          weight: doc006MaxOf(c),
           score: doc006Points[c.id],
-          maxScore: DOC006_MAX_PER_CRITERION,
+          maxScore: doc006MaxOf(c),
           optionLabel: c.options.find((o) => o.points === doc006Points[c.id])?.label,
           notes: doc006Notes[c.id]?.trim() || undefined,
         })).concat(
@@ -283,7 +286,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   };
 
   const totalWeight = applicableCriteria.reduce((sum, c) => sum + (c.weight ?? c.weightInitial ?? 20), 0);
-  const planForcedByConcept = computedConcept === 'CONDICIONAL_MEJORA';
+  const planForcedByConcept = false;
   const planRequired = hasImprovementPlan || planForcedByConcept;
 
   // Resumen lateral
@@ -297,16 +300,12 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
       : computedConcept === 'CONFORME'
         ? { tone: 'ok', label: 'Aprobado', hint: `Cumple el mínimo de ${initialPassing} puntos` }
         : { tone: 'bad', label: 'No aprobado', hint: `Faltan ${initialPassing - doc006Total} puntos para el mínimo` }
-    : computedConcept === 'SOBRESALIENTE'
-      ? { tone: 'ok', label: 'Sobresaliente', hint: 'Apto con excelencia SIG' }
-      : computedConcept === 'CONFORME'
-        ? { tone: 'ok', label: 'Conforme', hint: 'Aprobado según los requisitos' }
-        : computedConcept === 'CONDICIONAL_MEJORA'
-          ? { tone: 'warn', label: 'Condicional', hint: 'Requiere plan de mejora' }
-          : { tone: 'bad', label: 'No conforme', hint: 'Por debajo del mínimo exigido' };
+    : computedConcept === 'CONFORME'
+      ? { tone: 'ok', label: 'Aprobado', hint: `Cumple el mínimo de ${thresholds.conformeMin ?? 70} puntos` }
+      : { tone: 'bad', label: 'No aprobado', hint: `Por debajo del mínimo de ${thresholds.conformeMin ?? 70} puntos` };
 
   const summaryItems: SummaryItem[] = isInitialDoc
-    ? [...DOC006_CRITERIA, ...extraParts].map((c) => ({ id: c.id, name: c.name, value: doc006Points[c.id] ?? null }))
+    ? [...initialCriteria, ...extraParts].map((c) => ({ id: c.id, name: c.name, value: doc006Points[c.id] ?? null }))
     : applicableCriteria.map((c) => ({ id: c.id, name: c.name, value: activeScoresMap[c.id]?.score ?? 90 }));
 
   const summaryProps = {
@@ -390,6 +389,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
               {isInitialDoc ? (
                 <>
                   <Doc006Section
+                    criteria={initialCriteria}
                     points={doc006Points}
                     notes={doc006Notes}
                     onPick={(id, pts) => setDoc006Points((prev) => ({ ...prev, [id]: pts }))}

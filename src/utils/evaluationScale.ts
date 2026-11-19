@@ -31,23 +31,24 @@ export function formatEvaluationScore(e: Pick<SupplierEvaluation, 'totalScore' |
 
 export { DOC006_PASSING_SCORE };
 
-/** «Aprobado / No aprobado» para el formato FS.GA-DOC-006; el resto conserva los conceptos del método anual. */
+/** El resultado de toda evaluación es «Aprobado» o «No aprobado» (los conceptos antiguos se agrupan en esos dos). */
+export const isApprovedConcept = (concept: SupplierEvaluation['concept'] | undefined): boolean =>
+  concept === 'CONFORME' || concept === 'SOBRESALIENTE';
+
 export function evaluationConceptLabel(e: Pick<SupplierEvaluation, 'concept' | 'criteriaScores'>): string {
-  if (isDoc006Evaluation(e)) return e.concept === 'NO_CONFORME' ? 'No aprobado' : 'Aprobado';
-  return e.concept === 'SOBRESALIENTE'
-    ? 'Sobresaliente'
-    : e.concept === 'CONFORME'
-    ? 'Conforme'
-    : e.concept === 'CONDICIONAL_MEJORA'
-    ? 'Condicional'
-    : 'No conforme';
+  return isApprovedConcept(e.concept) ? 'Aprobado' : 'No aprobado';
 }
 
 /** Nota A/B/C para el tablero: en DOC-006 la B es «aprobado» (76 puntos o más) y la A el 85 % o más. */
-export function evaluationGrade(e: Pick<SupplierEvaluation, 'totalScore' | 'criteriaScores'>): 'A' | 'B' | 'C' {
+export function evaluationGrade(e: Pick<SupplierEvaluation, 'totalScore' | 'criteriaScores'> & Partial<Pick<SupplierEvaluation, 'concept'>>): 'A' | 'B' | 'C' {
+  const max = evaluationMaxScore(e);
+  if (e.concept) {
+    if (!isApprovedConcept(e.concept)) return 'C';
+    return e.totalScore >= max * 0.85 ? 'A' : 'B';
+  }
   if (isDoc006Evaluation(e)) {
-    if (e.totalScore >= evaluationMaxScore(e) * 0.85) return 'A';
-    return e.totalScore >= doc006PassingFor(evaluationMaxScore(e)) ? 'B' : 'C';
+    if (e.totalScore >= max * 0.85) return 'A';
+    return e.totalScore >= doc006PassingFor(max) ? 'B' : 'C';
   }
   return e.totalScore >= 85 ? 'A' : e.totalScore >= 70 ? 'B' : 'C';
 }

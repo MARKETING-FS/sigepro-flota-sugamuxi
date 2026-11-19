@@ -12,8 +12,9 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { SupplierEvaluation } from '../../types';
+import { useApp } from '../../context/AppContext';
 import { FlotaSugamuxiLogo } from '../FlotaSugamuxiLogo';
-import { DOC006_CODE, doc006PassingFor, DOC006_TITLE, DOC006_VERSION } from '../../data/evaluationDoc006';
+import { DOC006_CODE, resolveInitialPassing, DOC006_TITLE, DOC006_VERSION } from '../../data/evaluationDoc006';
 import { evaluationConceptLabel, evaluationMaxScore, isDoc006Evaluation } from '../../utils/evaluationScale';
 import { displayDate } from '../../utils/dateOnly';
 
@@ -26,6 +27,7 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
   evaluation,
   onClose,
 }) => {
+  const { evaluationMethod } = useApp();
   const printRef = useRef<HTMLDivElement>(null);
 
   if (!evaluation) return null;
@@ -253,7 +255,7 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
                     <tr>
                       <td className="px-3 py-3 text-right uppercase text-slate-700">Total:</td>
                       <td className="px-3 py-3 text-[11px] font-medium text-slate-600">
-                        Mínimo para aprobar la vinculación: {doc006PassingFor(maxScore)} puntos
+                        Mínimo para aprobar la vinculación: {resolveInitialPassing(evaluationMethod?.initialPassingPoints, maxScore)} puntos
                       </td>
                       <td className="px-3 py-3 text-center">
                         <span className="text-base font-black text-blue-900 font-mono">
@@ -279,7 +281,7 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
                     </td>
                     <td className="px-3 py-3">
                       <span className={`px-2.5 py-1 rounded-md text-xs font-black border ${getConceptColor(evaluation.concept)}`}>
-                        {evaluation.concept}
+                        {evaluationConceptLabel(evaluation).toUpperCase()}
                       </span>
                     </td>
                   </tr>

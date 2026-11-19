@@ -1,14 +1,15 @@
 import React from 'react';
-import { Lock, ChevronDown } from 'lucide-react';
 import { InitialExtraPart } from '../../../types';
 import {
   DOC006_CODE,
   DOC006_CRITERIA,
-  DOC006_MAX_PER_CRITERION,
-  DOC006_MAX_SCORE,
   DOC006_VERSION,
+  Doc006Criterion,
   doc006PassingFor,
+  doc006TotalMax,
+  resolveInitialPassing,
 } from '../../../data/evaluationDoc006';
+import { QuestionEditor } from './QuestionEditor';
 import { cardCls, fieldCls } from '../form/formStyles';
 import { AddPartForm } from './AddPartForm';
 import { RowTools, Switch } from './RowTools';
@@ -16,6 +17,10 @@ import { Stepper } from './Stepper';
 import { moveItem, newId } from './methodDraft';
 
 interface InitialTabProps {
+  criteria: Doc006Criterion[];
+  onCriteria: (next: Doc006Criterion[]) => void;
+  passing: number | null;
+  onPassing: (value: number) => void;
   extras: InitialExtraPart[];
   onChange: (next: InitialExtraPart[]) => void;
   onAskDelete: (name: string, run: () => void) => void;
@@ -30,48 +35,46 @@ const Stat: React.FC<{ label: string; value: React.ReactNode; hint?: string; str
 );
 
 /** Evaluación inicial: seis criterios fijos del formato y las partes que la administración le suma. */
-export const InitialTab: React.FC<InitialTabProps> = ({ extras, onChange, onAskDelete }) => {
+export const InitialTab: React.FC<InitialTabProps> = ({ criteria, onCriteria, passing, onPassing, extras, onChange, onAskDelete }) => {
   const active = extras.filter((x) => x.isActive);
   const extraMax = active.reduce((sum, x) => sum + x.maxPoints, 0);
-  const total = DOC006_MAX_SCORE + extraMax;
+  const formatMax = doc006TotalMax(criteria);
+  const total = formatMax + extraMax;
+  const minimum = resolveInitialPassing(passing ?? undefined, total);
   const patch = (id: string, change: Partial<InitialExtraPart>) =>
     onChange(extras.map((x) => (x.id === id ? { ...x, ...change } : x)));
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Stat label="Formato oficial" value={`${DOC006_MAX_SCORE} puntos`} hint="6 criterios de 20" />
+        <Stat label="Preguntas del formato" value={`${formatMax} puntos`} hint={`${criteria.length} criterios`} />
         <Stat label="Partes adicionales" value={`+${extraMax} puntos`} hint={`${active.length} activa${active.length === 1 ? '' : 's'}`} />
-        <Stat label="Puntaje total" value={`${total} puntos`} hint={`Aprueba con ${doc006PassingFor(total)} o más`} strong />
+        <Stat label="Puntaje total" value={`${total} puntos`} hint="Lo máximo que se puede sacar" strong />
       </div>
 
-      <details className={`${cardCls} group`}>
-        <summary className="flex items-center gap-3 px-4 py-3.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-          <span className="grid place-items-center w-9 h-9 rounded-xl bg-[#eaf2fb] dark:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0">
-            <Lock className="w-4 h-4" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-semibold text-[15px] text-[#0b1d3a] dark:text-white">
-              Formato {DOC006_CODE} v{DOC006_VERSION}
-            </span>
-            <span className="block text-[13px] text-[#3a5274] dark:text-slate-400">
-              Documento controlado: sus criterios y puntos no se cambian desde aquí.
-            </span>
-          </span>
-          <ChevronDown className="w-5 h-5 text-[#3a5274] dark:text-slate-300 transition-transform group-open:rotate-180 shrink-0" />
-        </summary>
-        <ol className="border-t border-black/[0.07] dark:border-white/10 divide-y divide-black/[0.05] dark:divide-white/10">
-          {DOC006_CRITERIA.map((c, i) => (
-            <li key={c.id} className="flex items-center gap-3 px-4 py-2.5">
-              <span className="w-6 h-6 rounded-full grid place-items-center bg-[#eaf2fb] dark:bg-white/10 text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] tabular-nums shrink-0">
-                {i + 1}
-              </span>
-              <span className="flex-1 min-w-0 text-sm text-[#0b1d3a] dark:text-slate-100">{c.name}</span>
-              <span className="text-sm font-semibold tabular-nums text-[#3a5274] dark:text-slate-300">{DOC006_MAX_PER_CRITERION} pts</span>
-            </li>
-          ))}
-        </ol>
-      </details>
+      <section className={`${cardCls} p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4`} aria-label="Mínimo para aprobar">
+        <div className="min-w-0">
+          <h4 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">Mínimo para aprobar</h4>
+          <p className="text-[13px] text-[#3a5274] dark:text-slate-400 mt-0.5">
+            Con este puntaje o más, el proveedor queda <strong>Aprobado</strong>; con menos, <strong>No aprobado</strong>.
+            {passing === null && ` Ahora sigue la proporción del formato (${doc006PassingFor(total)} de ${total}).`}
+          </p>
+        </div>
+        <Stepper value={minimum} min={1} max={total} step={1} unit="pts" label="Puntos mínimos para aprobar" onChange={onPassing} />
+      </section>
+
+      <section className="space-y-3">
+        <div>
+          <h4 className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white">
+            Preguntas · formato {DOC006_CODE} v{DOC006_VERSION}
+          </h4>
+          <p className="text-[13px] text-[#3a5274] dark:text-slate-400 mt-0.5">
+            Abra un criterio para cambiar su texto, las opciones y los puntos de cada una. Los cambios aplican a las evaluaciones nuevas y salen en el
+            PDF; las ya registradas conservan su puntaje.
+          </p>
+        </div>
+        <QuestionEditor criteria={criteria} onChange={onCriteria} />
+      </section>
 
       <section className="space-y-3">
         <div>

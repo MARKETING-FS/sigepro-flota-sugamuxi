@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Award, Download, Loader2, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SupplierEvaluation } from '../../types';
-import { DOC006_CODE, DOC006_CRITERIA, DOC006_VERSION } from '../../data/evaluationDoc006';
+import { DOC006_CODE, DOC006_VERSION, doc006TotalMax, normalizeInitialCriteria, resolveInitialPassing } from '../../data/evaluationDoc006';
 import { buildEvaluationPdf, evaluationPdfFileName } from '../../utils/evaluationPdf';
 import { downloadBlob, imageToDataUrl } from '../../utils/certificatePdf';
 
@@ -19,7 +19,7 @@ const pdfCache = new Map<string, { blob: Blob; fileName: string }>();
  * Se genera sola al abrirse y se puede descargar en PDF.
  */
 export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluation, onClose }) => {
-  const { allDossiers } = useApp();
+  const { allDossiers, evaluationMethod } = useApp();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const blobRef = useRef<Blob | null>(null);
@@ -38,7 +38,7 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
     setError(null);
 
     const info0 = dossier?.basicInfo;
-    const cacheKey = `${evaluation.id}|${evaluation.totalScore}|${evaluation.observations || ''}|${info0?.address || ''}|${info0?.city || ''}|${evaluation.evaluatorSignature ? evaluation.evaluatorSignature.length : 0}`;
+    const cacheKey = `${evaluation.id}|${evaluation.totalScore}|${evaluation.observations || ''}|${info0?.address || ''}|${info0?.city || ''}|${evaluation.evaluatorSignature ? evaluation.evaluatorSignature.length : 0}|${JSON.stringify(evaluationMethod?.initialCriteria || []).length}|${evaluationMethod?.initialPassingPoints ?? ''}`;
     const hit = pdfCache.get(cacheKey);
     if (hit) {
       blobRef.current = hit.blob;
@@ -59,9 +59,10 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
         const isNatural = info?.supplierType === 'NATURAL';
         const supplierName = evaluation.supplierName || (isNatural ? info?.fullName : info?.companyName) || 'Proveedor';
         const byId = new Map((evaluation.criteriaScores || []).map((c) => [c.criterionId, c]));
-        const scores = DOC006_CRITERIA.map((c) => byId.get(c.id)?.score ?? 0);
-        const notes = DOC006_CRITERIA.map((c) => byId.get(c.id)?.notes || '');
-        const known = new Set(DOC006_CRITERIA.map((c) => c.id));
+        const criteria = normalizeInitialCriteria(evaluationMethod?.initialCriteria);
+        const scores = criteria.map((c) => byId.get(c.id)?.score ?? 0);
+        const notes = criteria.map((c) => byId.get(c.id)?.notes || '');
+        const known = new Set(criteria.map((c) => c.id));
         const extras = (evaluation.criteriaScores || [])
           .filter((c) => !known.has(c.criterionId))
           .map((c) => ({ name: c.criterionName, points: c.score ?? 0, max: c.maxScore ?? 0, notes: c.notes || '' }));
@@ -74,6 +75,11 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
           supplierDoc: evaluation.supplierDoc || (isNatural ? info?.documentNumber : info?.nit) || '',
           address: info?.address || '',
           city: info?.city || '',
+          criteria,
+          passing: resolveInitialPassing(
+            evaluationMethod?.initialPassingPoints,
+            doc006TotalMax(criteria) + extras.reduce((a, e) => a + e.max, 0)
+          ),
           scores,
           notes,
           extras,

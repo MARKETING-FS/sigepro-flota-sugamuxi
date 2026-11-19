@@ -56,6 +56,7 @@ import {
 } from '../data/initialData';
 import { INITIAL_EVALUATION_METHOD, INITIAL_SUPPLIER_EVALUATIONS } from '../data/initialEvaluations';
 import { evaluationConceptLabel, formatEvaluationScore } from '../utils/evaluationScale';
+import { normalizeInitialCriteria } from '../data/evaluationDoc006';
 import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/initialEmails';
 import { generateEmailContent } from '../utils/emailTemplates';
 import { DEFAULT_FORM_PDFS } from '../utils/formPdf';
@@ -754,12 +755,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isActive: x.isActive !== false,
       }));
 
+    const initialCriteria = normalizeInitialCriteria(method.initialCriteria);
+
     return {
       ...base,
       ...method,
       thresholds,
       criteria,
       initialExtras,
+      initialCriteria,
+      initialPassingPoints: typeof method.initialPassingPoints === 'number' && method.initialPassingPoints >= 1 ? Math.round(method.initialPassingPoints) : undefined,
     };
   };
 

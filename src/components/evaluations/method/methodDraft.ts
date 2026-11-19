@@ -1,9 +1,14 @@
 import { EvaluationCriterionConfig, EvaluationMethodConfig, EvaluationThresholds, InitialExtraPart } from '../../../types';
+import { Doc006Criterion, normalizeInitialCriteria } from '../../../data/evaluationDoc006';
 
 /** Copia editable del método: se cambia libremente y se guarda de una sola vez. */
 export interface MethodDraft {
   criteria: EvaluationCriterionConfig[];
   extras: InitialExtraPart[];
+  /** Las seis preguntas de la evaluación inicial con su texto y puntos */
+  initialCriteria: Doc006Criterion[];
+  /** Puntos mínimos para aprobar la evaluación inicial; null = el proporcional del formato */
+  initialPassing: number | null;
   thresholds: EvaluationThresholds;
 }
 
@@ -12,6 +17,8 @@ export const weightOf = (c: EvaluationCriterionConfig): number => c.weight ?? c.
 export const draftFromMethod = (m: EvaluationMethodConfig): MethodDraft => ({
   criteria: m.criteria.map((c) => ({ ...c })),
   extras: (m.initialExtras || []).map((x) => ({ ...x })),
+  initialCriteria: normalizeInitialCriteria(m.initialCriteria),
+  initialPassing: m.initialPassingPoints ?? null,
   thresholds: {
     sobresalienteMin: m.thresholds?.sobresalienteMin ?? m.excellentThreshold ?? 90,
     conformeMin: m.thresholds?.conformeMin ?? m.initialPassingScore ?? 70,
@@ -28,6 +35,8 @@ export const patchFromDraft = (d: MethodDraft): Partial<EvaluationMethodConfig> 
     weightAnnual: weightOf(c),
   })),
   initialExtras: d.extras.map((x) => ({ ...x, name: x.name.trim() })),
+  initialCriteria: d.initialCriteria,
+  initialPassingPoints: d.initialPassing ?? undefined,
   thresholds: d.thresholds,
 });
 
