@@ -10,7 +10,7 @@ import {
   DOC006_DATE,
   DOC006_FOOTER,
   DOC006_MAX_SCORE,
-  DOC006_PASSING_SCORE,
+  doc006PassingFor,
   DOC006_TITLE,
   DOC006_VERSION,
 } from '../data/evaluationDoc006';
@@ -28,6 +28,8 @@ export interface EvaluationPdfInput {
   scores: number[];
   /** Observación por criterio, en el mismo orden. */
   notes: string[];
+  /** Partes adicionales que la administración agregó a la evaluación inicial (van en una hoja aparte). */
+  extras?: { name: string; points: number; max: number; notes: string }[];
   conclusions: string;
   evaluatorName: string;
   evaluatorPosition: string;
@@ -151,7 +153,7 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
     cell(0, 'CÓDIGO:', DOC006_CODE);
     cell(1, 'VERSIÓN:', DOC006_VERSION);
     cell(2, 'FECHA:', DOC006_DATE);
-    cell(3, 'PÁGINA:', `${page} de 2`);
+    cell(3, 'PÁGINA:', `${page} de ${(input.extras || []).length > 0 ? 3 : 2}`);
   };
 
   const drawFooter = () => {
@@ -259,8 +261,24 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
     y += rowH;
   });
 
-  const total = input.scores.reduce((a, b) => a + (b || 0), 0);
-  const approved = total >= DOC006_PASSING_SCORE;
+  const extras = input.extras || [];
+  if (extras.length > 0) {
+    box(L, y, c1 - L, 20);
+    box(c1, y, c2 - c1, 20);
+    box(c2, y, R - c2, 20);
+    font('times', 'normal', 8.2);
+    doc.text('Partes adicionales (ver hoja 3)', L + 5, y + 13);
+    font('helvetica', 'bold', 10);
+    doc.text(String(extras.reduce((a, e) => a + (e.points || 0), 0)), (c1 + c2) / 2, y + 14, { align: 'center' });
+    font('helvetica', 'normal', 7.5);
+    doc.text(`de ${extras.reduce((a, e) => a + e.max, 0)} puntos`, c2 + 5, y + 13);
+    y += 20;
+  }
+
+  const total = input.scores.reduce((a, b) => a + (b || 0), 0) + extras.reduce((a, e) => a + (e.points || 0), 0);
+  const maxTotal = DOC006_MAX_SCORE + extras.reduce((a, e) => a + e.max, 0);
+  const passing = doc006PassingFor(maxTotal);
+  const approved = total >= passing;
   box(L, y, c1 - L, 17, GRAY_FILL);
   box(c1, y, c2 - c1, 17, GRAY_FILL);
   font('times', 'bold', 9);
@@ -268,7 +286,7 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
   font('helvetica', 'bold', 10.5);
   doc.text(String(total), (c1 + c2) / 2, y + 12.5, { align: 'center' });
   font('helvetica', 'normal', 8);
-  doc.text(`de ${DOC006_MAX_SCORE} puntos`, c2 + 8, y + 12);
+  doc.text(`de ${maxTotal} puntos`, c2 + 8, y + 12);
   const resultColor: RGB = approved ? NAVY : [190, 30, 30];
   font('helvetica', 'bold', 9, resultColor);
   doc.text(approved ? 'RESULTADO: APROBADO' : 'RESULTADO: NO APROBADO', R, y + 12, { align: 'right' });
@@ -276,7 +294,7 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
 
   font('helvetica', 'normal', 9.5);
   const rule = doc.splitTextToSize(
-    `Si el proveedor obtiene una calificación de ${DOC006_PASSING_SCORE} puntos o más podrá ser tenido en cuenta para ser aprobado su vinculación como proveedor de la empresa.`,
+    `Si el proveedor obtiene una calificación de ${passing} puntos o más podrá ser tenido en cuenta para ser aprobado su vinculación como proveedor de la empresa.`,
     TW - 24
   ) as string[];
   rule.forEach((ln, k) => doc.text(ln, L + 14, y + 22 + k * 13));
@@ -285,7 +303,7 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
   // Conclusiones
   font('helvetica', 'normal', 8.5);
   const concLinesFit = (doc.splitTextToSize(input.conclusions || '', TW - 16) as string[]);
-  const rows = Math.max(3, Math.min(concLinesFit.length, 6));
+  const rows = Math.max(3, Math.min(concLinesFit.length, extras.length > 0 ? 4 : 6));
   box(L, y, TW, 17);
   font('times', 'bold', 9.5);
   doc.text('CONCLUSIONES:', L + 4, y + 12);
@@ -399,8 +417,47 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
   });
 
   font('helvetica', 'italic', 7.5, [90, 90, 90]);
-  doc.text(`Opción calificada resaltada en azul. Total: ${total} de ${DOC006_MAX_SCORE} puntos.`, L, y + 14);
+  doc.text(`Opción calificada resaltada en azul. Total: ${total} de ${maxTotal} puntos.`, L, y + 14);
   drawFooter();
+
+  // ================= Página 3: partes adicionales (solo si la administración las agregó) =================
+  if (extras.length > 0) {
+    doc.addPage();
+    drawHeader(3);
+    font('helvetica', 'bold', 11);
+    doc.text('Partes adicionales de la evaluación', L + 8, 130);
+    const e1 = L + 190;
+    const e2 = e1 + 70;
+    y = 144;
+    box(L, y, e1 - L, 17, GRAY_FILL);
+    box(e1, y, e2 - e1, 17, GRAY_FILL);
+    box(e2, y, R - e2, 17, GRAY_FILL);
+    font('times', 'bold', 9);
+    doc.text('Parte', (L + e1) / 2, y + 12, { align: 'center' });
+    doc.text('Puntaje', (e1 + e2) / 2, y + 12, { align: 'center' });
+    doc.text('Observación', (e2 + R) / 2, y + 12, { align: 'center' });
+    y += 17;
+    extras.forEach((ex) => {
+      font('helvetica', 'normal', 8.5);
+      const nameLines = doc.splitTextToSize(ex.name, e1 - L - 14) as string[];
+      const noteLines = doc.splitTextToSize(ex.notes || '', R - e2 - 12) as string[];
+      const h = Math.max(nameLines.length, noteLines.length, 2) * 10.5 + 12;
+      if (y + h > 720) return;
+      box(L, y, e1 - L, h);
+      box(e1, y, e2 - e1, h);
+      box(e2, y, R - e2, h);
+      font('times', 'bold', 9);
+      nameLines.forEach((ln, k) => doc.text(ln, L + 7, y + 14 + k * 10.5));
+      font('helvetica', 'bold', 10);
+      doc.text(`${ex.points} / ${ex.max}`, (e1 + e2) / 2, y + h / 2 + 3.5, { align: 'center' });
+      font('helvetica', 'normal', 8);
+      noteLines.forEach((ln, k) => doc.text(ln, e2 + 6, y + 13 + k * 10));
+      y += h;
+    });
+    font('helvetica', 'italic', 7.5, [90, 90, 90]);
+    doc.text(`Total de la evaluación: ${total} de ${maxTotal} puntos (mínimo para aprobar: ${passing}).`, L, y + 14);
+    drawFooter();
+  }
 
   doc.setProperties({
     title: `${DOC006_CODE} v${DOC006_VERSION} · ${input.supplierName}`,

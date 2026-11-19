@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle } from 'lucide-react';
+import { Search, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   SupplierDossier,
@@ -362,13 +362,8 @@ export const SupplierEvaluationsView: React.FC = () => {
               <FileSpreadsheet className="w-4 h-4" /> Exportar
             </button>
             {role === 'ADMIN' && !isReadOnly && (
-              <button type="button" className={heroSecondaryBtn} onClick={() => setIsConfigModalOpen(true)}>
+              <button type="button" className={heroPrimaryBtn} onClick={() => setIsConfigModalOpen(true)}>
                 <Sliders className="w-4 h-4" /> Método de evaluación
-              </button>
-            )}
-            {!isReadOnly && (
-              <button type="button" className={heroPrimaryBtn} onClick={() => handleOpenEvaluationModal(null, 'INICIAL')}>
-                <Plus className="w-4 h-4" /> Nueva evaluación
               </button>
             )}
           </>

@@ -61,6 +61,10 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
         const byId = new Map((evaluation.criteriaScores || []).map((c) => [c.criterionId, c]));
         const scores = DOC006_CRITERIA.map((c) => byId.get(c.id)?.score ?? 0);
         const notes = DOC006_CRITERIA.map((c) => byId.get(c.id)?.notes || '');
+        const known = new Set(DOC006_CRITERIA.map((c) => c.id));
+        const extras = (evaluation.criteriaScores || [])
+          .filter((c) => !known.has(c.criterionId))
+          .map((c) => ({ name: c.criterionName, points: c.score ?? 0, max: c.maxScore ?? 0, notes: c.notes || '' }));
 
         const logoDataUrl = await imageToDataUrl('/logo-flota.png');
         const blob = await buildEvaluationPdf({
@@ -72,6 +76,7 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
           city: info?.city || '',
           scores,
           notes,
+          extras,
           conclusions: evaluation.observations || '',
           evaluatorName: evaluation.evaluatorName || '',
           evaluatorPosition: evaluation.evaluatorRole || '',

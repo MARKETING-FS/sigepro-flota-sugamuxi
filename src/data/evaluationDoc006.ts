@@ -116,3 +116,10 @@ export const DOC006_CRITERIA: Doc006Criterion[] = [
 ];
 
 export const DOC006_MAX_SCORE = DOC006_CRITERIA.length * DOC006_MAX_PER_CRITERION;
+
+/**
+ * Puntaje mínimo para aprobar cuando la evaluación inicial lleva partes adicionales: se mantiene la misma
+ * proporción del formato (76 de 120). Con el máximo de 120 devuelve exactamente 76.
+ */
+export const doc006PassingFor = (maxScore: number): number =>
+  Math.ceil((maxScore * DOC006_PASSING_SCORE) / DOC006_MAX_SCORE);

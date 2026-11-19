@@ -458,6 +458,16 @@ export interface EvaluationCriterionConfig {
   isActive: boolean;
 }
 
+/** Parte adicional de la evaluación inicial: se suma a los 6 criterios del formato FS.GA-DOC-006. */
+export interface InitialExtraPart {
+  id: string;
+  name: string;
+  description: string;
+  /** Puntos máximos que puede sumar esta parte. */
+  maxPoints: number;
+  isActive: boolean;
+}
+
 export interface EvaluationMethodConfig {
   id: string;
   title: string;
@@ -469,6 +479,8 @@ export interface EvaluationMethodConfig {
   annualPeriodicityDays: number; // default 365
   thresholds: EvaluationThresholds;
   criteria: EvaluationCriterionConfig[];
+  /** Partes que el administrador agrega a la evaluación inicial, además de los 6 criterios del formato. */
+  initialExtras?: InitialExtraPart[];
 }
 
 export type ConvocatoriaAccessRule = 'OPCION_A' | 'OPCION_B' | 'OPCION_C';

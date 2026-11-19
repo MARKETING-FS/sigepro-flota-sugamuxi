@@ -744,11 +744,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     });
 
+    const initialExtras = (Array.isArray(method.initialExtras) ? method.initialExtras : [])
+      .filter((x: any) => x && typeof x.name === 'string' && x.name.trim())
+      .map((x: any, index: number) => ({
+        id: x.id || `extra-${index + 1}`,
+        name: String(x.name).trim(),
+        description: typeof x.description === 'string' ? x.description : '',
+        maxPoints: Math.max(1, Math.round(Number(x.maxPoints) || 10)),
+        isActive: x.isActive !== false,
+      }));
+
     return {
       ...base,
       ...method,
       thresholds,
       criteria,
+      initialExtras,
     };
   };
 

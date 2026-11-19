@@ -1,5 +1,5 @@
 import type { SupplierEvaluation } from '../types';
-import { DOC006_PASSING_SCORE } from '../data/evaluationDoc006';
+import { DOC006_PASSING_SCORE, doc006PassingFor } from '../data/evaluationDoc006';
 
 /**
  * Las evaluaciones iniciales calificadas con el formato FS.GA-DOC-006 suman puntos sobre 120
@@ -47,7 +47,7 @@ export function evaluationConceptLabel(e: Pick<SupplierEvaluation, 'concept' | '
 export function evaluationGrade(e: Pick<SupplierEvaluation, 'totalScore' | 'criteriaScores'>): 'A' | 'B' | 'C' {
   if (isDoc006Evaluation(e)) {
     if (e.totalScore >= evaluationMaxScore(e) * 0.85) return 'A';
-    return e.totalScore >= DOC006_PASSING_SCORE ? 'B' : 'C';
+    return e.totalScore >= doc006PassingFor(evaluationMaxScore(e)) ? 'B' : 'C';
   }
   return e.totalScore >= 85 ? 'A' : e.totalScore >= 70 ? 'B' : 'C';
 }

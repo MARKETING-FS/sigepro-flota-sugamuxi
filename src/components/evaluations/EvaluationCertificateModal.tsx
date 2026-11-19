@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { SupplierEvaluation } from '../../types';
 import { FlotaSugamuxiLogo } from '../FlotaSugamuxiLogo';
-import { DOC006_CODE, DOC006_PASSING_SCORE, DOC006_TITLE, DOC006_VERSION } from '../../data/evaluationDoc006';
+import { DOC006_CODE, doc006PassingFor, DOC006_TITLE, DOC006_VERSION } from '../../data/evaluationDoc006';
 import { evaluationConceptLabel, evaluationMaxScore, isDoc006Evaluation } from '../../utils/evaluationScale';
 import { displayDate } from '../../utils/dateOnly';
 
@@ -253,7 +253,7 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
                     <tr>
                       <td className="px-3 py-3 text-right uppercase text-slate-700">Total:</td>
                       <td className="px-3 py-3 text-[11px] font-medium text-slate-600">
-                        Mínimo para aprobar la vinculación: {DOC006_PASSING_SCORE} puntos
+                        Mínimo para aprobar la vinculación: {doc006PassingFor(maxScore)} puntos
                       </td>
                       <td className="px-3 py-3 text-center">
                         <span className="text-base font-black text-blue-900 font-mono">
