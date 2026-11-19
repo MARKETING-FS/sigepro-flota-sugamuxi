@@ -25,7 +25,7 @@ export const WeightedSection: React.FC<WeightedSectionProps> = ({ criteria, scor
       <h4 className="font-display text-lg font-semibold text-[#0b1d3a] dark:text-white">Criterios de evaluación</h4>
       <span
         className={`text-xs font-semibold tabular-nums ${
-          totalWeight === 100 ? 'text-[#1d5fa8] dark:text-[#69bdd7]' : 'text-red-600 dark:text-red-400'
+          totalWeight === 100 ? 'text-[#0a5473] dark:text-[#5db2c9]' : 'text-red-600 dark:text-red-400'
         }`}
       >
         Peso total {totalWeight}%{totalWeight !== 100 ? ' · debería sumar 100%' : ''}
@@ -43,13 +43,13 @@ export const WeightedSection: React.FC<WeightedSectionProps> = ({ criteria, scor
             done
             title={criterion.name}
             badges={
-              <span className="text-[11px] h-5 px-2 inline-flex items-center rounded-full bg-[#69bdd7]/20 text-[#0e6d8a] dark:text-[#69bdd7] font-semibold">
+              <span className="text-[11px] h-5 px-2 inline-flex items-center rounded-full bg-[#5db2c9]/20 text-[#0e6d8a] dark:text-[#5db2c9] font-semibold">
                 {criterion.category}
               </span>
             }
             description={criterion.description}
             aside={
-              <span className="shrink-0 h-7 px-3 inline-flex items-center rounded-full bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] tabular-nums">
+              <span className="shrink-0 h-7 px-3 inline-flex items-center rounded-full bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/25 text-xs font-semibold text-[#0a5473] dark:text-[#5db2c9] tabular-nums">
                 Peso {weight}%
               </span>
             }
@@ -66,7 +66,7 @@ export const WeightedSection: React.FC<WeightedSectionProps> = ({ criteria, scor
                 value={state.score}
                 onChange={(e) => onScore(criterion.id, Number(e.target.value))}
                 aria-label={`Deslizador de ${criterion.name}`}
-                className="flex-1 min-w-0 accent-[#2c84c4] cursor-pointer h-1.5"
+                className="flex-1 min-w-0 accent-[#0f6b8f] cursor-pointer h-1.5"
               />
               <div className="flex items-baseline gap-1.5 shrink-0">
                 <input
@@ -76,7 +76,7 @@ export const WeightedSection: React.FC<WeightedSectionProps> = ({ criteria, scor
                   value={state.score}
                   onChange={(e) => onScore(criterion.id, Number(e.target.value))}
                   aria-label={`Puntaje de ${criterion.name}`}
-                  className="w-[76px] h-11 text-center font-display text-xl font-semibold tabular-nums rounded-xl bg-black/[0.03] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30"
+                  className="w-[76px] h-11 text-center font-display text-xl font-semibold tabular-nums rounded-xl bg-black/[0.03] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white focus:outline-none focus:border-[#0f6b8f] focus:ring-2 focus:ring-[#0f6b8f]/30"
                 />
                 <span className="text-xs text-[#5d7392]">de 100</span>
               </div>

@@ -55,9 +55,9 @@ export const ToastNotification: React.FC = () => {
       role="status"
     >
       <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-[#0f1a33] border border-black/[0.08] dark:border-white/10 shadow-[0_18px_44px_-14px_rgba(11,29,58,0.35)] dark:shadow-[0_22px_50px_-16px_rgba(0,0,0,0.8)]">
-        <span aria-hidden="true" className={`absolute inset-y-0 left-0 w-1.5 ${v.red ? 'bg-red-500' : 'bg-gradient-to-b from-[#69bdd7] to-[#2c84c4]'}`} />
+        <span aria-hidden="true" className={`absolute inset-y-0 left-0 w-1.5 ${v.red ? 'bg-red-500' : 'bg-gradient-to-b from-[#5db2c9] to-[#0f6b8f]'}`} />
         <div className="flex items-start gap-3 pl-5 pr-2.5 py-3">
-          <span className={`grid place-items-center w-9 h-9 shrink-0 rounded-full ${v.red ? 'bg-red-500/12 text-red-600 dark:text-red-400' : 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]'}`}>
+          <span className={`grid place-items-center w-9 h-9 shrink-0 rounded-full ${v.red ? 'bg-red-500/12 text-red-600 dark:text-red-400' : 'bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/25 text-[#0a5473] dark:text-[#5db2c9]'}`}>
             <Icon className="w-[18px] h-[18px]" strokeWidth={2.2} />
           </span>
           <div className="min-w-0 flex-1 pt-0.5">
@@ -76,7 +76,7 @@ export const ToastNotification: React.FC = () => {
         </div>
         <div className="h-[3px] bg-black/[0.05] dark:bg-white/10">
           <div
-            className={`h-full transition-all duration-75 ease-linear ${v.red ? 'bg-red-500' : 'bg-gradient-to-r from-[#2c84c4] to-[#69bdd7]'}`}
+            className={`h-full transition-all duration-75 ease-linear ${v.red ? 'bg-red-500' : 'bg-gradient-to-r from-[#0f6b8f] to-[#5db2c9]'}`}
             style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
           />
         </div>

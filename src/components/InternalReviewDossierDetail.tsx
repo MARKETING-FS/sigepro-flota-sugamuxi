@@ -505,7 +505,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
               type="text"
               value={reviewerName}
               onChange={(e) => setReviewerName(e.target.value)}
-              className="text-xs font-medium px-3 h-9 rounded-xl bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#69bdd7]/60 w-44 sm:w-56"
+              className="text-xs font-medium px-3 h-9 rounded-xl bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#5db2c9]/60 w-44 sm:w-56"
               title="Nombre del revisor para auditoría y trazabilidad"
             />
           </div>
@@ -551,7 +551,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   </span>
                 )}
                 {dossier.selectedCategory && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#69bdd7]/25 border border-[#69bdd7]/50 backdrop-blur-sm font-semibold">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5db2c9]/25 border border-[#5db2c9]/50 backdrop-blur-sm font-semibold">
                     <Tag className="w-3.5 h-3.5" />
                     <span>{dossier.selectedCategory}</span>
                   </span>
@@ -619,7 +619,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 className="shimmer h-11 px-5 rounded-xl bg-white text-[#131b2e] font-semibold text-sm flex items-center gap-2 shadow-glow hover:opacity-95 transition-opacity cursor-pointer"
                 title="Ficha Oficial & Certificado de Proveedor Habilitado disponible (100% documentos aprobados y vigentes)"
               >
-                <Award className="w-4 h-4 text-[#2c84c4]" />
+                <Award className="w-4 h-4 text-[#0f6b8f]" />
                 <span>Ficha Oficial & Certificado</span>
               </button>
             ) : (
@@ -654,7 +654,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 <ShieldCheck className="w-5 h-5" />
               </span>
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2c84c4] dark:text-[#69bdd7]">Estado de creación</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0f6b8f] dark:text-[#5db2c9]">Estado de creación</p>
                 <p className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white truncate">Homologación SIG</p>
               </div>
             </div>
@@ -684,7 +684,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   Documento vencido
                 </span>
               ) : allDocumentsApproved ? (
-                <span className="text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] font-semibold flex items-center gap-1.5">
+                <span className="text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] font-semibold flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4" />
                   Expediente 100% conforme
                 </span>
@@ -699,11 +699,11 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
         <div className="fs-card lift rounded-[24px] p-5 animate-fade-up" style={{ animationDelay: '80ms' }}>
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <span className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-[#69bdd7] to-[#2c84c4] text-white grid place-items-center shadow-glow">
+              <span className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-[#5db2c9] to-[#0f6b8f] text-white grid place-items-center shadow-glow">
                 <Briefcase className="w-5 h-5" />
               </span>
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2c84c4] dark:text-[#69bdd7]">Vinculación contractual</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0f6b8f] dark:text-[#5db2c9]">Vinculación contractual</p>
                 <p className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white truncate">Vigencia de contrato</p>
               </div>
             </div>
@@ -715,7 +715,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   setActiveTab('contrato');
                   window.setTimeout(() => document.getElementById('contrato-tab')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
                 }}
-                className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-[#2c84c4]/40 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-xs font-semibold transition-colors cursor-pointer"
+                className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-[#0f6b8f]/40 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 text-xs font-semibold transition-colors cursor-pointer"
                 title="Subir el PDF del contrato y marcar hasta qué fecha va"
               >
                 <Calendar className="w-3.5 h-3.5" />
@@ -773,9 +773,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
       )}
 
       {!expSummary.hasExpiredDocs && expSummary.hasExpiringSoonDocs && (
-        <div className="rounded-2xl border border-[#2c84c4]/35 bg-[#2c84c4]/10 px-4 py-3 text-xs flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap animate-fade-up">
+        <div className="rounded-2xl border border-[#0f6b8f]/35 bg-[#0f6b8f]/10 px-4 py-3 text-xs flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap animate-fade-up">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[#2c84c4] to-[#69bdd7] text-white grid place-items-center">
+            <span className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[#0f6b8f] to-[#5db2c9] text-white grid place-items-center">
               <Clock className="w-4.5 h-4.5" />
             </span>
             <div className="min-w-0">
@@ -785,7 +785,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   <span key={doc.code} className="inline-flex items-center gap-1.5 text-[11px] bg-white/70 dark:bg-white/[0.06] px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10">
                     <span className="font-semibold text-[#0b1d3a] dark:text-white truncate max-w-[200px]">{getDocInstitutionalName(doc.code, doc.name)}</span>
                     <span className="text-[#5d7392] dark:text-slate-400">({doc.expirationDate})</span>
-                    <span className="bg-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] px-1.5 rounded text-[10px] font-bold">{doc.daysRemaining}d</span>
+                    <span className="bg-[#0f6b8f]/30 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] px-1.5 rounded text-[10px] font-bold">{doc.daysRemaining}d</span>
                   </span>
                 ))}
               </div>
@@ -855,10 +855,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
             {/* Registro de cambio manual */}
             {dossier.manualStatusOverride && (
-              <div className="rounded-[22px] border border-[#2c84c4]/35 bg-[#2c84c4]/10 p-5 space-y-3 animate-fade-up">
+              <div className="rounded-[22px] border border-[#0f6b8f]/35 bg-[#0f6b8f]/10 p-5 space-y-3 animate-fade-up">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7]" />
+                    <ShieldCheck className="w-4 h-4 text-[#0f6b8f] dark:text-[#5db2c9]" />
                     <span>Registro oficial de cambio de estado manual (ISO 9001 / SARLAFT)</span>
                   </h4>
                   <span className="text-[11px] text-[#3a5274] dark:text-slate-400">
@@ -903,7 +903,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             <div
               className={`p-5 rounded-[22px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-up ${
                 allDocumentsApproved
-                  ? 'bg-[#2c84c4]/10 border-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7]'
+                  ? 'bg-[#0f6b8f]/10 border-[#0f6b8f]/30 text-[#0a5473] dark:text-[#5db2c9]'
                   : 'bg-black/[0.04] dark:bg-white/[0.06] border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white'
               }`}
             >
@@ -934,16 +934,16 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   {/* Coherent Breakdown between Forms and Support Documents */}
                   <div className="flex items-center gap-2 text-[11px] font-medium text-[#3a5274] dark:text-slate-300 mt-1 flex-wrap">
                     <span className="inline-flex items-center gap-1.5 bg-white/70 dark:bg-white/[0.08] px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10">
-                      <FileText className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                      <FileText className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" />
                       Formatos Oficiales: <strong className="text-[#0b1d3a] dark:text-white">{institutionalApprovedCount} de {institutionalTotalCount}</strong>
                     </span>
                     <span className="text-[#5d7392] dark:text-slate-400 font-bold">+</span>
                     <span className="inline-flex items-center gap-1.5 bg-white/70 dark:bg-white/[0.08] px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/10">
-                      <Briefcase className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                      <Briefcase className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" />
                       Soportes & Anexos: <strong className="text-[#0b1d3a] dark:text-white">{supportApprovedCount} de {supportTotalCount}</strong>
                     </span>
                     <span className="text-[#5d7392] dark:text-slate-400 font-bold">=</span>
-                    <span className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">
+                    <span className="font-bold text-[#0a5473] dark:text-[#5db2c9]">
                       {approvedDocsCount} de {totalDocs} Total Requisitos
                     </span>
                   </div>
@@ -980,7 +980,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             
             {/* BLOQUE 1: FORMULARIOS INSTITUCIONALES OFICIALES */}
             <div className="space-y-3">
-              <div className="bg-[#2c84c4]/[0.07] p-4 rounded-2xl border border-[#2c84c4]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="bg-[#0f6b8f]/[0.07] p-4 rounded-2xl border border-[#0f6b8f]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[11px] font-semibold uppercase bg-gradient-action text-white px-3 py-1 rounded-full tracking-wider flex items-center gap-1.5 shadow-glow">
                     <FileText className="w-3.5 h-3.5 text-cyan-300" />
@@ -990,8 +990,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     Formatos FS.GA-FOR-009 y FS.GA-FOR-039
                   </span>
                 </div>
-                <span className="text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] bg-white/70 dark:bg-white/[0.08] px-3 py-1.5 rounded-xl border border-[#2c84c4]/30 flex items-center gap-1.5 self-start sm:self-auto">
-                  <CheckCircle2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                <span className="text-xs font-semibold text-[#0a5473] dark:text-[#5db2c9] bg-white/70 dark:bg-white/[0.08] px-3 py-1.5 rounded-xl border border-[#0f6b8f]/30 flex items-center gap-1.5 self-start sm:self-auto">
+                  <CheckCircle2 className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                   <span>Formatos Oficiales: {institutionalApprovedCount} de {institutionalTotalCount} aprobados</span>
                 </span>
               </div>
@@ -1003,7 +1003,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             >
               <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] px-2.5 py-0.5 rounded border border-[#2c84c4]/30">
+                  <span className="text-[10px] font-bold uppercase bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] px-2.5 py-0.5 rounded border border-[#0f6b8f]/30">
                     Formato Oficial
                   </span>
                   <h3 className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white">
@@ -1013,7 +1013,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 <div>
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                     dossier.documents['FS_GA_FOR_009']?.status === 'APROBADO'
-                      ? 'bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
+                      ? 'bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border-[#0f6b8f]/30'
                       : dossier.documents['FS_GA_FOR_009']?.status === 'REQUIERE_CORRECCION'
                       ? 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
                       : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
@@ -1041,10 +1041,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <button
                       type="button"
                       onClick={() => handleOpenDocPreview(dossier.documents['FS_GA_FOR_009'], 'Formulario de Inscripción FS.GA-FOR-009', 'FS_GA_FOR_009')}
-                      className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer shadow-2xs transition-colors"
+                      className="h-9 px-3 bg-[#0f6b8f]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#0a5473] dark:text-[#5db2c9] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#0f6b8f]/30 cursor-pointer shadow-2xs transition-colors"
                       title="Visualizar documento cargado"
                     >
-                      <Eye className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                      <Eye className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                       <span>Ver Documento</span>
                     </button>
 
@@ -1057,7 +1057,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         }}
                         className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#3a5274] dark:text-slate-300 text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors"
                       >
-                        <FileText className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                        <FileText className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                         Formato Blanco
                       </button>
                     )}
@@ -1100,9 +1100,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         isInstitutionalForm: true,
                         status: 'PENDIENTE',
                       }, 'Formulario FS.GA-FOR-009')}
-                      className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer transition-colors"
+                      className="h-9 px-3 bg-[#0f6b8f]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#0a5473] dark:text-[#5db2c9] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#0f6b8f]/30 cursor-pointer transition-colors"
                     >
-                      <FileUp className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                      <FileUp className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                       <span>Cargar / Asignar Archivo</span>
                     </button>
                   )}
@@ -1117,7 +1117,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             >
               <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] px-2.5 py-0.5 rounded border border-[#2c84c4]/30">
+                  <span className="text-[10px] font-bold uppercase bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] px-2.5 py-0.5 rounded border border-[#0f6b8f]/30">
                     Formato Oficial
                   </span>
                   <h3 className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white">
@@ -1127,7 +1127,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 <div>
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                     dossier.documents['FS_GA_FOR_039']?.status === 'APROBADO'
-                      ? 'bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
+                      ? 'bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border-[#0f6b8f]/30'
                       : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
                   }`}>
                     {dossier.documents['FS_GA_FOR_039']?.status || 'PENDIENTE'}
@@ -1148,10 +1148,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <button
                       type="button"
                       onClick={() => handleOpenDocPreview(dossier.documents['FS_GA_FOR_039'], 'Autorización FS.GA-FOR-039', 'FS_GA_FOR_039')}
-                      className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer shadow-2xs transition-colors"
+                      className="h-9 px-3 bg-[#0f6b8f]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#0a5473] dark:text-[#5db2c9] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#0f6b8f]/30 cursor-pointer shadow-2xs transition-colors"
                       title="Visualizar documento cargado"
                     >
-                      <Eye className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                      <Eye className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                       <span>Ver Documento</span>
                     </button>
 
@@ -1164,7 +1164,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         }}
                         className="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#3a5274] dark:text-slate-300 text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-black/10 dark:border-white/10 cursor-pointer transition-colors"
                       >
-                        <FileText className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                        <FileText className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                         Formato Blanco
                       </button>
                     )}
@@ -1206,9 +1206,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         isInstitutionalForm: true,
                         status: 'PENDIENTE',
                       }, 'Autorización FS.GA-FOR-039')}
-                      className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer transition-colors"
+                      className="h-9 px-3 bg-[#0f6b8f]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#0a5473] dark:text-[#5db2c9] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#0f6b8f]/30 cursor-pointer transition-colors"
                     >
-                      <FileUp className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                      <FileUp className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                       <span>Cargar / Asignar Archivo</span>
                     </button>
                   )}
@@ -1220,7 +1220,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           {/* BLOQUE 2: DOCUMENTOS SOPORTE Y ANEXOS TRIBUTARIOS */}
           <div className="space-y-3">
             {/* Category / Service Assigned Header Callout in Light Tone */}
-            <div className="bg-[#2c84c4]/[0.07] p-4 rounded-xl border border-[#2c84c4]/30 shadow-2xs space-y-2.5">
+            <div className="bg-[#0f6b8f]/[0.07] p-4 rounded-xl border border-[#0f6b8f]/30 shadow-2xs space-y-2.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -1237,12 +1237,12 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     <span className="text-xs font-semibold text-[#3a5274] dark:text-slate-300">
                       Categoría / Servicio Asignado:
                     </span>
-                    <span className="text-xs font-black text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-2.5 py-0.5 rounded-md border border-[#2c84c4]/30 inline-flex items-center gap-1.5 shadow-2xs">
-                      <Layers className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <span className="text-xs font-black text-[#0a5473] dark:text-[#5db2c9] bg-[#0f6b8f]/10 px-2.5 py-0.5 rounded-md border border-[#0f6b8f]/30 inline-flex items-center gap-1.5 shadow-2xs">
+                      <Layers className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                       <span>{dossier.selectedCategory}</span>
                     </span>
                     {currentCatConfig?.economicCode && (
-                      <span className="text-[11px] font-mono font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-white px-2 py-0.5 rounded border border-[#2c84c4]/30 shadow-2xs">
+                      <span className="text-[11px] font-mono font-bold text-[#0a5473] dark:text-[#5db2c9] bg-white px-2 py-0.5 rounded border border-[#0f6b8f]/30 shadow-2xs">
                         Código: {currentCatConfig.economicCode}
                       </span>
                     )}
@@ -1255,8 +1255,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 </div>
 
                 <div className="flex flex-col sm:items-end gap-1 shrink-0">
-                  <span className="text-xs font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-white px-3 py-1.5 rounded-lg border border-[#2c84c4]/30 shadow-2xs flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                  <span className="text-xs font-bold text-[#0a5473] dark:text-[#5db2c9] bg-white px-3 py-1.5 rounded-lg border border-[#0f6b8f]/30 shadow-2xs flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Soportes y Anexos: {supportApprovedCount} de {supportTotalCount} aprobados</span>
                   </span>
                   <span className="text-[10.5px] text-[#5d7392] dark:text-slate-400 font-medium">
@@ -1265,7 +1265,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 </div>
               </div>
 
-              <p className="text-[11.5px] text-[#3a5274] dark:text-slate-300 leading-relaxed border-t border-[#2c84c4]/30 pt-2">
+              <p className="text-[11.5px] text-[#3a5274] dark:text-slate-300 leading-relaxed border-t border-[#0f6b8f]/30 pt-2">
                 ℹ Los requerimientos documentales y anexos tributarios de este bloque se parametrizan dinámicamente según la <strong>Categoría o Servicio Asignado ({dossier.selectedCategory})</strong> y la naturaleza jurídica del postulante para el Sistema Integrado de Gestión de Flota Sugamuxi S.A.
               </p>
             </div>
@@ -1296,13 +1296,13 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     return (
                       <React.Fragment key={code}>
                       {startsGroup && (
-                        <div className="px-4 py-3 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                        <div className="px-4 py-3 bg-[#0f6b8f]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                           <div className="min-w-0">
                             <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{supportGroupInfo[groupKey].title}</p>
                             <p className="text-[11.5px] text-[#5d7392] dark:text-slate-400">{supportGroupInfo[groupKey].hint}</p>
                           </div>
                           {groupProgress.total > 0 && (
-                            <span className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] whitespace-nowrap">
+                            <span className="text-[11px] font-bold text-[#0a5473] dark:text-[#5db2c9] whitespace-nowrap">
                               {groupProgress.ok} de {groupProgress.total} aprobados
                             </span>
                           )}
@@ -1317,7 +1317,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           docExp.status === 'VENCIDO'
                             ? 'bg-red-500/[0.07] border-l-4 border-l-red-500'
                             : docExp.status === 'POR_VENCER'
-                            ? 'bg-[#2c84c4]/10 border-l-4 border-l-blue-600'
+                            ? 'bg-[#0f6b8f]/10 border-l-4 border-l-blue-600'
                             : doc.status === 'REQUIERE_CORRECCION'
                             ? 'bg-black/[0.04] dark:bg-white/[0.06] border-l-4 border-l-slate-400'
                             : 'hover:bg-black/5 dark:hover:bg-white/10'
@@ -1332,7 +1332,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                               [{code}]
                             </span>
                             {isActivityReq && (
-                              <span className="text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-2 py-0.5 rounded border border-[#2c84c4]/30">
+                              <span className="text-[10px] font-bold text-[#0a5473] dark:text-[#5db2c9] bg-[#0f6b8f]/10 px-2 py-0.5 rounded border border-[#0f6b8f]/30">
                                 Exigencia por Actividad
                               </span>
                             )}
@@ -1350,8 +1350,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           )}
 
                           {docDef?.validityRule && (
-                            <div className="text-[10.5px] text-[#1d5fa8] dark:text-[#69bdd7] font-medium flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0" />
+                            <div className="text-[10.5px] text-[#0a5473] dark:text-[#5db2c9] font-medium flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9] shrink-0" />
                               <span>Regla SIG: {docDef.validityRule}</span>
                             </div>
                           )}
@@ -1373,14 +1373,14 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                             </div>
                           )}
                           {docExp.status === 'POR_VENCER' && (
-                            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-2.5 py-0.5 rounded border border-[#2c84c4]/30 shadow-2xs">
-                              <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0" />
+                            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[#0a5473] dark:text-[#5db2c9] bg-[#0f6b8f]/10 px-2.5 py-0.5 rounded border border-[#0f6b8f]/30 shadow-2xs">
+                              <Clock className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9] shrink-0" />
                               <span>POR VENCER: Restan {docExp.daysRemaining} días para vencer ({doc.expirationDate})</span>
                             </div>
                           )}
                           {docExp.status === 'VIGENTE' && (
-                            <div className="inline-flex items-center gap-1 text-[10px] font-medium text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 px-2 py-0.5 rounded border border-[#2c84c4]/30">
-                              <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0" />
+                            <div className="inline-flex items-center gap-1 text-[10px] font-medium text-[#0a5473] dark:text-[#5db2c9] bg-[#0f6b8f]/10 px-2 py-0.5 rounded border border-[#0f6b8f]/30">
+                              <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9] shrink-0" />
                               <span>Vigente (restan {docExp.daysRemaining} días)</span>
                             </div>
                           )}
@@ -1400,13 +1400,13 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                         <div className="flex flex-wrap items-center gap-2 shrink-0">
                           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                             shownStatus === 'APROBADO' || shownStatus === 'VIGENTE'
-                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35'
+                              ? 'bg-[#0f6b8f]/12 text-[#0a5473] dark:text-[#5db2c9] border-[#0f6b8f]/35'
                               : shownStatus === 'POR_VENCER'
-                              ? 'text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4] ring-1 ring-[#2c84c4]/40 font-bold'
+                              ? 'text-[#0a5473] dark:text-[#5db2c9] border-[#0f6b8f] ring-1 ring-[#0f6b8f]/40 font-bold'
                               : shownStatus === 'VENCIDO'
                               ? 'bg-red-500/10 text-red-600 dark:text-red-300 border-red-500/50 font-bold'
                               : doc.status === 'REQUIERE_CORRECCION'
-                              ? 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35'
+                              ? 'bg-[#0f6b8f]/12 text-[#0a5473] dark:text-[#5db2c9] border-[#0f6b8f]/35'
                               : 'bg-black/[0.04] dark:bg-white/[0.06] text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
                           }`}>
                             {docStatusLabel}
@@ -1416,10 +1416,10 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                             <button
                               type="button"
                               onClick={() => handleOpenDocPreview(doc, docTitle, code)}
-                              className="h-9 px-3 bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#2c84c4]/30 cursor-pointer shadow-2xs transition-colors"
+                              className="h-9 px-3 bg-[#0f6b8f]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#0a5473] dark:text-[#5db2c9] text-xs font-bold rounded-xl flex items-center gap-1.5 border border-[#0f6b8f]/30 cursor-pointer shadow-2xs transition-colors"
                               title="Visualizar documento cargado"
                             >
-                              <Eye className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                              <Eye className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                               <span>Ver Documento</span>
                             </button>
                           )}
@@ -1431,7 +1431,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                               className={`h-9 px-3 text-xs font-bold rounded-xl flex items-center gap-1.5 border cursor-pointer shadow-2xs transition-colors ${
                                 doc.fileName
                                   ? 'bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/5 dark:hover:bg-white/10 text-[#0b1d3a] dark:text-white border-black/10 dark:border-white/10'
-                                  : 'bg-[#2c84c4]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/30'
+                                  : 'bg-[#0f6b8f]/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#0a5473] dark:text-[#5db2c9] border-[#0f6b8f]/30'
                               }`}
                               title={doc.fileName ? 'Modificar información, vigencia o sustituir archivo' : 'Cargar archivo soporte por el revisor'}
                             >
@@ -1442,7 +1442,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                                 </>
                               ) : (
                                 <>
-                                  <FileUp className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                                  <FileUp className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                                   <span>Cargar Doc</span>
                                 </>
                               )}
@@ -1489,24 +1489,24 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                   </p>
                 </div>
               </div>
-              <span className="self-start sm:self-auto shrink-0 text-xs font-semibold bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] px-3.5 py-1.5 rounded-full border border-[#2c84c4]/30">
+              <span className="self-start sm:self-auto shrink-0 text-xs font-semibold bg-[#0f6b8f]/12 text-[#0a5473] dark:text-[#5db2c9] px-3.5 py-1.5 rounded-full border border-[#0f6b8f]/30">
                 {systemAuditLogs.filter((l) => l.dossierId === dossier.id).length} eventos registrados
               </span>
             </div>
 
             {/* Eventos de modificación de datos */}
             <div className="space-y-3">
-              <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2c84c4] dark:text-[#69bdd7]">
+              <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0f6b8f] dark:text-[#5db2c9]">
                 Eventos de auditoría y modificaciones de datos
               </h4>
 
               {systemAuditLogs.filter((l) => l.dossierId === dossier.id).length > 0 ? (
-                <ol className="relative space-y-3 pl-7 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-[#2c84c4] before:to-transparent">
+                <ol className="relative space-y-3 pl-7 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-[#0f6b8f] before:to-transparent">
                   {systemAuditLogs
                     .filter((l) => l.dossierId === dossier.id)
                     .map((log) => (
                       <li key={log.id} className="relative">
-                        <span className="absolute -left-7 top-4 w-[23px] h-[23px] rounded-full bg-gradient-action grid place-items-center ring-4 ring-[#2c84c4]/15">
+                        <span className="absolute -left-7 top-4 w-[23px] h-[23px] rounded-full bg-gradient-action grid place-items-center ring-4 ring-[#0f6b8f]/15">
                           <span className="w-1.5 h-1.5 rounded-full bg-white" />
                         </span>
                         <div className="fs-card rounded-2xl p-4 space-y-2.5 text-xs">
@@ -1516,8 +1516,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                               <span
                                 className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
                                   log.action === 'CAMBIO_ESTADO'
-                                    ? 'bg-[#2c84c4]/20 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]'
-                                    : 'bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7]'
+                                    ? 'bg-[#0f6b8f]/20 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9]'
+                                    : 'bg-[#0f6b8f]/15 text-[#0a5473] dark:text-[#5db2c9]'
                                 }`}
                               >
                                 {log.action}
@@ -1537,7 +1537,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                                 <span className="font-semibold no-underline mr-1">Anterior:</span>
                                 {log.oldValue || '(Vacío)'}
                               </div>
-                              <div className="rounded-xl p-2.5 bg-[#2c84c4]/[0.08] border border-[#2c84c4]/35 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] font-medium">
+                              <div className="rounded-xl p-2.5 bg-[#0f6b8f]/[0.08] border border-[#0f6b8f]/35 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] font-medium">
                                 <span className="font-semibold text-[#5d7392] dark:text-slate-400 mr-1">Nuevo:</span>
                                 {log.newValue || '(Vacío)'}
                               </div>
@@ -1558,7 +1558,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     ))}
                 </ol>
               ) : (
-                <div className="p-6 text-center text-[#5d7392] dark:text-slate-400 rounded-2xl border border-dashed border-[#2c84c4]/35 bg-[#2c84c4]/[0.04] text-xs">
+                <div className="p-6 text-center text-[#5d7392] dark:text-slate-400 rounded-2xl border border-dashed border-[#0f6b8f]/35 bg-[#0f6b8f]/[0.04] text-xs">
                   No hay modificaciones de campos registradas para este expediente.
                 </div>
               )}
@@ -1566,14 +1566,14 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
             {/* Línea de tiempo del flujo de revisión */}
             <div className="space-y-3 pt-5 border-t border-black/[0.07] dark:border-white/10">
-              <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2c84c4] dark:text-[#69bdd7]">
+              <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0f6b8f] dark:text-[#5db2c9]">
                 Línea de tiempo del flujo de revisión
               </h4>
 
-              <ol className="relative space-y-3 pl-7 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-[#69bdd7] before:to-transparent">
+              <ol className="relative space-y-3 pl-7 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-[#5db2c9] before:to-transparent">
                 {(dossier.auditHistory || []).map((aud) => (
                   <li key={aud.id} className="relative">
-                    <span className="absolute -left-7 top-3.5 w-[23px] h-[23px] rounded-full bg-gradient-to-br from-[#69bdd7] to-[#2c84c4] grid place-items-center ring-4 ring-[#69bdd7]/15">
+                    <span className="absolute -left-7 top-3.5 w-[23px] h-[23px] rounded-full bg-gradient-to-br from-[#5db2c9] to-[#0f6b8f] grid place-items-center ring-4 ring-[#5db2c9]/15">
                       <span className="w-1.5 h-1.5 rounded-full bg-white" />
                     </span>
                     <div className="fs-card rounded-2xl p-3.5 space-y-1 text-xs">
@@ -1654,7 +1654,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
 
                 <div>
                   <label className="block text-xs font-semibold text-[#0b1d3a] dark:text-white mb-1">
-                    Observación Detallada para el Proveedor <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
+                    Observación Detallada para el Proveedor <span className="text-[#0a5473] dark:text-[#5db2c9]">*</span>
                   </label>
                   <textarea
                     rows={4}

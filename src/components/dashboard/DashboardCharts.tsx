@@ -16,8 +16,8 @@ export const TrendChart: React.FC<{ data: Array<{ label: string; value: number |
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[260px]" role="img" aria-label="Puntaje promedio por mes">
       <defs>
         <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2c84c4" stopOpacity="0.45" />
-          <stop offset="100%" stopColor="#69bdd7" stopOpacity="0.02" />
+          <stop offset="0%" stopColor="#0f6b8f" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#5db2c9" stopOpacity="0.02" />
         </linearGradient>
       </defs>
       {[40, 55, 70, 85, 100].map((t) => (
@@ -35,7 +35,7 @@ export const TrendChart: React.FC<{ data: Array<{ label: string; value: number |
           d={line}
           pathLength={1}
           fill="none"
-          stroke="#2c84c4"
+          stroke="#0f6b8f"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -43,7 +43,7 @@ export const TrendChart: React.FC<{ data: Array<{ label: string; value: number |
         />
       )}
       {valid.map((p, i) => (
-        <circle key={i} cx={p[0]} cy={p[1]} r="4.5" fill="var(--nd-card)" stroke="#2c84c4" strokeWidth="2.5" />
+        <circle key={i} cx={p[0]} cy={p[1]} r="4.5" fill="var(--nd-card)" stroke="#0f6b8f" strokeWidth="2.5" />
       ))}
     </svg>
   );
@@ -62,7 +62,7 @@ export const BarList: React.FC<{ items: Array<{ label: string; value: number }> 
           </div>
           <div className="h-2.5 rounded-full bg-[#e3eaf3] dark:bg-white/10 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#2c84c4] to-[#69bdd7]"
+              className="h-full rounded-full bg-gradient-to-r from-[#0f6b8f] to-[#5db2c9]"
               style={{ width: `${(it.value / max) * 100}%`, transformOrigin: 'left', animation: `nd-grow 1s cubic-bezier(0.2,0.8,0.2,1) ${i * 70}ms both` }}
             />
           </div>
@@ -76,8 +76,8 @@ export const BarList: React.FC<{ items: Array<{ label: string; value: number }> 
 export const GradeBars: React.FC<{ grades: { A: number; B: number; C: number } }> = ({ grades }) => {
   const total = grades.A + grades.B + grades.C || 1;
   const rows = [
-    { k: 'A' as const, label: 'Excelente', range: '85–100', bar: 'from-[#2c84c4] to-[#69bdd7]' },
-    { k: 'B' as const, label: 'Aceptable', range: '70–84', bar: 'from-[#69bdd7] to-[#69bdd7]/60' },
+    { k: 'A' as const, label: 'Excelente', range: '85–100', bar: 'from-[#0f6b8f] to-[#5db2c9]' },
+    { k: 'B' as const, label: 'Aceptable', range: '70–84', bar: 'from-[#5db2c9] to-[#5db2c9]/60' },
     { k: 'C' as const, label: 'Crítico', range: 'menos de 70', bar: 'from-red-500 to-red-400/60' },
   ];
   return (
@@ -111,7 +111,7 @@ export const ActivityTimeline: React.FC<{
   <ol className="relative ml-2 space-y-5 border-l border-[#d9e3ef] dark:border-white/15 pl-6">
     {items.map((a, i) => (
       <li key={a.id} className="relative animate-fade-up" style={{ animationDelay: `${i * 70}ms` }}>
-        <span className="absolute -left-[31px] top-1 flex w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#131b2e] bg-[#2c84c4] ring-4 ring-[#2c84c4]/15" />
+        <span className="absolute -left-[31px] top-1 flex w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#131b2e] bg-[#0f6b8f] ring-4 ring-[#0f6b8f]/15" />
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="text-sm font-semibold text-[#0b1d3a] dark:text-white">{a.title}</span>
           <span className="rounded-md bg-[#e3eaf3] dark:bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-[#3a5274] dark:text-slate-300">{a.badge}</span>
@@ -135,14 +135,14 @@ export const PriorityAlerts: React.FC<{
         type="button"
         onClick={() => onOpen(a.id)}
         style={{ animationDelay: `${i * 60}ms` }}
-        className="group animate-fade-up w-full flex items-center gap-3 rounded-xl border border-[#d9e3ef] dark:border-white/10 bg-white/60 dark:bg-white/[0.03] px-3 py-2.5 text-left text-sm transition-all hover:border-[#2c84c4]/50 hover:shadow-card cursor-pointer"
+        className="group animate-fade-up w-full flex items-center gap-3 rounded-xl border border-[#d9e3ef] dark:border-white/10 bg-white/60 dark:bg-white/[0.03] px-3 py-2.5 text-left text-sm transition-all hover:border-[#0f6b8f]/50 hover:shadow-card cursor-pointer"
       >
-        <span className={`h-9 w-1 rounded-full shrink-0 ${a.critical ? 'bg-red-500' : 'bg-[#2c84c4]'}`} />
+        <span className={`h-9 w-1 rounded-full shrink-0 ${a.critical ? 'bg-red-500' : 'bg-[#0f6b8f]'}`} />
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium text-[#0b1d3a] dark:text-white">{a.title}</span>
           <span className="block truncate text-xs text-[#3a5274] dark:text-slate-400">{a.message}</span>
         </span>
-        <ArrowUpRight className="w-4 h-4 text-[#3a5274] dark:text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#2c84c4]" />
+        <ArrowUpRight className="w-4 h-4 text-[#3a5274] dark:text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#0f6b8f]" />
       </button>
     ))}
   </div>

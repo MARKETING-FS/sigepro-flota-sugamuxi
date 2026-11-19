@@ -5,7 +5,7 @@ import { BrandSwoosh } from '../ui/BrandSwoosh';
 import { isPasswordValid, passwordRules } from '../../utils/passwordPolicy';
 
 const inputClass =
-  'w-full h-12 pl-10 pr-11 rounded-xl border border-white/15 bg-white/5 text-[15px] text-white placeholder:text-white/35 focus:outline-hidden focus:border-[#69bdd7] focus:ring-4 focus:ring-[#69bdd7]/30 transition-all';
+  'w-full h-12 pl-10 pr-11 rounded-xl border border-white/15 bg-white/5 text-[15px] text-white placeholder:text-white/35 focus:outline-hidden focus:border-[#5db2c9] focus:ring-4 focus:ring-[#5db2c9]/30 transition-all';
 
 /**
  * Pantalla para definir una contraseña nueva. Se usa en dos casos:
@@ -48,8 +48,8 @@ export const ResetPasswordView: React.FC<{ forced?: boolean }> = ({ forced = fal
   return (
     <div className="dark fixed inset-0 overflow-y-auto bg-[#131b2e] text-white font-sans antialiased">
       <div className="absolute inset-0 grid-pattern opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-      <div className="absolute -right-32 -top-32 w-[28rem] h-[28rem] rounded-full bg-[#2c84c4]/35 blur-3xl" />
-      <div className="absolute -bottom-40 -left-20 w-[26rem] h-[26rem] rounded-full bg-[#69bdd7]/20 blur-3xl" />
+      <div className="absolute -right-32 -top-32 w-[28rem] h-[28rem] rounded-full bg-[#0f6b8f]/35 blur-3xl" />
+      <div className="absolute -bottom-40 -left-20 w-[26rem] h-[26rem] rounded-full bg-[#5db2c9]/20 blur-3xl" />
       <BrandSwoosh className="absolute -left-10 top-[30%] w-[120%] opacity-40 pointer-events-none" />
 
       <div className="relative min-h-full flex items-center justify-center p-5">
@@ -74,7 +74,7 @@ export const ResetPasswordView: React.FC<{ forced?: boolean }> = ({ forced = fal
           </div>
 
           {!authProfile && (
-            <div className="mt-5 p-2.5 bg-[#2c84c4]/15 border border-[#2c84c4]/35 rounded-xl text-xs text-[#69bdd7] flex items-start gap-2">
+            <div className="mt-5 p-2.5 bg-[#0f6b8f]/15 border border-[#0f6b8f]/35 rounded-xl text-xs text-[#5db2c9] flex items-start gap-2">
               <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
               <span>El enlace expiró o ya fue usado. Vuelva al inicio de sesión y solicite uno nuevo en "¿Olvidó su contraseña?".</span>
             </div>
@@ -114,8 +114,8 @@ export const ResetPasswordView: React.FC<{ forced?: boolean }> = ({ forced = fal
 
             <ul className="grid grid-cols-1 gap-1.5 rounded-xl bg-white/[0.04] border border-white/10 p-3" aria-label="Requisitos de la contraseña">
               {rules.map((r) => (
-                <li key={r.key} className={`flex items-center gap-2 text-xs ${r.ok ? 'text-[#69bdd7]' : 'text-white/55'}`}>
-                  <span className={`w-4 h-4 rounded-full grid place-items-center shrink-0 ${r.ok ? 'bg-[#2c84c4] text-white' : 'border border-white/25'}`}>
+                <li key={r.key} className={`flex items-center gap-2 text-xs ${r.ok ? 'text-[#5db2c9]' : 'text-white/55'}`}>
+                  <span className={`w-4 h-4 rounded-full grid place-items-center shrink-0 ${r.ok ? 'bg-[#0f6b8f] text-white' : 'border border-white/25'}`}>
                     {r.ok && <Check className="w-3 h-3" strokeWidth={3} />}
                   </span>
                   {r.label}
@@ -135,7 +135,7 @@ export const ResetPasswordView: React.FC<{ forced?: boolean }> = ({ forced = fal
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className={inputClass}
                 />
-                {matches && <Check className="w-4 h-4 text-[#69bdd7] absolute right-3.5 top-1/2 -translate-y-1/2" strokeWidth={3} />}
+                {matches && <Check className="w-4 h-4 text-[#5db2c9] absolute right-3.5 top-1/2 -translate-y-1/2" strokeWidth={3} />}
               </div>
             </div>
 
@@ -159,7 +159,7 @@ export const ResetPasswordView: React.FC<{ forced?: boolean }> = ({ forced = fal
             <button
               type="button"
               onClick={() => (forced ? signOut() : cancelPasswordRecovery())}
-              className="w-full text-center text-sm text-[#69bdd7] hover:underline font-semibold cursor-pointer"
+              className="w-full text-center text-sm text-[#5db2c9] hover:underline font-semibold cursor-pointer"
             >
               {forced ? 'Salir' : 'Cancelar y volver al inicio de sesión'}
             </button>

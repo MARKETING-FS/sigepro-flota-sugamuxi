@@ -75,8 +75,8 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
         {/* Modal Header */}
         <div className="bg-[#0b1329] text-white px-5 sm:px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-[#2c84c4]/30 flex items-center justify-center p-1 shadow-xs">
-              <FlotaSugamuxiEmblem className="w-full h-full" color="#0080d7" />
+            <div className="w-10 h-10 rounded-xl bg-white border border-[#0f6b8f]/30 flex items-center justify-center p-1 shadow-xs">
+              <FlotaSugamuxiEmblem className="w-full h-full" color="#1890bf" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -153,7 +153,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
           {activeTab === 'vista' && (
             <div className="max-w-4xl mx-auto">
               {viewVersion && (
-                <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#2c84c4]/30 bg-[#2c84c4]/10 px-4 py-2.5 text-xs text-[#1d5fa8] dark:text-[#69bdd7]">
+                <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#0f6b8f]/30 bg-[#0f6b8f]/10 px-4 py-2.5 text-xs text-[#0a5473] dark:text-[#5db2c9]">
                   <span>Está viendo la versión {viewVersion}{viewVersion !== form.currentVersion ? ' (histórica, no vigente)' : ''}.</span>
                   {viewVersion !== form.currentVersion && (
                     <button type="button" onClick={() => setViewVersion('')} className="font-bold hover:underline cursor-pointer">
@@ -181,13 +181,13 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
             <div className="max-w-2xl mx-auto space-y-4">
               <div className="bg-white p-5 sm:p-6 rounded-xl border border-black/10 dark:border-white/10 shadow-xs">
                 <h3 className="font-bold text-[#0b1d3a] dark:text-white text-sm mb-3 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                   Instrucciones Oficiales de Diligenciamiento
                 </h3>
                 <ul className="space-y-2.5 text-xs text-[#3a5274] dark:text-slate-300">
                   {form.instructions.map((inst, idx) => (
                     <li key={idx} className="flex items-start gap-2.5 bg-black/[0.04] dark:bg-white/[0.06] p-3 rounded-lg border border-black/10 dark:border-white/10">
-                      <span className="w-5 h-5 rounded-full bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="w-5 h-5 rounded-full bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                         {idx + 1}
                       </span>
                       <span className="leading-relaxed">{inst}</span>
@@ -196,8 +196,8 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
                 </ul>
               </div>
 
-              <div className="bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-xl p-4 text-[#0b1d3a] dark:text-white text-xs flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0 mt-0.5" />
+              <div className="bg-[#0f6b8f]/10 border border-[#0f6b8f]/30 rounded-xl p-4 text-[#0b1d3a] dark:text-white text-xs flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9] shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold text-[#0b1d3a] dark:text-white">Evite Devoluciones o Solicitudes de Corrección</p>
                   <p className="text-[#3a5274] dark:text-slate-300 text-[11px] mt-0.5">
@@ -226,7 +226,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
                         <div className="flex items-center gap-2">
                           <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
                             hist.isActive
-                              ? 'bg-[#2c84c4]/10 text-[#1d5fa8] dark:text-[#69bdd7] border border-[#2c84c4]/30'
+                              ? 'bg-[#0f6b8f]/10 text-[#0a5473] dark:text-[#5db2c9] border border-[#0f6b8f]/30'
                               : 'bg-black/[0.08] dark:bg-white/10 text-[#3a5274] dark:text-slate-300'
                           }`}>
                             Versión {hist.version} {hist.isActive && '(Vigente Actual)'}
@@ -246,7 +246,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
                               setViewVersion(hist.version);
                               setActiveTab('vista');
                             }}
-                            className="block ml-auto text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer"
+                            className="block ml-auto text-[11px] font-bold text-[#0a5473] dark:text-[#5db2c9] hover:underline cursor-pointer"
                           >
                             Ver PDF
                           </button>
@@ -254,7 +254,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
                           <span className="block text-[10px] text-[#5d7392] dark:text-slate-400">Sin archivo</span>
                         )}
                         <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md ${
-                          hist.isActive ? 'text-[#1d5fa8] dark:text-[#69bdd7] bg-[#2c84c4]/10 border border-[#2c84c4]/30' : 'text-[#5d7392] dark:text-slate-400'
+                          hist.isActive ? 'text-[#0a5473] dark:text-[#5db2c9] bg-[#0f6b8f]/10 border border-[#0f6b8f]/30' : 'text-[#5d7392] dark:text-slate-400'
                         }`}>
                           {hist.isActive ? 'Vigente' : 'Histórico'}
                         </span>

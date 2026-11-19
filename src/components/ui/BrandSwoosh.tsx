@@ -12,9 +12,9 @@ export const BrandSwoosh: React.FC<{ className?: string; animated?: boolean }> =
           <stop offset="1" stopColor="#fff" stopOpacity="0.55" />
         </linearGradient>
         <linearGradient id="bsw-b" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#69bdd7" stopOpacity="0" />
-          <stop offset="0.6" stopColor="#69bdd7" stopOpacity="1" />
-          <stop offset="1" stopColor="#2c84c4" stopOpacity="0" />
+          <stop offset="0" stopColor="#5db2c9" stopOpacity="0" />
+          <stop offset="0.6" stopColor="#5db2c9" stopOpacity="1" />
+          <stop offset="1" stopColor="#0f6b8f" stopOpacity="0" />
         </linearGradient>
       </defs>
       <path className={draw} d="M-40 470 C 180 330, 420 250, 840 120" stroke="url(#bsw-a)" strokeWidth="4.5" strokeLinecap="round" />

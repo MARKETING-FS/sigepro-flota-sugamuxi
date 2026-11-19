@@ -151,13 +151,13 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
         </div>
 
         {/* Sub-tabs Navigation */}
-        <div className="px-6 py-3 border-b border-[#e1e9f3] dark:border-white/10 bg-white dark:bg-[#071636] flex flex-wrap items-center justify-between gap-3">
+        <div className="px-6 py-3 border-b border-[#e1e9f3] dark:border-white/10 bg-white dark:bg-[#072636] flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-1 p-1 rounded-2xl bg-[#e6edf6] dark:bg-[#0b1f4a]">
             <button
               onClick={() => setActiveSubTab('criteria')}
               className={`px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                 activeSubTab === 'criteria'
-                  ? 'bg-[#0f3d75] text-white shadow-md dark:bg-[#1f7ae8]'
+                  ? 'bg-[#0a4561] text-white shadow-md dark:bg-[#1a8bb0]'
                   : 'text-[#1d3b63] dark:text-slate-300 hover:bg-white/70 dark:hover:bg-white/10'
               }`}
             >
@@ -167,7 +167,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
               onClick={() => setActiveSubTab('thresholds')}
               className={`px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                 activeSubTab === 'thresholds'
-                  ? 'bg-[#0f3d75] text-white shadow-md dark:bg-[#1f7ae8]'
+                  ? 'bg-[#0a4561] text-white shadow-md dark:bg-[#1a8bb0]'
                   : 'text-[#1d3b63] dark:text-slate-300 hover:bg-white/70 dark:hover:bg-white/10'
               }`}
             >
@@ -177,7 +177,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
               onClick={() => setActiveSubTab('general')}
               className={`px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                 activeSubTab === 'general'
-                  ? 'bg-[#0f3d75] text-white shadow-md dark:bg-[#1f7ae8]'
+                  ? 'bg-[#0a4561] text-white shadow-md dark:bg-[#1a8bb0]'
                   : 'text-[#1d3b63] dark:text-slate-300 hover:bg-white/70 dark:hover:bg-white/10'
               }`}
             >
@@ -196,7 +196,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                 onConfirm: () => resetEvaluationMethodToDefault(),
               });
             }}
-            className="text-sm font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0f3d75] flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-[#eef3fa] dark:hover:bg-white/10 cursor-pointer"
+            className="text-sm font-semibold text-[#3a5274] dark:text-slate-300 hover:text-[#0a4561] flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-[#eef3fa] dark:hover:bg-white/10 cursor-pointer"
             title="Restaurar valores iniciales"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -210,7 +210,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
           {activeSubTab === 'criteria' && (
             <div className="space-y-4">
               {/* Evaluación inicial: formato fijo FS.GA-DOC-006 */}
-              <details className="rounded-2xl border border-[#2c84c4]/30 bg-white dark:bg-[#0b1f4a] overflow-hidden group">
+              <details className="rounded-2xl border border-[#0f6b8f]/30 bg-white dark:bg-[#0b1f4a] overflow-hidden group">
                 <summary className="cursor-pointer list-none px-4 py-3.5 flex flex-wrap items-center justify-between gap-2">
                   <span className="flex flex-col">
                     <span className="text-sm font-bold text-[#0b1d3a] dark:text-white">
@@ -220,8 +220,8 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                       Documento controlado: 6 criterios de {DOC006_MAX_PER_CRITERION} puntos (total {DOC006_MAX_SCORE}); se aprueba con {DOC006_PASSING_SCORE} puntos o más. Los criterios de abajo aplican a la evaluación anual.
                     </span>
                   </span>
-                  <span className="text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] group-open:hidden">Ver criterios</span>
-                  <span className="text-xs font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hidden group-open:inline">Ocultar</span>
+                  <span className="text-xs font-semibold text-[#0a5473] dark:text-[#5db2c9] group-open:hidden">Ver criterios</span>
+                  <span className="text-xs font-semibold text-[#0a5473] dark:text-[#5db2c9] hidden group-open:inline">Ocultar</span>
                 </summary>
                 <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-[#e1e9f3] dark:border-white/10 pt-3">
                   {DOC006_CRITERIA.map((c, i) => (
@@ -231,7 +231,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                       <ul className="mt-2 space-y-1">
                         {c.options.map((o) => (
                           <li key={o.points} className="flex gap-2 text-[11px] text-[#1c3354] dark:text-slate-200 leading-snug">
-                            <span className="font-mono font-bold text-[#1d5fa8] dark:text-[#69bdd7] w-5 shrink-0">{o.points}</span>
+                            <span className="font-mono font-bold text-[#0a5473] dark:text-[#5db2c9] w-5 shrink-0">{o.points}</span>
                             <span>{o.label}</span>
                           </li>
                         ))}
@@ -402,7 +402,7 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
 
                   if (isEditing) {
                     return (
-                      <div key={crit.id} className="p-4 rounded-2xl bg-white dark:bg-[#0a1c44] border-2 border-[#2b78b3] space-y-3">
+                      <div key={crit.id} className="p-4 rounded-2xl bg-white dark:bg-[#0a2c40] border-2 border-[#0f6b8f] space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <div className="sm:col-span-2">
                             <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
@@ -496,8 +496,8 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                   }
 
                   return (
-                    <div key={crit.id} className="p-4 flex items-center justify-between gap-4 rounded-2xl bg-white dark:bg-[#0a1c44] border border-[#dbe6f2] dark:border-white/10 shadow-[0_6px_16px_-12px_rgba(15,42,82,0.5)] hover:-translate-y-px hover:shadow-[0_10px_22px_-12px_rgba(15,42,82,0.55)] transition-all">
-                      <span className="w-10 h-10 shrink-0 rounded-xl bg-[#e1ecf8] dark:bg-[#123267] text-[#0f3d75] dark:text-white font-bold text-base grid place-items-center tabular-nums">{idx + 1}</span>
+                    <div key={crit.id} className="p-4 flex items-center justify-between gap-4 rounded-2xl bg-white dark:bg-[#0a2c40] border border-[#dbe6f2] dark:border-white/10 shadow-[0_6px_16px_-12px_rgba(15,42,82,0.5)] hover:-translate-y-px hover:shadow-[0_10px_22px_-12px_rgba(15,42,82,0.55)] transition-all">
+                      <span className="w-10 h-10 shrink-0 rounded-xl bg-[#e1f1f8] dark:bg-[#124f67] text-[#0a4561] dark:text-white font-bold text-base grid place-items-center tabular-nums">{idx + 1}</span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-base text-[#0b1d3a] dark:text-white">{crit.name}</span>
@@ -524,13 +524,13 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
                           {crit.description}
                         </p>
                         <div className="mt-2 h-1.5 w-full max-w-sm rounded-full bg-[#e6edf6] dark:bg-white/10 overflow-hidden">
-                          <div className="h-full rounded-full bg-[#2b78b3]" style={{ width: `${Math.min(100, crit.weight ?? crit.weightInitial ?? 20)}%` }} />
+                          <div className="h-full rounded-full bg-[#0f6b8f]" style={{ width: `${Math.min(100, crit.weight ?? crit.weightInitial ?? 20)}%` }} />
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0">
                         <div className="text-right">
-                          <span className="font-bold text-xl text-[#0f3d75] dark:text-white tabular-nums">
+                          <span className="font-bold text-xl text-[#0a4561] dark:text-white tabular-nums">
                             {crit.weight ?? crit.weightInitial ?? 20}%
                           </span>
                           <span className="text-xs text-[#5d7392] block">peso</span>
@@ -711,10 +711,10 @@ export const EvaluationMethodConfigModal: React.FC<EvaluationMethodConfigModalPr
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-white dark:bg-[#071636] border-t border-[#e1e9f3] dark:border-white/10 flex justify-end">
+        <div className="px-6 py-4 bg-white dark:bg-[#072636] border-t border-[#e1e9f3] dark:border-white/10 flex justify-end">
           <button
             onClick={onClose}
-            className="h-11 px-6 bg-[#0f3d75] hover:bg-[#0b2f5c] dark:bg-[#1f7ae8] text-white rounded-xl text-sm font-bold transition-colors cursor-pointer"
+            className="h-11 px-6 bg-[#0a4561] hover:bg-[#0b455c] dark:bg-[#1a8bb0] text-white rounded-xl text-sm font-bold transition-colors cursor-pointer"
           >
             Cerrar Parametrización
           </button>

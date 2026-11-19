@@ -13,9 +13,9 @@ interface Props {
   reviewerName: string;
 }
 
-const labelCls = 'block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7] mb-1.5';
+const labelCls = 'block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f6b8f] dark:text-[#5db2c9] mb-1.5';
 const fieldCls =
-  'w-full h-11 px-3.5 rounded-xl bg-white dark:bg-white/[0.05] border border-black/[0.12] dark:border-white/15 text-sm text-[#0b1d3a] dark:text-white focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30';
+  'w-full h-11 px-3.5 rounded-xl bg-white dark:bg-white/[0.05] border border-black/[0.12] dark:border-white/15 text-sm text-[#0b1d3a] dark:text-white focus:outline-none focus:border-[#0f6b8f] focus:ring-2 focus:ring-[#0f6b8f]/30';
 
 /** "2027-05-20" → "20 de mayo de 2027" (sin desfase de zona horaria). */
 const formatDate = (iso?: string) => {
@@ -44,8 +44,8 @@ const describeValidity = (endDate: string) => {
 
 const pillCls = {
   expired: 'bg-red-500/12 text-red-600 dark:text-red-300 border-red-500/40',
-  soon: 'bg-[#69bdd7]/20 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/40',
-  ok: 'bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] border-[#2c84c4]/35',
+  soon: 'bg-[#5db2c9]/20 text-[#0a5473] dark:text-[#5db2c9] border-[#0f6b8f]/40',
+  ok: 'bg-[#0f6b8f]/12 text-[#0a5473] dark:text-[#5db2c9] border-[#0f6b8f]/35',
 };
 
 export const ContractTab: React.FC<Props> = ({ dossier, isReadOnly, reviewerName }) => {
@@ -210,7 +210,7 @@ export const ContractTab: React.FC<Props> = ({ dossier, isReadOnly, reviewerName
               <span className={labelCls}>Contrato firmado (PDF)</span>
               {contract?.fileUrl ? (
                 <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-                  <span className="shrink-0 w-11 h-11 rounded-xl bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] grid place-items-center">
+                  <span className="shrink-0 w-11 h-11 rounded-xl bg-[#0f6b8f]/15 text-[#0a5473] dark:text-[#5db2c9] grid place-items-center">
                     <FileText className="w-5 h-5" />
                   </span>
                   <div className="min-w-0 flex-1">
@@ -230,7 +230,7 @@ export const ContractTab: React.FC<Props> = ({ dossier, isReadOnly, reviewerName
                       const ok = await openFileInNewTab(contract.fileUrl);
                       if (!ok) showToast('No se pudo abrir el contrato. Si su sesión venció, vuelva a iniciar sesión.', 'warning', 'ARCHIVO NO DISPONIBLE');
                     }}
-                    className="shrink-0 h-10 px-4 rounded-xl border border-[#2c84c4]/40 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold inline-flex items-center gap-2 transition-colors cursor-pointer"
+                    className="shrink-0 h-10 px-4 rounded-xl border border-[#0f6b8f]/40 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 text-sm font-semibold inline-flex items-center gap-2 transition-colors cursor-pointer"
                   >
                     <Eye className="w-4 h-4" /> Ver PDF
                   </button>
@@ -242,7 +242,7 @@ export const ContractTab: React.FC<Props> = ({ dossier, isReadOnly, reviewerName
                     <button
                       type="button"
                       onClick={openEditor}
-                      className="h-10 px-4 rounded-xl border border-[#2c84c4]/40 text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 text-sm font-semibold inline-flex items-center gap-2 transition-colors cursor-pointer"
+                      className="h-10 px-4 rounded-xl border border-[#0f6b8f]/40 text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 text-sm font-semibold inline-flex items-center gap-2 transition-colors cursor-pointer"
                     >
                       <UploadCloud className="w-4 h-4" /> Subir PDF
                     </button>
@@ -290,8 +290,8 @@ export const ContractTab: React.FC<Props> = ({ dossier, isReadOnly, reviewerName
               }}
               className={`w-full flex items-center gap-4 rounded-2xl border-2 border-dashed px-5 py-5 text-left cursor-pointer transition-colors ${
                 isDragging || file
-                  ? 'border-[#2c84c4] bg-[#2c84c4]/10'
-                  : 'border-[#2c84c4]/40 bg-[#2c84c4]/[0.04] hover:bg-[#2c84c4]/10'
+                  ? 'border-[#0f6b8f] bg-[#0f6b8f]/10'
+                  : 'border-[#0f6b8f]/40 bg-[#0f6b8f]/[0.04] hover:bg-[#0f6b8f]/10'
               }`}
             >
               <span className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-action text-white grid place-items-center shadow-glow">
@@ -354,7 +354,7 @@ export const ContractTab: React.FC<Props> = ({ dossier, isReadOnly, reviewerName
 
           {preview && (
             <p className="flex items-center gap-2 text-sm text-[#3a5274] dark:text-slate-300">
-              <Calendar className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7] shrink-0" />
+              <Calendar className="w-4 h-4 text-[#0f6b8f] dark:text-[#5db2c9] shrink-0" />
               <span>
                 Con esa fecha el contrato queda{' '}
                 <strong className={preview.tone === 'expired' ? 'text-red-600 dark:text-red-300' : 'text-[#0b1d3a] dark:text-white'}>

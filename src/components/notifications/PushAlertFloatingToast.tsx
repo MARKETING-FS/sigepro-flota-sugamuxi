@@ -86,14 +86,14 @@ export const PushAlertFloatingToast: React.FC = () => {
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-[360px] w-[calc(100vw-2rem)] animate-fade-up" style={{ position: 'fixed' }} role="alert">
       <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-[#0f1a33] border border-black/[0.08] dark:border-white/10 shadow-[0_18px_44px_-14px_rgba(11,29,58,0.35)] dark:shadow-[0_22px_50px_-16px_rgba(0,0,0,0.8)]">
-        <span aria-hidden="true" className={`absolute inset-y-0 left-0 w-1.5 ${isCritical ? 'bg-red-500' : 'bg-gradient-to-b from-[#69bdd7] to-[#2c84c4]'}`} />
+        <span aria-hidden="true" className={`absolute inset-y-0 left-0 w-1.5 ${isCritical ? 'bg-red-500' : 'bg-gradient-to-b from-[#5db2c9] to-[#0f6b8f]'}`} />
         <div className="pl-5 pr-3 pt-3 pb-3 flex flex-col gap-3">
           <div className="flex items-start gap-3">
-            <span className={`grid place-items-center w-10 h-10 shrink-0 rounded-full ${isCritical ? 'bg-red-500/12 text-red-600 dark:text-red-400' : 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]'}`}>
+            <span className={`grid place-items-center w-10 h-10 shrink-0 rounded-full ${isCritical ? 'bg-red-500/12 text-red-600 dark:text-red-400' : 'bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/25 text-[#0a5473] dark:text-[#5db2c9]'}`}>
               {isCritical ? <AlertCircle className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
             </span>
             <div className="min-w-0 flex-1">
-              <div className={`text-[10px] font-semibold uppercase tracking-[0.16em] ${isCritical ? 'text-red-600 dark:text-red-400' : 'text-[#2c84c4] dark:text-[#69bdd7]'}`}>
+              <div className={`text-[10px] font-semibold uppercase tracking-[0.16em] ${isCritical ? 'text-red-600 dark:text-red-400' : 'text-[#0f6b8f] dark:text-[#5db2c9]'}`}>
                 {isCritical ? 'Alerta crítica' : topAlert?.type === 'ASSIGNED' ? 'Nueva asignación' : 'Aviso preventivo'}
               </div>
               <h4 className="font-display font-semibold text-[15px] leading-tight text-[#0b1d3a] dark:text-white mt-0.5">
@@ -119,7 +119,7 @@ export const PushAlertFloatingToast: React.FC = () => {
             <div className="rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.06] dark:border-white/10 px-3 py-2.5 space-y-0.5">
               <span className="font-semibold text-[#0b1d3a] dark:text-white block text-[13px] truncate">{topAlert.title}</span>
               <p className="text-[12px] text-[#3a5274] dark:text-slate-300 line-clamp-2 leading-snug">{topAlert.message}</p>
-              <div className="text-[11px] text-[#2c84c4] dark:text-[#69bdd7] truncate pt-0.5">
+              <div className="text-[11px] text-[#0f6b8f] dark:text-[#5db2c9] truncate pt-0.5">
                 {topAlert.supplierName} · {topAlert.fileNumber}
               </div>
             </div>

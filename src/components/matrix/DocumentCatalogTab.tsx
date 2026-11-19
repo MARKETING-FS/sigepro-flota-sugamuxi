@@ -167,7 +167,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
           <p className="font-display text-[13px] font-semibold text-[#0b1d3a] dark:text-white leading-snug">{doc.name}</p>
           <div className="flex flex-wrap items-center gap-1.5 text-[10.5px] text-[#5d7392] dark:text-slate-400">
             {(inNat || inJur) && (
-              <span className="font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">
+              <span className="font-semibold text-[#0a5473] dark:text-[#5db2c9]">
                 Se pide a: {inNat && inJur ? 'persona natural y jurídica' : inNat ? 'persona natural' : 'persona jurídica'}
               </span>
             )}
@@ -179,7 +179,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {isInstitutional ? (
-            <span className="text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] font-bold flex items-center gap-1 mr-1">
+            <span className="text-[10px] text-[#0a5473] dark:text-[#5db2c9] font-bold flex items-center gap-1 mr-1">
               <Lock className="w-3 h-3" /> Formato fijo
             </span>
           ) : (
@@ -197,7 +197,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
           )}
           <button
             onClick={() => handleOpenEdit(doc)}
-            className="p-1.5 text-[#2c84c4] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/15"
+            className="p-1.5 text-[#0f6b8f] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 rounded-lg transition-colors cursor-pointer border border-black/10 dark:border-white/15"
             title="Editar el documento"
           >
             <Edit3 className="w-3.5 h-3.5" />
@@ -224,11 +224,11 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
         <p className="text-[11.5px] text-[#5d7392] dark:text-slate-400">{hint}</p>
       </div>
     );
-    const count = <span className="text-[11px] font-bold text-[#1d5fa8] dark:text-[#69bdd7] whitespace-nowrap">{docs.length} documento{docs.length === 1 ? '' : 's'}</span>;
+    const count = <span className="text-[11px] font-bold text-[#0a5473] dark:text-[#5db2c9] whitespace-nowrap">{docs.length} documento{docs.length === 1 ? '' : 's'}</span>;
     const rows = <div className="divide-y divide-black/10 dark:divide-white/10">{docs.map((d) => renderDocRow(d, ctx))}</div>;
     return collapsible ? (
       <details key={title} className="fs-card rounded-2xl overflow-hidden group" open={searchQuery !== ''}>
-        <summary className="px-4 py-3 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-2 cursor-pointer list-none">
+        <summary className="px-4 py-3 bg-[#0f6b8f]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-2 cursor-pointer list-none">
           {head}
           {count}
         </summary>
@@ -236,7 +236,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
       </details>
     ) : (
       <section key={title} className="fs-card rounded-2xl overflow-hidden">
-        <div className="px-4 py-3 bg-[#2c84c4]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-2">
+        <div className="px-4 py-3 bg-[#0f6b8f]/[0.07] dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-2">
           {head}
           {count}
         </div>
@@ -277,9 +277,9 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#2c84c4] dark:text-[#69bdd7]" />
+              <FileText className="w-4 h-4 text-[#0f6b8f] dark:text-[#5db2c9]" />
               <span>Catálogo Maestro de Tipos Documentales SIG</span>
-              <span className="text-[10px] bg-[#2c84c4]/15 text-[#1d5fa8] dark:text-[#69bdd7] font-bold px-2 py-0.5 rounded-full">
+              <span className="text-[10px] bg-[#0f6b8f]/15 text-[#0a5473] dark:text-[#5db2c9] font-bold px-2 py-0.5 rounded-full">
                 Control Total de Administrador
               </span>
             </h2>
@@ -303,17 +303,17 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
             <span className="text-[10px] font-semibold text-[#3a5274] dark:text-slate-400 uppercase tracking-wider block">Total Catálogo</span>
             <strong className="font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">{totalCount}</strong>
           </div>
-          <div className="p-3 bg-[#2c84c4]/10 rounded-xl border border-[#2c84c4]/30">
-            <span className="text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] uppercase tracking-wider block">Documentos Activos</span>
-            <strong className="font-display text-xl font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">{activeCount}</strong>
+          <div className="p-3 bg-[#0f6b8f]/10 rounded-xl border border-[#0f6b8f]/30">
+            <span className="text-[10px] font-semibold text-[#0a5473] dark:text-[#5db2c9] uppercase tracking-wider block">Documentos Activos</span>
+            <strong className="font-display text-xl font-semibold text-[#0a5473] dark:text-[#5db2c9]">{activeCount}</strong>
           </div>
           <div className="p-3 bg-black/[0.05] dark:bg-white/[0.06] rounded-xl border border-black/10 dark:border-white/15">
             <span className="text-[10px] font-semibold text-[#3a5274] dark:text-slate-400 uppercase tracking-wider block">Documentos Inactivos</span>
             <strong className="font-display text-xl font-semibold text-[#3a5274] dark:text-slate-300">{inactiveCount}</strong>
           </div>
-          <div className="p-3 bg-[#2c84c4]/10 rounded-xl border border-[#2c84c4]/30">
-            <span className="text-[10px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] uppercase tracking-wider block">Formatos SIG Fijos</span>
-            <strong className="font-display text-xl font-semibold text-[#1d5fa8] dark:text-[#69bdd7]">2</strong>
+          <div className="p-3 bg-[#0f6b8f]/10 rounded-xl border border-[#0f6b8f]/30">
+            <span className="text-[10px] font-semibold text-[#0a5473] dark:text-[#5db2c9] uppercase tracking-wider block">Formatos SIG Fijos</span>
+            <strong className="font-display text-xl font-semibold text-[#0a5473] dark:text-[#5db2c9]">2</strong>
           </div>
         </div>
 
@@ -326,7 +326,7 @@ export const DocumentCatalogTab: React.FC<DocumentCatalogTabProps> = ({
               placeholder="Buscar documento por código, nombre o pauta..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-white dark:bg-white/5 border border-[#d9e3ef] dark:border-white/15 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-[#2c84c4]"
+              className="w-full pl-9 pr-3 py-2 bg-white dark:bg-white/5 border border-[#d9e3ef] dark:border-white/15 rounded-xl text-xs text-[#0b1d3a] dark:text-white focus:outline-none focus:border-[#0f6b8f]"
             />
           </div>
 

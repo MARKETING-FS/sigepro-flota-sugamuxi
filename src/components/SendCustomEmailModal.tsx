@@ -127,12 +127,12 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
         {/* Content Form */}
         {successSent ? (
           <div className="p-8 sm:p-12 text-center space-y-4 my-auto">
-            <div className="w-16 h-16 bg-[#2c84c4]/10 border border-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7] rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+            <div className="w-16 h-16 bg-[#0f6b8f]/10 border border-[#0f6b8f]/30 text-[#0a5473] dark:text-[#5db2c9] rounded-2xl flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-9 h-9" />
             </div>
             <h4 className="text-lg font-bold text-[#0b1d3a] dark:text-white">¡Correo Despachado con Éxito!</h4>
             <p className="text-xs sm:text-sm text-[#3a5274] dark:text-slate-300 max-w-md mx-auto leading-relaxed">
-              La notificación institucional ha sido generada y entregada al buzón del proveedor <strong className="text-[#1d5fa8] dark:text-[#69bdd7]">{targetEmail}</strong>.
+              La notificación institucional ha sido generada y entregada al buzón del proveedor <strong className="text-[#0a5473] dark:text-[#5db2c9]">{targetEmail}</strong>.
             </p>
           </div>
         ) : (
@@ -141,7 +141,7 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
             {/* Target Supplier Selector */}
             <div>
               <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
-                Destinatario (Proveedor Registrado) <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
+                Destinatario (Proveedor Registrado) <span className="text-[#0a5473] dark:text-[#5db2c9]">*</span>
               </label>
               {allDossiers.length > 1 ? (
                 <select
@@ -174,14 +174,14 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
 
             {/* Recipient Details Preview Box */}
             {targetDossier && (
-              <div className="bg-[#2c84c4]/10 border border-[#2c84c4]/30 rounded-xl p-3.5 flex items-start gap-3 shadow-2xs">
-                <Building2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7] shrink-0 mt-0.5" />
+              <div className="bg-[#0f6b8f]/10 border border-[#0f6b8f]/30 rounded-xl p-3.5 flex items-start gap-3 shadow-2xs">
+                <Building2 className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9] shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <div className="font-bold text-[#0b1d3a] dark:text-white">
                     {targetName}
                   </div>
                   <div className="text-[11px] text-[#3a5274] dark:text-slate-300">
-                    Correo destinatario: <span className="font-bold text-[#1d5fa8] dark:text-[#69bdd7]">{targetEmail}</span> &bull; Estado actual: <span className="font-bold text-[#0b1d3a] dark:text-white">{getProcessStatusLabel(targetDossier.processStatus)}</span>
+                    Correo destinatario: <span className="font-bold text-[#0a5473] dark:text-[#5db2c9]">{targetEmail}</span> &bull; Estado actual: <span className="font-bold text-[#0b1d3a] dark:text-white">{getProcessStatusLabel(targetDossier.processStatus)}</span>
                   </div>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
 
               <div>
                 <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
-                  Remitente Institucional <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
+                  Remitente Institucional <span className="text-[#0a5473] dark:text-[#5db2c9]">*</span>
                 </label>
                 <input
                   type="text"
@@ -223,7 +223,7 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
             {/* Subject */}
             <div>
               <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
-                Asunto del Correo <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
+                Asunto del Correo <span className="text-[#0a5473] dark:text-[#5db2c9]">*</span>
               </label>
               <input
                 type="text"
@@ -238,7 +238,7 @@ export const SendCustomEmailModal: React.FC<SendCustomEmailModalProps> = ({
             {/* Message Body */}
             <div>
               <label className="block font-bold text-[#0b1d3a] dark:text-white mb-1.5">
-                Cuerpo del Mensaje / Observaciones <span className="text-[#1d5fa8] dark:text-[#69bdd7]">*</span>
+                Cuerpo del Mensaje / Observaciones <span className="text-[#0a5473] dark:text-[#5db2c9]">*</span>
               </label>
               <textarea
                 value={message}

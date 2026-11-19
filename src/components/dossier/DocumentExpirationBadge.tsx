@@ -74,14 +74,14 @@ export const DocumentExpirationBadge: React.FC<DocumentExpirationBadgeProps> = (
     return (
       <div className={`inline-flex flex-col ${className}`}>
         <span
-          className="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-md bg-[#2c84c4]/12 dark:bg-[#2c84c4]/80 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] border border-[#2c84c4]/35 dark:border-[#2c84c4]/35 shadow-2xs"
+          className="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-md bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/80 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] border border-[#0f6b8f]/35 dark:border-[#0f6b8f]/35 shadow-2xs"
           title={`ALERTA PREVENTIVA SIG: Vence el ${exp.formattedDate} (${exp.daysRemaining} días restantes). Requiere renovación oportuna.`}
         >
-          <Clock className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] shrink-0 animate-spin-slow" />
+          <Clock className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] shrink-0 animate-spin-slow" />
           <span>POR VENCER: {exp.label}</span>
         </span>
         {showDetails && (
-          <span className="text-[9px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] mt-0.5 font-medium">
+          <span className="text-[9px] text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] mt-0.5 font-medium">
             Vence el {exp.formattedDate} &bull; Renovar oportunamente
           </span>
         )}
@@ -93,14 +93,14 @@ export const DocumentExpirationBadge: React.FC<DocumentExpirationBadgeProps> = (
   return (
     <div className={`inline-flex flex-col ${className}`}>
       <span
-        className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#2c84c4]/12 dark:bg-[#2c84c4]/60 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] border border-[#2c84c4]/35 dark:border-[#2c84c4]/35"
+        className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/60 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] border border-[#0f6b8f]/35 dark:border-[#0f6b8f]/35"
         title={`Vigente hasta el ${exp.formattedDate} (${exp.daysRemaining} días restantes)`}
       >
-        <ShieldCheck className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] shrink-0" />
+        <ShieldCheck className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] shrink-0" />
         <span>Vigente: {exp.formattedDate}</span>
       </span>
       {showDetails && (
-        <span className="text-[9px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] mt-0.5 font-medium">
+        <span className="text-[9px] text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] mt-0.5 font-medium">
           {exp.daysRemaining} días restantes de vigencia
         </span>
       )}

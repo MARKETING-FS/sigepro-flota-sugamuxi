@@ -31,7 +31,7 @@ export const ConfirmDialog: React.FC<{ options: ConfirmOptions | null; onClose: 
       <div className="fs-card rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="p-6">
           <div className="flex items-start gap-4">
-            <span className="flex w-12 h-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2c84c4] to-[#69bdd7] text-white shadow-[0_8px_20px_-8px_rgba(105,189,215,0.7)]">
+            <span className="flex w-12 h-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0f6b8f] to-[#5db2c9] text-white shadow-[0_8px_20px_-8px_rgba(105,189,215,0.7)]">
               {options.icon || <AlertTriangle className="w-6 h-6" />}
             </span>
             <div className="min-w-0">
@@ -40,7 +40,7 @@ export const ConfirmDialog: React.FC<{ options: ConfirmOptions | null; onClose: 
             </div>
           </div>
           {options.hint && (
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-[#2c84c4]/25 bg-[#2c84c4]/10 px-3.5 py-3 text-[13px] text-[#1d5fa8] dark:text-[#69bdd7]">
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-[#0f6b8f]/25 bg-[#0f6b8f]/10 px-3.5 py-3 text-[13px] text-[#0a5473] dark:text-[#5db2c9]">
               {options.hintIcon || <RotateCcw className="w-4 h-4 shrink-0 mt-0.5" />}
               <span>{options.hint}</span>
             </div>
@@ -50,7 +50,7 @@ export const ConfirmDialog: React.FC<{ options: ConfirmOptions | null; onClose: 
           <button
             type="button"
             onClick={onClose}
-            className="h-11 px-5 rounded-xl border border-[#d9e3ef] dark:border-white/15 bg-white dark:bg-white/5 text-sm font-semibold text-[#1c3354] dark:text-white hover:bg-[#eef5fc] dark:hover:bg-white/10 transition-colors cursor-pointer"
+            className="h-11 px-5 rounded-xl border border-[#d9e3ef] dark:border-white/15 bg-white dark:bg-white/5 text-sm font-semibold text-[#1c3354] dark:text-white hover:bg-[#eaf4f7] dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
             Cancelar
           </button>

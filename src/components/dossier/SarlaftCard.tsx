@@ -40,14 +40,14 @@ export const SarlaftCard: React.FC<{ dossier: SupplierDossier }> = ({ dossier })
 
   return (
     <section className="fs-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-      <span className="grid place-items-center w-11 h-11 shrink-0 rounded-xl bg-[#eaf2fb] dark:bg-white/10 text-[#1d5fa8] dark:text-[#69bdd7]">
+      <span className="grid place-items-center w-11 h-11 shrink-0 rounded-xl bg-[#e6f2f6] dark:bg-white/10 text-[#0a5473] dark:text-[#5db2c9]">
         <ShieldCheck className="w-5 h-5" strokeWidth={1.8} />
       </span>
       <div className="min-w-0 flex-1">
         <p className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white flex items-center gap-2 flex-wrap">
           Consulta SARLAFT
           {sarlaft.approved && (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f3d75] dark:text-[#69bdd7]">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#0a4561] dark:text-[#5db2c9]">
               <BadgeCheck className="w-4 h-4" /> Aprobada
             </span>
           )}
@@ -68,7 +68,7 @@ export const SarlaftCard: React.FC<{ dossier: SupplierDossier }> = ({ dossier })
         type="button"
         onClick={open}
         disabled={opening}
-        className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl border border-[#d6e0ec] dark:border-white/20 bg-white dark:bg-white/5 text-sm font-semibold text-[#0b1d3a] dark:text-white hover:bg-[#eef5fc] dark:hover:bg-white/10 cursor-pointer disabled:opacity-60"
+        className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl border border-[#d6e0ec] dark:border-white/20 bg-white dark:bg-white/5 text-sm font-semibold text-[#0b1d3a] dark:text-white hover:bg-[#eaf4f7] dark:hover:bg-white/10 cursor-pointer disabled:opacity-60"
       >
         {opening ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />} Ver PDF
       </button>

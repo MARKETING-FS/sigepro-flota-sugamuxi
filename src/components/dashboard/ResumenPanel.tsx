@@ -383,7 +383,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
                       key={x.id}
                       type="button"
                       onClick={() => openSupplierReview(x.id)}
-                      className="w-full flex items-center gap-4 px-5 py-3 text-left hover:bg-[#eaf2fb] dark:hover:bg-[#0c2350]/70 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-4 px-5 py-3 text-left hover:bg-[#e6f2f6] dark:hover:bg-[#0b3347]/70 transition-colors cursor-pointer"
                     >
                       <span className="w-8 text-center font-display text-base font-semibold text-[#3a5274] dark:text-slate-400 tabular-nums">{i + 4}</span>
                       <span className="min-w-0 flex-1">
@@ -409,8 +409,8 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         <Panel
           title="Alertas prioritarias"
           aside={
-            <span className="flex w-10 h-10 items-center justify-center rounded-xl bg-[#2c84c4]/20">
-              <AlertTriangle className="w-5 h-5 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7]" />
+            <span className="flex w-10 h-10 items-center justify-center rounded-xl bg-[#0f6b8f]/20">
+              <AlertTriangle className="w-5 h-5 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9]" />
             </span>
           }
           className={accountRole === 'SUPERADMIN' ? 'xl:col-span-5' : 'xl:col-span-12'}

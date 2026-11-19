@@ -991,10 +991,10 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
           <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-3 text-xs space-y-1.5">
             <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 font-semibold text-[11px]">
               <span className="flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                <Info className="w-3.5 h-3.5 text-[#0a5473] dark:text-[#5db2c9]" />
                 <span>Estado de Parámetros</span>
               </span>
-              <span className="text-[#1d5fa8] dark:text-[#69bdd7] font-bold">Activo</span>
+              <span className="text-[#0a5473] dark:text-[#5db2c9] font-bold">Activo</span>
             </div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
               Todas las modificaciones a la matriz y catálogos aplican inmediatamente a los formularios de registro y evaluación SIG.
@@ -1042,7 +1042,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <Layers className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Categorías de Suministro / Servicio Institucional ({categoriesConfig.length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1169,7 +1169,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <Building2 className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Entidades Financieras y Bancos ({(systemParameters?.bankOptions || []).length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1260,7 +1260,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {b.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
+                            {b.isActive ? <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{b.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1294,7 +1294,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <CreditCard className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Tipos de Cuenta Bancaria ({(systemParameters?.bankAccountTypes || []).length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1338,7 +1338,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {a.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
+                            {a.isActive ? <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{a.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1372,7 +1372,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <FileText className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Tipos de Identificación y Documento ({(systemParameters?.documentTypes || []).length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1422,7 +1422,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {d.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
+                            {d.isActive ? <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{d.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1456,7 +1456,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <ShieldCheck className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Régimen Tributario y Calidad Fiscal ({(systemParameters?.taxRegimes || []).length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1502,7 +1502,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {t.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
+                            {t.isActive ? <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{t.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1536,7 +1536,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <MapPin className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Ciudades, Municipios y Agencias ({(systemParameters?.cityOptions || []).length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1582,7 +1582,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {c.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
+                            {c.isActive ? <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{c.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1616,7 +1616,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <AlertCircle className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Niveles de Riesgo Laboral ARL ({(systemParameters?.arlRiskLevels || []).length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1664,7 +1664,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {a.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
+                            {a.isActive ? <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{a.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1698,7 +1698,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <Briefcase className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Modalidades de Contratación y Convocatorias ({(systemParameters?.convocatoriaTypes || []).length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1744,7 +1744,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {c.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
+                            {c.isActive ? <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{c.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1778,7 +1778,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                    <AlertCircle className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                     <span>Causas de Devolución y Observaciones SIG ({(systemParameters?.rejectionReasons || []).length})</span>
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1828,7 +1828,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'
                             }`}
                           >
-                            {r.isActive ? <CheckCircle2 className="w-3 h-3 text-[#1d5fa8] dark:text-[#69bdd7]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
+                            {r.isActive ? <CheckCircle2 className="w-3 h-3 text-[#0a5473] dark:text-[#5db2c9]" /> : <XCircle className="w-3 h-3 text-[#5d7392] dark:text-slate-400" />}
                             <span>{r.isActive ? 'ACTIVO' : 'INACTIVO'}</span>
                           </button>
                         </td>
@@ -1861,7 +1861,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
             <div className="fs-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                  <Sliders className="w-4 h-4 text-[#0a5473] dark:text-[#5db2c9]" />
                   <span>Políticas Operativas y Parámetros Globales SIG</span>
                 </h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1979,7 +1979,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                       id="enableAutoEmails"
                       checked={settingsForm.enableAutoEmailNotifications}
                       onChange={(e) => setSettingsForm({ ...settingsForm, enableAutoEmailNotifications: e.target.checked })}
-                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500 cursor-pointer"
+                      className="rounded text-[#0a5473] dark:text-[#5db2c9] focus:ring-blue-500 cursor-pointer"
                     />
                     <label htmlFor="enableAutoEmails" className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                       Enviar notificaciones automáticas por correo en cambios de estado de proveedores
@@ -2184,7 +2184,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                       id="itemActive"
                       checked={genericForm.isActive}
                       onChange={(e) => setGenericForm({ ...genericForm, isActive: e.target.checked })}
-                      className="rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500 cursor-pointer"
+                      className="rounded text-[#0a5473] dark:text-[#5db2c9] focus:ring-blue-500 cursor-pointer"
                     />
                     <label htmlFor="itemActive" className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                       Habilitar parámetro inmediatamente en todas las listas desplegables
@@ -2219,7 +2219,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
           <div className="fs-card rounded-2xl shadow-2xl max-w-md w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 text-center">
             <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center mx-auto">
-              <AlertCircle className="w-6 h-6 text-[#1d5fa8] dark:text-[#69bdd7]" />
+              <AlertCircle className="w-6 h-6 text-[#0a5473] dark:text-[#5db2c9]" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
@@ -2255,7 +2255,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
           <div className="fs-card rounded-2xl shadow-2xl max-w-lg w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <Upload className="w-5 h-5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                <Upload className="w-5 h-5 text-[#0a5473] dark:text-[#5db2c9]" />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   Importar Configuración JSON
                 </h3>
@@ -2491,11 +2491,11 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                         className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
                         title="Recalcular automáticamente a partir de las iniciales"
                       >
-                        <Zap className="w-2.5 h-2.5 text-[#1d5fa8] dark:text-[#69bdd7]" />
+                        <Zap className="w-2.5 h-2.5 text-[#0a5473] dark:text-[#5db2c9]" />
                         Autocalcular
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-xs font-bold bg-[#2c84c4]/12 dark:bg-[#2c84c4]/30 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] border border-[#2c84c4]/35 dark:border-[#2c84c4]/35">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-xs font-bold bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/30 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] border border-[#0f6b8f]/35 dark:border-[#0f6b8f]/35">
                         <Zap className="w-2.5 h-2.5" />
                         Auto por iniciales
                       </span>
@@ -2625,7 +2625,7 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                   id="newDocRequiresExp"
                   checked={newDocRequiresExp}
                   onChange={(e) => setNewDocRequiresExp(e.target.checked)}
-                  className="rounded text-[#1d5fa8] dark:text-[#69bdd7] focus:ring-blue-500 cursor-pointer"
+                  className="rounded text-[#0a5473] dark:text-[#5db2c9] focus:ring-blue-500 cursor-pointer"
                 />
                 <label htmlFor="newDocRequiresExp" className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                   Exigir captura obligatoria de fecha de vencimiento al proveedor

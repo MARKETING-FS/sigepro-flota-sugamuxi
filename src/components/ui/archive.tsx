@@ -16,23 +16,23 @@ const CountUp: React.FC<{ value: React.ReactNode }> = ({ value }) => {
 export type Tone = 'navy' | 'blue' | 'cyan' | 'muted' | 'warn' | 'bad' | 'ok';
 
 export const TONE_COLOR: Record<Tone, string> = {
-  navy: '#1a4a92',
-  blue: '#1d5fa8',
-  cyan: '#50bcd8',
+  navy: '#1a7092',
+  blue: '#0a5473',
+  cyan: '#5db2c9',
   muted: '#9fb0c7',
-  warn: '#69bdd7',
+  warn: '#5db2c9',
   bad: '#b91c1c',
-  ok: '#2c84c4',
+  ok: '#0f6b8f',
 };
 
 const TONE_TEXT: Record<Tone, string> = {
-  navy: 'text-fs-navy bg-fs-blue-soft dark:text-white dark:bg-[#1d4f9e]',
-  blue: 'text-[#1d5fa8] bg-[#e1ecf8] dark:!text-white dark:bg-[#1d6fe0]',
+  navy: 'text-fs-navy bg-fs-blue-soft dark:text-white dark:bg-[#1d799e]',
+  blue: 'text-[#0a5473] bg-[#e1f1f8] dark:!text-white dark:bg-[#1da9e0]',
   cyan: 'text-[#13708a] bg-[#e6f6fa]',
   muted: 'text-fs-muted bg-[#eef2f7] dark:text-[#c9d6ea] dark:bg-[#22385f]',
-  warn: 'text-[#0e6d8a] bg-[#d6eef6] dark:!text-[#131b2e] dark:bg-[#69bdd7]',
+  warn: 'text-[#0e6d8a] bg-[#d6eef6] dark:!text-[#131b2e] dark:bg-[#5db2c9]',
   bad: 'text-[#b91c1c] bg-[#fde3e3] dark:text-white dark:bg-[#dc2626]',
-  ok: 'text-[#1d5fa8] bg-[#dbeaf7] dark:!text-white dark:bg-[#2c84c4]',
+  ok: 'text-[#0a5473] bg-[#dbeff7] dark:!text-white dark:bg-[#0f6b8f]',
 };
 
 // Estados del proveedor: solo tres, y salen de sus documentos
@@ -93,9 +93,9 @@ export const TierBadge: React.FC<{ tier?: SupplierTier }> = ({ tier }) =>
       title={`Tipo ${tier} · ${TIER_LABEL[tier]}`}
       className={`inline-grid place-items-center w-8 h-8 rounded-lg text-sm font-bold ${
         tier === 'A'
-          ? 'bg-[#0b1d3a] text-white dark:bg-[#1f63c4]'
+          ? 'bg-[#0b1d3a] text-white dark:bg-[#1f95c4]'
           : tier === 'B'
-          ? 'bg-[#e1ecf8] text-[#1d5fa8] dark:!bg-[#4d8fe6] dark:!text-white'
+          ? 'bg-[#e1f1f8] text-[#0a5473] dark:!bg-[#4dbbe6] dark:!text-white'
           : 'bg-[#e9edf3] text-[#46607f] dark:!bg-[#3a6fbf] dark:!text-white'
       }`}
     >
@@ -104,10 +104,10 @@ export const TierBadge: React.FC<{ tier?: SupplierTier }> = ({ tier }) =>
   ) : null;
 
 /** Degradado del logo: azul oscuro a la izquierda, azul claro a la derecha */
-export const LOGO_GRADIENT = 'linear-gradient(118deg, #0b1d3a 0%, #0f2a52 45%, #1d5fa8 80%, #3fa6d8 100%)';
+export const LOGO_GRADIENT = 'linear-gradient(118deg, #0b1d3a 0%, #0f3f52 45%, #0a5473 80%, #3fa6d8 100%)';
 
 /** Azul de acción (botones principales, pestaña activa, menú activo) */
-export const ACTION_BLUE = '#1d5fa8';
+export const ACTION_BLUE = '#0a5473';
 
 /** Franja de encabezado azul oscuro con brillo azul claro a la derecha; las píldoras van debajo */
 export const PageHeader: React.FC<{
@@ -125,29 +125,29 @@ export const PageHeader: React.FC<{
       <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full hidden" viewBox="0 0 1200 130" preserveAspectRatio="none" fill="none">
         <defs>
           <linearGradient id="hdrA" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" stopColor="#1456d0" stopOpacity="0" />
-            <stop offset="0.5" stopColor="#1b62dc" stopOpacity="0.7" />
-            <stop offset="1" stopColor="#2f84f4" stopOpacity="0.95" />
+            <stop offset="0" stopColor="#1999cb" stopOpacity="0" />
+            <stop offset="0.5" stopColor="#1ba5dc" stopOpacity="0.7" />
+            <stop offset="1" stopColor="#3cb7e7" stopOpacity="0.95" />
           </linearGradient>
           <linearGradient id="hdrB" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" stopColor="#2a7eff" stopOpacity="0.2" />
-            <stop offset="0.6" stopColor="#3b92ff" stopOpacity="0.95" />
-            <stop offset="1" stopColor="#74bcff" stopOpacity="1" />
+            <stop offset="0" stopColor="#41b8e8" stopOpacity="0.2" />
+            <stop offset="0.6" stopColor="#51bee9" stopOpacity="0.95" />
+            <stop offset="1" stopColor="#83d1f0" stopOpacity="1" />
           </linearGradient>
           <linearGradient id="hdrD" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" stopColor="#2f8cff" stopOpacity="0.3" />
-            <stop offset="1" stopColor="#8fd0ff" stopOpacity="1" />
+            <stop offset="0" stopColor="#46bae8" stopOpacity="0.3" />
+            <stop offset="1" stopColor="#9bdaf3" stopOpacity="1" />
           </linearGradient>
           <filter id="hdrBlur" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="6" /></filter>
           <filter id="hdrBlurS" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="3" /></filter>
         </defs>
         <g filter="url(#hdrBlur)">
-          <path d="M300 -10 C 480 10, 640 50, 820 40 L 920 -10 Z" fill="#1f6df0" fillOpacity="0.35" />
+          <path d="M300 -10 C 480 10, 640 50, 820 40 L 920 -10 Z" fill="#2ab0e5" fillOpacity="0.35" />
           <path d="M200 145 C 450 135, 700 62, 900 -14 L 1215 -14 L 1215 145 Z" fill="url(#hdrA)" />
         </g>
         <g filter="url(#hdrBlurS)">
           <path d="M520 145 C 720 122, 900 62, 1060 -14 L 1215 -14 L 1215 30 C 1050 62, 900 122, 760 145 Z" fill="url(#hdrB)" />
-          <path d="M640 145 C 800 112, 960 62, 1215 42 L 1215 82 C 1000 102, 880 132, 800 145 Z" fill="#0a2a78" fillOpacity="0.65" />
+          <path d="M640 145 C 800 112, 960 62, 1215 42 L 1215 82 C 1000 102, 880 132, 800 145 Z" fill="#0e5774" fillOpacity="0.65" />
           <path d="M820 145 C 960 122, 1080 92, 1215 86 L 1215 145 Z" fill="url(#hdrD)" />
         </g>
       </svg>
@@ -194,15 +194,15 @@ export const HeroTabs: React.FC<{
           onClick={() => onChange(it.key)}
           className={`inline-flex items-center gap-2.5 h-11 px-5 rounded-full text-[15px] font-medium transition-colors cursor-pointer ${
             active
-              ? 'bg-[#0f3d75] text-white shadow-[0_10px_22px_-10px_rgba(15,61,117,0.95)] dark:bg-[#0e3a7a] dark:ring-2 dark:ring-[#5aa8ff] dark:shadow-[0_0_20px_-2px_rgba(60,150,255,0.8)]'
-              : 'bg-[#e6edf6] text-[#0b1d3a] hover:bg-[#d8e3f0] dark:bg-[#071636]/70 dark:ring-1 dark:ring-[#3f7fd8] dark:text-white dark:hover:bg-[#0c2350]'
+              ? 'bg-[#0a4561] text-white shadow-[0_10px_22px_-10px_rgba(10,69,97,0.95)] dark:bg-[#0f5b79] dark:ring-2 dark:ring-[#6cc8ed] dark:shadow-[0_0_20px_-2px_rgba(60,150,255,0.8)]'
+              : 'bg-[#e6edf6] text-[#0b1d3a] hover:bg-[#d8e3f0] dark:bg-[#072636]/70 dark:ring-1 dark:ring-[#3fadd8] dark:text-white dark:hover:bg-[#0b3347]'
           }`}
         >
           {it.label}
           {it.count !== undefined && (
             <span
               className={`min-w-[26px] h-6 px-2 grid place-items-center rounded-full text-[13px] font-bold tabular-nums ${
-                active ? 'bg-[#2f7dd6] text-white' : 'text-[#1d5fa8] bg-[#d4e3f6] dark:bg-[#123267]'
+                active ? 'bg-[#2fa7d6] text-white' : 'text-[#0a5473] bg-[#d4ecf6] dark:bg-[#124f67]'
               }`}
             >
               {it.count}
@@ -215,7 +215,7 @@ export const HeroTabs: React.FC<{
 );
 
 export const heroPrimaryBtn =
-  'inline-flex items-center gap-2.5 h-12 px-6 rounded-2xl bg-white text-[#0a1e44] text-base font-bold shadow-[0_8px_20px_-8px_rgba(0,0,0,0.5)] hover:bg-[#eef6fd] dark:bg-[#2a63b0] dark:text-white dark:shadow-none dark:hover:bg-[#3470c2] transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+  'inline-flex items-center gap-2.5 h-12 px-6 rounded-2xl bg-white text-[#0a1e44] text-base font-bold shadow-[0_8px_20px_-8px_rgba(0,0,0,0.5)] hover:bg-[#eef6fd] dark:bg-[#2a8ab0] dark:text-white dark:shadow-none dark:hover:bg-[#349ac2] transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
 export const heroSecondaryBtn =
   'inline-flex items-center gap-2.5 h-12 px-6 rounded-2xl border-2 border-white/85 text-white text-base font-semibold hover:bg-white/10 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
 
@@ -234,9 +234,9 @@ export const FigureBand: React.FC<{
           style={{ animationDelay: `${idx * 80}ms` }}
           className={`fs-card lift animate-fade-up relative overflow-hidden text-left rounded-2xl p-5 ${
             it.onClick ? 'cursor-pointer' : ''
-          } ${it.active ? 'ring-2 ring-[#2c84c4]' : ''}`}
+          } ${it.active ? 'ring-2 ring-[#0f6b8f]' : ''}`}
         >
-          <span aria-hidden="true" className="absolute -right-8 -top-8 w-28 h-28 rounded-full blur-2xl" style={{ background: it.tone === 'bad' ? 'rgba(220,38,38,.18)' : it.tone === 'warn' ? 'rgba(245,158,11,.22)' : 'rgba(44,132,196,.2)' }} />
+          <span aria-hidden="true" className="absolute -right-8 -top-8 w-28 h-28 rounded-full blur-2xl" style={{ background: it.tone === 'bad' ? 'rgba(220,38,38,.18)' : it.tone === 'warn' ? 'rgba(245,158,11,.22)' : 'rgba(15,107,143,.2)' }} />
           <span
             aria-hidden="true"
             className="absolute inset-y-0 left-0 w-1"
@@ -282,13 +282,13 @@ export const cardCls = 'fs-card rounded-2xl';
 /** Encabezado de tabla azul claro y filas alternadas */
 export const theadRowCls = 'text-left text-[13px] font-bold uppercase text-[#0b1d3a] dark:text-slate-300 bg-[#eaf1f9] dark:bg-slate-900/60';
 export const tbodyCls = 'divide-y divide-[#e6edf5] dark:divide-slate-800';
-export const rowCls = 'hover:bg-[#eaf2fb] dark:hover:bg-[#0c2350]/70 transition-colors dark:[&>td:first-child]:shadow-[inset_3px_0_0_#4a9bff]';
+export const rowCls = 'hover:bg-[#e6f2f6] dark:hover:bg-[#0b3347]/70 transition-colors dark:[&>td:first-child]:shadow-[inset_3px_0_0_#5ec3eb]';
 
 /** Botón principal de cada fila */
 export const rowPrimaryBtn =
-  'h-11 px-5 rounded-xl bg-[#0f3d75] hover:bg-[#0b2f5c] dark:bg-[#1f7ae8] dark:hover:bg-[#2b86f2] text-white text-[15px] font-bold cursor-pointer transition-colors whitespace-nowrap shadow-[0_6px_14px_-8px_rgba(15,61,117,0.9)]';
+  'h-11 px-5 rounded-xl bg-[#0a4561] hover:bg-[#0b455c] dark:bg-[#1a8bb0] dark:hover:bg-[#37b5e6] text-white text-[15px] font-bold cursor-pointer transition-colors whitespace-nowrap shadow-[0_6px_14px_-8px_rgba(10,69,97,0.9)]';
 export const rowIconBtn =
-  'w-10 h-10 grid place-items-center rounded-xl border border-[#d6e0ec] dark:border-slate-700 bg-white dark:bg-[#0a1c44] text-[#1c3354] dark:text-white hover:text-[#1d5fa8] hover:bg-[#eef5fc] dark:hover:bg-[#123267] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+  'w-10 h-10 grid place-items-center rounded-xl border border-[#d6e0ec] dark:border-slate-700 bg-white dark:bg-[#0a2c40] text-[#1c3354] dark:text-white hover:text-[#0a5473] hover:bg-[#eaf4f7] dark:hover:bg-[#124f67] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
 
 /** Color de la píldora de estado: habilitado en verde, el resto con el tono de su etapa */
 export const stagePillTone = (stage: { key: string; tone: Tone }): Tone => (stage.key === 'habilitado' ? 'ok' : stage.tone);
@@ -343,7 +343,7 @@ export const primaryBtn =
 export const secondaryBtn =
   'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-fs-line dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-fs-ground dark:hover:bg-slate-800 text-fs-navy dark:text-slate-100 text-sm font-medium transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fs-blue';
 export const inputCls =
-  'px-4 py-2 rounded-2xl border border-[#d9e3ef] shadow-[0_2px_6px_-3px_rgba(15,42,82,0.18)] text-[15px] bg-white dark:bg-[#0a1c44] text-fs-navy dark:text-white placeholder:text-[#5d7392] focus:outline-none focus:ring-2 focus:ring-fs-blue/40 focus:border-fs-blue';
+  'px-4 py-2 rounded-2xl border border-[#d9e3ef] shadow-[0_2px_6px_-3px_rgba(15,42,82,0.18)] text-[15px] bg-white dark:bg-[#0a2c40] text-fs-navy dark:text-white placeholder:text-[#5d7392] focus:outline-none focus:ring-2 focus:ring-fs-blue/40 focus:border-fs-blue';
 
 /** Campo con ícono a la izquierda (para selects de filtro) */
 export const IconField: React.FC<{ icon: React.ElementType; className?: string; children: React.ReactNode }> = ({

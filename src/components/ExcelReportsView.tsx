@@ -23,9 +23,9 @@ const PREVIEW_ROWS = 8;
 
 const TONE_MAP: Record<CellTone, Tone> = { good: 'ok', neutral: 'muted', info: 'warn', bad: 'bad' };
 
-const labelCls = 'text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2c84c4] dark:text-[#69bdd7]';
+const labelCls = 'text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0f6b8f] dark:text-[#5db2c9]';
 const fieldCls =
-  'w-full h-11 px-3.5 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30';
+  'w-full h-11 px-3.5 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#6b84a3] focus:outline-none focus:border-[#0f6b8f] focus:ring-2 focus:ring-[#0f6b8f]/30';
 
 /** Número de paso: círculo azul con la cifra. */
 const StepNumber: React.FC<{ n: number }> = ({ n }) => (
@@ -171,13 +171,13 @@ export const ExcelReportsView: React.FC = () => {
                     setReportId(r.id);
                     setColumnsOpen(false);
                   }}
-                  className={`group flex items-center gap-3 text-left rounded-2xl px-3 h-[54px] border transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2c84c4] ${
+                  className={`group flex items-center gap-3 text-left rounded-2xl px-3 h-[54px] border transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f6b8f] ${
                     active
                       ? 'bg-gradient-action text-white border-transparent shadow-glow'
-                      : 'border-transparent hover:bg-[#2c84c4]/[0.08] dark:hover:bg-white/[0.06] text-[#0b1d3a] dark:text-slate-200'
+                      : 'border-transparent hover:bg-[#0f6b8f]/[0.08] dark:hover:bg-white/[0.06] text-[#0b1d3a] dark:text-slate-200'
                   }`}
                 >
-                  <span className={`w-9 h-9 rounded-xl grid place-items-center shrink-0 ${active ? 'bg-white/20' : 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/25 text-[#1d5fa8] dark:text-[#69bdd7]'}`}>
+                  <span className={`w-9 h-9 rounded-xl grid place-items-center shrink-0 ${active ? 'bg-white/20' : 'bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/25 text-[#0a5473] dark:text-[#5db2c9]'}`}>
                     <Icon className="w-[18px] h-[18px]" />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -223,7 +223,7 @@ export const ExcelReportsView: React.FC = () => {
                 </div>
               </div>
               {nFilters > 0 && (
-                <button type="button" onClick={clearFilters} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-[13px] font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:bg-[#2c84c4]/10 cursor-pointer transition-colors">
+                <button type="button" onClick={clearFilters} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-[13px] font-semibold text-[#0a5473] dark:text-[#5db2c9] hover:bg-[#0f6b8f]/10 cursor-pointer transition-colors">
                   <RotateCcw className="w-3.5 h-3.5" /> Quitar {nFilters} {nFilters === 1 ? 'filtro' : 'filtros'}
                 </button>
               )}
@@ -280,8 +280,8 @@ export const ExcelReportsView: React.FC = () => {
             {columnsOpen && (
               <div className="mt-4 space-y-4">
                 <div className="flex items-center gap-4 text-[13px] font-semibold">
-                  <button type="button" onClick={() => setAllColumns(true)} className="text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer">Marcar todas</button>
-                  <button type="button" onClick={() => setAllColumns(false)} className="text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer">Quitar todas</button>
+                  <button type="button" onClick={() => setAllColumns(true)} className="text-[#0a5473] dark:text-[#5db2c9] hover:underline cursor-pointer">Marcar todas</button>
+                  <button type="button" onClick={() => setAllColumns(false)} className="text-[#0a5473] dark:text-[#5db2c9] hover:underline cursor-pointer">Quitar todas</button>
                   <button type="button" onClick={resetColumns} className="text-[#3a5274] dark:text-slate-400 hover:underline cursor-pointer">Las recomendadas</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -289,7 +289,7 @@ export const ExcelReportsView: React.FC = () => {
                     <div key={group} className="rounded-2xl bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 p-3.5">
                       <div className="flex items-center justify-between mb-2 px-1">
                         <span className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{group}</span>
-                        <span className="text-[12px] font-semibold text-[#2c84c4] dark:text-[#69bdd7] tabular-nums">
+                        <span className="text-[12px] font-semibold text-[#0f6b8f] dark:text-[#5db2c9] tabular-nums">
                           {cols.filter((c) => selectedIds.includes(c.id)).length}/{cols.length}
                         </span>
                       </div>
@@ -300,11 +300,11 @@ export const ExcelReportsView: React.FC = () => {
                             <label
                               key={c.id}
                               className={`flex items-center gap-3 px-2.5 h-10 rounded-xl text-sm cursor-pointer transition-colors ${
-                                on ? 'bg-[#2c84c4]/12 dark:bg-[#2c84c4]/20 text-[#0b1d3a] dark:text-white font-semibold' : 'text-[#3a5274] dark:text-slate-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+                                on ? 'bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/20 text-[#0b1d3a] dark:text-white font-semibold' : 'text-[#3a5274] dark:text-slate-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
                               }`}
                             >
                               <input type="checkbox" checked={on} onChange={() => toggleColumn(c.id)} className="sr-only peer" />
-                              <span className={`w-5 h-5 rounded-md grid place-items-center shrink-0 border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#2c84c4]/50 ${on ? 'bg-gradient-action border-transparent text-white' : 'border-[#6b84a3]/60'}`}>
+                              <span className={`w-5 h-5 rounded-md grid place-items-center shrink-0 border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#0f6b8f]/50 ${on ? 'bg-gradient-action border-transparent text-white' : 'border-[#6b84a3]/60'}`}>
                                 {on && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
                               </span>
                               <span className="truncate">{c.header}</span>
@@ -322,7 +322,7 @@ export const ExcelReportsView: React.FC = () => {
           {/* ── Vista previa y descarga ─────────────────────────────────── */}
           <section className="fs-card rounded-[22px] overflow-hidden">
             <div className="p-5 sm:p-6 pb-3 flex items-center gap-2.5">
-              <Table2 className="w-5 h-5 text-[#2c84c4] dark:text-[#69bdd7]" />
+              <Table2 className="w-5 h-5 text-[#0f6b8f] dark:text-[#5db2c9]" />
               <span className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">Así quedará</span>
               <span className="text-[13px] text-[#5d7392] dark:text-slate-400">
                 {rows.length > PREVIEW_ROWS ? `primeras ${PREVIEW_ROWS} de ${rows.length}` : `${rows.length} ${noun}`}
@@ -335,13 +335,13 @@ export const ExcelReportsView: React.FC = () => {
             ) : rows.length === 0 ? (
               <div className="px-6 py-12 text-center">
                 <p className="text-[15px] font-semibold text-[#0b1d3a] dark:text-white">Ningún registro coincide con los filtros.</p>
-                <button type="button" onClick={clearFilters} className="mt-2 text-sm font-semibold text-[#1d5fa8] dark:text-[#69bdd7] hover:underline cursor-pointer">Quitar los filtros</button>
+                <button type="button" onClick={clearFilters} className="mt-2 text-sm font-semibold text-[#0a5473] dark:text-[#5db2c9] hover:underline cursor-pointer">Quitar los filtros</button>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px] text-left border-collapse min-w-[720px]">
                   <thead>
-                    <tr className="bg-[#1d5fa8] text-white">
+                    <tr className="bg-[#0a5473] text-white">
                       {previewCols.map((c) => (
                         <th key={c.id} className={`px-3.5 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] whitespace-nowrap ${c.kind === 'money' || c.kind === 'int' ? 'text-right' : ''}`}>
                           {c.header}
@@ -351,7 +351,7 @@ export const ExcelReportsView: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-black/[0.06] dark:divide-white/10">
                     {rows.slice(0, PREVIEW_ROWS).map((row, i) => (
-                      <tr key={i} className="odd:bg-transparent even:bg-[#2c84c4]/[0.04] hover:bg-[#2c84c4]/[0.09] transition-colors">
+                      <tr key={i} className="odd:bg-transparent even:bg-[#0f6b8f]/[0.04] hover:bg-[#0f6b8f]/[0.09] transition-colors">
                         {previewCols.map((c) => {
                           const raw = c.get(row, ctx);
                           const text = formatCell(c.kind, raw);
@@ -370,7 +370,7 @@ export const ExcelReportsView: React.FC = () => {
             )}
 
             {/* Barra de descarga */}
-            <div className="border-t border-black/[0.08] dark:border-white/10 bg-[#2c84c4]/[0.05] dark:bg-white/[0.03] px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="border-t border-black/[0.08] dark:border-white/10 bg-[#0f6b8f]/[0.05] dark:bg-white/[0.03] px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-[15px] font-semibold text-[#0b1d3a] dark:text-white">
                   {rows.length} {noun} · {selectedCols.length} {selectedCols.length === 1 ? 'columna' : 'columnas'}
@@ -382,7 +382,7 @@ export const ExcelReportsView: React.FC = () => {
                 type="button"
                 onClick={handleDownload}
                 disabled={!canDownload}
-                className="h-12 px-7 rounded-2xl bg-gradient-action text-white font-semibold text-[15px] shadow-glow inline-flex items-center justify-center gap-2.5 transition cursor-pointer hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2c84c4]"
+                className="h-12 px-7 rounded-2xl bg-gradient-action text-white font-semibold text-[15px] shadow-glow inline-flex items-center justify-center gap-2.5 transition cursor-pointer hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f6b8f]"
               >
                 {busy === 'report' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                 {busy === 'report' ? 'Generando…' : 'Descargar Excel'}

@@ -67,7 +67,7 @@ export const ClosingSection: React.FC<ClosingSectionProps> = (p) => (
                 className="sr-only peer"
               />
               <span
-                className={`w-5 h-5 rounded-md grid place-items-center border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#2c84c4]/50 ${
+                className={`w-5 h-5 rounded-md grid place-items-center border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#0f6b8f]/50 ${
                   p.planRequired ? 'bg-gradient-action border-transparent text-white' : 'border-[#5d7392]/60'
                 }`}
               >
@@ -78,7 +78,7 @@ export const ClosingSection: React.FC<ClosingSectionProps> = (p) => (
               </span>
             </label>
             {p.planForcedByConcept && (
-              <span className="h-7 px-3 inline-flex items-center rounded-full bg-[#69bdd7]/25 text-[#0e6d8a] dark:text-[#69bdd7] text-xs font-semibold">
+              <span className="h-7 px-3 inline-flex items-center rounded-full bg-[#5db2c9]/25 text-[#0e6d8a] dark:text-[#5db2c9] text-xs font-semibold">
                 Obligatorio: la calificación es condicional
               </span>
             )}

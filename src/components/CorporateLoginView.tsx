@@ -18,7 +18,7 @@ import { BrandSwoosh } from './ui/BrandSwoosh';
 type LoginMode = 'login' | 'forgot';
 
 const inputClass =
-  'w-full h-12 pl-10 pr-3 rounded-xl border border-white/15 bg-white/5 text-[15px] text-white placeholder:text-white/35 focus:outline-hidden focus:border-[#69bdd7] focus:ring-4 focus:ring-[#69bdd7]/30 transition-all';
+  'w-full h-12 pl-10 pr-3 rounded-xl border border-white/15 bg-white/5 text-[15px] text-white placeholder:text-white/35 focus:outline-hidden focus:border-[#5db2c9] focus:ring-4 focus:ring-[#5db2c9]/30 transition-all';
 
 export const CorporateLoginView: React.FC = () => {
   const { isAuthConfigured, signIn, sendPasswordReset, showToast } = useApp();
@@ -117,15 +117,15 @@ export const CorporateLoginView: React.FC = () => {
       {/* Panel del formulario */}
       <section className="relative flex flex-1 items-center justify-center px-5 py-10 sm:px-10 min-h-full">
         <div className="absolute inset-0 grid-pattern opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-        <div className="absolute -right-32 -top-32 w-[28rem] h-[28rem] rounded-full bg-[#2c84c4]/35 blur-3xl animate-float" />
-        <div className="absolute -bottom-40 -left-20 w-[26rem] h-[26rem] rounded-full bg-[#69bdd7]/20 blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
+        <div className="absolute -right-32 -top-32 w-[28rem] h-[28rem] rounded-full bg-[#0f6b8f]/35 blur-3xl animate-float" />
+        <div className="absolute -bottom-40 -left-20 w-[26rem] h-[26rem] rounded-full bg-[#5db2c9]/20 blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
         <img src="/nd/login-bus-lago.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 lg:hidden" />
 
         <div key={shakeKey} className="relative w-full max-w-md" style={shakeKey > 0 ? { animation: 'nd-shake 0.45s ease-in-out' } : undefined}>
           <div className="gradient-border rounded-[28px] glass-dark p-8 shadow-glow animate-fade-up sm:p-10" style={{ animationDelay: '0.1s' }}>
             <div className="flex flex-col items-center text-center">
               <div className="relative">
-                <div className="absolute inset-0 rounded-3xl bg-[#69bdd7]/40 blur-xl animate-float" />
+                <div className="absolute inset-0 rounded-3xl bg-[#5db2c9]/40 blur-xl animate-float" />
                 <img src="/nd/flotasugamuxi_logo.png" alt="Flota Sugamuxi" className="relative w-20 h-20 rounded-3xl ring-1 ring-white/25 object-cover animate-float" />
               </div>
               <h2 className="mt-6 font-display text-2xl font-semibold">
@@ -140,7 +140,7 @@ export const CorporateLoginView: React.FC = () => {
 
             <div className="mt-7 space-y-3">
               {!isAuthConfigured && (
-                <div className="p-2.5 bg-[#2c84c4]/15 border border-[#2c84c4]/35 rounded-xl text-xs text-[#69bdd7] flex items-start gap-2">
+                <div className="p-2.5 bg-[#0f6b8f]/15 border border-[#0f6b8f]/35 rounded-xl text-xs text-[#5db2c9] flex items-start gap-2">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                   <span>El inicio de sesión no está disponible: faltan las variables VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en este servidor.</span>
                 </div>
@@ -152,8 +152,8 @@ export const CorporateLoginView: React.FC = () => {
                 </div>
               )}
               {info && (
-                <div className="p-2.5 bg-[#2c84c4]/15 border border-[#2c84c4]/35 rounded-xl text-xs text-[#69bdd7] flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#69bdd7] shrink-0 mt-0.5" />
+                <div className="p-2.5 bg-[#0f6b8f]/15 border border-[#0f6b8f]/35 rounded-xl text-xs text-[#5db2c9] flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#5db2c9] shrink-0 mt-0.5" />
                   <span>{info}</span>
                 </div>
               )}
@@ -186,7 +186,7 @@ export const CorporateLoginView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => switchMode('forgot')}
-                        className="text-xs text-[#69bdd7] hover:underline font-semibold cursor-pointer"
+                        className="text-xs text-[#5db2c9] hover:underline font-semibold cursor-pointer"
                       >
                         ¿Olvidó su contraseña?
                       </button>
@@ -236,7 +236,7 @@ export const CorporateLoginView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => switchMode('login')}
-                    className="w-full text-center text-sm text-[#69bdd7] hover:underline font-semibold cursor-pointer"
+                    className="w-full text-center text-sm text-[#5db2c9] hover:underline font-semibold cursor-pointer"
                   >
                     Volver a iniciar sesión
                   </button>
@@ -245,7 +245,7 @@ export const CorporateLoginView: React.FC = () => {
             </div>
 
             <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-center gap-1.5 text-xs text-white/55">
-              <ShieldCheck className="w-4 h-4 text-[#69bdd7] shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-[#5db2c9] shrink-0" />
               <span>Conexión cifrada · Acceso restringido</span>
             </div>
           </div>

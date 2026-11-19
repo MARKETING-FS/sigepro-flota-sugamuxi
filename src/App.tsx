@@ -109,7 +109,7 @@ const MainLayout: React.FC = () => {
           {activeView === 'bancoProveedores' && <BancoProveedoresView />}
           {activeView === 'convocatorias' && (
             <div className="max-w-2xl mx-auto mt-12 p-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-              <div className="w-12 h-12 rounded-2xl bg-[#2c84c4]/12 dark:bg-[#2c84c4]/60 text-[#1d5fa8] dark:text-[#69bdd7] dark:text-[#69bdd7] flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#0f6b8f]/12 dark:bg-[#0f6b8f]/60 text-[#0a5473] dark:text-[#5db2c9] dark:text-[#5db2c9] flex items-center justify-center mx-auto mb-3">
                 <Lock className="w-6 h-6" />
               </div>
               <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulo No Disponible</h3>
@@ -128,7 +128,7 @@ const MainLayout: React.FC = () => {
           {(activeView === 'adminForms' || activeView === 'parametrizacion' || activeView === 'documentMatrix' || activeView === 'auditoria' || activeView === 'usuarios') &&
             (accountRole !== 'SUPERADMIN' ? (
               <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                <div className="w-12 h-12 rounded-2xl bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-2xl bg-[#0f6b8f]/12 text-[#0a5473] dark:text-[#5db2c9] flex items-center justify-center mx-auto mb-3">
                   <Lock className="w-6 h-6" />
                 </div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Acceso exclusivo del superadministrador</h3>
@@ -137,7 +137,7 @@ const MainLayout: React.FC = () => {
                 </p>
                 <button
                   onClick={() => setActiveView('revisores')}
-                  className="mt-4 px-4 py-2 bg-[#2c84c4] hover:bg-[#1d5fa8] text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+                  className="mt-4 px-4 py-2 bg-[#0f6b8f] hover:bg-[#0a5473] text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
                 >
                   Ir al Resumen
                 </button>
