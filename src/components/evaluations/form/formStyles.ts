@@ -7,7 +7,7 @@ export const fieldCls =
 export const areaCls =
   'w-full px-3.5 py-3 text-sm rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-[#0b1d3a] dark:text-white placeholder:text-[#5d7392] focus:outline-none focus:border-[#2c84c4] focus:ring-2 focus:ring-[#2c84c4]/30';
 
-export const cardCls = 'rounded-2xl bg-white dark:bg-white/[0.04] border border-black/[0.07] dark:border-white/10';
+export const cardCls = 'rounded-2xl bg-white dark:!bg-[#101828] border border-black/[0.07] dark:border-white/10';
 
 export const focusRing =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c84c4]/50';
