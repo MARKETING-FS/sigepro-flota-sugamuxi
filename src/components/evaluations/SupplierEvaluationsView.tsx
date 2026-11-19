@@ -351,7 +351,7 @@ export const SupplierEvaluationsView: React.FC = () => {
   );
 
   return (
-    <div className="tone-eval w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1">
+    <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 pb-8 pt-1">
       <PageHeader
         icon={Star}
         title="Evaluaciones"
