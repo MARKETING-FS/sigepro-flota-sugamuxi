@@ -29,7 +29,7 @@ interface ScoreSummaryProps {
 
 /** Mismo azul que las tarjetas elegidas del Registro de proveedores (ChoiceCard) */
 const panelCls =
-  'rounded-2xl border border-[#1d5fa8] bg-[#eaf2fb] dark:bg-[#101828] dark:border-[#4a9bff] shadow-[0_0_0_1px_#1d5fa8] dark:shadow-[0_0_0_1px_#4a9bff] text-[#0b1d3a] dark:text-white';
+  'rounded-2xl border border-[#1d5fa8] bg-[#eaf2fb] dark:bg-[#0c2350] dark:border-[#4a9bff] shadow-[0_0_0_1px_#1d5fa8] dark:shadow-[0_0_0_1px_#4a9bff] text-[#0b1d3a] dark:text-white';
 const mutedCls = 'text-[#3a5274] dark:text-slate-300';
 
 const toneCls: Record<Verdict['tone'], string> = {

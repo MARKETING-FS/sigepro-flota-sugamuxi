@@ -336,7 +336,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     >
       <div className="dark:bg-[#0c1426] bg-[#f4f8fc] rounded-[24px] border border-black/10 dark:border-white/10 shadow-2xl w-full max-w-6xl h-[94vh] flex flex-col overflow-hidden animate-fade-up">
         {/* Encabezado */}
-        <div className="px-5 sm:px-7 py-4 bg-white dark:bg-[#0a1122] border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between gap-4 shrink-0">
+        <div className="px-5 sm:px-7 py-4 bg-white dark:!bg-[#101828] border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3.5 min-w-0">
             <span className="w-11 h-11 rounded-xl bg-[#1d5fa8] text-white grid place-items-center shrink-0">
               <Award className="w-5 h-5" />
@@ -437,7 +437,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
           </div>
 
           {/* Escritorio: resumen y botones siempre a la vista */}
-          <aside className="hidden lg:flex flex-col w-[340px] shrink-0 border-l border-black/[0.07] dark:border-white/10 bg-white dark:bg-[#0a1122] overflow-y-auto">
+          <aside className="hidden lg:flex flex-col w-[340px] shrink-0 border-l border-black/[0.07] dark:border-white/10 bg-white dark:!bg-[#101828] overflow-y-auto">
             <div className="p-5 flex-1">
               <ScoreSummary variant="panel" {...summaryProps} />
             </div>
@@ -447,7 +447,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
           </aside>
 
           {/* Celular: botones abajo */}
-          <div className="lg:hidden p-3 bg-white dark:bg-[#0a1122] border-t border-black/[0.07] dark:border-white/10 shrink-0">
+          <div className="lg:hidden p-3 bg-white dark:!bg-[#101828] border-t border-black/[0.07] dark:border-white/10 shrink-0">
             <FormActions canSubmit={canSubmit} blockedReason={blockedReason} onClose={onClose} />
           </div>
         </form>
