@@ -21,6 +21,7 @@ import { WeightedSection } from './form/WeightedSection';
 import { ClosingSection } from './form/ClosingSection';
 import { ScoreSummary, SummaryItem, Verdict } from './form/ScoreSummary';
 import { FormActions } from './form/FormActions';
+import { SignatureStep } from './form/SignatureStep';
 
 interface EvaluationFormModalProps {
   initialSupplier?: SupplierDossier | null;
@@ -117,15 +118,17 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   const [improvementAction, setImprovementAction] = useState<string>('');
   const [improvementDeadline, setImprovementDeadline] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Paso de firma: se abre al pulsar «Registrar calificación», antes de guardar y generar el PDF
+  const [signing, setSigning] = useState(false);
 
   // Cerrar con Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !signing) onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, signing]);
 
   // Puntaje
   const isInitialDoc = evalType === 'INICIAL';
@@ -174,8 +177,15 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     setCriterionScores((prev) => ({ ...prev, [critId]: { score: prev[critId]?.score ?? 90, notes } }));
   };
 
+  // El botón solo abre el paso de firma; la calificación se guarda cuando la persona firma (o sigue sin firma)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedDossier) return;
+    if (isInitialDoc && !doc006Complete) return;
+    setSigning(true);
+  };
+
+  const register = (signature: string | null) => {
     if (!selectedDossier) return;
     if (isInitialDoc && !doc006Complete) return;
 
@@ -231,6 +241,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
       evaluatorId: activeUser?.id || 'rev-1',
       evaluatorName: (isInitialDoc ? evaluatorNameInput.trim() : '') || activeUser?.name || 'Administrador',
       evaluatorRole: (isInitialDoc ? evaluatorPosition.trim() : '') || role,
+      evaluatorSignature: signature || undefined,
       totalScore,
       concept: computedConcept,
       criteriaScores: scoresList,
@@ -404,6 +415,17 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
           </div>
         </form>
       </div>
+      {signing && (
+        <SignatureStep
+          evaluatorName={(isInitialDoc ? evaluatorNameInput.trim() : '') || activeUser?.name || ''}
+          userKey={activeUser?.id || ''}
+          onCancel={() => setSigning(false)}
+          onConfirm={(sig) => {
+            setSigning(false);
+            register(sig);
+          }}
+        />
+      )}
     </div>
   );
 };

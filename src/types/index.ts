@@ -422,6 +422,8 @@ export interface SupplierEvaluation {
   evaluatorId: string;
   evaluatorName: string;
   evaluatorRole: string;
+  /** Firma del evaluador (PNG en data URL), dibujada o subida al registrar la calificación */
+  evaluatorSignature?: string;
   totalScore: number; // 0 a 100 (o a 120 si se calificó con FS.GA-DOC-006: ver utils/evaluationScale)
   concept: EvaluationConcept;
   criteriaScores: EvaluationCriterionScore[];

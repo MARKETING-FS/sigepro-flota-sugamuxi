@@ -33,6 +33,8 @@ export interface EvaluationPdfInput {
   evaluatorPosition: string;
   /** Logo en data URL (PNG). */
   logoDataUrl?: string;
+  /** Firma del evaluador en data URL (PNG transparente). Si no hay, el recuadro queda en blanco para firmar a mano. */
+  signatureDataUrl?: string;
 }
 
 type RGB = [number, number, number];
@@ -306,8 +308,20 @@ export async function buildEvaluationPdf(input: EvaluationPdfInput): Promise<Blo
   doc.text('NOMBRE Y CARGO DEL EVALUADOR', (L + sx) / 2, y + 11, { align: 'center' });
   doc.text('FIRMA', (sx + R) / 2, y + 11, { align: 'center' });
   y += 16;
-  box(L, y, sx - L, 38);
-  box(sx, y, R - sx, 38);
+  const signH = 58;
+  box(L, y, sx - L, signH);
+  box(sx, y, R - sx, signH);
+  if (input.signatureDataUrl) {
+    try {
+      const p = doc.getImageProperties(input.signatureDataUrl);
+      const maxW = R - sx - 20;
+      const maxH = signH - 12;
+      const k = Math.min(maxW / p.width, maxH / p.height);
+      doc.addImage(input.signatureDataUrl, 'PNG', sx + (R - sx - p.width * k) / 2, y + (signH - p.height * k) / 2, p.width * k, p.height * k);
+    } catch {
+      /* firma ilegible: el recuadro queda para firmar a mano */
+    }
+  }
   const evName = fit(input.evaluatorName, sx - L - 14, 9.5);
   font('helvetica', 'bold', evName.size);
   doc.text(evName.text, L + 7, y + 16);

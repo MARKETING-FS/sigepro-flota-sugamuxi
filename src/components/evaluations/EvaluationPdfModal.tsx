@@ -38,7 +38,7 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
     setError(null);
 
     const info0 = dossier?.basicInfo;
-    const cacheKey = `${evaluation.id}|${evaluation.totalScore}|${evaluation.observations || ''}|${info0?.address || ''}|${info0?.city || ''}`;
+    const cacheKey = `${evaluation.id}|${evaluation.totalScore}|${evaluation.observations || ''}|${info0?.address || ''}|${info0?.city || ''}|${evaluation.evaluatorSignature ? evaluation.evaluatorSignature.length : 0}`;
     const hit = pdfCache.get(cacheKey);
     if (hit) {
       blobRef.current = hit.blob;
@@ -76,6 +76,7 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
           evaluatorName: evaluation.evaluatorName || '',
           evaluatorPosition: evaluation.evaluatorRole || '',
           logoDataUrl,
+          signatureDataUrl: evaluation.evaluatorSignature,
         });
         if (cancelled) return;
         blobRef.current = blob;

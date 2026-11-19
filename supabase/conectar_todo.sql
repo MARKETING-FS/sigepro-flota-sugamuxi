@@ -51,3 +51,6 @@ SELECT tablename, policyname, roles FROM pg_policies WHERE schemaname = 'public'
 
 -- 4. Quién registró al proveedor (columna «Creado por» del Banco de proveedores)
 ALTER TABLE public.suppliers ADD COLUMN IF NOT EXISTS created_by_name TEXT;
+
+-- 5. Firma digital del evaluador (PNG en data URL) en cada calificacion
+ALTER TABLE public.supplier_evaluations ADD COLUMN IF NOT EXISTS evaluator_signature TEXT;

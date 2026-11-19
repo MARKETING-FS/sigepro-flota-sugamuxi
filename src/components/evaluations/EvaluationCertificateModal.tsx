@@ -344,8 +344,12 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
 
             <div className="grid grid-cols-2 gap-8 pt-6">
               <div className="text-center">
-                <div className="border-b border-slate-400 pb-1 w-48 mx-auto font-serif italic text-sm text-slate-800">
-                  {evaluation.evaluatorName}
+                <div className="border-b border-slate-400 pb-1 w-48 mx-auto min-h-[44px] flex items-end justify-center font-serif italic text-sm text-slate-800">
+                  {evaluation.evaluatorSignature ? (
+                    <img src={evaluation.evaluatorSignature} alt={`Firma de ${evaluation.evaluatorName}`} className="max-h-[56px] max-w-full object-contain" />
+                  ) : (
+                    evaluation.evaluatorName
+                  )}
                 </div>
                 <div className="text-xs font-bold text-slate-900 mt-1">{evaluation.evaluatorName}</div>
                 <div className="text-[10px] text-slate-500">{evaluation.evaluatorRole} - Flota Sugamuxi S.A.</div>
