@@ -7,7 +7,7 @@ import {
   SupplierEvaluationType,
 } from '../../types';
 import { exportEvaluationsExcel } from '../../utils/reports/quickExport';
-import { buildEvaluationRow } from '../../utils/evaluationRows';
+import { averageCurrentScore, buildEvaluationRow } from '../../utils/evaluationRows';
 import {
   FigureBand,
   rowCls,
@@ -268,13 +268,9 @@ export const SupplierEvaluationsView: React.FC = () => {
     const annualDone = supplierEvaluationRows.filter((r) => r.isSupplierActive && r.latestAnnualEval).length;
 
     // Average Score
-    const allScores = relevantEvaluations.map((e) => evaluationPercent(e));
-    const avgScore =
-      allScores.length > 0
-        ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1)
-        : relevantEvaluations.length > 0
-        ? '90.0'
-        : 'N/A';
+    // Igual que en el Resumen: una sola evaluación por proveedor (la vigente)
+    const { avg, count: scoredSuppliers } = averageCurrentScore(supplierEvaluationRows);
+    const avgScore = avg === null ? 'N/A' : avg.toFixed(1);
 
     return {
       total,
@@ -283,6 +279,7 @@ export const SupplierEvaluationsView: React.FC = () => {
       initialPending,
       annualDone,
       avgScore,
+      scoredSuppliers,
       totalEvaluationsRecorded: relevantEvaluations.length,
     };
   }, [supplierEvaluationRows, relevantEvaluations]);
@@ -390,7 +387,7 @@ export const SupplierEvaluationsView: React.FC = () => {
           {
             label: 'Promedio',
             value: metrics.avgScore === 'N/A' ? '—' : String(metrics.avgScore).replace('.', ','),
-            note: `${metrics.totalEvaluationsRecorded} evaluaciones registradas`,
+            note: `${metrics.scoredSuppliers} proveedores evaluados · ${metrics.totalEvaluationsRecorded} evaluaciones`,
             onClick: () => setView('history'),
             active: view === 'history',
           },

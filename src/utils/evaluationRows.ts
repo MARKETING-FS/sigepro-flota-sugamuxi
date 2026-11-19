@@ -1,5 +1,6 @@
 import { SupplierDossier, SupplierEvaluation } from '../types';
 import { parseLocalDate } from './dateOnly';
+import { evaluationPercent } from './evaluationScale';
 
 export interface EvaluationRow {
   dossier: SupplierDossier;
@@ -17,8 +18,12 @@ export interface EvaluationRow {
  */
 export function buildEvaluationRow(dossier: SupplierDossier): EvaluationRow {
   const evals = Array.isArray(dossier.evaluations) ? dossier.evaluations : [];
+  const timeOf = (e: SupplierEvaluation) => (parseLocalDate(e.evaluationDate) || new Date(e.createdAt)).getTime() || 0;
+  // Si hay más de una evaluación inicial (se repitió), cuenta la más reciente
   const initialEval =
-    evals.find((e) => e.evaluationType === 'INICIAL') ||
+    evals
+      .filter((e) => e.evaluationType === 'INICIAL')
+      .sort((a, b) => timeOf(b) - timeOf(a))[0] ||
     dossier.initialEvaluation ||
     null;
 
@@ -54,4 +59,20 @@ export function buildEvaluationRow(dossier: SupplierDossier): EvaluationRow {
     completedAnnualCycles: annualEvals.length,
     nextCycleNumber: annualEvals.length + 1,
   };
+}
+
+/** La evaluación vigente de un proveedor: la anual más reciente o, si no tiene, la inicial. */
+export const currentEvaluation = (row: EvaluationRow): SupplierEvaluation | null => row.latestAnnualEval || row.initialEval;
+
+/**
+ * Puntaje promedio de los proveedores (0 a 100): una sola evaluación por proveedor, la vigente, sin contar los rechazados.
+ * Es la misma cuenta en el Resumen y en Evaluaciones, para que los dos números coincidan.
+ */
+export function averageCurrentScore(rows: EvaluationRow[]): { avg: number | null; count: number } {
+  const scores = rows
+    .filter((r) => r.dossier.processStatus !== 'RECHAZADO')
+    .map(currentEvaluation)
+    .filter((e): e is SupplierEvaluation => !!e)
+    .map((e) => evaluationPercent(e));
+  return { avg: scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null, count: scores.length };
 }

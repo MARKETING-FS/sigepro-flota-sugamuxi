@@ -9,15 +9,18 @@ const greeting = () => {
 };
 
 /** Indicador del encabezado: cifra grande y, debajo, de dónde sale (value = null muestra una raya) */
-const Chip: React.FC<{ label: string; value: number | null; suffix?: string; hint?: string; dot: string; onClick?: () => void }> = ({
+const Chip: React.FC<{ label: string; value: number | null; suffix?: string; decimals?: number; hint?: string; dot: string; onClick?: () => void }> = ({
   label,
   value,
   suffix = '',
+  decimals = 0,
   hint,
   dot,
   onClick,
 }) => {
-  const n = useCountUp(value ?? 0);
+  const k = 10 ** decimals;
+  const counted = useCountUp(Math.round((value ?? 0) * k));
+  const n = decimals ? (counted / k).toFixed(decimals).replace('.', ',') : counted;
   const Tag = onClick ? 'button' : 'div';
   return (
     <Tag
@@ -171,7 +174,7 @@ export const DashboardHero: React.FC<{
         <div className="hidden flex-col gap-3 sm:flex">
           <Chip label="Alertas abiertas" value={alerts} hint={alertsHint} dot="bg-red-500" onClick={onAlerts} />
           <Chip label="Proveedores habilitados" value={habilitados} hint={habilitadosHint} dot="bg-[#2c84c4]" onClick={onHabilitados} />
-          <Chip label="Puntaje promedio" value={avg === null ? null : Math.round(avg)} suffix={avg === null ? '' : ' %'} hint={avgHint} dot="bg-[#69bdd7]" />
+          <Chip label="Puntaje promedio" value={avg === null ? null : avg} decimals={1} suffix={avg === null ? '' : ' %'} hint={avgHint} dot="bg-[#69bdd7]" />
         </div>
       </div>
     </div>

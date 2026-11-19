@@ -3,7 +3,7 @@ import { AlertTriangle, ArrowRight, Building2, BadgeCheck, Hourglass, FileClock,
 import { useApp } from '../../context/AppContext';
 import { SupplierDossier } from '../../types';
 import { getContractualStatus, getDossierDocumentExpirationSummary, getRequiredDocsProgress } from '../../utils/contractValidity';
-import { buildEvaluationRow } from '../../utils/evaluationRows';
+import { averageCurrentScore, buildEvaluationRow } from '../../utils/evaluationRows';
 import { DashboardHero, Kpi, Podium, StageDonut } from './DashboardParts';
 import { ActivityTimeline, BarList, GradeBars, PriorityAlerts, TrendChart } from './DashboardCharts';
 import { computePushAlerts } from '../../utils/pushAlertsService';
@@ -108,12 +108,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     // Por calificar: los que todavía no tienen evaluación inicial
     const evalDue = evalRows.filter((r) => !r.initialEval && r.dossier.processStatus !== 'RECHAZADO');
     // Puntaje promedio: la última evaluación de cada proveedor, en porcentaje (la inicial es sobre 120 y la anual sobre 100)
-    const scores = evalRows
-      .filter((r) => r.dossier.processStatus !== 'RECHAZADO')
-      .map((r) => r.latestAnnualEval || r.initialEval)
-      .filter(Boolean)
-      .map((e) => evaluationPercent(e!));
-    const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+    const { avg, count: evaluatedCount } = averageCurrentScore(evalRows);
 
     // Puntaje promedio por mes (últimos 12 meses) y clasificación por último puntaje
     const parseD = (v?: string) => {
@@ -164,7 +159,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       evalUpToDate: evalRows.filter((r) => r.initialEval).length,
       evalDue,
       avg,
-      evaluated: scores.length,
+      evaluated: evaluatedCount,
       reqTotal,
       reqOk,
     };
