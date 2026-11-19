@@ -48,3 +48,6 @@ CREATE POLICY "Sigepro: formatos con sesion" ON storage.objects
 
 -- 4. Comprobación: debe mostrar una fila por tabla con la política "Solo usuarios con sesion"
 SELECT tablename, policyname, roles FROM pg_policies WHERE schemaname = 'public' ORDER BY tablename;
+
+-- 4. Quién registró al proveedor (columna «Creado por» del Banco de proveedores)
+ALTER TABLE public.suppliers ADD COLUMN IF NOT EXISTS created_by_name TEXT;
