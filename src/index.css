@@ -493,3 +493,17 @@ select option, select optgroup { color: #0b1d3a; }
   border-color: rgba(105, 189, 215, 0.45) !important;
   transition: background-color 99999s ease-in-out 0s;
 }
+
+/* Número suelto dentro de un control (el contador de puntos): sin la caja de los campos de formulario */
+#root .fs-bare-input,
+#root .fs-bare-input:focus {
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 1.125rem !important;
+  line-height: 1.75rem;
+}

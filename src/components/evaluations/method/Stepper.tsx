@@ -25,7 +25,7 @@ export const Stepper: React.FC<StepperProps> = ({ value, min = 0, max = 100, ste
       <button type="button" className={btn} onClick={() => set(value - step)} disabled={value <= min} aria-label={`Restar ${step}`}>
         <Minus className="w-4 h-4" />
       </button>
-      <label className="flex items-baseline justify-center gap-0.5 w-[74px] cursor-text">
+      <label className="flex items-center justify-center gap-1 w-[84px] self-stretch cursor-text">
         <input
           type="number"
           inputMode="numeric"
@@ -34,7 +34,7 @@ export const Stepper: React.FC<StepperProps> = ({ value, min = 0, max = 100, ste
           value={value}
           onChange={(e) => set(Number(e.target.value))}
           aria-label={label}
-          className="w-9 text-right bg-transparent font-display text-lg font-semibold tabular-nums text-[#0b1d3a] dark:text-white focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className="fs-bare-input w-10 text-right font-display font-semibold tabular-nums text-[#0b1d3a] dark:text-white focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         <span className="text-xs font-semibold text-[#5d7392]">{unit}</span>
       </label>

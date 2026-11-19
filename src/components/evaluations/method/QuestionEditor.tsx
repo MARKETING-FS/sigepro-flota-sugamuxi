@@ -72,7 +72,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({ criteria, onChan
                   <div className={labelCls}>Opciones y puntos</div>
                   <ul className="space-y-2">
                     {c.options.map((o, k) => (
-                      <li key={k} className="flex flex-col sm:flex-row sm:items-start gap-2">
+                      <li key={k} className="flex flex-col sm:flex-row sm:items-center gap-2">
                         <Stepper
                           value={o.points}
                           min={0}
