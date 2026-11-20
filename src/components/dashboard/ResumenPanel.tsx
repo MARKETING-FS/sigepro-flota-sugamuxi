@@ -3,7 +3,7 @@ import { AlertTriangle, ArrowRight, Building2, BadgeCheck, Hourglass, FileClock,
 import { useApp } from '../../context/AppContext';
 import { SupplierDossier } from '../../types';
 import { getContractualStatus, getDossierDocumentExpirationSummary, getRequiredDocsProgress } from '../../utils/contractValidity';
-import { averageCurrentScore, buildEvaluationRow } from '../../utils/evaluationRows';
+import { averageCurrentScore, buildEvaluationRow, validEvaluations } from '../../utils/evaluationRows';
 import { DashboardHero, Kpi, Podium, StageDonut } from './DashboardParts';
 import { ActivityTimeline, BarList, GradeBars, PriorityAlerts, TrendChart } from './DashboardCharts';
 import { computePushAlerts } from '../../utils/pushAlertsService';
@@ -114,26 +114,64 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     const parseD = (v?: string) => {
       return parseLocalDate(v);
     };
-    const seen = new Set<string>();
-    const allEvals = dossiers
-      .flatMap((d) => [d.initialEvaluation, ...(Array.isArray(d.evaluations) ? d.evaluations : [])])
-      .filter((e): e is NonNullable<typeof e> => {
-        if (!e || seen.has(e.id)) return false;
-        seen.add(e.id);
-        return true;
-      });
+    // Solo cuentan las evaluaciones vigentes: si una se repitió o se cambió, la anterior ya no entra
+    const allEvals = evalRows.filter((r) => r.dossier.processStatus !== 'RECHAZADO').flatMap(validEvaluations);
+    // Tendencia: cada punto es el promedio de las evaluaciones vigentes de todos los proveedores en un período, desde la primera hasta hoy.
+    // El período se ajusta al rango para que siempre haya varios puntos que unir: día, semana o mes.
     const now = new Date();
-    const trend = Array.from({ length: 12 }, (_, i) => {
-      const m = new Date(now.getFullYear(), now.getMonth() - (11 - i), 1);
-      const inMonth = allEvals.filter((e) => {
-        const d = parseD(e.evaluationDate);
-        return d && d.getFullYear() === m.getFullYear() && d.getMonth() === m.getMonth();
-      });
-      return {
-        label: m.toLocaleDateString('es-CO', { month: 'short' }).replace('.', ''),
-        value: inMonth.length ? Math.round(inMonth.reduce((a, e) => a + evaluationPercent(e), 0) / inMonth.length) : null,
+    const dated = allEvals
+      .map((e) => ({ d: parseD(e.evaluationDate), pct: evaluationPercent(e) }))
+      .filter((x): x is { d: Date; pct: number } => !!x.d);
+    const DAY = 86400000;
+    const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    let trendUnit: 'día' | 'semana' | 'mes' = 'día';
+    let trend: Array<{ label: string; value: number | null; count: number; detail: string }> = [];
+    if (dated.length) {
+      const first = startOfDay(new Date(Math.min(...dated.map((x) => x.d.getTime()))));
+      const last = startOfDay(new Date(Math.max(now.getTime(), ...dated.map((x) => x.d.getTime()))));
+      const span = Math.round((last.getTime() - first.getTime()) / DAY) + 1;
+      trendUnit = span <= 45 ? 'día' : span <= 200 ? 'semana' : 'mes';
+      // Inicio del período al que pertenece una fecha
+      const bucketStart = (d: Date) => {
+        if (trendUnit === 'día') return startOfDay(d);
+        if (trendUnit === 'semana') {
+          const s = startOfDay(d);
+          s.setDate(s.getDate() - ((s.getDay() + 6) % 7)); // lunes
+          return s;
+        }
+        return new Date(d.getFullYear(), d.getMonth(), 1);
       };
-    });
+      const next = (d: Date) =>
+        trendUnit === 'día'
+          ? new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
+          : trendUnit === 'semana'
+          ? new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7)
+          : new Date(d.getFullYear(), d.getMonth() + 1, 1);
+      const groups = new Map<number, number[]>();
+      dated.forEach((x) => {
+        const k = bucketStart(x.d).getTime();
+        groups.set(k, [...(groups.get(k) || []), x.pct]);
+      });
+      const multiYear = first.getFullYear() !== last.getFullYear();
+      for (let cur = bucketStart(first); cur.getTime() <= last.getTime() && trend.length < 60; cur = next(cur)) {
+        const vals = groups.get(cur.getTime()) || [];
+        const label =
+          trendUnit === 'mes'
+            ? `${cur.toLocaleDateString('es-CO', { month: 'short' }).replace('.', '')}${multiYear ? ` ${String(cur.getFullYear()).slice(2)}` : ''}`
+            : cur.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }).replace('.', '');
+        trend.push({
+          label,
+          value: vals.length ? Math.round((vals.reduce((a, v) => a + v, 0) / vals.length) * 10) / 10 : null,
+          count: vals.length,
+          detail:
+            trendUnit === 'semana'
+              ? `semana del ${label}`
+              : trendUnit === 'mes'
+              ? label
+              : cur.toLocaleDateString('es-CO', { day: 'numeric', month: 'long' }),
+        });
+      }
+    }
     const grades = { A: 0, B: 0, C: 0 };
     evalRows.forEach((r) => {
       const e = r.latestAnnualEval || r.initialEval;
@@ -149,6 +187,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
 
     return {
       trend,
+      trendUnit,
       grades,
       byCat,
       stageCounts,
@@ -249,7 +288,9 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       <div className="grid gap-6 grid-cols-1 xl:grid-cols-12 [&>*]:min-w-0">
         <Panel title="Desempeño de proveedores" aside={stats.avg !== null ? `Promedio ${stats.avg.toFixed(1).replace('.', ',')} pts` : 'Sin calificaciones'} className="xl:col-span-8">
           <div className="text-[#0b1d3a] dark:text-slate-200"><TrendChart data={stats.trend} /></div>
-          <p className="text-[12px] text-[#3a5274] dark:text-slate-400">Puntaje promedio de las evaluaciones en los últimos 12 meses</p>
+          <p className="text-[12px] text-[#3a5274] dark:text-slate-400">
+            Cada punto es el promedio de las evaluaciones de todos los proveedores en ese {stats.trendUnit}.
+          </p>
         </Panel>
         <Panel title="Clasificación actual" aside="último puntaje de cada proveedor" className="xl:col-span-4">
           <div className="pt-2"><GradeBars grades={stats.grades} /></div>

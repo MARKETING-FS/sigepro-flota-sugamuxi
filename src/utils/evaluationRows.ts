@@ -76,3 +76,21 @@ export function averageCurrentScore(rows: EvaluationRow[]): { avg: number | null
     .map((e) => evaluationPercent(e));
   return { avg: scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null, count: scores.length };
 }
+
+/**
+ * Las evaluaciones que cuentan de un proveedor: la inicial vigente y una anual por ciclo.
+ * Si una se repitió o se cambió, solo queda la más reciente; las reemplazadas no cuentan.
+ */
+export function validEvaluations(row: EvaluationRow): SupplierEvaluation[] {
+  const timeOf = (e: SupplierEvaluation) => (parseLocalDate(e.evaluationDate) || new Date(e.createdAt)).getTime() || 0;
+  const latestByCycle = new Map<string, SupplierEvaluation>();
+  row.annualEvals.forEach((e) => {
+    const key = `A-${e.annualCycleNumber ?? e.periodYear ?? ''}`;
+    const prev = latestByCycle.get(key);
+    // Ante fechas iguales gana la guardada después
+    if (!prev || timeOf(e) > timeOf(prev) || (timeOf(e) === timeOf(prev) && String(e.createdAt) > String(prev.createdAt))) {
+      latestByCycle.set(key, e);
+    }
+  });
+  return [...(row.initialEval ? [row.initialEval] : []), ...latestByCycle.values()];
+}

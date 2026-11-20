@@ -1,36 +1,62 @@
 import React from 'react';
 import { ArrowUpRight } from 'lucide-react';
 
-/** Tendencia: puntaje promedio por mes (gráfica de área con trazo animado) */
-export const TrendChart: React.FC<{ data: Array<{ label: string; value: number | null }> }> = ({ data }) => {
-  const W = 640, H = 240, L = 34, R = 12, T = 14, B = 28;
-  const min = 40, max = 100;
-  const x = (i: number) => L + (i * (W - L - R)) / Math.max(1, data.length - 1);
+export interface TrendPoint {
+  label: string;
+  value: number | null;
+  /** cuántas evaluaciones entran en el promedio de este punto */
+  count?: number;
+  /** texto largo para el aviso al pasar el cursor */
+  detail?: string;
+}
+
+/** Tendencia: puntaje promedio por período; los puntos con datos se unen con una línea (área con trazo animado) */
+export const TrendChart: React.FC<{ data: TrendPoint[] }> = ({ data }) => {
+  const W = 640, H = 240, L = 34, R = 16, T = 22, B = 30;
+  const values = data.filter((d) => d.value !== null).map((d) => d.value as number);
+  if (values.length === 0) {
+    return (
+      <div className="h-[260px] grid place-items-center text-sm text-[#3a5274] dark:text-slate-400">
+        Todavía no hay evaluaciones para dibujar la tendencia.
+      </div>
+    );
+  }
+  // El eje baja de 40 solo si hay puntajes más bajos
+  const min = Math.min(40, Math.floor(Math.min(...values) / 10) * 10), max = 100;
+  const x = (i: number) => (data.length === 1 ? (L + W - R) / 2 : L + (i * (W - L - R)) / (data.length - 1));
   const y = (v: number) => T + (1 - (Math.min(max, Math.max(min, v)) - min) / (max - min)) * (H - T - B);
-  const valid = data
-    .map((d, i) => (d.value === null ? null : ([x(i), y(d.value)] as [number, number])))
-    .filter((p): p is [number, number] => !!p);
-  const line = valid.map((p, i) => `${i ? 'L' : 'M'}${p[0]},${p[1]}`).join(' ');
-  const area = valid.length ? `${line} L${valid[valid.length - 1][0]},${H - B} L${valid[0][0]},${H - B} Z` : '';
+  const pts = data
+    .map((d, i) => (d.value === null ? null : { i, d, px: x(i), py: y(d.value) }))
+    .filter((p): p is { i: number; d: TrendPoint; px: number; py: number } => !!p);
+  const line = pts.map((p, k) => `${k ? 'L' : 'M'}${p.px},${p.py}`).join(' ');
+  const area = pts.length > 1 ? `${line} L${pts[pts.length - 1].px},${H - B} L${pts[0].px},${H - B} Z` : '';
+  const ticks = Array.from(new Set([min, 55, 70, 85, 100].filter((t) => t >= min))).sort((p, q) => p - q);
+  // Rótulos del eje: no más de 8, siempre el primero y el último
+  const step = Math.max(1, Math.ceil(data.length / 8));
+  const lastGap = (data.length - 1) % step; // distancia del último rótulo regular al final
+  const showLabel = (i: number) => i % step === 0 || (i === data.length - 1 && lastGap >= Math.ceil(step / 2));
+  const valueLabels = pts.length <= 8;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[260px]" role="img" aria-label="Puntaje promedio por mes">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[260px]" role="img" aria-label="Puntaje promedio de las evaluaciones por período">
       <defs>
         <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#2c84c4" stopOpacity="0.45" />
           <stop offset="100%" stopColor="#69bdd7" stopOpacity="0.02" />
         </linearGradient>
       </defs>
-      {[40, 55, 70, 85, 100].map((t) => (
+      {ticks.map((t) => (
         <g key={t}>
           <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} stroke="currentColor" strokeOpacity="0.12" strokeDasharray="4 4" />
           <text x={L - 6} y={y(t) + 4} textAnchor="end" fontSize="11" fill="currentColor" fillOpacity="0.55">{t}</text>
         </g>
       ))}
-      {data.map((d, i) => (
-        <text key={i} x={x(i)} y={H - 8} textAnchor="middle" fontSize="11" fill="currentColor" fillOpacity="0.55">{d.label}</text>
-      ))}
+      {data.map((d, i) =>
+        showLabel(i) ? (
+          <text key={i} x={x(i)} y={H - 8} textAnchor={i === 0 && data.length > 1 ? 'start' : i === data.length - 1 && data.length > 1 ? 'end' : 'middle'} fontSize="11" fill="currentColor" fillOpacity="0.55">{d.label}</text>
+        ) : null
+      )}
       {area && <path d={area} fill="url(#trendFill)" className="animate-fade-up" />}
-      {line && (
+      {pts.length > 1 && (
         <path
           d={line}
           pathLength={1}
@@ -42,8 +68,17 @@ export const TrendChart: React.FC<{ data: Array<{ label: string; value: number |
           style={{ strokeDasharray: 1, strokeDashoffset: 1, animation: 'nd-draw 1.8s cubic-bezier(0.6,0,0.2,1) forwards' }}
         />
       )}
-      {valid.map((p, i) => (
-        <circle key={i} cx={p[0]} cy={p[1]} r="4.5" fill="var(--nd-card)" stroke="#2c84c4" strokeWidth="2.5" />
+      {pts.map((p) => (
+        <g key={p.i}>
+          <circle cx={p.px} cy={p.py} r="5" fill="var(--nd-card)" stroke="#2c84c4" strokeWidth="2.5">
+            <title>{`${p.d.detail || p.d.label}: ${String(p.d.value).replace('.', ',')} pts${p.d.count ? ` · ${p.d.count} ${p.d.count === 1 ? 'evaluación' : 'evaluaciones'}` : ''}`}</title>
+          </circle>
+          {valueLabels && (
+            <text x={p.px} y={p.py - 11} textAnchor="middle" fontSize="11" fontWeight="600" fill="currentColor" fillOpacity="0.85">
+              {String(Math.round(p.d.value as number))}
+            </text>
+          )}
+        </g>
       ))}
     </svg>
   );
