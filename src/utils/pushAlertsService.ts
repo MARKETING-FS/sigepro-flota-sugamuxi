@@ -81,6 +81,29 @@ export function dismissAllPushAlerts(alertIds: string[]) {
   } catch {}
 }
 
+const STORAGE_KEY_ANNOUNCED_ALERTS = 'sigepro_announced_push_alerts_v1';
+
+/** Avisos que ya salieron en la ventanita flotante (por persona): así cada asignación avisa UNA sola vez. */
+export function getAnnouncedAlertIds(userId: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_ANNOUNCED_ALERTS);
+    const all: string[] = raw ? JSON.parse(raw) : [];
+    const prefix = `${userId}::`;
+    return new Set(all.filter((k) => k.startsWith(prefix)).map((k) => k.slice(prefix.length)));
+  } catch {
+    return new Set();
+  }
+}
+
+export function markAlertsAnnounced(userId: string, alertIds: string[]) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_ANNOUNCED_ALERTS);
+    const all: string[] = raw ? JSON.parse(raw) : [];
+    const next = Array.from(new Set([...all, ...alertIds.map((id) => `${userId}::${id}`)]));
+    localStorage.setItem(STORAGE_KEY_ANNOUNCED_ALERTS, JSON.stringify(next.slice(-500)));
+  } catch {}
+}
+
 /**
  * Compute all alerts for a single dossier
  */

@@ -113,7 +113,7 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                   inactive ? 'bg-slate-900/[0.07] dark:bg-black/30 grayscale-[0.6] [&>td:not(:last-child)]:opacity-55' : ''
                 } ${
                   highlightId === d.id
-                    ? 'bg-[#2c84c4]/20 dark:bg-[#2c84c4]/30 shadow-[inset_0_0_0_2px_#2c84c4,0_0_22px_-2px_rgba(44,132,196,0.85)] animate-pulse'
+                    ? 'sg-alumbrar-una-vez'
                     : ''
                 }`}
               >

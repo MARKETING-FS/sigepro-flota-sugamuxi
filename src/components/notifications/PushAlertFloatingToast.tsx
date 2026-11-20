@@ -7,7 +7,11 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
+  PushAlert,
   computePushAlerts,
+  dismissPushAlert,
+  getAnnouncedAlertIds,
+  markAlertsAnnounced,
   playNotificationChime,
   sendBrowserPushNotification,
 } from '../../utils/pushAlertsService';
@@ -27,6 +31,8 @@ export const PushAlertFloatingToast: React.FC = () => {
 
   const [isVisible, setIsVisible] = useState(false);
   const [hasPromptedThisSession, setHasPromptedThisSession] = useState(false);
+  // Lo que muestra la ventanita se fija al abrirla (así no cambia cuando el aviso se marca como ya avisado)
+  const [shown, setShown] = useState<{ kind: 'ASSIGNED' | 'OTHER'; alert: PushAlert; count: number } | null>(null);
 
   const alertsSummary = useMemo(() => {
     return computePushAlerts(dossiers, role, currentDossierId, {
@@ -36,11 +42,37 @@ export const PushAlertFloatingToast: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dossiers, role, currentDossierId, activeUserId]);
 
+  // Asignaciones que todavía no han salido en la ventanita: cada una avisa UNA sola vez (aunque se cierre sesión o se recargue)
+  const freshAssignments = useMemo(() => {
+    const announced = getAnnouncedAlertIds(activeUserId);
+    return alertsSummary.alerts.filter((a) => a.type === 'ASSIGNED' && !a.read && !announced.has(a.id));
+  }, [alertsSummary.alerts, activeUserId]);
+  // Los demás avisos (vencimientos, correcciones) siguen saliendo una vez por sesión del navegador
+  const otherUnread = useMemo(
+    () => alertsSummary.alerts.filter((a) => a.type !== 'ASSIGNED' && !a.read),
+    [alertsSummary.alerts]
+  );
+
   useEffect(() => {
-    // Only prompt once per browser session if there are unread alerts
-    const alreadyShown = sessionStorage.getItem(SESSION_SHOWN_KEY);
-    if (!alreadyShown && alertsSummary.totalUnread > 0 && !hasPromptedThisSession) {
+    if (!activeUserId) return;
+
+    // 1) Una asignación nueva avisa en el momento y no vuelve a avisar
+    if (freshAssignments.length > 0) {
+      const fresh = freshAssignments;
       const timer = setTimeout(() => {
+        setShown({ kind: 'ASSIGNED', alert: fresh[0], count: fresh.length });
+        setIsVisible(true);
+        markAlertsAnnounced(activeUserId, fresh.map((a) => a.id));
+        playNotificationChime();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+
+    // 2) Resto de avisos: una vez por sesión
+    const alreadyShown = sessionStorage.getItem(SESSION_SHOWN_KEY);
+    if (!alreadyShown && otherUnread.length > 0 && !hasPromptedThisSession) {
+      const timer = setTimeout(() => {
+        setShown({ kind: 'OTHER', alert: otherUnread[0], count: otherUnread.length });
         setIsVisible(true);
         setHasPromptedThisSession(true);
         sessionStorage.setItem(SESSION_SHOWN_KEY, 'true');
@@ -64,17 +96,19 @@ export const PushAlertFloatingToast: React.FC = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [alertsSummary.totalUnread, alertsSummary.hasCritical, alertsSummary.hasExpiringSoon, alertsSummary.criticalCount, alertsSummary.warningCount, hasPromptedThisSession]);
+  }, [freshAssignments, otherUnread, activeUserId, alertsSummary.hasCritical, alertsSummary.hasExpiringSoon, alertsSummary.criticalCount, alertsSummary.warningCount, hasPromptedThisSession]);
 
-  if (!isVisible || alertsSummary.totalUnread === 0) return null;
+  if (!isVisible || !shown) return null;
 
-  const isCritical = alertsSummary.hasCritical;
-  const topAlert = alertsSummary.alerts[0];
+  const isAssigned = shown.kind === 'ASSIGNED';
+  const isCritical = !isAssigned && alertsSummary.hasCritical;
+  const topAlert = shown.alert;
 
   const handleOpenAlert = () => {
     setIsVisible(false);
-    if (!topAlert) return;
-    if (topAlert.type === 'ASSIGNED') {
+    if (isAssigned) {
+      // Al abrirla se da por leída: no vuelve a salir ni en la campanita
+      dismissPushAlert(topAlert.id);
       showSupplierInBank(topAlert.dossierId);
       return;
     }
@@ -94,13 +128,15 @@ export const PushAlertFloatingToast: React.FC = () => {
             </span>
             <div className="min-w-0 flex-1">
               <div className={`text-[10px] font-semibold uppercase tracking-[0.16em] ${isCritical ? 'text-red-600 dark:text-red-400' : 'text-[#2c84c4] dark:text-[#69bdd7]'}`}>
-                {isCritical ? 'Alerta crítica' : topAlert?.type === 'ASSIGNED' ? 'Nueva asignación' : 'Aviso preventivo'}
+                {isCritical ? 'Alerta crítica' : isAssigned ? 'Nueva asignación' : 'Aviso preventivo'}
               </div>
               <h4 className="font-display font-semibold text-[15px] leading-tight text-[#0b1d3a] dark:text-white mt-0.5">
                 {isCritical
                   ? `${alertsSummary.criticalCount} requisito(s) vencido(s)`
-                  : topAlert?.type === 'ASSIGNED'
-                  ? 'Te asignaron un proveedor'
+                  : isAssigned
+                  ? shown.count > 1
+                    ? `Te asignaron ${shown.count} proveedores`
+                    : 'Te asignaron un proveedor'
                   : `${alertsSummary.warningCount} próximo(s) a vencer`}
               </h4>
             </div>

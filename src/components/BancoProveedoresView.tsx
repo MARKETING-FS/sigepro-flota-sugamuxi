@@ -130,7 +130,8 @@ export const BancoProveedoresView: React.FC = () => {
     const t1 = window.setTimeout(() => {
       document.querySelector<HTMLElement>(`[data-dossier-id="${CSS.escape(blueId)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 350);
-    const t2 = window.setTimeout(() => setBlueId(null), 10000);
+    // El alumbrado dura una sola pasada (≈3 s con el retraso del desplazamiento); después se quita la marca
+    const t2 = window.setTimeout(() => setBlueId(null), 3400);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);

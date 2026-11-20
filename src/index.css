@@ -137,6 +137,14 @@ h1, h2, h3, h4, .font-display { font-family: var(--font-display); letter-spacing
 @keyframes nd-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes nd-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @keyframes nd-draw { to { stroke-dashoffset: 0; } }
+/* Proveedor recién asignado en el Banco: se alumbra en azul UNA sola vez (entra, se sostiene un momento y se apaga) */
+@keyframes sg-alumbrar-una-vez {
+  0% { background-color: rgba(44, 132, 196, 0); box-shadow: inset 0 0 0 0 #2c84c4, 0 0 0 0 rgba(44, 132, 196, 0); }
+  18%, 70% { background-color: rgba(44, 132, 196, 0.22); box-shadow: inset 0 0 0 2px #2c84c4, 0 0 22px -2px rgba(44, 132, 196, 0.85); }
+  100% { background-color: rgba(44, 132, 196, 0); box-shadow: inset 0 0 0 0 #2c84c4, 0 0 0 0 rgba(44, 132, 196, 0); }
+}
+.sg-alumbrar-una-vez { animation: sg-alumbrar-una-vez 2.6s ease-in-out 0.45s 1 both; }
+@media (prefers-reduced-motion: reduce) { .sg-alumbrar-una-vez { animation: none; background-color: rgba(44, 132, 196, 0.2); box-shadow: inset 0 0 0 2px #2c84c4; } }
 @keyframes nd-shimmer { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
 /* Documento que se quiere mostrar (p. ej. al pulsar «Revisar documentos»): aro y brillo que palpitan */
 @keyframes doc-alumbrar {
