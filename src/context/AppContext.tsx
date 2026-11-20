@@ -2656,7 +2656,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateSupplierField = (
     dossierId: string,
     section: string,
-    fieldKey: string,
+    rawFieldKey: string,
     fieldLabel: string,
     oldValue: any,
     newValue: any,
@@ -2664,6 +2664,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     editorRole: UserRole,
     justification?: string
   ) => {
+    // El editor manda «basicInfo.email»: se guarda en «email», que es donde se lee
+    const fieldKey = rawFieldKey.replace(/^basicInfo\./, '');
     if (!canEditDossier(dossierId)) {
       showToast(
         'Permiso denegado: Solo el revisor asignado o el Administrador pueden editar este expediente.',

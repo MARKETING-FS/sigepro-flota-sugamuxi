@@ -23,6 +23,7 @@ import {
 import { SupplierDossier } from '../types';
 import { useApp } from '../context/AppContext';
 import { useConfirm } from './ui/ConfirmDialog';
+import { readBank } from './dossier/bankData';
 
 interface Props {
   dossier: SupplierDossier;
@@ -41,9 +42,22 @@ interface EditModalState {
 }
 
 export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }) => {
-  const { role, canEditDossier, categoriesConfig, updateSupplierField, updateEntireSupplier, previewCategoryChange, showToast } = useApp();
+  const { role, canEditDossier, systemParameters, categoriesConfig, updateSupplierField, updateEntireSupplier, previewCategoryChange, showToast } = useApp();
 
   const { ask, dialog } = useConfirm();
+
+  // Cuenta bancaria: bankInfo primero y, si no hay, los campos sueltos antiguos
+  const bank = readBank(dossier);
+  const bankTypeOptions = (systemParameters.bankAccountTypes || [])
+    .filter((t) => t.isActive || t.code === bank.accountType)
+    .map((t) => ({ value: t.code, label: t.name }));
+  const bankTypeName = bankTypeOptions.find((o) => o.value === bank.accountType)?.label || bank.accountType;
+  const bankCards = [
+    { key: 'bank', title: 'Entidad Bancaria', label: 'Entidad Bancaria', fieldKey: 'bankInfo.bankName', value: bank.bankName, shown: bank.bankName },
+    { key: 'type', title: 'Tipo de Cuenta', label: 'Tipo de Cuenta', fieldKey: 'bankInfo.accountType', value: bank.accountType, shown: bankTypeName, options: bankTypeOptions },
+    { key: 'num', title: 'Número de Cuenta', label: 'Número de Cuenta Bancaria', fieldKey: 'bankInfo.accountNumber', value: bank.accountNumber, shown: bank.accountNumber, mono: true },
+    { key: 'holder', title: 'Titular de la Cuenta', label: 'Titular de la Cuenta', fieldKey: 'bankInfo.accountHolder', value: bank.accountHolder, shown: bank.accountHolder },
+  ] as { key: string; title: string; label: string; fieldKey: string; value: string; shown: string; mono?: boolean; options?: { value: string; label: string }[] }[];
 
   /** Pide confirmación antes de cambiar la categoría; sin cambio de categoría guarda de una vez. */
   const confirmCategoryChange = (newCategory: string | undefined, save: () => void) => {
@@ -725,103 +739,35 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
 
         <div className="text-xs p-4 sm:p-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
-            {/* Banco */}
-            <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
-                Entidad Bancaria
-              </span>
-              <div className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white mt-1">
-                {dossier.basicInfo.bankName || 'Bancolombia'}
-              </div>
-              {hasEditPrivilege && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleOpenFieldEdit(
-                      'Información Bancaria',
-                      'basicInfo.bankName',
-                      'Entidad Bancaria',
-                      dossier.basicInfo.bankName || 'Bancolombia',
-                      'text'
-                    )
-                  }
-                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
-                  title="Editar este campo"
+            {/* Los cuatro datos de la cuenta; si falta alguno se ve «Sin registrar», nunca un valor inventado */}
+            {bankCards.map((c) => (
+              <div
+                key={c.key}
+                className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors"
+              >
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
+                  {c.title}
+                </span>
+                <div
+                  className={`mt-1 leading-snug ${c.mono ? 'font-mono' : 'font-display'} text-[15px] font-semibold ${
+                    c.shown ? 'text-[#0b1d3a] dark:text-white' : 'text-red-600 dark:text-red-300'
+                  }`}
                 >
-                  <Edit3 className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* Tipo de Cuenta */}
-            <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
-                Tipo de Cuenta
-              </span>
-              <div className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white mt-1">
-                {dossier.basicInfo.accountType || 'Cuenta de Ahorros'}
+                  {c.shown || 'Sin registrar'}
+                </div>
+                {hasEditPrivilege && (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenFieldEdit('Información Bancaria', c.fieldKey, c.label, c.value, c.options ? 'select' : 'text', c.options)}
+                    className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    title="Editar este campo"
+                    aria-label={`Editar ${c.label}`}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
-              {hasEditPrivilege && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleOpenFieldEdit(
-                      'Información Bancaria',
-                      'basicInfo.accountType',
-                      'Tipo de Cuenta',
-                      dossier.basicInfo.accountType || 'Cuenta de Ahorros',
-                      'select',
-                      [
-                        { value: 'Ahorros', label: 'Cuenta de Ahorros' },
-                        { value: 'Corriente', label: 'Cuenta Corriente' },
-                      ]
-                    )
-                  }
-                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
-                  title="Editar este campo"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* Número de Cuenta */}
-            <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
-                Número de Cuenta
-              </span>
-              <div className="text-[15px] font-mono font-semibold text-[#0b1d3a] dark:text-white mt-1">
-                {dossier.basicInfo.accountNumber || '230-984712-44'}
-              </div>
-              {hasEditPrivilege && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleOpenFieldEdit(
-                      'Información Bancaria',
-                      'basicInfo.accountNumber',
-                      'Número de Cuenta Bancaria',
-                      dossier.basicInfo.accountNumber || '230-984712-44',
-                      'text'
-                    )
-                  }
-                  className="absolute top-2.5 right-2.5 p-1.5 text-[#5d7392] dark:text-slate-400 hover:text-[#2c84c4] hover:bg-[#2c84c4]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
-                  title="Editar este campo"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* Titular */}
-            <div className="group relative pr-9 rounded-2xl p-3.5 bg-black/[0.025] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/10 hover:border-[#2c84c4]/40 transition-colors">
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
-                Titular de la Cuenta
-              </span>
-              <div className="font-display text-[15px] font-semibold text-[#0b1d3a] dark:text-white mt-1 leading-snug">
-                {isNatural ? dossier.basicInfo.fullName : dossier.basicInfo.companyName}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

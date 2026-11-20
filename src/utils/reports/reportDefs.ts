@@ -532,7 +532,12 @@ const bankOf = (d: SupplierDossier) => ({
   type: d.basicInfo?.bankInfo?.accountType || d.basicInfo?.accountType || '',
   number: d.basicInfo?.bankInfo?.accountNumber || d.basicInfo?.accountNumber || '',
 });
-const ACCOUNT_LABEL: Record<string, string> = { AHORROS: 'Ahorros', CORRIENTE: 'Corriente' };
+const ACCOUNT_LABEL: Record<string, string> = {
+  AHORROS: 'Ahorros',
+  CORRIENTE: 'Corriente',
+  BILLETERA_DIGITAL: 'Billetera digital',
+  AHORRO_PROGRAMADO: 'Ahorro programado',
+};
 const accountTypeLabel = (t: string) => ACCOUNT_LABEL[(t || '').toUpperCase()] || t;
 const money = (n: number | undefined) => (typeof n === 'number' ? n : null);
 

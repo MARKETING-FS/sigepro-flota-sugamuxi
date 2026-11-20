@@ -39,6 +39,8 @@ import { useApp } from '../context/AppContext';
 import { useConfirm } from './ui/ConfirmDialog';
 import { ContractTab } from './dossier/ContractTab';
 import { SarlaftCard } from './dossier/SarlaftCard';
+import { BankAccountPanel } from './dossier/BankAccountPanel';
+import { BANK_DOC_CODE, isBankComplete } from './dossier/bankData';
 import {
   SupplierDossier,
   SupplierDocument,
@@ -465,8 +467,18 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     return calculateDocumentExpiration(doc.expirationDate).status !== 'VENCIDO';
   };
 
-  const handleApproveDoc = (docCode: string) => {
+  /** Devuelve false si no se pudo aprobar (la certificación bancaria pide los datos de la cuenta). */
+  const handleApproveDoc = (docCode: string): boolean => {
+    if (docCode === BANK_DOC_CODE && !isBankComplete(dossier)) {
+      showToast(
+        'Antes de aprobar la certificación, anote el banco, el tipo y el número de cuenta en el recuadro «Cuenta para pagos».',
+        'warning',
+        'FALTAN DATOS DE LA CUENTA'
+      );
+      return false;
+    }
     approveDocument(dossier.id, docCode, reviewerName);
+    return true;
   };
 
   return (
@@ -1461,6 +1473,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           )}
                         </div>
                       </div>
+                      {code === BANK_DOC_CODE && (
+                        <BankAccountPanel dossier={dossier} readOnly={isReadOnly} reviewerName={reviewerName} role={role} />
+                      )}
                       </React.Fragment>
                     );
                   })}
@@ -1762,7 +1777,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
             ? () => {
                 const code = previewDocCode || previewDocObj?.code || '';
                 if (code) {
-                  handleApproveDoc(code);
+                  if (!handleApproveDoc(code)) return;
                   showToast(`Documento "${previewDocTitle || code}" aprobado con éxito.`, 'success', 'DOCUMENTO APROBADO');
                 }
               }
