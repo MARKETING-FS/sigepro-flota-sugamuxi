@@ -28,3 +28,13 @@ export const isBankComplete = (d: SupplierDossier) => {
   const b = readBank(d);
   return !!(b.bankName && b.accountType && b.accountNumber);
 };
+
+export const emptyBank = (): BankData => ({ bankName: '', accountType: '', accountNumber: '', accountHolder: '', holderDocNumber: '' });
+
+export const BANK_FIELD_LABELS: Record<keyof BankData, string> = {
+  bankName: 'Banco',
+  accountType: 'Tipo de cuenta',
+  accountNumber: 'Número de cuenta',
+  accountHolder: 'Titular',
+  holderDocNumber: 'Documento del titular',
+};

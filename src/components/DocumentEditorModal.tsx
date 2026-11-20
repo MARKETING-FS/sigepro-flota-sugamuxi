@@ -24,6 +24,8 @@ import { supabaseService } from '../services/supabaseService';
 import { storageService } from '../services/storageService';
 import { calculateDocumentExpiration } from '../utils/contractValidity';
 import { getFormPdf } from '../utils/formPdf';
+import { BankAccountFields } from './dossier/BankAccountFields';
+import { BankData } from './dossier/bankData';
 
 interface Props {
   isOpen: boolean;
@@ -36,6 +38,8 @@ interface Props {
   reviewerName?: string;
   requiresExpirationDate?: boolean;
   validityRule?: string;
+  /** Solo en la Certificación bancaria: los datos de la cuenta se piden en esta misma ventana. */
+  bank?: { initial: BankData; supplierName?: string; onSave: (next: BankData) => void };
   onSave: (
     docCode: string,
     updates: {
@@ -65,6 +69,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
   requiresExpirationDate: propRequiresExpirationDate,
   validityRule: propValidityRule,
   onSave,
+  bank,
 }) => {
   const { documentDefinitions, currentDossierId, institutionalForms } = useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -120,6 +125,8 @@ export const DocumentEditorModal: React.FC<Props> = ({
   const [hasFile, setHasFile] = useState(Boolean(document.fileName));
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [bankDraft, setBankDraft] = useState<BankData | null>(bank?.initial ?? null);
+  const bankStep = bank ? 1 : 0; // la cuenta ocupa un paso más y corre la numeración
 
   // El estado del documento se calcula solo. Aprobar se hace con el botón «Aprobar» del expediente:
   // sin archivo queda Pendiente; con archivo nuevo queda Cargado; un documento ya aprobado sigue aprobado
@@ -283,6 +290,21 @@ export const DocumentEditorModal: React.FC<Props> = ({
       return;
     }
 
+    // Certificación bancaria: con archivo cargado hay que anotar la cuenta
+    const cleanBank: BankData | null = bankDraft
+      ? {
+          bankName: bankDraft.bankName.trim(),
+          accountType: bankDraft.accountType.trim(),
+          accountNumber: bankDraft.accountNumber.replace(/\s+/g, ' ').trim(),
+          accountHolder: bankDraft.accountHolder.trim(),
+          holderDocNumber: bankDraft.holderDocNumber.trim(),
+        }
+      : null;
+    if (bank && hasFile && cleanBank && !(cleanBank.bankName && cleanBank.accountType && cleanBank.accountNumber)) {
+      setFormError('Anote el banco, el tipo y el número de cuenta que aparecen en la certificación bancaria (paso 3).');
+      return;
+    }
+
     // Validación 5: Justificación de auditoría obligatoria
     if (!justification.trim()) {
       setFormError('Por favor ingrese la justificación obligatoria para la trazabilidad y auditoría institucional.');
@@ -304,6 +326,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
       },
       justification.trim()
     );
+    if (bank && cleanBank) bank.onSave(cleanBank);
     onClose();
   };
 
@@ -531,10 +554,24 @@ export const DocumentEditorModal: React.FC<Props> = ({
               )}
             </section>
 
+            {/* 3. Cuenta bancaria (solo Certificación bancaria) */}
+            {bank && bankDraft && (
+              <section>
+                <div className="flex items-center gap-2.5 mb-2.5">
+                  {stepNum(3)}
+                  <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Datos de la cuenta</h4>
+                </div>
+                <p className="text-[11px] text-[#3a5274] dark:text-slate-400 mb-3">
+                  Copie lo que dice la certificación. Estos datos se usan para los pagos y aparecen en el reporte de cuentas.
+                </p>
+                <BankAccountFields value={bankDraft} onChange={setBankDraft} supplierName={bank.supplierName || ''} idPrefix="doc-bank" />
+              </section>
+            )}
+
             {/* 3. Estado y vigencia */}
             <section>
               <div className="flex items-center gap-2.5 mb-2.5">
-                {stepNum(3)}
+                {stepNum(3 + bankStep)}
                 <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">{showExpiration ? 'Estado y vigencia' : 'Estado'}</h4>
               </div>
               <div className={`grid grid-cols-1 ${showExpiration ? 'sm:grid-cols-2' : ''} gap-4`}>
@@ -658,7 +695,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
             {/* 4. Observaciones y justificación */}
             <section>
               <div className="flex items-center gap-2.5 mb-2.5">
-                {stepNum(4)}
+                {stepNum(4 + bankStep)}
                 <h4 className="font-display text-sm font-semibold text-[#0b1d3a] dark:text-white">Trazabilidad</h4>
               </div>
               <div className="space-y-3">

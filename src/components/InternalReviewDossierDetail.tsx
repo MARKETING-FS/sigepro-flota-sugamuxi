@@ -39,8 +39,7 @@ import { useApp } from '../context/AppContext';
 import { useConfirm } from './ui/ConfirmDialog';
 import { ContractTab } from './dossier/ContractTab';
 import { SarlaftCard } from './dossier/SarlaftCard';
-import { BankAccountPanel } from './dossier/BankAccountPanel';
-import { BANK_DOC_CODE, isBankComplete } from './dossier/bankData';
+import { BANK_DOC_CODE, BANK_FIELD_LABELS, BankData, isBankComplete, readBank } from './dossier/bankData';
 import {
   SupplierDossier,
   SupplierDocument,
@@ -82,6 +81,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     approveDocument,
     requestDocumentCorrection,
     updateSupplierDocument,
+    updateEntireSupplier,
     addCustomSupplierDocument,
     annexNewDocument,
     institutionalForms,
@@ -413,6 +413,29 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     justification: string
   ) => {
     updateSupplierDocument(dossier.id, code, updates, reviewerName, role, justification);
+  };
+
+  /** Guarda la cuenta anotada en la ventana de la Certificación bancaria, con una línea de auditoría por dato cambiado. */
+  const handleSaveBank = (next: BankData) => {
+    const prev = readBank(dossier);
+    const keys = Object.keys(BANK_FIELD_LABELS) as (keyof BankData)[];
+    const changes = keys
+      .filter((k) => next[k] !== prev[k])
+      .map((k) => ({
+        section: 'Información Bancaria',
+        fieldLabel: BANK_FIELD_LABELS[k],
+        oldValue: prev[k] || 'Sin registrar',
+        newValue: next[k] || 'Sin registrar',
+      }));
+    if (changes.length === 0) return;
+    updateEntireSupplier(
+      dossier.id,
+      { basicInfo: { ...dossier.basicInfo, bankInfo: { ...(dossier.basicInfo.bankInfo || {}), ...next } } },
+      changes,
+      reviewerName,
+      role,
+      'Datos tomados de la certificación bancaria'
+    );
   };
 
   const handleAnnexDoc = (
@@ -1473,9 +1496,6 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                           )}
                         </div>
                       </div>
-                      {code === BANK_DOC_CODE && (
-                        <BankAccountPanel dossier={dossier} readOnly={isReadOnly} reviewerName={reviewerName} role={role} />
-                      )}
                       </React.Fragment>
                     );
                   })}
@@ -1740,6 +1760,7 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
           userRole={role}
           reviewerName={reviewerName}
           onSave={handleSaveDocEdit}
+          bank={editingDocCode === BANK_DOC_CODE ? { initial: readBank(dossier), supplierName: supplierName, onSave: handleSaveBank } : undefined}
         />
       )}
 
