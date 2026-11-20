@@ -70,6 +70,16 @@ interface Props {
   onBack: () => void;
 }
 
+/** Fecha de radicado en lenguaje normal; si no se puede leer se muestra tal cual. */
+const formatRadicado = (value?: string) => {
+  if (!value) return 'Sin fecha';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return value;
+  const date = d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Bogota' });
+  const time = d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Bogota' });
+  return `${date}, ${time}`;
+};
+
 export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack }) => {
   const {
     role,
@@ -508,48 +518,54 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4 animate-in fade-in">
       
       {/* ENCABEZADO DEL EXPEDIENTE — banner de marca */}
-      <section className="fs-hero relative overflow-hidden rounded-[28px] px-5 sm:px-8 py-6 text-white shadow-glow animate-fade-up">
+      <section className="fs-hero relative overflow-hidden rounded-[28px] px-5 sm:px-8 pt-5 sm:pt-6 pb-5 text-white shadow-glow animate-fade-up">
         <BrandSwoosh className="absolute -right-16 -bottom-14 w-[48%] opacity-100" />
 
-        {/* Barra superior: volver, expediente y revisor */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2.5 text-xs">
+        <div className="relative space-y-6">
+          {/* 1. Navegación y la acción principal */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <button
               onClick={onBack}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold backdrop-blur-sm transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-10 pl-3 pr-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white text-sm font-semibold backdrop-blur-sm transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Volver</span>
             </button>
-            <span className="inline-flex items-center gap-2 h-9 px-3 rounded-xl bg-black/20 border border-white/15 backdrop-blur-sm">
-              <span className="text-white/60 uppercase tracking-[0.16em] text-[10px] font-semibold">Expediente</span>
-              <span className="font-mono font-bold text-white">{dossier.fileNumber}</span>
-            </span>
-            <span className="hidden md:inline-flex items-center gap-1.5 text-white/70">
-              <Clock className="w-3.5 h-3.5" />
-              <span>Radicado {dossier.submittedAt || dossier.createdAt}</span>
-            </span>
+            <div className="flex flex-wrap items-center gap-2.5">
+              {allDocumentsApproved && !expSummary.hasExpiredDocs ? (
+        <button
+          type="button"
+          onClick={() => setIsCertificateModalOpen(true)}
+          className="shimmer h-11 px-5 rounded-xl bg-white text-[#131b2e] font-semibold text-sm flex items-center gap-2 shadow-glow hover:opacity-95 transition-opacity cursor-pointer"
+          title="Ficha Oficial & Certificado de Proveedor Habilitado disponible (100% documentos aprobados y vigentes)"
+        >
+          <Award className="w-4 h-4 text-[#2c84c4]" />
+          <span>Ficha Oficial & Certificado</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          disabled
+          className="h-11 px-5 rounded-xl bg-white/10 border border-white/20 text-white/60 font-medium text-sm flex items-center gap-2 cursor-not-allowed"
+          title={
+            expSummary.hasExpiredDocs
+              ? `Certificado bloqueado: El proveedor posee ${expSummary.expiredCount} documento(s) vencido(s). Debe actualizar soportes para rehabilitarse.`
+              : `Certificado bloqueado: Requiere que todos los documentos (${approvedDocsCount}/${totalDocs}) estén en estado APROBADO.`
+          }
+        >
+          <Award className="w-4 h-4" />
+          <span>
+            Ficha & Certificado{' '}
+            {expSummary.hasExpiredDocs ? '(Bloqueado)' : `(${approvedDocsCount}/${totalDocs})`}
+          </span>
+        </button>
+      )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <label htmlFor="reviewerInput" className="text-[10px] uppercase tracking-[0.16em] font-semibold text-white/60">
-              Revisor
-            </label>
-            <input
-              id="reviewerInput"
-              type="text"
-              value={reviewerName}
-              onChange={(e) => setReviewerName(e.target.value)}
-              className="text-xs font-medium px-3 h-9 rounded-xl bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#69bdd7]/60 w-44 sm:w-56"
-              title="Nombre del revisor para auditoría y trazabilidad"
-            />
-          </div>
-        </div>
-
-        {/* Identidad del proveedor + acciones */}
-        <div className="mt-6 flex flex-col xl:flex-row xl:items-end justify-between gap-5">
-          <div className="flex items-start gap-4 min-w-0">
-            <div className="shrink-0 w-16 h-16 rounded-2xl bg-white/15 border border-white/30 backdrop-blur-sm grid place-items-center font-display text-2xl font-semibold shadow-glow">
+          {/* 2. Quién es el proveedor */}
+          <div className="flex items-start gap-4 sm:gap-5 min-w-0">
+            <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/15 border border-white/30 backdrop-blur-sm grid place-items-center font-display text-2xl sm:text-3xl font-semibold shadow-glow">
               {(supplierName || '?')
                 .split(/\s+/)
                 .filter(Boolean)
@@ -558,12 +574,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                 .join('')
                 .toUpperCase()}
             </div>
-            <div className="min-w-0">
-              <h1 className="font-display text-2xl sm:text-4xl font-semibold leading-tight tracking-tight break-words">
-                {supplierName}
-              </h1>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white text-[#131b2e] font-bold shadow-card">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-white text-[#131b2e] text-xs font-bold shadow-card">
                   Tipo {dossier.supplierTier || dossier.basicInfo.supplierTier || 'B'} &bull;{' '}
                   {(dossier.supplierTier || dossier.basicInfo.supplierTier || 'B') === 'A'
                     ? 'Crítico'
@@ -571,111 +584,118 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
                     ? 'Operativo'
                     : 'Estándar'}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-medium">
-                  {isNatural ? <User className="w-3.5 h-3.5" /> : <Building2 className="w-3.5 h-3.5" />}
-                  <span>{isNatural ? 'Persona Natural' : 'Persona Jurídica'}</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-mono font-semibold">
-                  <span className="font-sans font-normal text-white/60">NIT</span>
-                  <span>{supplierDoc}</span>
-                </span>
-                {dossier.basicInfo.city && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-medium">
-                    <MapPin className="w-3.5 h-3.5" />
-                    <span>{dossier.basicInfo.city}</span>
-                  </span>
-                )}
                 {dossier.selectedCategory && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#69bdd7]/25 border border-[#69bdd7]/50 backdrop-blur-sm font-semibold">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#69bdd7]/25 border border-[#69bdd7]/50 backdrop-blur-sm text-xs font-semibold">
                     <Tag className="w-3.5 h-3.5" />
                     <span>{dossier.selectedCategory}</span>
                   </span>
                 )}
-                {accountRole === 'SUPERADMIN' ? (
-                  <label className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-0.5 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-medium">
-                    <UserCheck className="w-3.5 h-3.5" />
-                    <span className="text-white/70">Administrador</span>
-                    <select
-                      value={admins.some((u) => u.id === dossier.assignedReviewerId) ? dossier.assignedReviewerId : ''}
-                      onChange={(e) => {
-                        // La lista no cambia hasta que se confirme: si cancela, queda el administrador de antes
-                        const picked = admins.find((u) => u.id === e.target.value);
-                        const supplierLabel = dossier.basicInfo?.companyName || dossier.basicInfo?.fullName || dossier.fileNumber;
-                        askConfirm({
-                          title: picked ? `¿Asignar a ${picked.name}?` : '¿Quitar la asignación?',
-                          message: picked
-                            ? `El expediente de «${supplierLabel}» quedará a cargo de ${picked.name}${
-                                dossier.assignedReviewerName ? ` en lugar de ${dossier.assignedReviewerName}` : ''
-                              }. Solo esa persona podrá editarlo y recibirá un aviso.`
-                            : `El expediente de «${supplierLabel}» quedará sin administrador asignado${
-                                dossier.assignedReviewerName ? ` (hoy lo tiene ${dossier.assignedReviewerName})` : ''
-                              }.`,
-                          hint: 'Puede cambiar la asignación de nuevo cuando quiera desde este mismo selector.',
-                          hintIcon: <UserCheck className="w-4 h-4 shrink-0 mt-0.5" />,
-                          icon: <UserCheck className="w-6 h-6" />,
-                          confirmLabel: picked ? 'Sí, asignar' : 'Sí, quitar',
-                          tone: 'primary',
-                          onConfirm: () => {
-                            assignSupplierReviewer(dossier.id, picked?.id || '', picked?.name || '');
-                            showToast(
-                              picked ? `Expediente asignado a ${picked.name}.` : 'Expediente sin administrador asignado.',
-                              'success',
-                              'ASIGNACIÓN'
-                            );
-                          },
-                        });
-                      }}
-                      className="h-7 max-w-[210px] rounded-full bg-white/15 text-white text-[11px] font-semibold px-2 outline-hidden cursor-pointer [&>option]:text-[#0b1d3a]"
-                      aria-label="Administrador asignado al expediente"
-                    >
-                      <option value="">Sin asignar</option>
-                      {admins.map((u) => (
-                        <option key={u.id} value={u.id}>
-                          {u.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : dossier.assignedReviewerName ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 border border-white/25 backdrop-blur-sm font-medium">
-                    <UserCheck className="w-3.5 h-3.5" />
-                    <span>{dossier.assignedReviewerName}</span>
-                  </span>
-                ) : null}
               </div>
+              <h1 className="mt-2 font-display text-2xl sm:text-4xl font-semibold leading-tight tracking-tight break-words">
+                {supplierName}
+              </h1>
+              <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/85">
+                <span className="inline-flex items-center gap-1.5">
+                  {isNatural ? <User className="w-4 h-4 text-white/60" /> : <Building2 className="w-4 h-4 text-white/60" />}
+                  {isNatural ? 'Persona Natural' : 'Persona Jurídica'}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="text-white/60">{isNatural ? 'Documento' : 'NIT'}</span>
+                  <span className="font-mono font-semibold">{supplierDoc}</span>
+                </span>
+                {dossier.basicInfo.city && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-white/60" />
+                    {dossier.basicInfo.city}
+                  </span>
+                )}
+              </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            {allDocumentsApproved && !expSummary.hasExpiredDocs ? (
-              <button
-                type="button"
-                onClick={() => setIsCertificateModalOpen(true)}
-                className="shimmer h-11 px-5 rounded-xl bg-white text-[#131b2e] font-semibold text-sm flex items-center gap-2 shadow-glow hover:opacity-95 transition-opacity cursor-pointer"
-                title="Ficha Oficial & Certificado de Proveedor Habilitado disponible (100% documentos aprobados y vigentes)"
-              >
-                <Award className="w-4 h-4 text-[#2c84c4]" />
-                <span>Ficha Oficial & Certificado</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className="h-11 px-5 rounded-xl bg-white/10 border border-white/20 text-white/60 font-medium text-sm flex items-center gap-2 cursor-not-allowed"
-                title={
-                  expSummary.hasExpiredDocs
-                    ? `Certificado bloqueado: El proveedor posee ${expSummary.expiredCount} documento(s) vencido(s). Debe actualizar soportes para rehabilitarse.`
-                    : `Certificado bloqueado: Requiere que todos los documentos (${approvedDocsCount}/${totalDocs}) estén en estado APROBADO.`
-                }
-              >
-                <Award className="w-4 h-4" />
-                <span>
-                  Ficha & Certificado{' '}
-                  {expSummary.hasExpiredDocs ? '(Bloqueado)' : `(${approvedDocsCount}/${totalDocs})`}
-                </span>
-              </button>
-            )}
-          </div>
+          {/* 3. Datos del expediente y quién lo atiende */}
+          <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 rounded-2xl bg-black/25 border border-white/15 backdrop-blur-md px-4 sm:px-5 py-4">
+            <div className="min-w-0">
+              <dt className="text-[10px] uppercase tracking-[0.16em] font-semibold text-white/60">Expediente</dt>
+              <dd className="mt-1 h-9 flex items-center font-mono text-sm font-bold">{dossier.fileNumber}</dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="text-[10px] uppercase tracking-[0.16em] font-semibold text-white/60">Radicado</dt>
+              <dd className="mt-1 h-9 flex items-center gap-1.5 text-sm font-semibold">
+                <Clock className="w-4 h-4 text-white/60 shrink-0" />
+                <span className="truncate">{formatRadicado(dossier.submittedAt || dossier.createdAt)}</span>
+              </dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="text-[10px] uppercase tracking-[0.16em] font-semibold text-white/60">
+                <label htmlFor="assignedAdmin">Administrador</label>
+              </dt>
+              <dd className="mt-1">
+                {accountRole === 'SUPERADMIN' ? (
+                  <select
+      value={admins.some((u) => u.id === dossier.assignedReviewerId) ? dossier.assignedReviewerId : ''}
+      onChange={(e) => {
+        // La lista no cambia hasta que se confirme: si cancela, queda el administrador de antes
+        const picked = admins.find((u) => u.id === e.target.value);
+        const supplierLabel = dossier.basicInfo?.companyName || dossier.basicInfo?.fullName || dossier.fileNumber;
+        askConfirm({
+          title: picked ? `¿Asignar a ${picked.name}?` : '¿Quitar la asignación?',
+          message: picked
+            ? `El expediente de «${supplierLabel}» quedará a cargo de ${picked.name}${
+                dossier.assignedReviewerName ? ` en lugar de ${dossier.assignedReviewerName}` : ''
+              }. Solo esa persona podrá editarlo y recibirá un aviso.`
+            : `El expediente de «${supplierLabel}» quedará sin administrador asignado${
+                dossier.assignedReviewerName ? ` (hoy lo tiene ${dossier.assignedReviewerName})` : ''
+              }.`,
+          hint: 'Puede cambiar la asignación de nuevo cuando quiera desde este mismo selector.',
+          hintIcon: <UserCheck className="w-4 h-4 shrink-0 mt-0.5" />,
+          icon: <UserCheck className="w-6 h-6" />,
+          confirmLabel: picked ? 'Sí, asignar' : 'Sí, quitar',
+          tone: 'primary',
+          onConfirm: () => {
+            assignSupplierReviewer(dossier.id, picked?.id || '', picked?.name || '');
+            showToast(
+              picked ? `Expediente asignado a ${picked.name}.` : 'Expediente sin administrador asignado.',
+              'success',
+              'ASIGNACIÓN'
+            );
+          },
+        });
+      }}
+      className="h-9 w-full rounded-xl bg-black/20 border border-white/20 text-white text-sm font-semibold px-2.5 outline-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-[#69bdd7]/60 [&>option]:text-[#0b1d3a]"
+      id="assignedAdmin"
+    >
+      <option value="">Sin asignar</option>
+      {admins.map((u) => (
+        <option key={u.id} value={u.id}>
+          {u.name}
+        </option>
+      ))}
+    </select>
+                ) : (
+                  <span className="h-9 flex items-center gap-1.5 text-sm font-semibold">
+                    <UserCheck className="w-4 h-4 text-white/60 shrink-0" />
+                    <span className="truncate">{dossier.assignedReviewerName || 'Sin asignar'}</span>
+                  </span>
+                )}
+              </dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="text-[10px] uppercase tracking-[0.16em] font-semibold text-white/60">
+                <label htmlFor="reviewerInput">Revisor</label>
+              </dt>
+              <dd className="mt-1">
+                <input
+                  id="reviewerInput"
+                  type="text"
+                  value={reviewerName}
+                  onChange={(e) => setReviewerName(e.target.value)}
+                  className="w-full h-9 px-2.5 rounded-xl bg-black/20 border border-white/20 text-sm font-semibold text-white placeholder:text-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#69bdd7]/60"
+                  title="Nombre del revisor para auditoría y trazabilidad"
+                />
+              </dd>
+            </div>
+          </dl>
         </div>
       </section>
 
