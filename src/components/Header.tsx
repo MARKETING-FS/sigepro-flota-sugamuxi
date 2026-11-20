@@ -3,6 +3,7 @@ import { Moon, Sun, Menu, ChevronDown, ChevronRight, LogOut, UserPlus, Home } fr
 import { useApp } from '../context/AppContext';
 import { AppView } from '../types';
 import { PushAlertsPopover } from './notifications/PushAlertsPopover';
+import { useConfirm } from './ui/ConfirmDialog';
 
 interface Props {
   onOpenRegisterModal: () => void;
@@ -40,9 +41,20 @@ export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, onTog
     return () => document.removeEventListener('mousedown', close);
   }, [isMenuOpen]);
 
-  const handleSignOut = async () => {
+  const { ask, dialog } = useConfirm();
+  // Pide confirmación y, si la dan, cierra la sesión de una vez (sin pasar por otra pantalla)
+  const handleSignOut = () => {
     setIsMenuOpen(false);
-    await signOut();
+    ask({
+      title: '¿Cerrar sesión?',
+      message: 'Saldrás de SIGEPRO y tendrás que iniciar sesión de nuevo para volver a entrar.',
+      confirmLabel: 'Sí, cerrar sesión',
+      tone: 'primary',
+      icon: <LogOut className="w-6 h-6" />,
+      onConfirm: () => {
+        void signOut();
+      },
+    });
   };
 
   const iconBtn =
@@ -51,6 +63,7 @@ export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, onTog
     'w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-fs-navy dark:text-slate-200 hover:bg-fs-ground dark:hover:bg-slate-800 cursor-pointer';
 
   return (
+    <>
     <header className="sticky top-0 z-20 border-b border-black/5 dark:border-white/10 glass">
       <div className="h-16 px-4 sm:px-8 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -122,5 +135,7 @@ export const Header: React.FC<Props> = ({ onOpenRegisterModal, activeView, onTog
         </div>
       </div>
     </header>
+    {dialog}
+    </>
   );
 };

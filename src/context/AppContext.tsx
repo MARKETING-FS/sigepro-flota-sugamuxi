@@ -4073,8 +4073,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isPasswordRecovery: auth.isPasswordRecovery,
         signIn: auth.signIn,
         signOut: async () => {
-          setActiveViewState('revisores');
+          // Primero se cierra la sesión (el login aparece al instante); la vista vuelve a Resumen después,
+          // para que el siguiente inicio de sesión llegue ahí sin mostrar el Resumen mientras se sale.
           await auth.signOut();
+          setActiveViewState('revisores');
         },
         sendPasswordReset: auth.sendPasswordReset,
         updatePassword: auth.updatePassword,

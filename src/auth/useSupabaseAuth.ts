@@ -137,8 +137,9 @@ export function useSupabaseAuth() {
   const signOut = async (): Promise<void> => {
     if (IS_DEMO_MODE) setDemoSignedIn(false);
     if (!supabase) return;
-    await supabase.auth.signOut();
+    // La pantalla de inicio de sesión sale de inmediato; el cierre en el servidor termina en segundo plano
     setSession(null);
+    await supabase.auth.signOut();
   };
 
   const sendPasswordReset = async (email: string): Promise<AuthResult> => {
