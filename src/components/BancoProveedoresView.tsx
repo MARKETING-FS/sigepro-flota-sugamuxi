@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Plus, FileSpreadsheet, ChevronLeft, ChevronRight, Users, LayoutGrid, Tag, Folder, Filter } from 'lucide-react';
+import { Search, Plus, FileSpreadsheet, ChevronLeft, ChevronRight, Users, LayoutGrid, Tag, Folder, Filter, Power, RotateCcw, Trash2 } from 'lucide-react';
+import { useConfirm } from './ui/ConfirmDialog';
 import { useApp } from '../context/AppContext';
 import { SupplierDossier } from '../types';
 import { InternalReviewDossierDetail } from './InternalReviewDossierDetail';
 import { SupplierCertificateModal } from './SupplierCertificateModal';
 import { getCreationStatus, getContractualStatus } from '../utils/contractValidity';
 import { BancoTable } from './banco/BancoTable';
-import { HeroTabs, IconField, PageBody, PageHeader, cardCls, heroPrimaryBtn, heroSecondaryBtn, inputCls, secondaryBtn, selectCls } from './ui/archive';
+import { HeroTabs, IconField, PageBody, PageHeader, cardCls, heroPrimaryBtn, heroSecondaryBtn, inputCls, primaryBtn, secondaryBtn, selectCls } from './ui/archive';
 
 // Filtro rápido de estado: Pendiente, Habilitado y Documento vencido (más el aviso de "por vencer")
 const QUICK_FILTERS: Array<{ key: string; label: string }> = [
@@ -18,7 +19,8 @@ const QUICK_FILTERS: Array<{ key: string; label: string }> = [
 ];
 
 export const BancoProveedoresView: React.FC = () => {
-  const { isReadOnly, accountRole, dossiers, setCurrentDossierId, setActiveView, openSupplierEvaluation, getDossierProgress, highlightedSupplierId, clearHighlightedSupplier } = useApp();
+  const { isReadOnly, accountRole, dossiers: activeDossiers, allDossiers, inactiveDossiers, canManageProviders, setSupplierInactive, deleteSupplier, setCurrentDossierId, setActiveView, openSupplierEvaluation, getDossierProgress, highlightedSupplierId, clearHighlightedSupplier } = useApp();
+  const { ask, dialog } = useConfirm();
 
   // Expediente abierto dentro del Banco (mantiene la navegación del Banco)
   const [selectedDossierIdForReview, setSelectedDossierIdForReview] = useState<string | null>(null);
@@ -34,6 +36,14 @@ export const BancoProveedoresView: React.FC = () => {
   const [tierFilter, setTierFilter] = useState<string>('ALL');
   const [sarlaftFilter, setSarlaftFilter] = useState<string>('ALL');
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+
+  // El superadministrador ve TODOS los proveedores en la tabla (los inactivos, oscurecidos y marcados);
+  // los administradores solo ven los activos y sus inactivos quedan en el aviso «Inactivos».
+  const isSuper = accountRole === 'SUPERADMIN';
+  const [showInactivePanel, setShowInactivePanel] = useState(false);
+  const showingInactive = isSuper && creationStatusFilter === 'INACTIVOS';
+  const countBase = isSuper ? allDossiers : activeDossiers;
+  const dossiers = showingInactive ? inactiveDossiers : countBase;
 
   // Filtered List based on both dimensions
   const filteredDossiers = useMemo(() => {
@@ -57,6 +67,7 @@ export const BancoProveedoresView: React.FC = () => {
 
       const matchesCreation =
         creationStatusFilter === 'ALL' ||
+        creationStatusFilter === 'INACTIVOS' ||
         (creationStatusFilter === 'DOCUMENTACION_POR_VENCER'
           ? !creation.hasExpiredDocs && creation.hasExpiringSoonDocs
           : d.processStatus === creationStatusFilter);
@@ -134,8 +145,9 @@ export const BancoProveedoresView: React.FC = () => {
   );
 
   const quickCount = (key: string) => {
-    if (key === 'ALL') return dossiers.length;
-    return dossiers.filter((d) => {
+    if (key === 'INACTIVOS') return inactiveDossiers.length;
+    if (key === 'ALL') return countBase.length;
+    return countBase.filter((d) => {
       if (key === 'DOCUMENTACION_POR_VENCER') {
         const c = getCreationStatus(d);
         return !c.hasExpiredDocs && c.hasExpiringSoonDocs;
@@ -144,7 +156,8 @@ export const BancoProveedoresView: React.FC = () => {
     }).length;
   };
 
-  const activeContracts = dossiers.filter((d) => {
+  const activeContracts = activeDossiers.filter((d) => {
+    // (solo cuentan los activos)
     const s = getContractualStatus(d).status;
     return s === 'VIGENTE' || s === 'POR_VENCER';
   }).length;
@@ -162,6 +175,48 @@ export const BancoProveedoresView: React.FC = () => {
     setTierFilter('ALL');
     setSarlaftFilter('ALL');
   };
+
+  const name = (d: SupplierDossier) => (d.basicInfo.supplierType === 'NATURAL' ? d.basicInfo.fullName : d.basicInfo.companyName) || 'este proveedor';
+
+  const askSetInactive = (d: SupplierDossier, inactive: boolean) => {
+    if (inactive) {
+      ask({
+        title: `¿Inactivar a ${name(d)}?`,
+        message: 'Dejará de aparecer en el Banco, en las evaluaciones, en los reportes y en las gráficas. No se borra nada: su expediente y sus documentos quedan guardados.',
+        hint: isSuper
+          ? 'Lo sigues viendo en la tabla, oscurecido y marcado como inactivo, y puedes reactivarlo cuando quieras.'
+          : 'Lo encuentras en el botón «Inactivos» de arriba y desde ahí puedes activarlo cuando quieras.',
+        confirmLabel: 'Sí, inactivar',
+        tone: 'primary',
+        icon: <Power className="w-6 h-6" />,
+        onConfirm: () => setSupplierInactive(d.id, true),
+      });
+    } else {
+      ask({
+        title: `¿Reactivar a ${name(d)}?`,
+        message: 'Volverá a aparecer en el Banco, en las evaluaciones, en los reportes y en las gráficas, con su información tal como la dejó.',
+        confirmLabel: 'Sí, reactivar',
+        tone: 'primary',
+        icon: <RotateCcw className="w-6 h-6" />,
+        onConfirm: () => {
+          setSupplierInactive(d.id, false);
+          setCreationStatusFilter('ALL');
+        },
+      });
+    }
+  };
+
+  const askDelete = (d: SupplierDossier) =>
+    ask({
+      title: `¿Eliminar a ${name(d)} para siempre?`,
+      message: 'Se borran su expediente, todos sus documentos y todas sus evaluaciones. Esta acción no se puede deshacer.',
+      hint: 'Si solo quieres que deje de aparecer, mejor inactívalo: así no pierdes nada y puedes reactivarlo.',
+      hintIcon: <Power className="w-4 h-4 shrink-0 mt-0.5" />,
+      confirmLabel: 'Sí, eliminar definitivamente',
+      tone: 'danger',
+      icon: <Trash2 className="w-6 h-6" />,
+      onConfirm: () => deleteSupplier(d.id),
+    });
 
   const handleOpenDossier = (dossierId: string) => {
     setCurrentDossierId(dossierId);
@@ -185,9 +240,14 @@ export const BancoProveedoresView: React.FC = () => {
       <PageHeader
         icon={Users}
         title="Banco de proveedores"
-        subtitle={`${dossiers.length} proveedores registrados · ${activeContracts} con contrato activo`}
+        subtitle={`${countBase.length} proveedores registrados · ${activeContracts} con contrato activo${inactiveDossiers.length ? ` · ${inactiveDossiers.length} inactivo${inactiveDossiers.length > 1 ? 's' : ''}` : ''}`}
         actions={
           <>
+            {!isSuper && canManageProviders && inactiveDossiers.length > 0 && (
+              <button type="button" className={heroSecondaryBtn} onClick={() => setShowInactivePanel((v) => !v)} aria-expanded={showInactivePanel}>
+                <Power className="w-5 h-5" /> Inactivos ({inactiveDossiers.length})
+              </button>
+            )}
             <button type="button" className={heroSecondaryBtn} onClick={() => setActiveView('informesExcel')}>
               <FileSpreadsheet className="w-5 h-5" /> Reportes
             </button>
@@ -200,7 +260,7 @@ export const BancoProveedoresView: React.FC = () => {
         }
         tabs={
           <HeroTabs
-            items={QUICK_FILTERS.map((q) => ({ key: q.key, label: q.label, count: quickCount(q.key) }))}
+            items={[...QUICK_FILTERS, ...(isSuper ? [{ key: 'INACTIVOS', label: 'Inactivos' }] : [])].map((q) => ({ key: q.key, label: q.label, count: quickCount(q.key) }))}
             value={creationStatusFilter}
             onChange={setCreationStatusFilter}
           />
@@ -208,6 +268,43 @@ export const BancoProveedoresView: React.FC = () => {
       />
 
       <PageBody>
+        {!isSuper && showInactivePanel && inactiveDossiers.length > 0 && (
+          <section className={`${cardCls} p-4 sm:p-5`} aria-label="Proveedores inactivos">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 min-w-0">
+                <span className="shrink-0 grid place-items-center w-10 h-10 rounded-xl bg-slate-500/12 text-slate-600 dark:text-slate-300">
+                  <Power className="w-5 h-5" />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-[16px] font-bold text-[#0b1d3a] dark:text-white">Proveedores inactivos</h2>
+                  <p className="text-[13px] text-[#3a5274] dark:text-slate-400">No aparecen en la tabla ni en evaluaciones, reportes o gráficas. Actívalos para devolverlos.</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setShowInactivePanel(false)} className={`${secondaryBtn} h-9 px-3 shrink-0`}>
+                Cerrar
+              </button>
+            </div>
+            <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+              {inactiveDossiers.map((d) => {
+                const info = d.basicInfo.inactive;
+                return (
+                  <li key={d.id} className="flex items-center justify-between gap-3 rounded-2xl border border-[#dbe5f1] dark:border-white/10 bg-[#f4f7fb] dark:bg-white/5 px-3.5 py-3">
+                    <div className="min-w-0">
+                      <div className="text-[14.5px] font-bold text-[#0b1d3a] dark:text-white truncate" title={name(d)}>{name(d)}</div>
+                      <div className="text-[12px] text-[#5d7392] dark:text-slate-400 truncate">
+                        {d.fileNumber}
+                        {info?.at ? ` · inactivado el ${new Date(info.at).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '')}` : ''}
+                      </div>
+                    </div>
+                    <button type="button" className={`${primaryBtn} h-9 px-3.5 shrink-0`} onClick={() => askSetInactive(d, false)}>
+                      <RotateCcw className="w-4 h-4" /> Activar
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
         <div className={`${cardCls} p-3.5 space-y-3`}>
           <div className="flex flex-col lg:flex-row gap-3">
             <label className="relative flex-1 min-w-[220px]">
@@ -272,7 +369,15 @@ export const BancoProveedoresView: React.FC = () => {
       <section className={`${cardCls} overflow-hidden`}>
         <BancoTable
           rows={paginatedDossiers}
-          emptyText={dossiers.length === 0 ? 'Aún no hay proveedores registrados.' : 'Ningún proveedor coincide con la búsqueda o los filtros.'}
+          emptyText={
+            dossiers.length === 0
+              ? showingInactive
+                ? 'No hay proveedores inactivos.'
+                : 'Aún no hay proveedores registrados.'
+              : 'Ningún proveedor coincide con la búsqueda o los filtros.'
+          }
+          onSetInactive={canManageProviders && !isReadOnly ? askSetInactive : undefined}
+          onDelete={accountRole === 'SUPERADMIN' ? askDelete : undefined}
           onOpen={handleOpenDossier}
           onEvaluate={openSupplierEvaluation}
           onCertificate={setSelectedDossierForCertificate}
@@ -318,6 +423,7 @@ export const BancoProveedoresView: React.FC = () => {
       </section>
       </PageBody>
 
+      {dialog}
       <SupplierCertificateModal
         isOpen={Boolean(selectedDossierForCertificate)}
         onClose={() => setSelectedDossierForCertificate(null)}

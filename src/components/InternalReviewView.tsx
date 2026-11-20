@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Home } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { isDossierInactive } from '../utils/dossierActive';
 import { InternalReviewDossierDetail } from './InternalReviewDossierDetail';
 import { ResumenPanel } from './dashboard/ResumenPanel';
 import { ExpedientesTable, ExpedienteFilters, EMPTY_FILTERS } from './dashboard/ExpedientesTable';
@@ -23,7 +24,7 @@ export const InternalReviewView: React.FC = () => {
     return <InternalReviewDossierDetail dossierId={reviewSelectedDossierId} onBack={() => setReviewSelectedDossierId(null)} />;
   }
 
-  const dataset = role === 'ADMIN' || scope === 'GLOBAL' ? allDossiers : dossiers;
+  const dataset = (role === 'ADMIN' || scope === 'GLOBAL' ? allDossiers : dossiers).filter((d) => !isDossierInactive(d));
 
   const showStage = (stageKey: string) => {
     setFilters({ ...EMPTY_FILTERS, stage: stageKey });

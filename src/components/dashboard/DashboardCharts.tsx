@@ -1,88 +1,204 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 
-export interface TrendPoint {
-  label: string;
-  value: number | null;
-  /** cuántas evaluaciones entran en el promedio de este punto */
-  count?: number;
-  /** texto largo para el aviso al pasar el cursor */
-  detail?: string;
+/** Un punto de la gráfica de desempeño: la evaluación vigente de un proveedor activo */
+export interface SupplierScorePoint {
+  id: string;
+  /** Siglas del proveedor, para rotular el punto */
+  sigla: string;
+  name: string;
+  /** Puntaje llevado a 0–100 */
+  value: number;
+  /** «96 / 120» o «82 / 100» */
+  scoreText: string;
+  approved: boolean;
+  grade: 'A' | 'B' | 'C';
+  conceptLabel: string;
+  typeLabel: string;
+  dateLabel: string;
+  shortDate: string;
+  evaluator: string;
+  category: string;
 }
 
-/** Tendencia: puntaje promedio por período; los puntos con datos se unen con una línea (área con trazo animado) */
-export const TrendChart: React.FC<{ data: TrendPoint[] }> = ({ data }) => {
-  const W = 640, H = 240, L = 34, R = 16, T = 22, B = 30;
-  const values = data.filter((d) => d.value !== null).map((d) => d.value as number);
-  if (values.length === 0) {
+const GRADE_NAME: Record<'A' | 'B' | 'C', string> = { A: 'Excelente', B: 'Aceptable', C: 'Crítico' };
+
+/** Desempeño: un punto por proveedor activo (su evaluación vigente), ordenados por fecha y unidos con una línea */
+export const TrendChart: React.FC<{ data: SupplierScorePoint[] }> = ({ data }) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const W = 720, H = 280, L = 40, R = 28, T = 26, B = 56;
+
+  if (data.length === 0) {
     return (
       <div className="h-[260px] grid place-items-center text-sm text-[#3a5274] dark:text-slate-400">
-        Todavía no hay evaluaciones para dibujar la tendencia.
+        Todavía no hay proveedores evaluados para dibujar el desempeño.
       </div>
     );
   }
+
   // El eje baja de 40 solo si hay puntajes más bajos
-  const min = Math.min(40, Math.floor(Math.min(...values) / 10) * 10), max = 100;
+  const min = Math.min(40, Math.floor(Math.min(...data.map((d) => d.value)) / 10) * 10), max = 100;
   const x = (i: number) => (data.length === 1 ? (L + W - R) / 2 : L + (i * (W - L - R)) / (data.length - 1));
   const y = (v: number) => T + (1 - (Math.min(max, Math.max(min, v)) - min) / (max - min)) * (H - T - B);
-  const pts = data
-    .map((d, i) => (d.value === null ? null : { i, d, px: x(i), py: y(d.value) }))
-    .filter((p): p is { i: number; d: TrendPoint; px: number; py: number } => !!p);
+  const pts = data.map((d, i) => ({ d, i, px: x(i), py: y(d.value) }));
   const line = pts.map((p, k) => `${k ? 'L' : 'M'}${p.px},${p.py}`).join(' ');
   const area = pts.length > 1 ? `${line} L${pts[pts.length - 1].px},${H - B} L${pts[0].px},${H - B} Z` : '';
   const ticks = Array.from(new Set([min, 55, 70, 85, 100].filter((t) => t >= min))).sort((p, q) => p - q);
-  // Rótulos del eje: no más de 8, siempre el primero y el último
-  const step = Math.max(1, Math.ceil(data.length / 8));
-  const lastGap = (data.length - 1) % step; // distancia del último rótulo regular al final
-  const showLabel = (i: number) => i % step === 0 || (i === data.length - 1 && lastGap >= Math.ceil(step / 2));
-  const valueLabels = pts.length <= 8;
+  // Con muchos proveedores se rotula uno sí y otro no
+  const step = Math.max(1, Math.ceil(data.length / 12));
+  const showText = (i: number) => i % step === 0;
+  const active = pts.find((p) => p.d.id === activeId) || null;
+
+  // El recuadro se abre al lado del punto (a la derecha, o a la izquierda si el punto está en la mitad derecha),
+  // centrado en vertical y sin salirse de la gráfica por los lados. Así nunca tapa el punto ni la línea que se está mirando.
+  const TIP_W = 260, TIP_H = 200;
+  const box = wrapRef.current?.getBoundingClientRect();
+  const tip = active && box
+    ? (() => {
+        const px = (active.px / W) * box.width, py = (active.py / H) * box.height;
+        const right = active.px / W < 0.55;
+        const left = Math.max(0, Math.min(box.width - TIP_W, right ? px + 22 : px - 22 - TIP_W));
+        const top = Math.max(-40, Math.min(box.height - TIP_H + 40, py - TIP_H / 2));
+        return { left, top };
+      })()
+    : null;
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[260px]" role="img" aria-label="Puntaje promedio de las evaluaciones por período">
-      <defs>
-        <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2c84c4" stopOpacity="0.45" />
-          <stop offset="100%" stopColor="#69bdd7" stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      {ticks.map((t) => (
-        <g key={t}>
-          <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} stroke="currentColor" strokeOpacity="0.12" strokeDasharray="4 4" />
-          <text x={L - 6} y={y(t) + 4} textAnchor="end" fontSize="11" fill="currentColor" fillOpacity="0.55">{t}</text>
-        </g>
-      ))}
-      {data.map((d, i) =>
-        showLabel(i) ? (
-          <text key={i} x={x(i)} y={H - 8} textAnchor={i === 0 && data.length > 1 ? 'start' : i === data.length - 1 && data.length > 1 ? 'end' : 'middle'} fontSize="11" fill="currentColor" fillOpacity="0.55">{d.label}</text>
-        ) : null
+    <div ref={wrapRef} className="relative" onMouseLeave={() => setActiveId(null)}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full h-auto block"
+        role="group"
+        aria-label="Puntaje vigente de cada proveedor activo"
+        onClick={(e) => {
+          // En pantallas táctiles, tocar fuera de un punto cierra el recuadro
+          if (!(e.target as Element).closest('g[role="img"]')) setActiveId(null);
+        }}
+      >
+        <defs>
+          <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2c84c4" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#69bdd7" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        {ticks.map((t) => (
+          <g key={t}>
+            <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} stroke="currentColor" strokeOpacity="0.12" strokeDasharray="4 4" />
+            <text x={L - 8} y={y(t) + 4} textAnchor="end" fontSize="11" fill="currentColor" fillOpacity="0.55">{t}</text>
+          </g>
+        ))}
+        {/* Guía vertical del punto activo */}
+        {active && <line x1={active.px} x2={active.px} y1={T - 6} y2={H - B} stroke="#2c84c4" strokeOpacity="0.35" strokeWidth="1.5" strokeDasharray="3 4" />}
+        {area && <path d={area} fill="url(#trendFill)" className="animate-fade-up" />}
+        {pts.length > 1 && (
+          <path
+            d={line}
+            pathLength={1}
+            fill="none"
+            stroke="#2c84c4"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ strokeDasharray: 1, strokeDashoffset: 1, animation: 'nd-draw 1.8s cubic-bezier(0.6,0,0.2,1) forwards' }}
+          />
+        )}
+        {/* Rótulos del eje: siglas y fecha corta */}
+        {pts.map((p) =>
+          showText(p.i) ? (
+            <g key={`t-${p.d.id}`} style={{ pointerEvents: 'none' }}>
+              <text x={p.px} y={H - B + 20} textAnchor="middle" fontSize="12.5" fontWeight={activeId === p.d.id ? 800 : 700} fill="currentColor" fillOpacity={activeId === p.d.id ? 1 : 0.85}>
+                {p.d.sigla}
+              </text>
+              <text x={p.px} y={H - B + 36} textAnchor="middle" fontSize="10.5" fill="currentColor" fillOpacity="0.5">{p.d.shortDate}</text>
+            </g>
+          ) : null
+        )}
+        {pts.map((p) => {
+          const isActive = activeId === p.d.id;
+          const color = p.d.grade === 'C' ? '#dc2626' : '#2c84c4';
+          return (
+            <g
+              key={p.d.id}
+              tabIndex={0}
+              role="img"
+              aria-label={`${p.d.name}: ${p.d.scoreText}, ${p.d.conceptLabel}, ${p.d.typeLabel} del ${p.d.dateLabel}`}
+              style={{ cursor: 'pointer', outline: 'none' }}
+              onMouseEnter={() => setActiveId(p.d.id)}
+              onFocus={() => setActiveId(p.d.id)}
+              onBlur={() => setActiveId((cur) => (cur === p.d.id ? null : cur))}
+              onClick={() => setActiveId((cur) => (cur === p.d.id ? null : p.d.id))}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setActiveId(null);
+              }}
+            >
+              <circle cx={p.px} cy={p.py} r="18" fill="transparent" />
+              {isActive && <circle cx={p.px} cy={p.py} r="12" fill={color} fillOpacity="0.16" />}
+              <circle cx={p.px} cy={p.py} r={isActive ? 7 : 5.5} fill={isActive ? color : 'var(--nd-card)'} stroke={color} strokeWidth="2.5" style={{ transition: 'r 140ms ease-out' }} />
+              {data.length <= 10 && !isActive && (
+                <text x={p.px} y={p.py - 13} textAnchor="middle" fontSize="11" fontWeight="600" fill="currentColor" fillOpacity="0.8" style={{ pointerEvents: 'none' }}>
+                  {Math.round(p.d.value)}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+
+      {active && tip && (
+        <div
+          role="tooltip"
+          style={tip}
+          className="pointer-events-none absolute z-20 w-[260px] rounded-2xl border border-[#d5e0ee] dark:border-white/15 bg-white dark:bg-[#101828] p-3.5 shadow-[0_18px_40px_-14px_rgba(11,29,58,0.45)] animate-in fade-in zoom-in-95 duration-150"
+        >
+          <div className="flex items-start gap-2.5">
+            <span className="shrink-0 grid place-items-center h-9 min-w-9 px-1.5 rounded-xl bg-[#2c84c4]/12 text-[#0f6b8f] dark:text-[#8fd0e4] text-[12px] font-extrabold tracking-wide">
+              {active.d.sigla}
+            </span>
+            <div className="min-w-0">
+              <div className="text-[13.5px] font-bold leading-snug text-[#0b1d3a] dark:text-white line-clamp-2">{active.d.name}</div>
+              <div className="text-[11.5px] text-[#5d7392] dark:text-slate-400 truncate">{active.d.category}</div>
+            </div>
+          </div>
+          <div className="mt-3 flex items-end justify-between gap-2">
+            <div>
+              <div className="font-display text-[28px] leading-none font-bold tabular-nums text-[#0b1d3a] dark:text-white">
+                {String(Math.round(active.d.value * 10) / 10).replace('.', ',')}
+                <span className="text-[13px] font-semibold text-[#5d7392] dark:text-slate-400"> %</span>
+              </div>
+              <div className="mt-1 text-[11.5px] tabular-nums text-[#5d7392] dark:text-slate-400">{active.d.scoreText} puntos</div>
+            </div>
+            <div className="flex flex-col items-end gap-1">
+              <span
+                className={`inline-flex items-center h-6 px-2.5 rounded-full text-[11.5px] font-bold ${
+                  active.d.approved ? 'bg-[#2c84c4]/14 text-[#0f6b8f] dark:text-[#8fd0e4]' : 'bg-red-500/12 text-red-600 dark:text-red-300'
+                }`}
+              >
+                {active.d.conceptLabel}
+              </span>
+              <span className="text-[11.5px] font-semibold text-[#3a5274] dark:text-slate-300">Nota {active.d.grade} · {GRADE_NAME[active.d.grade]}</span>
+            </div>
+          </div>
+          <dl className="mt-3 pt-2.5 border-t border-black/8 dark:border-white/10 space-y-1 text-[12px]">
+            <div className="flex justify-between gap-3">
+              <dt className="text-[#5d7392] dark:text-slate-400">Tipo</dt>
+              <dd className="font-semibold text-[#0b1d3a] dark:text-slate-200 text-right">{active.d.typeLabel}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-[#5d7392] dark:text-slate-400">Fecha</dt>
+              <dd className="font-semibold text-[#0b1d3a] dark:text-slate-200 text-right">{active.d.dateLabel}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-[#5d7392] dark:text-slate-400">Evaluó</dt>
+              <dd className="font-semibold text-[#0b1d3a] dark:text-slate-200 text-right truncate">{active.d.evaluator || '—'}</dd>
+            </div>
+          </dl>
+        </div>
       )}
-      {area && <path d={area} fill="url(#trendFill)" className="animate-fade-up" />}
-      {pts.length > 1 && (
-        <path
-          d={line}
-          pathLength={1}
-          fill="none"
-          stroke="#2c84c4"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ strokeDasharray: 1, strokeDashoffset: 1, animation: 'nd-draw 1.8s cubic-bezier(0.6,0,0.2,1) forwards' }}
-        />
-      )}
-      {pts.map((p) => (
-        <g key={p.i}>
-          <circle cx={p.px} cy={p.py} r="5" fill="var(--nd-card)" stroke="#2c84c4" strokeWidth="2.5">
-            <title>{`${p.d.detail || p.d.label}: ${String(p.d.value).replace('.', ',')} pts${p.d.count ? ` · ${p.d.count} ${p.d.count === 1 ? 'evaluación' : 'evaluaciones'}` : ''}`}</title>
-          </circle>
-          {valueLabels && (
-            <text x={p.px} y={p.py - 11} textAnchor="middle" fontSize="11" fontWeight="600" fill="currentColor" fillOpacity="0.85">
-              {String(Math.round(p.d.value as number))}
-            </text>
-          )}
-        </g>
-      ))}
-    </svg>
+    </div>
   );
 };
+
 
 /** Barras horizontales con degradado y ancho animado */
 export const BarList: React.FC<{ items: Array<{ label: string; value: number }> }> = ({ items }) => {

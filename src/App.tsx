@@ -160,7 +160,7 @@ const MainLayout: React.FC = () => {
           <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-fs-muted">
             <span>Flota Sugamuxi S.A. · NIT 891.800.089-1 · Sogamoso, Boyacá</span>
             <span>
-              SIGEPRO v2.1 · Desarrollado por Julian Salgado ·{' '}
+              SIGEPRO v2.1 ·{' '}
               <button type="button" onClick={() => setIsHabeasDataOpen(true)} className="underline underline-offset-2 hover:text-fs-blue cursor-pointer">
                 Tratamiento de datos
               </button>

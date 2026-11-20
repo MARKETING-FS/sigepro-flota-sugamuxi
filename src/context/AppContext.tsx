@@ -57,6 +57,7 @@ import {
 import { INITIAL_EVALUATION_METHOD, INITIAL_SUPPLIER_EVALUATIONS } from '../data/initialEvaluations';
 import { evaluationConceptLabel, formatEvaluationScore } from '../utils/evaluationScale';
 import { normalizeInitialCriteria } from '../data/evaluationDoc006';
+import { isDossierInactive } from '../utils/dossierActive';
 import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/initialEmails';
 import { generateEmailContent } from '../utils/emailTemplates';
 import { DEFAULT_FORM_PDFS } from '../utils/formPdf';
@@ -91,8 +92,15 @@ interface AppContextType {
   theme: ThemeMode;
   toggleTheme: () => void;
   setTheme: (theme: ThemeMode) => void;
+  /** Proveedores activos que puede ver el usuario (los inactivos no entran) */
   dossiers: SupplierDossier[];
+  /** Proveedores inactivos que puede ver el usuario: solo se muestran en la pestaña «Inactivos» del Banco */
+  inactiveDossiers: SupplierDossier[];
   allDossiers: SupplierDossier[];
+  /** Inactiva o reactiva un proveedor (administradores). No borra nada. */
+  setSupplierInactive: (dossierId: string, inactive: boolean, reason?: string) => void;
+  /** Elimina un proveedor con sus documentos y evaluaciones (solo el superadministrador). No se puede deshacer. */
+  deleteSupplier: (dossierId: string) => void;
   activeUserId: string;
   activeUser: SystemUser;
   systemUsers: SystemUser[];
@@ -539,7 +547,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // Sincronizar eliminaciones
         prev.forEach((old: SupplierDossier) => {
           if (!next.some((n: SupplierDossier) => n.id === old.id)) {
-            supabaseService.deleteDossier(old.id);
+            supabaseService.deleteDossier(old.id).then((ok) => {
+              if (!ok) {
+                showToast('No se pudo eliminar el proveedor de la base de datos: puede reaparecer al volver a entrar.', 'warning', 'SIN ELIMINAR EN LA BASE');
+              }
+            });
           }
         });
       }
@@ -3807,6 +3819,79 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newEvaluation;
   };
 
+  const setSupplierInactive = (dossierId: string, inactive: boolean, reason?: string) => {
+    if (!canManageProviders) {
+      showToast('Solo los administradores pueden inactivar o reactivar proveedores.', 'warning', 'ACCIÓN BLOQUEADA');
+      return;
+    }
+    const target = allDossiers.find((d) => d.id === dossierId);
+    if (!target) return;
+    const when = getNowFormatted();
+    const by = activeUser?.name || (accountRole === 'SUPERADMIN' ? 'Superadministrador' : 'Administrador');
+    setDossiers((prev) =>
+      prev.map((d) => {
+        if (d.id !== dossierId) return d;
+        const { inactive: _drop, ...rest } = d.basicInfo;
+        return {
+          ...d,
+          basicInfo: inactive ? { ...rest, inactive: { at: when, by, ...(reason ? { reason } : {}) } } : rest,
+          updatedAt: when,
+        };
+      })
+    );
+    const isNat = target.basicInfo.supplierType === 'NATURAL';
+    addSystemAuditLog({
+      dossierId,
+      supplierName: (isNat ? target.basicInfo.fullName : target.basicInfo.companyName) || 'Proveedor',
+      supplierDoc: (isNat ? target.basicInfo.documentNumber : target.basicInfo.nit) || '',
+      fileNumber: target.fileNumber,
+      user: by,
+      userRole: role === 'ADMIN' ? 'ADMIN' : 'REVISOR',
+      action: inactive ? 'INACTIVACION_PROVEEDOR' : 'REACTIVACION_PROVEEDOR',
+      section: 'Estado del proveedor',
+      fieldChanged: 'Estado',
+      oldValue: inactive ? 'Activo' : 'Inactivo',
+      newValue: inactive ? 'Inactivo' : 'Activo',
+      justification: reason || (inactive ? 'Inactivado desde el Banco de proveedores.' : 'Reactivado desde el Banco de proveedores.'),
+    });
+    showToast(
+      inactive ? 'Proveedor inactivado. Ya no aparece en el Banco, las evaluaciones ni los reportes; puede reactivarlo desde «Inactivos».' : 'Proveedor reactivado.',
+      'success',
+      inactive ? 'PROVEEDOR INACTIVO' : 'PROVEEDOR ACTIVO'
+    );
+  };
+
+  const deleteSupplier = (dossierId: string) => {
+    if (accountRole !== 'SUPERADMIN') {
+      showToast('Solo el superadministrador puede eliminar proveedores.', 'warning', 'ACCIÓN BLOQUEADA');
+      return;
+    }
+    const target = allDossiers.find((d) => d.id === dossierId);
+    if (!target) return;
+    const isNat = target.basicInfo.supplierType === 'NATURAL';
+    const name = (isNat ? target.basicInfo.fullName : target.basicInfo.companyName) || 'Proveedor';
+    addSystemAuditLog({
+      dossierId,
+      supplierName: name,
+      supplierDoc: (isNat ? target.basicInfo.documentNumber : target.basicInfo.nit) || '',
+      fileNumber: target.fileNumber,
+      user: activeUser?.name || 'Superadministrador',
+      userRole: role === 'ADMIN' ? 'ADMIN' : 'REVISOR',
+      action: 'ELIMINACION_PROVEEDOR',
+      section: 'Estado del proveedor',
+      fieldChanged: 'Expediente',
+      oldValue: 'Existente',
+      newValue: 'Eliminado',
+      justification: 'Eliminado definitivamente con sus documentos y evaluaciones.',
+    });
+    // Sus evaluaciones también se van (en la base se borran en cascada con el expediente)
+    setSupplierEvaluations((prev) => prev.filter((e) => e.dossierId !== dossierId));
+    // Al salir de la lista, setDossiers lo elimina también de Supabase
+    setDossiers((prev) => prev.filter((d) => d.id !== dossierId));
+    if (currentDossierId === dossierId) setCurrentDossierId(null);
+    showToast(`«${name}» fue eliminado con sus documentos y evaluaciones.`, 'info', 'PROVEEDOR ELIMINADO');
+  };
+
   const deleteSupplierEvaluation = (id: string) => {
     if (isReadOnly) {
       showToast('Su rol es de solo consulta: no puede eliminar evaluaciones.', 'warning', 'ACCIÓN BLOQUEADA');
@@ -3968,6 +4053,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     [dossiersWithStatus, accountRole, activeUserId, authProfile?.id]
   );
 
+  // Los proveedores inactivos salen de todas las listas y cuentas; solo se ven en «Inactivos» del Banco
+  const activeVisibleDossiers = React.useMemo(() => visibleDossiersWithStatus.filter((d) => !isDossierInactive(d)), [visibleDossiersWithStatus]);
+  const inactiveVisibleDossiers = React.useMemo(() => visibleDossiersWithStatus.filter(isDossierInactive), [visibleDossiersWithStatus]);
+  const activeSupplierEvaluations = React.useMemo(() => {
+    const off = new Set(allDossiers.filter(isDossierInactive).map((d) => d.id));
+    return off.size ? supplierEvaluations.filter((e) => !off.has(e.dossierId)) : supplierEvaluations;
+  }, [supplierEvaluations, allDossiers]);
+
   return (
     <AppContext.Provider
       value={{
@@ -3992,8 +4085,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         theme,
         toggleTheme,
         setTheme,
-        dossiers: visibleDossiersWithStatus,
+        dossiers: activeVisibleDossiers,
+        inactiveDossiers: inactiveVisibleDossiers,
         allDossiers: dossiersWithStatus,
+        setSupplierInactive,
+        deleteSupplier,
         activeUserId,
         activeUser,
         systemUsers,
@@ -4016,7 +4112,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         showSupplierInBank,
         clearHighlightedSupplier,
         openExecutiveDashboard,
-        supplierEvaluations,
+        supplierEvaluations: activeSupplierEvaluations,
         evaluationMethod,
         selectedEvaluationDossierId,
         setSelectedEvaluationDossierId,

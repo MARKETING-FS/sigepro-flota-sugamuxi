@@ -1,5 +1,6 @@
 import React from 'react';
-import { Award, FileBadge2 } from 'lucide-react';
+import { Award, FileBadge2, Power, RotateCcw, Trash2 } from 'lucide-react';
+import { RowMenu, RowMenuItem } from './RowMenu';
 import { SupplierDossier, ContractValidityStatus } from '../../types';
 import { getCreationStatus, getContractualStatus } from '../../utils/contractValidity';
 import { displayDate } from '../../utils/dateOnly';
@@ -49,11 +50,15 @@ interface Props {
   highlightId?: string | null;
   /** Solo el superadministrador: columnas «Creado por» y «Asignado a» */
   showOwners?: boolean;
+  /** Administradores: inactivar y reactivar */
+  onSetInactive?: (d: SupplierDossier, inactive: boolean) => void;
+  /** Solo el superadministrador: eliminar */
+  onDelete?: (d: SupplierDossier) => void;
 }
 
 const iconBtn = rowIconBtn;
 
-export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, progressOf, canEvaluate = true, highlightId = null, showOwners = false }) => (
+export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, progressOf, canEvaluate = true, highlightId = null, showOwners = false, onSetInactive, onDelete }) => (
   <div className="overflow-x-auto">
     <table className="w-full text-sm">
       <thead>
@@ -89,11 +94,24 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
               : creation.expiringSoonCount
               ? `${creation.expiringSoonCount} por vencer`
               : null;
+            const inactive = !!d.basicInfo?.inactive;
+            const menu: RowMenuItem[] = [
+              ...(onSetInactive
+                ? [
+                    inactive
+                      ? { key: 'on', label: 'Reactivar proveedor', icon: <RotateCcw className="w-4 h-4" />, onSelect: () => onSetInactive(d, false) }
+                      : { key: 'off', label: 'Inactivar proveedor', icon: <Power className="w-4 h-4" />, onSelect: () => onSetInactive(d, true) },
+                  ]
+                : []),
+              ...(onDelete ? [{ key: 'del', label: 'Eliminar proveedor', icon: <Trash2 className="w-4 h-4" />, onSelect: () => onDelete(d), danger: true }] : []),
+            ];
             return (
               <tr
                 key={d.id}
                 data-dossier-id={d.id}
                 className={`${rowCls} ${
+                  inactive ? 'bg-slate-900/[0.07] dark:bg-black/30 grayscale-[0.6] [&>td:not(:last-child)]:opacity-55' : ''
+                } ${
                   highlightId === d.id
                     ? 'bg-[#2c84c4]/20 dark:bg-[#2c84c4]/30 shadow-[inset_0_0_0_2px_#2c84c4,0_0_22px_-2px_rgba(44,132,196,0.85)] animate-pulse'
                     : ''
@@ -118,6 +136,12 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                 </td>
                 <td className="py-3 px-3">
                   <StatusPill tone={stagePillTone(stage)}>{stage.label}</StatusPill>
+                  {showOwners && (
+                    <div className={`mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-bold ${inactive ? 'text-slate-500 dark:text-slate-300' : 'text-[#0f6b8f] dark:text-[#8fd0e4]'}`}>
+                      <span className={`w-2 h-2 rounded-full ${inactive ? 'bg-slate-500' : 'bg-[#2c84c4]'}`} />
+                      {inactive ? 'Inactivo' : 'Activo'}
+                    </div>
+                  )}
                 </td>
                 <td className="py-3 px-3">
                   <StatusPill tone={cv.tone}>{cv.label}</StatusPill>
@@ -154,7 +178,7 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                 )}
                 <td className="py-3 pl-3 pr-5">
                   <div className="flex justify-end gap-2">
-                    {canEvaluate && (
+                    {canEvaluate && !inactive && (
                       <button type="button" className={iconBtn} title="Evaluar proveedor" aria-label="Evaluar proveedor" onClick={() => onEvaluate(d.id)}>
                         <Award className="w-4 h-4" />
                       </button>
@@ -176,6 +200,7 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                     >
                       Abrir
                     </button>
+                    <RowMenu items={menu} label={`Más acciones de ${supplierName(d)}`} className={iconBtn} />
                   </div>
                 </td>
               </tr>

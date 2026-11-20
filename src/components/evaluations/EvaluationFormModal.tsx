@@ -16,6 +16,7 @@ import {
   EvaluationCriterionScore,
   EvaluationConcept,
 } from '../../types';
+import { isDossierInactive } from '../../utils/dossierActive';
 import { SetupCard } from './form/SetupCard';
 import { Doc006Section } from './form/Doc006Section';
 import { ExtraPartsSection } from './form/ExtraPartsSection';
@@ -46,7 +47,9 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { allDossiers, activeUser, role, evaluationMethod, recordSupplierEvaluation } = useApp();
+  const { allDossiers: everyDossier, activeUser, role, evaluationMethod, recordSupplierEvaluation } = useApp();
+  // Un proveedor inactivo no se puede evaluar
+  const allDossiers = useMemo(() => everyDossier.filter((d) => !isDossierInactive(d)), [everyDossier]);
 
   const [selectedDossierId, setSelectedDossierId] = useState<string>(
     initialSupplier?.id || (allDossiers.length > 0 ? allDossiers[0].id : '')

@@ -239,7 +239,9 @@ export interface SupplierBasicInfo {
   department?: string;
   address?: string;
   website?: string;
-  
+  /** Proveedor inactivo: deja de verse en el Banco, las evaluaciones, los reportes y las gráficas; se puede reactivar. Vive aquí para guardarse sin cambiar la base de datos. */
+  inactive?: { at: string; by: string; reason?: string };
+
   // Natural
   fullName?: string;
   documentType?: 'CC' | 'CE' | 'PASAPORTE';
@@ -339,7 +341,7 @@ export interface SystemAuditEntry {
   fileNumber: string;
   user: string;
   userRole: UserRole | 'SYSTEM';
-  action: 'EDICION_CAMPO' | 'CAMBIO_ESTADO' | 'REVISION_DOCUMENTO' | 'VALIDACION_SARLAFT' | 'ALTA_PROVEEDOR' | 'CREACION_EXPEDIENTE' | 'PARAMETRIZACION_SISTEMA' | 'CREACION_REGISTRO' | 'ASIGNACION_REVISOR' | 'CALIFICACION_PROVEEDOR';
+  action: 'EDICION_CAMPO' | 'CAMBIO_ESTADO' | 'REVISION_DOCUMENTO' | 'VALIDACION_SARLAFT' | 'ALTA_PROVEEDOR' | 'CREACION_EXPEDIENTE' | 'PARAMETRIZACION_SISTEMA' | 'CREACION_REGISTRO' | 'ASIGNACION_REVISOR' | 'CALIFICACION_PROVEEDOR' | 'INACTIVACION_PROVEEDOR' | 'REACTIVACION_PROVEEDOR' | 'ELIMINACION_PROVEEDOR';
   section: string; // e.g. "Información General", "Información Bancaria", "Información Financiera", "Información Tributaria", "Conceptos y SARLAFT"
   fieldChanged: string; // e.g. "Razón Social", "NIT", "Entidad Bancaria", "Total Activos"
   oldValue: string;

@@ -33,6 +33,7 @@ import { EvaluationFormModal } from './EvaluationFormModal';
 import { EvaluationCertificateModal } from './EvaluationCertificateModal';
 import { EvaluationPdfModal } from './EvaluationPdfModal';
 import { parseLocalDate } from '../../utils/dateOnly';
+import { isDossierInactive } from '../../utils/dossierActive';
 import { useConfirm } from '../ui/ConfirmDialog';
 import { preloadPdfTools } from '../../utils/certificatePdf';
 import { EvaluationMethodConfigModal } from './EvaluationMethodConfigModal';
@@ -41,7 +42,7 @@ import { evaluationConceptLabel, evaluationMaxScore, evaluationPercent, isDoc006
 
 export const SupplierEvaluationsView: React.FC = () => {
   const {
-    allDossiers,
+    allDossiers: everyDossier,
     role,
     isReadOnly,
     activeUser,
@@ -54,6 +55,8 @@ export const SupplierEvaluationsView: React.FC = () => {
     deleteSupplierEvaluation,
     showToast,
   } = useApp();
+  // Un proveedor inactivo no se evalúa ni aparece aquí
+  const allDossiers = useMemo(() => everyDossier.filter((d) => !isDossierInactive(d)), [everyDossier]);
 
   // Active View Tab: 'matrix' (proveedores y sus estados 1/2) vs 'history' (todas las evaluaciones guardadas)
   const [activeTab, setActiveTab] = useState<'matrix' | 'history'>('matrix');

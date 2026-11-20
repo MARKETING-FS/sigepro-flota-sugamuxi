@@ -34,6 +34,8 @@ import {
   MapPin,
   Tag,
   UserCheck,
+  Power,
+  RotateCcw,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useConfirm } from './ui/ConfirmDialog';
@@ -88,6 +90,9 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     assignSupplierReviewer,
     isReadOnly,
     dossiers,
+    inactiveDossiers,
+    canManageProviders,
+    setSupplierInactive,
     approveDocument,
     requestDocumentCorrection,
     updateSupplierDocument,
@@ -104,7 +109,8 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
     clearReviewFocus,
   } = useApp();
 
-  const dossier = dossiers.find((d) => d.id === dossierId);
+  // Un proveedor inactivo no está en la lista general, pero se puede abrir para reactivarlo
+  const dossier = dossiers.find((d) => d.id === dossierId) || inactiveDossiers.find((d) => d.id === dossierId);
   const admins = systemUsers.filter((u) => u.shortName === 'Administrador');
 
   const getDocInstitutionalName = (docCode: string, fallbackName?: string) => {
@@ -517,6 +523,31 @@ export const InternalReviewDossierDetail: React.FC<Props> = ({ dossierId, onBack
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4 animate-in fade-in">
       
+      {dossier.basicInfo.inactive && (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-black/10 dark:border-white/15 bg-black/[0.04] dark:bg-white/[0.06] px-4 py-3 animate-fade-up">
+          <div className="flex items-start gap-3 min-w-0">
+            <span className="mt-0.5 grid place-items-center w-9 h-9 shrink-0 rounded-xl bg-[#3a5274]/15 text-[#3a5274] dark:text-slate-300">
+              <Power className="w-[18px] h-[18px]" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#0b1d3a] dark:text-white">Proveedor inactivo</p>
+              <p className="text-[13px] text-[#3a5274] dark:text-slate-400">
+                Desde {dossier.basicInfo.inactive.at} por {dossier.basicInfo.inactive.by}. No aparece en el Banco, las evaluaciones, los reportes ni las gráficas.
+              </p>
+            </div>
+          </div>
+          {canManageProviders && !isReadOnly && (
+            <button
+              type="button"
+              onClick={() => setSupplierInactive(dossier.id, false)}
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-gradient-action text-white text-sm font-semibold shadow-glow hover:brightness-110 cursor-pointer"
+            >
+              <RotateCcw className="w-4 h-4" /> Reactivar proveedor
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ENCABEZADO DEL EXPEDIENTE — banner de marca */}
       <section className="fs-hero relative overflow-hidden rounded-[28px] px-5 sm:px-8 pt-5 sm:pt-6 pb-5 text-white shadow-glow animate-fade-up">
         <BrandSwoosh className="absolute -right-16 -bottom-14 w-[48%] opacity-100" />
