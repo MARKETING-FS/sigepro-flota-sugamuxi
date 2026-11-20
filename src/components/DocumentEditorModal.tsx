@@ -121,7 +121,13 @@ export const DocumentEditorModal: React.FC<Props> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [expirationDate, setExpirationDate] = useState(showExpiration ? document.expirationDate || '' : '');
   const [notes, setNotes] = useState(document.notes || '');
-  const [justification, setJustification] = useState('Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.');
+  // Primer cargue: el documento aún no tenía archivo, no hay nada que justificar. La justificación se pide al modificar o reemplazar.
+  const isFirstLoad = !document.fileName;
+  const [justification, setJustification] = useState(
+    isFirstLoad
+      ? 'Cargue inicial del documento por el Revisor Técnico / Evaluador SIG.'
+      : 'Cargue y certificación documental realizada por el Revisor Técnico / Evaluador SIG.'
+  );
   const [hasFile, setHasFile] = useState(Boolean(document.fileName));
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -709,6 +715,11 @@ export const DocumentEditorModal: React.FC<Props> = ({
                     className="w-full px-3.5 h-11 rounded-xl border border-black/10 dark:border-white/10 text-[#0b1d3a] dark:text-white focus:ring-2 focus:ring-[#2c84c4]"
                   />
                 </div>
+                {isFirstLoad ? (
+                  <p className="text-[11px] text-[#3a5274] dark:text-slate-400">
+                    Este cargue quedará registrado con fecha, hora y firma de <strong>{reviewerName}</strong>.
+                  </p>
+                ) : (
                 <div className="rounded-2xl bg-[#2c84c4]/[0.07] border border-[#2c84c4]/25 p-4 space-y-2">
                   <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c84c4] dark:text-[#69bdd7]">
                     Justificación de la modificación <span className="text-red-500">*</span>
@@ -725,6 +736,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
                     Esta acción quedará registrada con fecha, hora y firma de <strong>{reviewerName}</strong>.
                   </p>
                 </div>
+                )}
               </div>
             </section>
 
