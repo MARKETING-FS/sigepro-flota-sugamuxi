@@ -34,7 +34,7 @@ export const BancoProveedoresView: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [tierFilter, setTierFilter] = useState<string>('ALL');
-  const [sarlaftFilter, setSarlaftFilter] = useState<string>('ALL');
+  const [stateFilter, setStateFilter] = useState<string>('ALL');
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   // El superadministrador ve TODOS los proveedores en la tabla (los inactivos, oscurecidos y marcados);
@@ -81,12 +81,12 @@ export const BancoProveedoresView: React.FC = () => {
       const matchesType = typeFilter === 'ALL' || d.basicInfo.supplierType === typeFilter;
       const effectiveTier = d.supplierTier || d.basicInfo?.supplierTier || 'B';
       const matchesTier = tierFilter === 'ALL' || effectiveTier === tierFilter;
-      const matchesSarlaft =
-        sarlaftFilter === 'ALL' || (d.internalConcepts?.sarlatfCheck?.result || 'PENDIENTE') === sarlaftFilter;
+      const matchesState =
+        stateFilter === 'ALL' || (stateFilter === 'INACTIVO' ? !!d.basicInfo.inactive : !d.basicInfo.inactive);
 
-      return matchesSearch && matchesCreation && matchesContract && matchesCategory && matchesType && matchesTier && matchesSarlaft;
+      return matchesSearch && matchesCreation && matchesContract && matchesCategory && matchesType && matchesTier && matchesState;
     });
-  }, [dossiers, searchTerm, creationStatusFilter, contractStatusFilter, categoryFilter, typeFilter, tierFilter, sarlaftFilter]);
+  }, [dossiers, searchTerm, creationStatusFilter, contractStatusFilter, categoryFilter, typeFilter, tierFilter, stateFilter]);
 
   // Paginación de 10 proveedores por página
   const ITEMS_PER_PAGE = 10;
@@ -95,7 +95,7 @@ export const BancoProveedoresView: React.FC = () => {
   // Reiniciar a la página 1 cuando se modifique cualquier filtro o término de búsqueda
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, creationStatusFilter, contractStatusFilter, categoryFilter, typeFilter, tierFilter, sarlaftFilter]);
+  }, [searchTerm, creationStatusFilter, contractStatusFilter, categoryFilter, typeFilter, tierFilter, stateFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredDossiers.length / ITEMS_PER_PAGE));
   const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
@@ -118,7 +118,7 @@ export const BancoProveedoresView: React.FC = () => {
     setCategoryFilter('ALL');
     setTypeFilter('ALL');
     setTierFilter('ALL');
-    setSarlaftFilter('ALL');
+    setStateFilter('ALL');
     clearHighlightedSupplier();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlightedSupplierId]);
@@ -163,7 +163,7 @@ export const BancoProveedoresView: React.FC = () => {
     return s === 'VIGENTE' || s === 'POR_VENCER';
   }).length;
 
-  const extraFilters = [typeFilter, sarlaftFilter].filter((v) => v !== 'ALL').length;
+  const extraFilters = [typeFilter, stateFilter].filter((v) => v !== 'ALL').length;
   const anyFilter =
     searchTerm || creationStatusFilter !== 'ALL' || contractStatusFilter !== 'ALL' || categoryFilter !== 'ALL' || tierFilter !== 'ALL' || extraFilters > 0;
 
@@ -174,7 +174,7 @@ export const BancoProveedoresView: React.FC = () => {
     setCategoryFilter('ALL');
     setTypeFilter('ALL');
     setTierFilter('ALL');
-    setSarlaftFilter('ALL');
+    setStateFilter('ALL');
   };
 
   const name = (d: SupplierDossier) => (d.basicInfo.supplierType === 'NATURAL' ? d.basicInfo.fullName : d.basicInfo.companyName) || 'este proveedor';
@@ -357,12 +357,14 @@ export const BancoProveedoresView: React.FC = () => {
                 <option value="JURIDICA">Persona jurídica</option>
                 <option value="NATURAL">Persona natural</option>
               </select>
-              <select className={`${inputCls} w-full sm:w-56`} value={sarlaftFilter} onChange={(e) => setSarlaftFilter(e.target.value)} aria-label="SARLAFT">
-                <option value="ALL">Todos los resultados SARLAFT</option>
-                <option value="SIN_COINCIDENCIAS">Sin coincidencias</option>
-                <option value="REQUIERE_VERIFICACION">Requiere verificación</option>
-                <option value="PENDIENTE">Pendiente</option>
-              </select>
+              {/* Solo el superadministrador ve inactivos en la tabla, así que solo a él le sirve este filtro */}
+              {isSuper && (
+                <select className={`${inputCls} w-full sm:w-56`} value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} aria-label="Activo o inactivo">
+                  <option value="ALL">Activos e inactivos</option>
+                  <option value="ACTIVO">Solo activos</option>
+                  <option value="INACTIVO">Solo inactivos</option>
+                </select>
+              )}
             </div>
           )}
         </div>
