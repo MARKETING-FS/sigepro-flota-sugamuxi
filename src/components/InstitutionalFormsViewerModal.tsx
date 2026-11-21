@@ -14,6 +14,7 @@ import {
 import { InstitutionalForm } from '../types';
 import { FlotaSugamuxiEmblem } from './FlotaSugamuxiLogo';
 import { getFormPdf } from '../utils/formPdf';
+import { isSafeFileUrl } from '../utils/secureFile';
 
 interface Props {
   form: InstitutionalForm | null;
@@ -64,7 +65,7 @@ export const InstitutionalFormsViewerModal: React.FC<Props> = ({
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     } catch {
-      window.open(pdf.url, '_blank', 'noopener');
+      if (isSafeFileUrl(pdf.url)) window.open(pdf.url, '_blank', 'noopener');
     }
   };
 

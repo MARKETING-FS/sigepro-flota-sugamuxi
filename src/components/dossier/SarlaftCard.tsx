@@ -4,7 +4,7 @@ import { SupplierDossier } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { supabaseService } from '../../services/supabaseService';
 import { storageService } from '../../services/storageService';
-import { resolveFileUrl } from '../../utils/secureFile';
+import { isSafeFileUrl, resolveFileUrl } from '../../utils/secureFile';
 
 const MAX_MB = 10;
 const sizeLabel = (bytes: number) =>
@@ -46,7 +46,7 @@ export const SarlaftCard: React.FC<Props> = ({ dossier, reviewerName, readOnly =
         const blob = await (await fetch(url)).blob();
         url = URL.createObjectURL(blob);
       }
-      if (!url) throw new Error('sin enlace');
+      if (!url || !isSafeFileUrl(url)) throw new Error('sin enlace');
       if (tab) {
         tab.opener = null;
         tab.location.href = url;

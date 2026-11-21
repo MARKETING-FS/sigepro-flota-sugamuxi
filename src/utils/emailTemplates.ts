@@ -1,5 +1,48 @@
 import { EmailNotification, EmailNotificationType, ProcessStatus, DocumentCorrection } from '../types';
 
+/** Convierte un texto en inofensivo para ponerlo dentro de HTML (evita inyección de etiquetas o scripts). */
+export const escapeHtml = (value: unknown): string =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+/** Inverso exacto de escapeHtml, para asunto y resumen, que son texto plano. */
+const unescapeHtml = (value: string): string =>
+  value
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&');
+
+type EmailData = Parameters<typeof generateEmailContent>[1];
+
+/** Todo lo que viene de personas se escapa antes de armar el HTML del correo. */
+const escapeData = (d: EmailData): EmailData => ({
+  ...d,
+  recipientName: escapeHtml(d.recipientName),
+  recipientEmail: escapeHtml(d.recipientEmail),
+  fileNumber: escapeHtml(d.fileNumber),
+  documentName: d.documentName === undefined ? undefined : escapeHtml(d.documentName),
+  reviewerNotes: d.reviewerNotes === undefined ? undefined : escapeHtml(d.reviewerNotes),
+  reviewerName: d.reviewerName === undefined ? undefined : escapeHtml(d.reviewerName),
+  rejectionReason: d.rejectionReason === undefined ? undefined : escapeHtml(d.rejectionReason),
+  verificationCode: d.verificationCode === undefined ? undefined : escapeHtml(d.verificationCode),
+  customSubject: d.customSubject === undefined ? undefined : escapeHtml(d.customSubject),
+  customBody: d.customBody === undefined ? undefined : escapeHtml(d.customBody),
+  correction: d.correction
+    ? {
+        ...d.correction,
+        sectionOrPage: escapeHtml(d.correction.sectionOrPage),
+        reason: escapeHtml(d.correction.reason),
+        detailedObservation: escapeHtml(d.correction.detailedObservation),
+      }
+    : d.correction,
+});
+
 export const generateEmailContent = (
   type: EmailNotificationType,
   data: {
@@ -34,7 +77,7 @@ export const generateEmailContent = (
     verificationCode,
     customSubject,
     customBody,
-  } = data;
+  } = escapeData(data);
 
   const nowFormatted = new Date().toLocaleString('es-CO', {
     timeZone: 'America/Bogota',
@@ -257,13 +300,18 @@ export const generateEmailContent = (
     }
   }
 
+  // El asunto y el resumen son texto plano (sin HTML ni saltos de línea); la etiqueta <title> sí va escapada
+  const titleHtml = subject;
+  subject = unescapeHtml(subject).replace(/[\r\n]+/g, ' ');
+  snippet = unescapeHtml(snippet).replace(/[\r\n]+/g, ' ');
+
   // Full Styled Institutional HTML Wrapper
   const fullHtml = `
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>${subject}</title>
+  <title>${titleHtml}</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 24px; color: #0f172a;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #cbd5e1; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">

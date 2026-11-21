@@ -26,6 +26,7 @@ import { calculateDocumentExpiration } from '../utils/contractValidity';
 import { getFormPdf } from '../utils/formPdf';
 import { BankAccountFields } from './dossier/BankAccountFields';
 import { BankData } from './dossier/bankData';
+import { isSafeFileUrl } from '../utils/secureFile';
 
 interface Props {
   isOpen: boolean;
@@ -106,7 +107,7 @@ export const DocumentEditorModal: React.FC<Props> = ({
       window.document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     } catch {
-      window.open(templatePdf.url, '_blank', 'noopener');
+      if (isSafeFileUrl(templatePdf.url)) window.open(templatePdf.url, '_blank', 'noopener');
     }
   };
 

@@ -8,13 +8,23 @@ const SIGNED_URL_SECONDS = 600;
 const PRIVATE_URL_RE = new RegExp(`/storage/v1/object/(?:public|sign|authenticated)/${PRIVATE_BUCKET}/([^?#]+)`);
 
 /**
+ * Solo se abren direcciones seguras: https, blob (archivos creados en este navegador) o PDF en datos.
+ * Así un enlace guardado con "javascript:" u otro esquema peligroso nunca se ejecuta.
+ */
+export function isSafeFileUrl(url?: string | null): boolean {
+  if (!url) return false;
+  const u = String(url).trim().toLowerCase();
+  return u.startsWith('https://') || u.startsWith('blob:') || u.startsWith('data:application/pdf') || u.startsWith('data:image/');
+}
+
+/**
  * Devuelve una dirección que el navegador sí puede abrir.
  * Los archivos del almacén privado se cambian por un enlace firmado de 10 minutos, que Supabase
  * solo entrega a un usuario con sesión; el resto de direcciones (plantillas, archivos locales) pasan igual.
  * Devuelve '' si no hay archivo o no hay permiso para verlo.
  */
 export async function resolveFileUrl(url?: string | null): Promise<string> {
-  if (!url) return '';
+  if (!url || !isSafeFileUrl(url)) return '';
   const match = url.match(PRIVATE_URL_RE);
   if (!match || !supabase) return url;
   const path = decodeURIComponent(match[1]);

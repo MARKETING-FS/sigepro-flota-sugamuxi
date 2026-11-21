@@ -16,6 +16,12 @@ import {
   FileText,
 } from 'lucide-react';
 
+/** Política propia del correo: nada de scripts ni conexiones; solo estilos propios e imágenes. */
+const EMAIL_FRAME_CSP = "default-src 'none'; img-src data: https:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'";
+
+const isolatedEmailHtml = (html: string): string =>
+  `<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${EMAIL_FRAME_CSP}"></head><body style="margin:0">${html || ''}</body></html>`;
+
 interface EmailModalViewerProps {
   email: EmailNotification | null;
   isOpen: boolean;
@@ -24,6 +30,7 @@ interface EmailModalViewerProps {
 
 export const EmailModalViewer: React.FC<EmailModalViewerProps> = ({ email, isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
+  const [frameHeight, setFrameHeight] = useState(480);
 
   if (!isOpen || !email) return null;
 
@@ -145,9 +152,21 @@ export const EmailModalViewer: React.FC<EmailModalViewerProps> = ({ email, isOpe
         {/* Rendered Institutional HTML Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-black/[0.04] dark:bg-white/[0.06]">
           <div className="bg-white rounded-xl shadow-xs border border-black/10 dark:border-white/10 p-4 sm:p-6 max-w-2xl mx-auto">
-            <div
-              className="email-body-content"
-              dangerouslySetInnerHTML={{ __html: email.bodyHtml }}
+            {/* El correo se muestra dentro de un marco aislado: sin scripts, sin formularios y sin acceso a la sesión */}
+            <iframe
+              title="Contenido del correo"
+              sandbox="allow-same-origin"
+              srcDoc={isolatedEmailHtml(email.bodyHtml)}
+              className="w-full border-0 block"
+              style={{ height: frameHeight }}
+              onLoad={(e) => {
+                try {
+                  const h = e.currentTarget.contentDocument?.documentElement?.scrollHeight;
+                  if (h) setFrameHeight(Math.min(Math.max(h + 8, 240), 4000));
+                } catch {
+                  /* se queda con la altura inicial */
+                }
+              }}
             />
           </div>
         </div>

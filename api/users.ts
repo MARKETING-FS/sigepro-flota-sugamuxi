@@ -27,11 +27,15 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 const ASSIGNABLE = new Set(['ADMINISTRADOR', 'USUARIO']);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAX_NAME = 120;
+const MAX_EMAIL = 254;
+const MAX_PASSWORD = 72;
 
 // La contraseña temporal la define el superadministrador sin reglas especiales (mínimo de Supabase: 6).
 // Las reglas de seguridad se exigen cuando la persona la cambia en su primer ingreso.
 const passwordProblem = (pw: string): string =>
-  pw.length < 6 ? 'La contraseña debe tener al menos 6 caracteres.' : '';
+  pw.length < 6 ? 'La contraseña debe tener al menos 6 caracteres.' : pw.length > MAX_PASSWORD ? 'La contraseña es demasiado larga.' : '';
 
 const adminFetch = (path: string, init: RequestInit = {}) =>
   fetch(`${SUPABASE_URL}/auth/v1${path}`, {
@@ -98,8 +102,8 @@ export default async function handler(req: Req, res: Res) {
       const name = String(body.name || '').trim();
       const password = String(body.password || '');
       const role = String(body.role || '').toUpperCase();
-      if (!name) return res.status(400).json({ error: 'Escriba el nombre completo.' });
-      if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'El correo no es válido.' });
+      if (!name || name.length > MAX_NAME) return res.status(400).json({ error: 'Escriba el nombre completo (máximo 120 caracteres).' });
+      if (!EMAIL_RE.test(email) || email.length > MAX_EMAIL) return res.status(400).json({ error: 'El correo no es válido.' });
       const pwProblem = passwordProblem(password);
       if (pwProblem) return res.status(400).json({ error: pwProblem });
       if (!ASSIGNABLE.has(role)) return res.status(400).json({ error: 'El rol debe ser Administrador o Usuario.' });
@@ -126,7 +130,7 @@ export default async function handler(req: Req, res: Res) {
     // 4. Cambiar rol o contraseña
     if (req.method === 'PATCH') {
       const id = String(body.id || '');
-      if (!id) return res.status(400).json({ error: 'Falta el usuario.' });
+      if (!UUID_RE.test(id)) return res.status(400).json({ error: 'Falta el usuario.' });
       if (id === caller.id) return res.status(400).json({ error: 'No puede modificar su propia cuenta desde aquí.' });
       const patch: Record<string, unknown> = {};
       const meta: Record<string, unknown> = {};
@@ -137,12 +141,12 @@ export default async function handler(req: Req, res: Res) {
       }
       if (body.name !== undefined) {
         const name = String(body.name).trim();
-        if (!name) return res.status(400).json({ error: 'Escriba el nombre completo.' });
+        if (!name || name.length > MAX_NAME) return res.status(400).json({ error: 'Escriba el nombre completo (máximo 120 caracteres).' });
         meta.full_name = name;
       }
       if (body.email !== undefined) {
         const email = String(body.email).trim().toLowerCase();
-        if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'El correo no es válido.' });
+        if (!EMAIL_RE.test(email) || email.length > MAX_EMAIL) return res.status(400).json({ error: 'El correo no es válido.' });
         patch.email = email;
         patch.email_confirm = true;
       }
@@ -168,7 +172,7 @@ export default async function handler(req: Req, res: Res) {
     // 5. Eliminar
     if (req.method === 'DELETE') {
       const id = String(body.id || '');
-      if (!id) return res.status(400).json({ error: 'Falta el usuario.' });
+      if (!UUID_RE.test(id)) return res.status(400).json({ error: 'Falta el usuario.' });
       if (id === caller.id) return res.status(400).json({ error: 'No puede eliminar su propia cuenta.' });
       const r = await adminFetch(`/admin/users/${encodeURIComponent(id)}`, { method: 'DELETE' });
       if (!r.ok) {
