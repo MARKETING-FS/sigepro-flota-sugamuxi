@@ -3,7 +3,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 /** Un punto de la gráfica de desempeño: la evaluación vigente de un proveedor activo */
 export interface SupplierScorePoint {
+  /** Identificador de la evaluación (un proveedor puede tener varios puntos) */
   id: string;
+  /** Si es la evaluación inicial o una anual */
+  kind: 'INICIAL' | 'ANUAL';
   /** Siglas del proveedor, para rotular el punto */
   sigla: string;
   name: string;
@@ -111,6 +114,7 @@ export const TrendChart: React.FC<{ data: SupplierScorePoint[] }> = ({ data }) =
                 {p.d.sigla}
               </text>
               <text x={p.px} y={H - B + 36} textAnchor="middle" fontSize="10.5" fill="currentColor" fillOpacity="0.5">{p.d.shortDate}</text>
+              <text x={p.px} y={H - B + 49} textAnchor="middle" fontSize="9.5" fontWeight="600" fill="#2c84c4" fillOpacity={p.d.kind === 'INICIAL' ? 0.9 : 0.55}>{p.d.kind === 'INICIAL' ? 'Inicial' : 'Anual'}</text>
             </g>
           ) : null
         )}

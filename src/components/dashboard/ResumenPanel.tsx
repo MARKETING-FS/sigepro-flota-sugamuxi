@@ -109,8 +109,8 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     // Puntaje promedio: la última evaluación de cada proveedor, en porcentaje (la inicial es sobre 120 y la anual sobre 100)
     const { avg, count: evaluatedCount } = averageCurrentScore(evalRows);
 
-    // Desempeño: un punto por proveedor activo, con su evaluación vigente (la anual más reciente o, si no tiene, la inicial).
-    // Si un proveedor se inactiva o se elimina, ya no está en `dossiers` y su punto desaparece.
+    // Desempeño: un punto por cada evaluación (la inicial y todas las anuales) de los proveedores que siguen en el banco.
+    // La pantalla las filtra por tipo. Si un proveedor se inactiva o se elimina, ya no está en `dossiers` y sus puntos desaparecen.
     const STOP = new Set(['de', 'del', 'la', 'las', 'los', 'el', 'y', 'e', 'sas', 'sa', 'ltda', 'cia', 'ese', 'eu']);
     const siglaOf = (name: string) => {
       const words = name
@@ -120,23 +120,36 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       const letters = words.length > 1 ? words.slice(0, 3).map((w) => w[0]).join('') : (words[0] || name).slice(0, 3);
       return letters.toUpperCase();
     };
-    const seen = new Map<string, number>();
+    const siglaByDossier = new Map<string, string>();
+    const usedSiglas = new Map<string, number>();
+    const siglaFor = (id: string, name: string) => {
+      const known = siglaByDossier.get(id);
+      if (known) return known;
+      const base = siglaOf(name);
+      const n = (usedSiglas.get(base) || 0) + 1;
+      usedSiglas.set(base, n);
+      const s = n > 1 ? `${base}${n}` : base;
+      siglaByDossier.set(id, s);
+      return s;
+    };
     const timeOfEval = (e: { evaluationDate: string; createdAt: string }) => (parseLocalDate(e.evaluationDate) || new Date(e.createdAt)).getTime() || 0;
     const trend: SupplierScorePoint[] = evalRows
       .filter((r) => r.dossier.processStatus !== 'RECHAZADO')
-      .map((r) => ({ r, e: currentEvaluation(r) }))
-      .filter((x): x is { r: (typeof evalRows)[number]; e: SupplierEvaluation } => !!x.e)
+      .flatMap((r) => {
+        const list: Array<{ r: (typeof evalRows)[number]; e: SupplierEvaluation; kind: 'INICIAL' | 'ANUAL' }> = [];
+        if (r.initialEval) list.push({ r, e: r.initialEval, kind: 'INICIAL' });
+        r.annualEvals.forEach((e) => list.push({ r, e, kind: 'ANUAL' }));
+        return list.filter((x, i) => list.findIndex((y) => y.e.id === x.e.id) === i);
+      })
       .sort((a, b) => timeOfEval(a.e) - timeOfEval(b.e))
-      .map(({ r, e }) => {
+      .map(({ r, e, kind }) => {
         const name = supplierName(r.dossier);
-        const base = siglaOf(name);
-        const n = (seen.get(base) || 0) + 1;
-        seen.set(base, n);
         const when = parseLocalDate(e.evaluationDate) || new Date(e.createdAt);
         const approved = evaluationConceptLabel(e) === 'Aprobado';
         return {
-          id: r.dossier.id,
-          sigla: n > 1 ? `${base}${n}` : base,
+          id: e.id,
+          kind,
+          sigla: siglaFor(r.dossier.id, name),
           name,
           value: evaluationPercent(e),
           scoreText: formatEvaluationScore(e),
@@ -198,6 +211,10 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
   // (la inicial es sobre 120 y la anual sobre 100). No cuentan los rechazados. Si hay empate gana la más reciente.
   const [rankOwner, setRankOwner] = useState<string>('ALL');
   const [rankType, setRankType] = useState<'INICIAL' | 'ANUAL'>('INICIAL');
+  // Gráfica de desempeño: todas las evaluaciones o solo las iniciales / solo las anuales
+  const [trendKind, setTrendKind] = useState<'ALL' | 'INICIAL' | 'ANUAL'>('ALL');
+  const trendShown = trendKind === 'ALL' ? stats.trend : stats.trend.filter((p) => p.kind === trendKind);
+  const trendAvg = trendShown.length ? trendShown.reduce((a, p) => a + p.value, 0) / trendShown.length : null;
   const buildRanking = (type: 'INICIAL' | 'ANUAL') => dossiers
     .filter((d) => d.processStatus !== 'RECHAZADO')
     .map((d) => {
@@ -269,10 +286,26 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       </div>
 
       <div className="grid gap-6 grid-cols-1 xl:grid-cols-12 [&>*]:min-w-0">
-        <Panel title="Desempeño de proveedores" aside={stats.avg !== null ? `Promedio ${stats.avg.toFixed(1).replace('.', ',')} %` : 'Sin calificaciones'} className="xl:col-span-8">
-          <div className="text-[#0b1d3a] dark:text-slate-200"><TrendChart data={stats.trend} /></div>
+        <Panel title="Desempeño de proveedores" aside={trendAvg !== null ? `Promedio ${trendAvg.toFixed(1).replace('.', ',')} % · ${plural(trendShown.length, 'evaluación', 'evaluaciones')}` : 'Sin calificaciones'} className="xl:col-span-8">
+          <div role="tablist" aria-label="Tipo de evaluación de la gráfica" className="inline-flex rounded-xl bg-[#e3eaf3] dark:bg-white/10 p-1">
+            {([['ALL', 'Todas', stats.trend.length], ['INICIAL', 'Evaluación inicial', stats.trend.filter((p) => p.kind === 'INICIAL').length], ['ANUAL', 'Evaluación anual', stats.trend.filter((p) => p.kind === 'ANUAL').length]] as const).map(([k, label, n]) => (
+              <button
+                key={k}
+                type="button"
+                role="tab"
+                aria-selected={trendKind === k}
+                onClick={() => setTrendKind(k)}
+                className={`h-9 px-3.5 rounded-lg text-sm font-semibold cursor-pointer transition-colors ${
+                  trendKind === k ? 'bg-gradient-action text-white shadow-glow' : 'text-[#3a5274] dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10'
+                }`}
+              >
+                {label} <span className="opacity-75 tabular-nums">({n})</span>
+              </button>
+            ))}
+          </div>
+          <div className="text-[#0b1d3a] dark:text-slate-200"><TrendChart data={trendShown} /></div>
           <p className="text-[12px] text-[#3a5274] dark:text-slate-400">
-            Cada punto es un proveedor activo con su evaluación vigente, ordenados por fecha. Los números son el porcentaje de la nota máxima (la evaluación inicial se califica sobre 120 puntos y la anual sobre 100; en porcentaje se pueden comparar). Pasa el cursor por un punto para ver los puntos exactos y el detalle.
+            Cada punto es una evaluación de un proveedor (abajo se indica si es la inicial o una anual), ordenadas por fecha. Los números son el porcentaje de la nota máxima (la evaluación inicial se califica sobre 120 puntos y la anual sobre 100; en porcentaje se pueden comparar). Pasa el cursor por un punto para ver los puntos exactos y el detalle.
           </p>
         </Panel>
         <Panel title="Clasificación actual" aside="último puntaje de cada proveedor" className="xl:col-span-4">
