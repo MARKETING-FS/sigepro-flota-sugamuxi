@@ -27,7 +27,7 @@ const GRADE_NAME: Record<'A' | 'B' | 'C', string> = { A: 'Excelente', B: 'Acepta
 export const TrendChart: React.FC<{ data: SupplierScorePoint[] }> = ({ data }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const W = 720, H = 280, L = 40, R = 28, T = 26, B = 56;
+  const W = 720, H = 280, L = 48, R = 28, T = 26, B = 56;
 
   if (data.length === 0) {
     return (
@@ -85,7 +85,7 @@ export const TrendChart: React.FC<{ data: SupplierScorePoint[] }> = ({ data }) =
         {ticks.map((t) => (
           <g key={t}>
             <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} stroke="currentColor" strokeOpacity="0.12" strokeDasharray="4 4" />
-            <text x={L - 8} y={y(t) + 4} textAnchor="end" fontSize="11" fill="currentColor" fillOpacity="0.55">{t}</text>
+            <text x={L - 8} y={y(t) + 4} textAnchor="end" fontSize="11" fill="currentColor" fillOpacity="0.55">{t} %</text>
           </g>
         ))}
         {/* Guía vertical del punto activo */}
@@ -137,7 +137,7 @@ export const TrendChart: React.FC<{ data: SupplierScorePoint[] }> = ({ data }) =
               <circle cx={p.px} cy={p.py} r={isActive ? 7 : 5.5} fill={isActive ? color : 'var(--nd-card)'} stroke={color} strokeWidth="2.5" style={{ transition: 'r 140ms ease-out' }} />
               {data.length <= 10 && !isActive && (
                 <text x={p.px} y={p.py - 13} textAnchor="middle" fontSize="11" fontWeight="600" fill="currentColor" fillOpacity="0.8" style={{ pointerEvents: 'none' }}>
-                  {p.d.scoreText.replace(' / ', '/')}
+                  {String(Math.round(p.d.value))} %
                 </text>
               )}
             </g>
@@ -163,10 +163,10 @@ export const TrendChart: React.FC<{ data: SupplierScorePoint[] }> = ({ data }) =
           <div className="mt-3 flex items-end justify-between gap-2">
             <div>
               <div className="font-display text-[28px] leading-none font-bold tabular-nums text-[#0b1d3a] dark:text-white">
-                {active.d.scoreText.replace(' / ', '/')}
-                <span className="text-[13px] font-semibold text-[#5d7392] dark:text-slate-400"> puntos</span>
+                {String(Math.round(active.d.value * 10) / 10).replace('.', ',')}
+                <span className="text-[13px] font-semibold text-[#5d7392] dark:text-slate-400"> %</span>
               </div>
-              <div className="mt-1 text-[11.5px] tabular-nums text-[#5d7392] dark:text-slate-400">equivale al {String(Math.round(active.d.value * 10) / 10).replace('.', ',')} % de la nota máxima</div>
+              <div className="mt-1 text-[11.5px] tabular-nums text-[#5d7392] dark:text-slate-400">{active.d.scoreText} puntos</div>
             </div>
             <div className="flex flex-col items-end gap-1">
               <span
@@ -227,9 +227,9 @@ export const BarList: React.FC<{ items: Array<{ label: string; value: number }> 
 export const GradeBars: React.FC<{ grades: { A: number; B: number; C: number } }> = ({ grades }) => {
   const total = grades.A + grades.B + grades.C || 1;
   const rows = [
-    { k: 'A' as const, label: 'Excelente', range: '85–100', bar: 'from-[#2c84c4] to-[#69bdd7]' },
-    { k: 'B' as const, label: 'Aceptable', range: '70–84', bar: 'from-[#69bdd7] to-[#69bdd7]/60' },
-    { k: 'C' as const, label: 'Crítico', range: 'menos de 70', bar: 'from-red-500 to-red-400/60' },
+    { k: 'A' as const, label: 'Excelente', range: 'Aprobado, 85 % o más de la nota máxima', bar: 'from-[#2c84c4] to-[#69bdd7]' },
+    { k: 'B' as const, label: 'Aceptable', range: 'Aprobado, por debajo del 85 %', bar: 'from-[#69bdd7] to-[#69bdd7]/60' },
+    { k: 'C' as const, label: 'Crítico', range: 'No aprobado (la inicial exige 76 de 120)', bar: 'from-red-500 to-red-400/60' },
   ];
   return (
     <div className="space-y-4">
@@ -239,7 +239,7 @@ export const GradeBars: React.FC<{ grades: { A: number; B: number; C: number } }
             <span className="flex w-9 h-9 items-center justify-center rounded-xl bg-[#e3eaf3] dark:bg-white/10 font-display text-lg font-semibold text-[#0b1d3a] dark:text-white">{g.k}</span>
             <div className="flex-1">
               <p className="text-sm font-medium text-[#0b1d3a] dark:text-white">{g.label}</p>
-              <p className="text-xs text-[#3a5274] dark:text-slate-400">{g.range} puntos</p>
+              <p className="text-xs text-[#3a5274] dark:text-slate-400">{g.range}</p>
             </div>
             <span className="font-display text-xl font-semibold text-[#0b1d3a] dark:text-white">{grades[g.k]}</span>
           </div>

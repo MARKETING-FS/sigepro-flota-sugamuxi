@@ -193,14 +193,16 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
   const unassigned = dossiers.filter((d) => !ownerOf(d)).length;
   const maxLoad = Math.max(1, unassigned, ...reviewers.map((r) => r.count));
 
-  // Ranking: la última evaluación de cada proveedor llevada a porcentaje (la inicial es sobre 120 y la anual sobre 100).
-  // No cuentan los rechazados. Si hay empate gana la evaluación más reciente.
+  // Ranking: dos listas aparte para comparar peras con peras. La de evaluación inicial pone a todos los proveedores
+  // con su primera evaluación; la anual, con su evaluación anual más reciente. Cada una va en porcentaje
+  // (la inicial es sobre 120 y la anual sobre 100). No cuentan los rechazados. Si hay empate gana la más reciente.
   const [rankOwner, setRankOwner] = useState<string>('ALL');
-  const rankedAll = dossiers
+  const [rankType, setRankType] = useState<'INICIAL' | 'ANUAL'>('INICIAL');
+  const buildRanking = (type: 'INICIAL' | 'ANUAL') => dossiers
     .filter((d) => d.processStatus !== 'RECHAZADO')
     .map((d) => {
       const row = buildEvaluationRow(d);
-      const e = row.latestAnnualEval || row.initialEval;
+      const e = type === 'INICIAL' ? row.initialEval : row.latestAnnualEval;
       if (!e) return null;
       const owner = ownerOf(d);
       return {
@@ -218,6 +220,9 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     })
     .filter((x): x is NonNullable<typeof x> => !!x)
     .sort((a, b) => b.score - a.score || b.time - a.time || a.name.localeCompare(b.name));
+  const rankingInicial = buildRanking('INICIAL');
+  const rankingAnual = buildRanking('ANUAL');
+  const rankedAll = rankType === 'INICIAL' ? rankingInicial : rankingAnual;
   const isSuper = accountRole === 'SUPERADMIN';
   const rankShown =
     isSuper && rankOwner !== 'ALL' ? rankedAll.filter((x) => (rankOwner === 'NONE' ? !x.ownerId : x.ownerId === rankOwner)) : rankedAll;
@@ -267,7 +272,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         <Panel title="Desempeño de proveedores" aside={stats.avg !== null ? `Promedio ${stats.avg.toFixed(1).replace('.', ',')} %` : 'Sin calificaciones'} className="xl:col-span-8">
           <div className="text-[#0b1d3a] dark:text-slate-200"><TrendChart data={stats.trend} /></div>
           <p className="text-[12px] text-[#3a5274] dark:text-slate-400">
-            Cada punto es un proveedor activo con su evaluación vigente, ordenados por fecha. El número sobre el punto son los puntos obtenidos sobre el máximo (la inicial es sobre 120 y la anual sobre 100); la altura y el promedio se miden en porcentaje para poder compararlas. Pasa el cursor por un punto para ver el detalle.
+            Cada punto es un proveedor activo con su evaluación vigente, ordenados por fecha. Los números son el porcentaje de la nota máxima (la evaluación inicial se califica sobre 120 puntos y la anual sobre 100; en porcentaje se pueden comparar). Pasa el cursor por un punto para ver los puntos exactos y el detalle.
           </p>
         </Panel>
         <Panel title="Clasificación actual" aside="último puntaje de cada proveedor" className="xl:col-span-4">
@@ -355,14 +360,31 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         </div>
       </div>
 
-      {rankedAll.length > 0 && (
+      {(rankingInicial.length > 0 || rankingAnual.length > 0) && (
         <section className="space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h3 className="font-display text-lg font-semibold text-fs-navy dark:text-white">Ranking de proveedores</h3>
               <p className="text-[13px] text-[#3a5274] dark:text-slate-400">
-                {isSuper ? 'Los mejor evaluados entre todos los administradores' : 'Los mejor evaluados de su cartera'} · según la última evaluación de cada proveedor, en porcentaje
+                {isSuper ? 'Los mejor evaluados entre todos los administradores' : 'Los mejor evaluados de su cartera'} · {rankType === 'INICIAL' ? 'según la evaluación inicial de cada proveedor' : 'según la evaluación anual más reciente de cada proveedor'}, en porcentaje
               </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+            <div role="tablist" aria-label="Tipo de evaluación del ranking" className="inline-flex rounded-xl bg-[#e3eaf3] dark:bg-white/10 p-1">
+              {([['INICIAL', 'Evaluación inicial', rankingInicial.length], ['ANUAL', 'Evaluación anual', rankingAnual.length]] as const).map(([k, label, n]) => (
+                <button
+                  key={k}
+                  type="button"
+                  role="tab"
+                  aria-selected={rankType === k}
+                  onClick={() => setRankType(k)}
+                  className={`h-9 px-4 rounded-lg text-sm font-semibold cursor-pointer transition-colors ${
+                    rankType === k ? 'bg-gradient-action text-white shadow-glow' : 'text-[#3a5274] dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10'
+                  }`}
+                >
+                  {label} <span className="opacity-75 tabular-nums">({n})</span>
+                </button>
+              ))}
             </div>
             {isSuper && (
               <select
@@ -380,10 +402,19 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
                 <option value="NONE">Sin administrador asignado</option>
               </select>
             )}
+            </div>
           </div>
 
           {rankTop.length === 0 ? (
-            <div className="fs-card rounded-2xl p-8 text-center text-sm text-[#3a5274] dark:text-slate-400">Este administrador todavía no tiene proveedores evaluados.</div>
+            <div className="fs-card rounded-2xl p-8 text-center text-sm text-[#3a5274] dark:text-slate-400">
+              {rankedAll.length === 0
+                ? rankType === 'ANUAL'
+                  ? 'Todavía ningún proveedor tiene una evaluación anual.'
+                  : 'Todavía ningún proveedor tiene una evaluación inicial.'
+                : rankType === 'ANUAL'
+                  ? 'Este administrador todavía no tiene proveedores con evaluación anual.'
+                  : 'Este administrador todavía no tiene proveedores con evaluación inicial.'}
+            </div>
           ) : (
             <>
               <Podium
