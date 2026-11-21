@@ -64,6 +64,28 @@ const dueLabel = (days: number) =>
     ? 'Vence hoy'
     : `En ${days} d`;
 
+/** Selector corto de dos o tres opciones (por ejemplo Inicial / Anual) */
+function SegTabs<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: Array<{ key: T; label: string }>; label: string }) {
+  return (
+    <div role="tablist" aria-label={label} className="inline-flex rounded-xl bg-[#e3eaf3] dark:bg-white/10 p-1">
+      {options.map((o) => (
+        <button
+          key={o.key}
+          type="button"
+          role="tab"
+          aria-selected={value === o.key}
+          onClick={() => onChange(o.key)}
+          className={`h-8 px-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+            value === o.key ? 'bg-gradient-action text-white shadow-glow' : 'text-[#3a5274] dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10'
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegister, tabs, scopeLabel, dateLabel }) => {
   const { role, accountRole, isReadOnly, activeUser, currentDossierId, systemAuditLogs, systemUsers, authProfile, openSupplierReview, openSupplierEvaluation, setActiveView, getRequiredDocumentsForSupplier } = useApp();
 
@@ -164,12 +186,26 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         };
       });
     // Clasificación por último puntaje
-    const grades = { A: 0, B: 0, C: 0 };
-    evalRows.forEach((r) => {
-      const e = r.latestAnnualEval || r.initialEval;
-      if (!e) return;
-      grades[evaluationGrade(e)]++;
-    });
+    const tally = (list: Array<SupplierEvaluation | null | undefined>) => {
+      const g = { A: 0, B: 0, C: 0 };
+      list.forEach((e) => {
+        if (e) g[evaluationGrade(e)]++;
+      });
+      return g;
+    };
+    const grades = tally(evalRows.map((r) => r.latestAnnualEval || r.initialEval));
+    const gradesInicial = tally(evalRows.map((r) => r.initialEval));
+    const gradesAnual = tally(evalRows.map((r) => r.latestAnnualEval));
+    const avgOf = (list: Array<SupplierEvaluation | null | undefined>) => {
+      const v = list.filter((e): e is SupplierEvaluation => !!e).map((e) => evaluationPercent(e));
+      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+    };
+    const live = evalRows.filter((r) => r.dossier.processStatus !== 'RECHAZADO');
+    const avgInicial = avgOf(live.map((r) => r.initialEval));
+    const avgAnual = avgOf(live.map((r) => r.latestAnnualEval));
+    // Evaluación anual: los proveedores habilitados que todavía no tienen ninguna
+    const annualDue = evalRows.filter((r) => r.isSupplierActive && !r.latestAnnualEval);
+    const annualDone = live.filter((r) => r.latestAnnualEval).length;
     const catMap = new Map<string, number>();
     dossiers.forEach((d) => {
       const c = d.selectedCategory || 'Sin categoría';
@@ -180,6 +216,12 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     return {
       trend,
       grades,
+      gradesInicial,
+      gradesAnual,
+      avgInicial,
+      avgAnual,
+      annualDue,
+      annualDone,
       byCat,
       stageCounts,
       due: due.filter((x) => x.days <= HORIZON_DAYS),
@@ -213,6 +255,13 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
   const [rankType, setRankType] = useState<'INICIAL' | 'ANUAL'>('INICIAL');
   // Gráfica de desempeño: todas las evaluaciones o solo las iniciales / solo las anuales
   const [trendKind, setTrendKind] = useState<'ALL' | 'INICIAL' | 'ANUAL'>('ALL');
+  // Clasificación actual: última evaluación de cada proveedor, o solo las iniciales, o solo las anuales
+  const [gradeKind, setGradeKind] = useState<'ULTIMA' | 'INICIAL' | 'ANUAL'>('ULTIMA');
+  const gradesShown = gradeKind === 'INICIAL' ? stats.gradesInicial : gradeKind === 'ANUAL' ? stats.gradesAnual : stats.grades;
+  // Panel de Evaluaciones: la inicial o la anual
+  const [evalKind, setEvalKind] = useState<'INICIAL' | 'ANUAL'>('INICIAL');
+  const dueRows = evalKind === 'INICIAL' ? stats.evalDue : stats.annualDue;
+  const evalAvg = evalKind === 'INICIAL' ? stats.avgInicial : stats.avgAnual;
   const trendShown = trendKind === 'ALL' ? stats.trend : stats.trend.filter((p) => p.kind === trendKind);
   const trendAvg = trendShown.length ? trendShown.reduce((a, p) => a + p.value, 0) / trendShown.length : null;
   const buildRanking = (type: 'INICIAL' | 'ANUAL') => dossiers
@@ -308,8 +357,22 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
             Cada punto es una evaluación de un proveedor (abajo se indica si es la inicial o una anual), ordenadas por fecha. Los números son el porcentaje de la nota máxima (la evaluación inicial se califica sobre 120 puntos y la anual sobre 100; en porcentaje se pueden comparar). Pasa el cursor por un punto para ver los puntos exactos y el detalle.
           </p>
         </Panel>
-        <Panel title="Clasificación actual" aside="último puntaje de cada proveedor" className="xl:col-span-4">
-          <div className="pt-2"><GradeBars grades={stats.grades} /></div>
+        <Panel
+          title="Clasificación actual"
+          aside={gradeKind === 'INICIAL' ? 'evaluación inicial de cada proveedor' : gradeKind === 'ANUAL' ? 'última evaluación anual de cada proveedor' : 'último puntaje de cada proveedor'}
+          className="xl:col-span-4"
+        >
+          <SegTabs<'ULTIMA' | 'INICIAL' | 'ANUAL'>
+            label="Tipo de evaluación de la clasificación"
+            value={gradeKind}
+            onChange={setGradeKind}
+            options={[
+              { key: 'ULTIMA', label: 'Última' },
+              { key: 'INICIAL', label: 'Inicial' },
+              { key: 'ANUAL', label: 'Anual' },
+            ]}
+          />
+          <div className="pt-2"><GradeBars grades={gradesShown} /></div>
         </Panel>
       </div>
 
@@ -331,21 +394,30 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
         <div className={`grid gap-6 grid-cols-1 items-start ${accountRole === 'SUPERADMIN' ? 'xl:grid-cols-2' : ''}`}>
           <Panel
             title="Evaluaciones"
-            aside={stats.avg !== null ? `Promedio ${stats.avg.toFixed(1).replace('.', ',')} / 100` : 'Sin calificaciones'}
+            aside={evalAvg !== null ? `Promedio ${evalAvg.toFixed(1).replace('.', ',')} %` : 'Sin calificaciones'}
           >
+            <SegTabs<'INICIAL' | 'ANUAL'>
+              label="Tipo de evaluación"
+              value={evalKind}
+              onChange={setEvalKind}
+              options={[
+                { key: 'INICIAL', label: 'Evaluación inicial' },
+                { key: 'ANUAL', label: 'Evaluación anual' },
+              ]}
+            />
             <div className="grid grid-cols-2 gap-4 py-2">
               <div>
-                <div className="text-3xl font-bold tabular-nums text-fs-navy dark:text-white">{stats.evalUpToDate}</div>
-                <div className="text-[13px] text-[#3a5274]">con evaluación</div>
+                <div className="text-3xl font-bold tabular-nums text-fs-navy dark:text-white">{evalKind === 'INICIAL' ? stats.evalUpToDate : stats.annualDone}</div>
+                <div className="text-[13px] text-[#3a5274]">{evalKind === 'INICIAL' ? 'con evaluación inicial' : 'con evaluación anual'}</div>
               </div>
               <div>
-                <div className={`text-3xl font-bold tabular-nums ${stats.evalDue.length ? 'text-fs-warn' : 'text-fs-navy dark:text-white'}`}>
-                  {stats.evalDue.length}
+                <div className={`text-3xl font-bold tabular-nums ${dueRows.length ? 'text-fs-warn' : 'text-fs-navy dark:text-white'}`}>
+                  {dueRows.length}
                 </div>
-                <div className="text-[13px] text-[#3a5274]">por calificar</div>
+                <div className="text-[13px] text-[#3a5274]">{evalKind === 'INICIAL' ? 'por calificar' : 'habilitados sin evaluación anual'}</div>
               </div>
             </div>
-            {stats.evalDue.slice(0, 3).map((r) => (
+            {dueRows.slice(0, 3).map((r) => (
               <button
                 key={r.dossier.id}
                 type="button"
@@ -354,7 +426,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
                 className="w-full flex items-center justify-between gap-3 py-2 border-t border-[#edf1f6] dark:border-slate-800 text-left text-sm hover:text-fs-blue cursor-pointer"
               >
                 <span className="truncate text-fs-navy dark:text-slate-200">{supplierName(r.dossier)}</span>
-                <span className="text-xs text-fs-muted whitespace-nowrap">Inicial</span>
+                <span className="text-xs text-fs-muted whitespace-nowrap">{evalKind === 'INICIAL' ? 'Inicial' : 'Anual'}</span>
               </button>
             ))}
             <button
