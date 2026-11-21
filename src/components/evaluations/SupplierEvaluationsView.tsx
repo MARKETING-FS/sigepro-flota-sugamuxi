@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle } from 'lucide-react';
+import { Search, Sliders, Printer, Trash2, FileSpreadsheet, Star, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   SupplierDossier,
@@ -295,6 +295,12 @@ export const SupplierEvaluationsView: React.FC = () => {
 
   // Pestañas: lo que toca calificar primero, luego todos y el historial
   const [view, setView] = useState<'due' | 'all' | 'history'>('all');
+  // Las listas se muestran por páginas: con cientos de proveedores dibujarlas completas congela el navegador
+  const EVAL_PAGE_SIZE = 25;
+  const [evalPage, setEvalPage] = useState(1);
+  React.useEffect(() => {
+    setEvalPage(1);
+  }, [view, searchTerm, tierFilter, selectedEvaluatorId]);
   const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
 
   // Mientras se mira la lista, se deja lista la librería del PDF para que el acta abra de una vez
@@ -326,6 +332,32 @@ export const SupplierEvaluationsView: React.FC = () => {
   const dueRows = filteredRows.filter(isDueRow);
   const dueTotal = supplierEvaluationRows.filter(isDueRow).length;
   const tableRows = view === 'due' ? dueRows : filteredRows;
+
+  const listTotal = view === 'history' ? filteredEvaluations.length : tableRows.length;
+  const evalPages = Math.max(1, Math.ceil(listTotal / EVAL_PAGE_SIZE));
+  const safeEvalPage = Math.min(Math.max(1, evalPage), evalPages);
+  const pageFrom = (safeEvalPage - 1) * EVAL_PAGE_SIZE;
+  const pageTo = Math.min(pageFrom + EVAL_PAGE_SIZE, listTotal);
+  const pagedRows = tableRows.slice(pageFrom, pageTo);
+  const pagedEvaluations = filteredEvaluations.slice(pageFrom, pageTo);
+  const evalFooter = (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[#e8eef5] dark:border-slate-800 text-sm text-fs-muted">
+      <span>{listTotal === 0 ? 'Sin resultados' : `${pageFrom + 1} a ${pageTo} de ${listTotal}`}</span>
+      {evalPages > 1 && (
+        <div className="flex items-center gap-1">
+          <button type="button" className={`${secondaryBtn} h-8 px-2.5`} disabled={safeEvalPage === 1} onClick={() => setEvalPage(safeEvalPage - 1)}>
+            <ChevronLeft className="w-4 h-4" /> Anterior
+          </button>
+          <span className="px-3 tabular-nums">
+            Página {safeEvalPage} de {evalPages}
+          </span>
+          <button type="button" className={`${secondaryBtn} h-8 px-2.5`} disabled={safeEvalPage === evalPages} onClick={() => setEvalPage(safeEvalPage + 1)}>
+            Siguiente <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   const fmtDate = (value?: string | Date) => {
     if (!value) return '—';
@@ -445,7 +477,7 @@ export const SupplierEvaluationsView: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                tableRows.map((r) => {
+                pagedRows.map((r) => {
                   const { dossier, initialEval, latestAnnualEval } = r;
                   const needsInitial = !initialEval;
                   return (
@@ -525,6 +557,7 @@ export const SupplierEvaluationsView: React.FC = () => {
               )}
             </tbody>
           </table>
+          {evalFooter}
         </section>
       ) : (
         <section className={`${cardCls} overflow-x-auto`}>
@@ -547,7 +580,7 @@ export const SupplierEvaluationsView: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredEvaluations.map((ev) => (
+                pagedEvaluations.map((ev) => (
                   <tr key={ev.id} className={rowCls}>
                     <td className="py-3.5 px-4 min-w-[240px]">
                       <div className="text-[15px] font-bold text-[#0b1d3a] dark:text-white">{ev.supplierName}</div>
@@ -591,6 +624,7 @@ export const SupplierEvaluationsView: React.FC = () => {
               )}
             </tbody>
           </table>
+          {evalFooter}
         </section>
       )}
       </PageBody>

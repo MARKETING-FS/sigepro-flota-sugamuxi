@@ -5,6 +5,7 @@ import { SupplierEvaluation } from '../../types';
 import { DOC006_CODE, DOC006_VERSION, doc006TotalMax, normalizeInitialCriteria, resolveInitialPassing } from '../../data/evaluationDoc006';
 import { buildEvaluationPdf, evaluationPdfFileName } from '../../utils/evaluationPdf';
 import { downloadBlob, imageToDataUrl } from '../../utils/certificatePdf';
+import { supabaseService } from '../../services/supabaseService';
 
 interface EvaluationPdfModalProps {
   evaluation: SupplierEvaluation | null;
@@ -67,6 +68,9 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
           .filter((c) => !known.has(c.criterionId))
           .map((c) => ({ name: c.criterionName, points: c.score ?? 0, max: c.maxScore ?? 0, notes: c.notes || '' }));
 
+        // La lista de evaluaciones no trae la firma (pesa mucho): se pide solo para esta acta
+        const signatureDataUrl = evaluation.evaluatorSignature || (await supabaseService.getEvaluationSignature(evaluation.id));
+        if (cancelled) return;
         const logoDataUrl = await imageToDataUrl('/logo-flota.png');
         const blob = await buildEvaluationPdf({
           date: evaluation.evaluationDate,
@@ -87,7 +91,7 @@ export const EvaluationPdfModal: React.FC<EvaluationPdfModalProps> = ({ evaluati
           evaluatorName: evaluation.evaluatorName || '',
           evaluatorPosition: evaluation.evaluatorRole || '',
           logoDataUrl,
-          signatureDataUrl: evaluation.evaluatorSignature,
+          signatureDataUrl,
         });
         if (cancelled) return;
         blobRef.current = blob;

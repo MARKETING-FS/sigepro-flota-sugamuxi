@@ -210,6 +210,42 @@ const buildEvaluations = (dossiers: SupplierDossier[]): SupplierEvaluation[] => 
 export function buildDemoData(): { dossiers: SupplierDossier[]; evaluations: SupplierEvaluation[] } {
   const dossiers = buildDossiers();
   const evaluations = buildEvaluations(dossiers);
+  // Prueba de carga: abrir la app con ?demoN=1200 multiplica los proveedores de ejemplo
+  let target = 0;
+  try {
+    target = Math.min(5000, Number(new URLSearchParams(window.location.search).get('demoN')) || 0);
+  } catch {
+    target = 0;
+  }
+  const base = dossiers.length;
+  for (let k = base; k < target; k++) {
+    const src = dossiers[k % base];
+    const seq = String(k + 1).padStart(6, '0');
+    const name = (src.basicInfo.companyName || src.basicInfo.fullName || 'Proveedor') + ' ' + (k + 1);
+    const documents: SupplierDossier['documents'] = {};
+    Object.values(src.documents).forEach((d: any) => {
+      documents[d.code] = { ...d, id: 'demo-doc-' + k + '-' + d.code };
+    });
+    dossiers.push({
+      ...src,
+      id: 'demo-' + seq,
+      fileNumber: 'FS-PROV-2026-' + seq,
+      basicInfo: {
+        ...src.basicInfo,
+        ...(src.basicInfo.companyName ? { companyName: name } : { fullName: name }),
+        email: 'contacto' + (k + 1) + '@proveedor-demo.co',
+        ...(src.basicInfo.nit ? { nit: String(900000000 + k) } : { documentNumber: String(1000000000 + k) }),
+      },
+      documents,
+      assignedReviewerId: ['revisor-1', 'revisor-2', 'revisor-3'][k % 3],
+      assignedReviewerName: REVIEWERS[['revisor-1', 'revisor-2', 'revisor-3'][k % 3]],
+      createdAt: stamp(-((k * 7) % 400)),
+    } as SupplierDossier);
+    if (k % 2 === 0) {
+      const e = evaluations[k % evaluations.length];
+      evaluations.push({ ...e, id: 'demo-eval-x' + k, dossierId: 'demo-' + seq, supplierName: name, fileNumber: 'FS-PROV-2026-' + seq });
+    }
+  }
   // Las pantallas leen las evaluaciones desde cada expediente
   evaluations.forEach((ev) => {
     const d = dossiers.find((x) => x.id === ev.dossierId);

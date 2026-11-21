@@ -27,6 +27,30 @@ function toIsoDate(value?: string | null): string | null {
   return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
 }
 
+/**
+ * Supabase entrega como máximo ~1000 filas por consulta. Para leer TODAS las filas se pide por páginas
+ * (cada página empieza donde terminó la anterior) hasta que llega una vacía.
+ * Siempre hay que ordenar la consulta por una columna única para que las páginas no se repitan ni se salten filas.
+ */
+async function fetchAllRows<T>(
+  page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>
+): Promise<{ rows: T[]; error: string | null }> {
+  const PAGE = 1000;
+  const rows: T[] = [];
+  let from = 0;
+  for (;;) {
+    const { data, error } = await page(from, from + PAGE - 1);
+    if (error) return { rows, error: error.message };
+    if (!data || data.length === 0) break;
+    rows.push(...data);
+    from += data.length;
+  }
+  return { rows, error: null };
+}
+
+const EVALUATION_LIST_COLUMNS =
+  'id,dossier_id,supplier_name,supplier_doc,file_number,supplier_tier,category_name,evaluation_type,annual_cycle_number,period_year,evaluation_date,due_date,evaluator_id,evaluator_name,evaluator_role,total_score,concept,criteria_scores,observations,certificate_code,created_at';
+
 export const supabaseService = {
   isConfigured: isSupabaseConfigured,
 
@@ -41,27 +65,26 @@ export const supabaseService = {
     if (!isSupabaseConfigured() || !supabase) return null;
 
     try {
-      const { data: suppliers, error: supError } = await supabase
-        .from('suppliers')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const client = supabase;
+      // Proveedores y documentos se piden a la vez y por páginas (Supabase corta en 1000 filas por consulta)
+      const [supRes, docRes] = await Promise.all([
+        fetchAllRows<any>((from, to) =>
+          client.from('suppliers').select('*').order('created_at', { ascending: false }).order('id').range(from, to)
+        ),
+        fetchAllRows<any>((from, to) => client.from('supplier_documents').select('*').order('id').range(from, to)),
+      ]);
 
-      if (supError) {
-        console.error('Error al cargar proveedores de Supabase:', supError.message);
+      if (supRes.error) {
+        console.error('Error al cargar proveedores de Supabase:', supRes.error);
         return null;
       }
-
-      if (!suppliers) return null;
+      const suppliers = supRes.rows;
       if (suppliers.length === 0) return [];
 
-      // Cargar documentos relacionados
-      const { data: documents, error: docError } = await supabase
-        .from('supplier_documents')
-        .select('*');
-
-      if (docError) {
-        console.warn('Aviso: no se pudieron cargar documentos de Supabase:', docError.message);
+      if (docRes.error) {
+        console.warn('Aviso: no se pudieron cargar documentos de Supabase:', docRes.error);
       }
+      const documents = docRes.rows;
 
       const docsByDossier: Record<string, Record<string, any>> = {};
       (documents || []).forEach((doc: any) => {
@@ -375,17 +398,21 @@ export const supabaseService = {
     if (!isSupabaseConfigured() || !supabase) return null;
 
     try {
-      const { data, error } = await supabase
-        .from('supplier_evaluations')
-        .select('*')
-        .order('evaluation_date', { ascending: false });
+      const client = supabase;
+      // Sin la firma (imagen de ~33 KB por evaluación): se pide aparte, solo al abrir el acta o el certificado
+      const { rows: data, error } = await fetchAllRows<any>((from, to) =>
+        client
+          .from('supplier_evaluations')
+          .select(EVALUATION_LIST_COLUMNS)
+          .order('evaluation_date', { ascending: false })
+          .order('id')
+          .range(from, to)
+      );
 
       if (error) {
-        console.error('Error cargando evaluaciones de Supabase:', error.message);
+        console.error('Error cargando evaluaciones de Supabase:', error);
         return null;
       }
-
-      if (!data) return [];
 
       return data.map((e: any): SupplierEvaluation => ({
         id: e.id,
@@ -403,7 +430,6 @@ export const supabaseService = {
         evaluatorId: e.evaluator_id,
         evaluatorName: e.evaluator_name,
         evaluatorRole: e.evaluator_role,
-        evaluatorSignature: e.evaluator_signature || undefined,
         totalScore: Number(e.total_score || 0),
         concept: e.concept,
         criteriaScores: e.criteria_scores || [],
@@ -419,6 +445,23 @@ export const supabaseService = {
     } catch (err) {
       console.error('Excepción en getEvaluations:', err);
       return null;
+    }
+  },
+
+  /**
+   * Firma del evaluador de una evaluación (la lista de evaluaciones no la trae, por su tamaño).
+   */
+  async getEvaluationSignature(id: string): Promise<string | undefined> {
+    if (!isSupabaseConfigured() || !supabase) return undefined;
+    try {
+      const { data, error } = await supabase.from('supplier_evaluations').select('evaluator_signature').eq('id', id).maybeSingle();
+      if (error) {
+        console.error('Error cargando la firma de la evaluación:', error.message);
+        return undefined;
+      }
+      return (data as any)?.evaluator_signature || undefined;
+    } catch {
+      return undefined;
     }
   },
 
@@ -464,7 +507,8 @@ export const supabaseService = {
         evaluator_id: evaluation.evaluatorId,
         evaluator_name: evaluation.evaluatorName,
         evaluator_role: evaluation.evaluatorRole || null,
-        evaluator_signature: evaluation.evaluatorSignature || null,
+        // Si la evaluación llegó de la lista (sin firma) no se envía la columna, para no borrar la firma guardada
+        ...(evaluation.evaluatorSignature ? { evaluator_signature: evaluation.evaluatorSignature } : {}),
         total_score: evaluation.totalScore,
         concept: evaluation.concept,
         criteria_scores: evaluation.criteriaScores || [],

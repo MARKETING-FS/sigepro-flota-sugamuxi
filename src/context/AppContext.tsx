@@ -376,6 +376,28 @@ const readPendingEvals = (): string[] => {
     return [];
   }
 };
+/**
+ * Copia local de respaldo. El navegador solo permite ~5 MB: con cientos de proveedores se pasa y
+ * localStorage.setItem lanza un error que tumbaba la pantalla. Aquí nunca lanza; si no cabe, se borra la copia vieja.
+ */
+const LOCAL_COPY_MAX_CHARS = 2_400_000;
+const persistLocal = (key: string, value: unknown) => {
+  try {
+    const json = JSON.stringify(value);
+    if (json.length > LOCAL_COPY_MAX_CHARS) {
+      localStorage.removeItem(key);
+      return;
+    }
+    localStorage.setItem(key, json);
+  } catch {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* sin almacenamiento */
+    }
+  }
+};
+
 const writePendingEvals = (ids: string[]) => {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY_EVALS_PENDING, JSON.stringify(ids));
@@ -846,11 +868,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Sync to localStorage
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_DOSSIERS, JSON.stringify(allDossiers));
+    persistLocal(LOCAL_STORAGE_KEY_DOSSIERS, allDossiers);
   }, [allDossiers]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_EMAILS, JSON.stringify(emailNotifications));
+    persistLocal(LOCAL_STORAGE_KEY_EMAILS, emailNotifications);
   }, [emailNotifications]);
 
   useEffect(() => {
@@ -858,7 +880,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [activeView]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_FORMS, JSON.stringify(institutionalForms));
+    persistLocal(LOCAL_STORAGE_KEY_FORMS, institutionalForms);
     // Guarda solo los formatos que cambiaron desde la última vez
     if (isFormsLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       institutionalForms.forEach((f) => {
@@ -872,32 +894,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [institutionalForms]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(categoriesConfig));
+    persistLocal(LOCAL_STORAGE_KEY_CATEGORIES, categoriesConfig);
     if (isCategoriesLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       supabaseService.saveCategoriesConfig(categoriesConfig);
     }
   }, [categoriesConfig]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_DOC_DEFINITIONS, JSON.stringify(documentDefinitions));
+    persistLocal(LOCAL_STORAGE_KEY_DOC_DEFINITIONS, documentDefinitions);
     if (isDocDefsLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       supabaseService.saveDocumentDefinitions(documentDefinitions);
     }
   }, [documentDefinitions]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_BASE_REQUIREMENTS, JSON.stringify(baseRequirementsConfig));
+    persistLocal(LOCAL_STORAGE_KEY_BASE_REQUIREMENTS, baseRequirementsConfig);
     if (isBaseReqsLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       supabaseService.saveBaseRequirementsConfig(baseRequirementsConfig);
     }
   }, [baseRequirementsConfig]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_CONVOCATORIAS, JSON.stringify(convocatorias));
+    persistLocal(LOCAL_STORAGE_KEY_CONVOCATORIAS, convocatorias);
   }, [convocatorias]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_SYSTEM_PARAMETERS, JSON.stringify(systemParameters));
+    persistLocal(LOCAL_STORAGE_KEY_SYSTEM_PARAMETERS, systemParameters);
     // Solo el superadministrador modifica la parametrización
     if (isParamsLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       supabaseService.saveParametersState(systemParameters);
@@ -905,15 +927,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [systemParameters]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_SYSTEM_AUDIT_LOGS, JSON.stringify(systemAuditLogs));
+    persistLocal(LOCAL_STORAGE_KEY_SYSTEM_AUDIT_LOGS, systemAuditLogs);
   }, [systemAuditLogs]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(supplierEvaluations));
+    const pendingIds = new Set(readPendingEvals());
+    persistLocal(
+      LOCAL_STORAGE_KEY_EVALUATIONS,
+      supplierEvaluations.map((e) => (supabaseService.isConfigured() && e.evaluatorSignature && !pendingIds.has(e.id) ? { ...e, evaluatorSignature: undefined } : e))
+    );
   }, [supplierEvaluations]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATION_METHOD, JSON.stringify(evaluationMethod));
+    persistLocal(LOCAL_STORAGE_KEY_EVALUATION_METHOD, evaluationMethod);
     if (isMethodLoadedFromSupabase.current && supabaseService.isConfigured() && authProfile?.accountRole === 'SUPERADMIN') {
       supabaseService.saveEvaluationMethod(evaluationMethod);
     }

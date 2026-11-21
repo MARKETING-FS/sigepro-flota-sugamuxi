@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   X,
   Printer,
@@ -17,6 +17,7 @@ import { FlotaSugamuxiLogo } from '../FlotaSugamuxiLogo';
 import { DOC006_CODE, resolveInitialPassing, DOC006_TITLE, DOC006_VERSION } from '../../data/evaluationDoc006';
 import { evaluationConceptLabel, evaluationMaxScore, isDoc006Evaluation } from '../../utils/evaluationScale';
 import { displayDate } from '../../utils/dateOnly';
+import { supabaseService } from '../../services/supabaseService';
 
 interface EvaluationCertificateModalProps {
   evaluation: SupplierEvaluation | null;
@@ -29,8 +30,23 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
 }) => {
   const { evaluationMethod } = useApp();
   const printRef = useRef<HTMLDivElement>(null);
+  // La lista de evaluaciones no trae la firma (pesa mucho): se pide solo al abrir el certificado
+  const [loadedSignature, setLoadedSignature] = useState<{ id: string; data?: string } | null>(null);
+  const evaluationId = evaluation?.id;
+  const hasSignature = Boolean(evaluation?.evaluatorSignature);
+  useEffect(() => {
+    if (!evaluationId || hasSignature) return;
+    let cancelled = false;
+    supabaseService.getEvaluationSignature(evaluationId).then((data) => {
+      if (!cancelled) setLoadedSignature({ id: evaluationId, data });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [evaluationId, hasSignature]);
 
   if (!evaluation) return null;
+  const signatureSrc = evaluation.evaluatorSignature || (loadedSignature?.id === evaluation.id ? loadedSignature.data : undefined);
 
   const handlePrint = () => {
     window.print();
@@ -347,8 +363,8 @@ export const EvaluationCertificateModal: React.FC<EvaluationCertificateModalProp
             <div className="grid grid-cols-2 gap-8 pt-6">
               <div className="text-center">
                 <div className="border-b border-slate-400 pb-1 w-48 mx-auto min-h-[44px] flex items-end justify-center font-serif italic text-sm text-slate-800">
-                  {evaluation.evaluatorSignature ? (
-                    <img src={evaluation.evaluatorSignature} alt={`Firma de ${evaluation.evaluatorName}`} className="max-h-[56px] max-w-full object-contain" />
+                  {signatureSrc ? (
+                    <img src={signatureSrc} alt={`Firma de ${evaluation.evaluatorName}`} className="max-h-[56px] max-w-full object-contain" />
                   ) : (
                     evaluation.evaluatorName
                   )}
