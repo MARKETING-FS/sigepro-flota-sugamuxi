@@ -1,6 +1,7 @@
 import {
   SupplierDossier,
   SupplierEvaluation,
+  SystemAuditEntry,
   ProcessStatus,
   SupplierTier,
   DocumentStatus,
@@ -252,4 +253,61 @@ export function buildDemoData(): { dossiers: SupplierDossier[]; evaluations: Sup
     if (d) d.evaluations = [...(d.evaluations || []), ev];
   });
   return { dossiers, evaluations };
+}
+
+/** Movimientos de ejemplo para la pantalla de Auditoría (solo demo local). */
+export function buildDemoAuditLogs(dossiers: SupplierDossier[]): SystemAuditEntry[] {
+  const out: SystemAuditEntry[] = [];
+  const people: Array<[string, 'ADMIN' | 'REVISOR', string]> = [
+    ['Julian Salgado', 'ADMIN', 'ADMINISTRADOR GENERAL'],
+    ['Marcela Rojas', 'REVISOR', 'REVISOR TÉCNICO'],
+    ['Andrés Pardo', 'REVISOR', 'REVISOR TÉCNICO'],
+  ];
+  const fmt = (d: Date) =>
+    d.toLocaleString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const info = (d: SupplierDossier) => {
+    const nat = d.basicInfo.supplierType === 'NATURAL';
+    return { name: (nat ? d.basicInfo.fullName : d.basicInfo.companyName) || 'Proveedor', doc: (nat ? d.basicInfo.documentNumber : d.basicInfo.nit) || '' };
+  };
+  let n = 0;
+  type Extra = Partial<SystemAuditEntry> & Pick<SystemAuditEntry, 'action' | 'section' | 'fieldChanged' | 'oldValue' | 'newValue'>;
+  const add = (daysBack: number, hour: number, who: number, d: SupplierDossier | null, e: Extra) => {
+    const when = new Date();
+    when.setDate(when.getDate() - daysBack);
+    when.setHours(hour, (n * 7) % 60, (n * 13) % 60, 0);
+    const [name, role, label] = people[who];
+    const i = d ? info(d) : { name: 'Parámetros Globales SIG', doc: '' };
+    out.push({
+      id: `aud-demo-${++n}`,
+      timestamp: when.toISOString(),
+      formattedDate: fmt(when),
+      dossierId: d ? d.id : 'CONFIG-GLOBAL',
+      supplierName: i.name,
+      supplierDoc: i.doc,
+      fileNumber: d ? d.fileNumber : 'FS-PARAM-GLOBAL',
+      user: `${name} (${label})`,
+      userRole: role,
+      justification: 'Actualización autorizada de datos de proveedor.',
+      ...e,
+    } as SystemAuditEntry);
+  };
+  const [a, b, c, dd, ee] = dossiers;
+  add(0, 16, 1, a, { action: 'CAMBIO_ESTADO', section: 'Estado y Vigencia Contractual', fieldChanged: 'Estado General / Vigencia de Contrato', oldValue: 'EN_REVISION', newValue: 'PROVEEDOR_HABILITADO', justification: 'Cumple con todos los documentos y la calificación inicial.' });
+  add(0, 15, 1, a, { action: 'VALIDACION_SARLAFT', section: 'Debida Diligencia & SARLAFT', fieldChanged: 'Consulta Listas Restrictivas / SARLAFT', oldValue: 'NO_VERIFICADO', newValue: 'SIN_COINCIDENCIAS', justification: 'Verificación en listas vinculantes nacionales e internacionales.' });
+  add(0, 11, 0, b, { action: 'EDICION_CAMPO', section: 'Información básica', fieldChanged: 'Teléfono de contacto', oldValue: '3101234567', newValue: '3157654321', justification: 'El proveedor informó cambio de número por correo.' });
+  add(0, 9, 0, null, { action: 'EDICION_CAMPO', section: 'Parámetros Generales SIG', fieldChanged: 'Configuración Global del Sistema', oldValue: 'Valores Anteriores', newValue: JSON.stringify({ companyName: 'Flota Sugamuxi', evaluationPassingScore: 76, alertDays: 30, reviewers: ['a', 'b'], theme: 'light' }), justification: 'Actualización de directrices y políticas generales del sistema institucional.' });
+  add(1, 17, 0, c, { action: 'ASIGNACION_REVISOR', section: 'Asignación de Cartera', fieldChanged: 'Revisor Responsable', oldValue: 'Sin Asignar', newValue: 'Marcela Rojas', justification: 'Reasignación de cartera de proveedores efectuada por Julian Salgado.' });
+  add(1, 14, 2, c, { action: 'REVISION_DOCUMENTO', section: 'Expediente y Documentación Soporte', fieldChanged: 'Documento [RUT] - Registro Único Tributario', oldValue: 'Documento previo', newValue: 'Archivo: rut-2026.pdf | Estado: APROBADO', justification: 'Se reemplazó por la versión actualizada del RUT.' });
+  add(1, 10, 2, dd, { action: 'CALIFICACION_PROVEEDOR', section: 'Evaluación y Desempeño SIG', fieldChanged: 'Evaluación Inicial (Admisión al Crear)', oldValue: 'PENDIENTE', newValue: '88/100 - ACEPTABLE', justification: 'Registro oficial de calificación de proveedor según metodología SIG.' });
+  add(2, 16, 0, ee, { action: 'INACTIVACION_PROVEEDOR', section: 'Estado del proveedor', fieldChanged: 'Estado', oldValue: 'Activo', newValue: 'Inactivo', justification: 'Dejó de prestar servicios a la empresa.' });
+  add(3, 12, 1, b, { action: 'CAMBIO_ESTADO', section: 'Estado y Vigencia Contractual', fieldChanged: 'Estado General / Vigencia de Contrato', oldValue: 'DOCUMENTACION_PENDIENTE', newValue: 'REQUIERE_CORRECCION', justification: 'Falta el certificado bancario con fecha vigente.' });
+  add(4, 9, 0, null, { action: 'CREACION_REGISTRO', section: 'Entidades Bancarias', fieldChanged: 'Nuevo Banco', oldValue: '(Ninguno)', newValue: 'Banco Mundo Mujer', dossierId: 'CAT-BANCOS', justification: 'Inclusión de nueva entidad financiera autorizada para pagos a proveedores.' });
+  add(9, 15, 2, a, { action: 'EDICION_CAMPO', section: 'Vigencia y Contrato', fieldChanged: 'Contrato (PDF y fecha de terminación)', oldValue: '2026-12-31', newValue: '2027-06-30', justification: 'Se renovó el contrato por seis meses más.' });
+  add(20, 8, 0, ee, { action: 'ELIMINACION_PROVEEDOR', section: 'Estado del proveedor', fieldChanged: 'Expediente', oldValue: 'Existente', newValue: 'Eliminado', justification: 'Eliminado definitivamente con sus documentos y evaluaciones.' });
+  // Más movimientos para probar «Ver más»
+  for (let k = 0; k < 40; k++) {
+    const d = dossiers[(k + 3) % dossiers.length];
+    add(2 + (k % 25), 8 + (k % 9), k % 3, d, { action: 'EDICION_CAMPO', section: 'Información básica', fieldChanged: k % 2 ? 'Dirección' : 'Correo electrónico', oldValue: `Valor anterior ${k}`, newValue: `Valor nuevo ${k}` });
+  }
+  return out.sort((x, y) => y.timestamp.localeCompare(x.timestamp));
 }

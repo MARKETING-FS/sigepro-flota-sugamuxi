@@ -264,10 +264,10 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       </div>
 
       <div className="grid gap-6 grid-cols-1 xl:grid-cols-12 [&>*]:min-w-0">
-        <Panel title="Desempeño de proveedores" aside={stats.avg !== null ? `Promedio ${stats.avg.toFixed(1).replace('.', ',')} pts` : 'Sin calificaciones'} className="xl:col-span-8">
+        <Panel title="Desempeño de proveedores" aside={stats.avg !== null ? `Promedio ${stats.avg.toFixed(1).replace('.', ',')} %` : 'Sin calificaciones'} className="xl:col-span-8">
           <div className="text-[#0b1d3a] dark:text-slate-200"><TrendChart data={stats.trend} /></div>
           <p className="text-[12px] text-[#3a5274] dark:text-slate-400">
-            Cada punto es un proveedor activo con su evaluación vigente, ordenados por fecha. Pasa el cursor por un punto para ver el detalle.
+            Cada punto es un proveedor activo con su evaluación vigente, ordenados por fecha. El número sobre el punto son los puntos obtenidos sobre el máximo (la inicial es sobre 120 y la anual sobre 100); la altura y el promedio se miden en porcentaje para poder compararlas. Pasa el cursor por un punto para ver el detalle.
           </p>
         </Panel>
         <Panel title="Clasificación actual" aside="último puntaje de cada proveedor" className="xl:col-span-4">

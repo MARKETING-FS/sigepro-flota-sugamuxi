@@ -7,7 +7,7 @@ export interface SupplierScorePoint {
   /** Siglas del proveedor, para rotular el punto */
   sigla: string;
   name: string;
-  /** Puntaje llevado a 0–100 */
+  /** Puntaje llevado a 0–100 (solo para la altura en la gráfica y el promedio) */
   value: number;
   /** «96 / 120» o «82 / 100» */
   scoreText: string;
@@ -137,7 +137,7 @@ export const TrendChart: React.FC<{ data: SupplierScorePoint[] }> = ({ data }) =
               <circle cx={p.px} cy={p.py} r={isActive ? 7 : 5.5} fill={isActive ? color : 'var(--nd-card)'} stroke={color} strokeWidth="2.5" style={{ transition: 'r 140ms ease-out' }} />
               {data.length <= 10 && !isActive && (
                 <text x={p.px} y={p.py - 13} textAnchor="middle" fontSize="11" fontWeight="600" fill="currentColor" fillOpacity="0.8" style={{ pointerEvents: 'none' }}>
-                  {Math.round(p.d.value)}
+                  {p.d.scoreText.replace(' / ', '/')}
                 </text>
               )}
             </g>
@@ -163,10 +163,10 @@ export const TrendChart: React.FC<{ data: SupplierScorePoint[] }> = ({ data }) =
           <div className="mt-3 flex items-end justify-between gap-2">
             <div>
               <div className="font-display text-[28px] leading-none font-bold tabular-nums text-[#0b1d3a] dark:text-white">
-                {String(Math.round(active.d.value * 10) / 10).replace('.', ',')}
-                <span className="text-[13px] font-semibold text-[#5d7392] dark:text-slate-400"> %</span>
+                {active.d.scoreText.replace(' / ', '/')}
+                <span className="text-[13px] font-semibold text-[#5d7392] dark:text-slate-400"> puntos</span>
               </div>
-              <div className="mt-1 text-[11.5px] tabular-nums text-[#5d7392] dark:text-slate-400">{active.d.scoreText} puntos</div>
+              <div className="mt-1 text-[11.5px] tabular-nums text-[#5d7392] dark:text-slate-400">equivale al {String(Math.round(active.d.value * 10) / 10).replace('.', ',')} % de la nota máxima</div>
             </div>
             <div className="flex flex-col items-end gap-1">
               <span

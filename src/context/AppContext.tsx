@@ -66,7 +66,7 @@ import { supabase } from '../lib/supabase';
 import { getCreationStatus, getRequiredDocsProgress } from '../utils/contractValidity';
 import { sendEmail } from '../services/emailService';
 import { useSupabaseAuth, AuthProfile, AuthResult } from '../auth/useSupabaseAuth';
-import { IS_DEMO_MODE, buildDemoData } from '../dev/demoData';
+import { IS_DEMO_MODE, buildDemoData, buildDemoAuditLogs } from '../dev/demoData';
 
 interface AppContextType {
   // Autenticación real (Supabase Auth)
@@ -716,11 +716,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_SYSTEM_AUDIT_LOGS);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Solo demo local: si la bitácora está vacía se cargan movimientos de ejemplo
+        if (import.meta.env.DEV && IS_DEMO_MODE && Array.isArray(parsed) && parsed.length === 0) return buildDemoAuditLogs(buildDemoData().dossiers);
+        return parsed;
       } catch (e) {
         console.error('Error loading system audit logs from localStorage', e);
       }
     }
+    if (import.meta.env.DEV && IS_DEMO_MODE) return buildDemoAuditLogs(buildDemoData().dossiers);
     return INITIAL_SYSTEM_AUDIT_LOGS;
   });
 
