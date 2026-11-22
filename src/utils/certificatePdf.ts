@@ -50,22 +50,6 @@ export const formatLongDate = (d: Date) => `${d.getDate()} de ${MONTHS[d.getMont
 const formatShortDate = (d: Date) =>
   `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
-/** Hasta cuándo vale el certificado: un año, o antes si algún documento vence antes. */
-export function certificateValidity(docs: CertificateDoc[], issuedAt: Date) {
-  const oneYear = new Date(issuedAt);
-  oneYear.setFullYear(oneYear.getFullYear() + 1);
-  let until = oneYear;
-  let limitedBy: string | null = null;
-  docs.forEach((d) => {
-    const e = parseISO(d.expirationDate);
-    if (e && e.getTime() >= issuedAt.getTime() && e.getTime() < until.getTime()) {
-      until = e;
-      limitedBy = d.name;
-    }
-  });
-  return { until, limitedBy };
-}
-
 /** Código corto de control (no es una firma digital: sirve para identificar esta emisión). */
 function controlCode(seed: string): string {
   let h1 = 0x811c9dc5;
@@ -89,7 +73,6 @@ export async function buildCertificatePdf(input: CertificateInput): Promise<Blob
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const issuedAt = input.issuedAt ?? new Date();
-  const { until, limitedBy } = certificateValidity(input.docs, issuedAt);
   const certNo = certificateNumber(input.fileNumber);
   const code = controlCode(`${input.dossierId}|${input.fileNumber}|${formatShortDate(issuedAt)}|${input.docs.length}`);
 
@@ -173,10 +156,10 @@ export async function buildCertificatePdf(input: CertificateInput): Promise<Blob
 
   // ---------- Estado ----------
   const pillY = bodyY + body.length * 14.5 + 4;
-  const pillW = 188;
+  const pillW = 140;
   doc.setFillColor(...NAVY);
   doc.roundedRect(CX - pillW / 2, pillY, pillW, 21, 10.5, 10.5, 'F');
-  const pillText = 'HABILITADO · VIGENTE';
+  const pillText = 'HABILITADO';
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9.5);
   const pillTextW = doc.getTextWidth(pillText) + pillText.length * 1.3;
@@ -195,11 +178,6 @@ export async function buildCertificatePdf(input: CertificateInput): Promise<Blob
   const tierLabel = input.tier ? `Tipo ${input.tier} · ${input.tier === 'A' ? 'Crítico' : input.tier === 'B' ? 'Operativo' : 'Estándar'}` : '—';
   const cells: Array<{ label: string; value: string; sub?: string }> = [
     { label: 'FECHA DE EMISIÓN', value: formatLongDate(issuedAt) },
-    {
-      label: 'VIGENTE HASTA',
-      value: formatLongDate(until),
-      sub: limitedBy ? `Vence: ${limitedBy}`.slice(0, 44) : undefined,
-    },
     { label: 'CLASIFICACIÓN', value: tierLabel },
     { label: 'DOCUMENTOS APROBADOS', value: `${input.docs.length} de ${input.docs.length}` },
   ];
@@ -261,9 +239,8 @@ export async function buildCertificatePdf(input: CertificateInput): Promise<Blob
     if (right) text(right, x + colW - 14, y, { size: 6.8, c: MUTED, align: 'right' });
   });
 
-  // ---------- Sello y firmas ----------
+  // ---------- Sello ----------
   const sealY = H - 92;
-  const lineY = H - 78;
   // sello
   doc.setFillColor(...NAVY);
   doc.circle(CX, sealY, 27, 'F');
@@ -275,15 +252,6 @@ export async function buildCertificatePdf(input: CertificateInput): Promise<Blob
   doc.line(CX - 9, sealY + 0.5, CX - 3, sealY + 6.5);
   doc.line(CX - 3, sealY + 6.5, CX + 9.5, sealY - 8);
 
-  const sig = (cx: number, title: string, sub: string) => {
-    doc.setDrawColor(...NAVY);
-    doc.setLineWidth(0.8);
-    doc.line(cx - 90, lineY, cx + 90, lineY);
-    text(title, cx, lineY + 11, { style: 'bold', size: 8.5, c: NAVY, align: 'center' });
-    text(sub, cx, lineY + 21, { size: 7.5, c: MUTED, align: 'center' });
-  };
-  sig(L + 130, 'Coordinación SIG / Calidad', input.companyName);
-  sig(R - 130, 'Dirección de Compras y Suministros', input.companyName);
 
   // ---------- Pie ----------
   text(
