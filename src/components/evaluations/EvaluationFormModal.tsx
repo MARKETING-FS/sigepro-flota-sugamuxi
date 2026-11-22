@@ -25,6 +25,8 @@ import { ClosingSection } from './form/ClosingSection';
 import { ScoreSummary, SummaryItem, Verdict } from './form/ScoreSummary';
 import { FormActions } from './form/FormActions';
 import { SignatureStep } from './form/SignatureStep';
+import { useConfirm } from '../ui/ConfirmDialog';
+import { evaluationMaxScore } from '../../utils/evaluationScale';
 
 interface EvaluationFormModalProps {
   initialSupplier?: SupplierDossier | null;
@@ -125,6 +127,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Paso de firma: se abre al pulsar «Registrar calificación», antes de guardar y generar el PDF
   const [signing, setSigning] = useState(false);
+  const { ask: askConfirm, dialog: confirmDialog } = useConfirm();
 
   // Cerrar con Escape
   useEffect(() => {
@@ -201,6 +204,20 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
     e.preventDefault();
     if (!selectedDossier) return;
     if (isInitialDoc && !doc006Complete) return;
+    // Una sola anual por año: si ya hay una de este año, se avisa que la nueva la reemplaza
+    const sameYear = isAnnualEval ? existingAnnualEvals.find((e) => e.annualCycleNumber === selectedCycleNumber) : undefined;
+    if (sameYear) {
+      const when = /^\d{4}-\d{2}-\d{2}/.test(sameYear.evaluationDate) ? new Date(`${sameYear.evaluationDate.slice(0, 10)}T12:00:00`).toLocaleDateString('es-CO') : sameYear.evaluationDate;
+      askConfirm({
+        title: `¿Reemplazar la evaluación anual del año ${selectedCycleNumber}?`,
+        message: `Este proveedor ya tiene la evaluación anual del año ${selectedCycleNumber} (${when}, ${sameYear.totalScore} de ${evaluationMaxScore(sameYear)} puntos). Al guardar esta, la anterior se elimina y queda solo la nueva.`,
+        hint: 'La evaluación anterior no se puede recuperar. Si quiere conservarla, cambie el año de esta evaluación.',
+        confirmLabel: 'Sí, reemplazar',
+        tone: 'primary',
+        onConfirm: () => setSigning(true),
+      });
+      return;
+    }
     setSigning(true);
   };
 
@@ -455,6 +472,7 @@ export const EvaluationFormModal: React.FC<EvaluationFormModalProps> = ({
           </div>
         </form>
       </div>
+      {confirmDialog}
       {signing && (
         <SignatureStep
           evaluatorName={(isInitialDoc ? evaluatorNameInput.trim() : '') || activeUser?.name || ''}

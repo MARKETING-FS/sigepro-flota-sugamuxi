@@ -131,8 +131,9 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
     // Puntaje promedio: la última evaluación de cada proveedor, en porcentaje (la inicial es sobre 120 y la anual sobre 100)
     const { avg, count: evaluatedCount } = averageCurrentScore(evalRows);
 
-    // Desempeño: un punto por cada evaluación (la inicial y todas las anuales) de los proveedores que siguen en el banco.
-    // La pantalla las filtra por tipo. Si un proveedor se inactiva o se elimina, ya no está en `dossiers` y sus puntos desaparecen.
+    // Desempeño: por cada proveedor que sigue en el banco, un punto con su evaluación inicial y otro con su evaluación anual
+    // más reciente (si las tiene). Es la misma regla del ranking, la clasificación y los contadores, así todo cuadra.
+    // El historial completo (otros años o evaluaciones repetidas) se ve en la pantalla de Evaluaciones. La pantalla las filtra por tipo. Si un proveedor se inactiva o se elimina, ya no está en `dossiers` y sus puntos desaparecen.
     const STOP = new Set(['de', 'del', 'la', 'las', 'los', 'el', 'y', 'e', 'sas', 'sa', 'ltda', 'cia', 'ese', 'eu']);
     const siglaOf = (name: string) => {
       const words = name
@@ -160,7 +161,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
       .flatMap((r) => {
         const list: Array<{ r: (typeof evalRows)[number]; e: SupplierEvaluation; kind: 'INICIAL' | 'ANUAL' }> = [];
         if (r.initialEval) list.push({ r, e: r.initialEval, kind: 'INICIAL' });
-        r.annualEvals.forEach((e) => list.push({ r, e, kind: 'ANUAL' }));
+        if (r.latestAnnualEval) list.push({ r, e: r.latestAnnualEval, kind: 'ANUAL' });
         return list.filter((x, i) => list.findIndex((y) => y.e.id === x.e.id) === i);
       })
       .sort((a, b) => timeOfEval(a.e) - timeOfEval(b.e))
@@ -354,7 +355,7 @@ export const ResumenPanel: React.FC<Props> = ({ dossiers, onFilterStage, onRegis
           </div>
           <div className="text-[#0b1d3a] dark:text-slate-200"><TrendChart data={trendShown} /></div>
           <p className="text-[12px] text-[#3a5274] dark:text-slate-400">
-            Cada punto es una evaluación de un proveedor (abajo se indica si es la inicial o una anual), ordenadas por fecha. Los números son el porcentaje de la nota máxima (la evaluación inicial se califica sobre 120 puntos y la anual sobre 100; en porcentaje se pueden comparar). Pasa el cursor por un punto para ver los puntos exactos y el detalle.
+            Cada proveedor aparece con su evaluación inicial y con su evaluación anual más reciente (abajo se indica cuál es), ordenadas por fecha. Los números son el porcentaje de la nota máxima (la evaluación inicial se califica sobre 120 puntos y la anual sobre 100; en porcentaje se pueden comparar). Pasa el cursor por un punto para ver los puntos exactos y el detalle.
           </p>
         </Panel>
         <Panel

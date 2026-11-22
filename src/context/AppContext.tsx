@@ -3777,9 +3777,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       certificateCode: certCode,
     };
 
-    setSupplierEvaluations((prev) => [newEvaluation, ...prev]);
+    // Una sola evaluación anual por proveedor y por año: si ya existe la de ese mismo año, la nueva la reemplaza.
+    // Las de otros años se conservan como historial.
+    const isAnnualNew =
+      evalData.evaluationType === 'ANUAL_1_ANO' || (evalData.evaluationType as string) === 'ANUAL_PERIODICA';
+    const isAnnualType = (t: string) => t === 'ANUAL_1_ANO' || t === 'ANUAL_PERIODICA';
+    const replaced: SupplierEvaluation[] = [];
+    if (isAnnualNew && evalData.annualCycleNumber) {
+      const owner = allDossiers.find((d) => d.id === evalData.dossierId);
+      const pool = [...supplierEvaluations, ...(owner?.evaluations || [])];
+      pool.forEach((e) => {
+        if (
+          e.dossierId === evalData.dossierId &&
+          isAnnualType(e.evaluationType as string) &&
+          e.annualCycleNumber === evalData.annualCycleNumber &&
+          !replaced.some((r) => r.id === e.id)
+        ) {
+          replaced.push(e);
+        }
+      });
+    }
+    const replacedIds = new Set(replaced.map((r) => r.id));
+    if (replacedIds.size) writePendingEvals(readPendingEvals().filter((p) => !replacedIds.has(p)));
+
+    setSupplierEvaluations((prev) => [newEvaluation, ...prev.filter((e) => !replacedIds.has(e.id))]);
     if (supabaseService.isConfigured()) {
       supabaseService.saveEvaluation(newEvaluation).then((ok) => {
+        // La vieja se borra de la base solo cuando la nueva ya quedó guardada
+        if (ok) replaced.forEach((r) => supabaseService.deleteEvaluation(r.id));
         if (!ok) {
           // Que no se pierda en silencio: se avisa y se reintenta al volver a entrar
           writePendingEvals([...readPendingEvals(), newEvaluation.id]);
@@ -3801,7 +3826,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       prev.map((dossier) => {
         if (dossier.id === evalData.dossierId) {
           const currentEvals = Array.isArray(dossier.evaluations) ? dossier.evaluations : [];
-          const updatedEvals = [newEvaluation, ...currentEvals];
+          const updatedEvals = [newEvaluation, ...currentEvals.filter((e) => !replacedIds.has(e.id))];
           const updatedDossier: SupplierDossier = {
             ...dossier,
             evaluations: updatedEvals,
@@ -3835,13 +3860,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         evalData.evaluationType === 'INICIAL'
           ? 'Evaluación Inicial (Admisión al Crear)'
           : `Evaluación de Desempeño Anual (${cycleLabel} - Proveedor Activo)`,
-      oldValue: 'PENDIENTE',
+      oldValue: replaced.length ? `${formatEvaluationScore(replaced[0])} (evaluación anterior del mismo año)` : 'PENDIENTE',
       newValue: `${formatEvaluationScore(evalData)} - ${evaluationConceptLabel(evalData)}`,
-      justification: evalData.observations || 'Registro oficial de calificación de proveedor según metodología SIG.',
+      justification:
+        (evalData.observations || 'Registro oficial de calificación de proveedor según metodología SIG.') +
+        (replaced.length ? ' · Reemplazó la evaluación anual anterior de ese mismo año.' : ''),
     });
 
     showToast(
-      `Calificación ${evalData.evaluationType === 'INICIAL' ? 'Inicial' : `Anual (${cycleLabel})`} registrada con éxito (${formatEvaluationScore(evalData)} - ${evaluationConceptLabel(evalData)}).`,
+      `Calificación ${evalData.evaluationType === 'INICIAL' ? 'Inicial' : `Anual (${cycleLabel})`} registrada con éxito (${formatEvaluationScore(evalData)} - ${evaluationConceptLabel(evalData)}).${replaced.length ? ' Reemplazó la anterior de ese año.' : ''}`,
       'success',
       'Evaluación Guardada'
     );
