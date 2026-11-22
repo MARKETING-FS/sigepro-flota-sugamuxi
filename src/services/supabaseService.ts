@@ -14,6 +14,25 @@ import {
 } from '../types';
 import { storageService } from './storageService';
 
+/**
+ * Convierte la fecha-hora que maneja la app a una que Postgres entiende (AAAA-MM-DD HH:MM:SS).
+ * Entiende "2026-11-22 03:07" y el formato de es-CO "22/11/2026, 3:07:48 a. m.".
+ * Si no la entiende devuelve null: es mejor guardar el documento sin fecha que perderlo entero.
+ */
+function toDbTimestamp(value?: string | null): string | null {
+  if (!value) return null;
+  const s = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s;
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:,?\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([ap])?)?/i.exec(s);
+  if (!m) return null;
+  let hour = m[4] ? Number(m[4]) : 0;
+  const meridiem = (m[7] || '').toLowerCase();
+  if (meridiem === 'p' && hour < 12) hour += 12;
+  if (meridiem === 'a' && hour === 12) hour = 0;
+  const p2 = (n: string | number) => String(n).padStart(2, '0');
+  return `${m[3]}-${p2(m[2])}-${p2(m[1])} ${p2(hour)}:${m[5] || '00'}:${m[6] || '00'}`;
+}
+
 /** Convierte AAAA-MM-DD, dd/mm/aaaa o una fecha ISO completa a AAAA-MM-DD (null si no se entiende). */
 function toIsoDate(value?: string | null): string | null {
   if (!value) return null;
@@ -210,11 +229,11 @@ export const supabaseService = {
           file_url: doc.previewUrl || null,
           preview_url: doc.previewUrl || null,
           custom_url: doc.customUrl || null,
-          uploaded_at: doc.uploadedAt || null,
+          uploaded_at: toDbTimestamp(doc.uploadedAt),
           uploaded_by: doc.uploadedBy || null,
-          reviewed_at: doc.reviewedAt || null,
+          reviewed_at: toDbTimestamp(doc.reviewedAt),
           reviewed_by: doc.reviewedBy || null,
-          expiration_date: doc.expirationDate || null,
+          expiration_date: toIsoDate(doc.expirationDate),
           notes: doc.notes || null,
           correction: doc.correction || null,
           updated_at: new Date().toISOString(),
