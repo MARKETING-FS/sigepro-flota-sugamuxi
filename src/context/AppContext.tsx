@@ -577,6 +577,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         });
       }
+      if (supabaseService.isConfigured()) lastLocalDossierWrite.current = Date.now();
       return next;
     });
   };
@@ -1086,6 +1087,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isMethodLoadedFromSupabase.current = true;
       });
     }
+  }, [authUserKey]);
+
+  // Actualización en vivo: cuando otro usuario crea o cambia un proveedor o sus documentos, aquí se refresca solo (sin recargar la página).
+  // Realtime respeta los permisos: cada usuario recibe únicamente lo que puede ver.
+  const lastLocalDossierWrite = useRef(0);
+  useEffect(() => {
+    if (!supabase || !supabaseService.isConfigured() || !authUserKey) return;
+    const client = supabase;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let stopped = false;
+    const refresh = () => {
+      timer = undefined;
+      // Si este usuario acaba de guardar algo, se espera a que termine para no pisar lo que está escribiendo
+      if (Date.now() - lastLocalDossierWrite.current < 3000) {
+        timer = setTimeout(refresh, 3000);
+        return;
+      }
+      supabaseService.getDossiers().then((remoteDossiers) => {
+        if (stopped || remoteDossiers === null) return;
+        if (Date.now() - lastLocalDossierWrite.current < 3000) return;
+        setAllDossiers(remoteDossiers.filter(canSeeDossier));
+      });
+    };
+    const schedule = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(refresh, 1200);
+    };
+    const channel = client
+      .channel('sigepro-proveedores-en-vivo')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'suppliers' }, schedule)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'supplier_documents' }, schedule)
+      .subscribe();
+    // Al volver a la pestaña también se pone al día (por si la conexión en vivo se cortó mientras estaba oculta)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') schedule();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+      void client.removeChannel(channel);
+    };
   }, [authUserKey]);
 
   // Un administrador nunca conserva en memoria proveedores que no son suyos (p. ej. datos de otra sesión en el mismo equipo)
