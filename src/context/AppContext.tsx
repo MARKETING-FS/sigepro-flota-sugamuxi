@@ -569,7 +569,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // Sincronizar eliminaciones
         prev.forEach((old: SupplierDossier) => {
           if (!next.some((n: SupplierDossier) => n.id === old.id)) {
-            supabaseService.deleteDossier(old.id).then((ok) => {
+            supabaseService.deleteDossier(old.id, old).then((ok) => {
               if (!ok) {
                 showToast('No se pudo eliminar el proveedor de la base de datos: puede reaparecer al volver a entrar.', 'warning', 'SIN ELIMINAR EN LA BASE');
               }
@@ -1014,8 +1014,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       });
       supabaseService.getAuditLogs().then((remoteLogs) => {
-        // Solo el superadministrador puede leer la auditoría: para los demás llega vacía y no debe borrar lo local
-        if (remoteLogs !== null && remoteLogs.length > 0) {
+        // Solo el superadministrador puede leer la auditoría: para los demás llega vacía y no debe borrar lo local.
+        // Para el superadministrador la tabla manda: si está vacía, también se vacía la copia guardada en el navegador.
+        if (remoteLogs !== null && (remoteLogs.length > 0 || authProfile?.accountRole === 'SUPERADMIN')) {
           setSystemAuditLogs(remoteLogs);
         }
       });

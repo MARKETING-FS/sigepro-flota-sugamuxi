@@ -67,6 +67,33 @@ async function fetchAllRows<T>(
   return { rows, error: null };
 }
 
+const DOCS_BUCKET = 'supplier-documents';
+const DOCS_URL_RE = /\/storage\/v1\/object\/(?:public|sign|authenticated)\/supplier-documents\/([^"?#\\]+)/g;
+
+/**
+ * Borra del almacén los archivos de un proveedor que ya se eliminó: los que su expediente enlaza (documentos, contrato, SARLAFT)
+ * y los que haya en su carpeta. Es un trabajo de limpieza: si falla, el proveedor ya está borrado y solo quedan archivos sueltos.
+ */
+async function removeDossierFiles(dossierId: string, dossier?: unknown): Promise<void> {
+  if (!supabase) return;
+  try {
+    const paths = new Set<string>();
+    if (dossier) {
+      for (const m of JSON.stringify(dossier).matchAll(DOCS_URL_RE)) paths.add(decodeURIComponent(m[1]));
+    }
+    const { data } = await supabase.storage.from(DOCS_BUCKET).list(dossierId, { limit: 1000 });
+    (data || []).forEach((f) => {
+      if (f.id) paths.add(`${dossierId}/${f.name}`);
+    });
+    if (paths.size > 0) {
+      const { error } = await supabase.storage.from(DOCS_BUCKET).remove([...paths]);
+      if (error) console.warn('Aviso: no se pudieron borrar todos los archivos del proveedor eliminado:', error.message);
+    }
+  } catch (err) {
+    console.warn('Aviso: no se pudieron borrar los archivos del proveedor eliminado:', err);
+  }
+}
+
 const EVALUATION_LIST_COLUMNS =
   'id,dossier_id,supplier_name,supplier_doc,file_number,supplier_tier,category_name,evaluation_type,annual_cycle_number,period_year,evaluation_date,due_date,evaluator_id,evaluator_name,evaluator_role,total_score,concept,criteria_scores,observations,certificate_code,created_at';
 
@@ -253,9 +280,9 @@ export const supabaseService = {
   },
 
   /**
-   * Elimina un proveedor y sus documentos asociados en cascada.
+   * Elimina un proveedor y sus documentos asociados en cascada, y luego sus archivos del almacén.
    */
-  async deleteDossier(dossierId: string): Promise<boolean> {
+  async deleteDossier(dossierId: string, dossier?: SupplierDossier): Promise<boolean> {
     if (!isSupabaseConfigured() || !supabase) return false;
     try {
       const { error } = await supabase.from('suppliers').delete().eq('id', dossierId);
@@ -263,6 +290,7 @@ export const supabaseService = {
         console.error('Error al eliminar proveedor en Supabase:', error.message);
         return false;
       }
+      void removeDossierFiles(dossierId, dossier);
       return true;
     } catch (err) {
       console.error('Excepción al eliminar proveedor:', err);
