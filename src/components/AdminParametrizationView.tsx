@@ -1076,12 +1076,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               </div>
 
               {/* Categories Table / List */}
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[620px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[620px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Categoría / Servicio</th>
@@ -1226,12 +1222,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
               </div>
 
               {/* Banks Table */}
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[600px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[600px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Entidad Bancaria</th>
@@ -1310,12 +1302,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </button>
               </div>
 
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[550px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[550px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Tipo de Cuenta</th>
@@ -1388,12 +1376,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </button>
               </div>
 
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[600px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[600px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Tipo de Identificación</th>
@@ -1472,12 +1456,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </button>
               </div>
 
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[620px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[620px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Régimen / Calidad Fiscal</th>
@@ -1552,12 +1532,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </button>
               </div>
 
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[600px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[600px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Ciudad / Municipio</th>
@@ -1632,12 +1608,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </button>
               </div>
 
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[600px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[600px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Clase de Riesgo</th>
@@ -1714,12 +1686,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </button>
               </div>
 
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[600px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[600px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Modalidad de Selección</th>
@@ -1794,12 +1762,8 @@ export const AdminParametrizationView: React.FC<AdminParametrizationViewProps> =
                 </button>
               </div>
 
-              <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-                <span>Desliza horizontalmente para ver todos los campos</span>
-                <span className="font-bold">↔</span>
-              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[620px] lg:min-w-full">
+                <table className="table-stack w-full text-left text-xs min-w-[620px] lg:min-w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="px-4 py-2.5">Causa / Motivo de Subsanación</th>

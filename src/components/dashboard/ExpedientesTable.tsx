@@ -106,7 +106,7 @@ export const ExpedientesTable: React.FC<Props> = ({ dossiers, filters, onChange 
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-[13px]">
+        <table className="table-stack w-full text-[13px]">
           <thead>
             <tr className={theadRowCls}>
               <th className="py-3.5 px-4 font-semibold">Proveedor</th>

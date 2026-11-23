@@ -60,7 +60,7 @@ const iconBtn = rowIconBtn;
 
 export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluate, onCertificate, progressOf, canEvaluate = true, highlightId = null, showOwners = false, onSetInactive, onDelete }) => (
   <div className="overflow-x-auto">
-    <table className="w-full text-sm">
+    <table className="table-stack w-full text-sm">
       <thead>
         <tr className={theadRowCls}>
           <th className="py-3.5 pl-5 pr-3 font-bold">Proveedor</th>
@@ -71,7 +71,7 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
           <th className="py-3 px-3 font-medium w-32">Documentos</th>
           {showOwners && <th className="py-3 px-3 font-bold">Creado por</th>}
           {showOwners && <th className="py-3 px-3 font-bold">Asignado a</th>}
-          <th className="py-3 pl-3 pr-5 text-right font-bold">Acciones</th>
+          <th className="sticky-actions py-3 pl-3 pr-5 text-right font-bold">Acciones</th>
         </tr>
       </thead>
       <tbody className={tbodyCls}>
@@ -176,7 +176,7 @@ export const BancoTable: React.FC<Props> = ({ rows, emptyText, onOpen, onEvaluat
                     )}
                   </td>
                 )}
-                <td className="py-3 pl-3 pr-5">
+                <td className="sticky-actions py-3 pl-3 pr-5">
                   <div className="flex justify-end gap-2">
                     {canEvaluate && !inactive && (
                       <button type="button" className={iconBtn} title="Evaluar proveedor" aria-label="Evaluar proveedor" onClick={() => onEvaluate(d.id)}>

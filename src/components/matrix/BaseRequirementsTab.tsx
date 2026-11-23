@@ -502,12 +502,8 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
         </div>
 
         <div>
-          <div className="sm:hidden px-3 py-1.5 bg-[#2c84c4]/10 dark:bg-blue-950/40 border-b border-black/10 dark:border-white/10 dark:border-slate-800 text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-cyan-300 flex items-center justify-between font-medium">
-            <span>Desliza horizontalmente para ver todas las columnas</span>
-            <span className="font-bold">↔</span>
-          </div>
           <div className="w-full overflow-x-auto">
-            <table className="w-full text-left text-[15px] min-w-[700px] lg:min-w-full">
+            <table className="table-stack w-full text-left text-[15px] min-w-[700px] lg:min-w-full">
             <thead>
               <tr className={theadRowCls}>
                 <th className="px-4 py-3.5">Código & Tipo de Documento</th>
@@ -638,7 +634,7 @@ export const BaseRequirementsTab: React.FC<BaseRequirementsTabProps> = ({
                         <StatusPill tone="muted">{doc.category}</StatusPill>
                       </td>
 
-                      <td className="px-4 py-3 text-center">
+                      <td className="stack-wide px-4 py-3 text-center">
                         <div className="inline-flex items-center bg-[#e6edf6] dark:bg-[#071636]/70 dark:ring-1 dark:ring-[#3f7fd8] p-1 rounded-xl text-sm font-semibold">
                           <button
                             onClick={() => {

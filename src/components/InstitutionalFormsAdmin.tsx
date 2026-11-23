@@ -157,12 +157,8 @@ export const InstitutionalFormsAdmin: React.FC = () => {
         </div>
 
         <div>
-          <div className="sm:hidden px-3 py-1.5 bg-[#2c84c4]/10 dark:bg-blue-950/40 border-b border-black/10 dark:border-white/10 dark:border-slate-800 text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] dark:text-cyan-300 flex items-center justify-between font-medium">
-            <span>Desliza horizontalmente para ver todas las columnas</span>
-            <span className="font-bold">↔</span>
-          </div>
           <div className="w-full overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse min-w-[700px] lg:min-w-full">
+            <table className="table-stack w-full text-left text-xs border-collapse min-w-[700px] lg:min-w-full">
             <thead>
               <tr className="bg-black/[0.04] dark:bg-white/[0.06] border-b border-black/10 dark:border-white/10 text-[11px] font-bold text-[#3a5274] dark:text-slate-300 uppercase tracking-wider">
                 <th className="py-3 px-4">Código</th>

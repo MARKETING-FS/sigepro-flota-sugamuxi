@@ -283,7 +283,7 @@ export const BackupsView: React.FC = () => {
             <div className="p-10 text-center text-sm text-[#3a5274] dark:text-slate-400">No hay respaldos guardados.</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="table-stack w-full text-sm">
                 <thead>
                   <tr className={theadRowCls}>
                     <th className="py-3 pl-5 pr-3 font-bold">Fecha</th>

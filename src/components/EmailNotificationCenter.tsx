@@ -256,12 +256,8 @@ export const EmailNotificationCenter: React.FC = () => {
           </div>
         ) : (
           <div>
-            <div className="sm:hidden px-3 py-1.5 bg-blue-50/60 dark:bg-blue-950/40 border-b border-slate-200 dark:border-slate-800 text-[10px] text-blue-900 dark:text-cyan-300 flex items-center justify-between font-medium">
-              <span>Desliza horizontalmente para ver todas las columnas</span>
-              <span className="font-bold">↔</span>
-            </div>
             <div className="w-full overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse min-w-[700px] lg:min-w-full">
+              <table className="table-stack w-full text-left text-xs border-collapse min-w-[700px] lg:min-w-full">
               <thead className="bg-black/[0.04] dark:bg-white/[0.06] border-b border-black/10 dark:border-white/10 text-[#3a5274] dark:text-slate-300 font-bold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3 px-4">Tipo y Estado</th>

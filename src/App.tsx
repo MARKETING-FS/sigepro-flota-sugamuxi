@@ -17,6 +17,7 @@ import { ToastNotification } from './components/ToastNotification';
 import { PushAlertFloatingToast } from './components/notifications/PushAlertFloatingToast';
 import { ResetPasswordView } from './components/auth/ResetPasswordView';
 import { AuthLoadingScreen, NoRoleScreen } from './components/auth/AuthStatusScreens';
+import { useStackTables } from './hooks/useStackTables';
 import {
   ShieldCheck,
   Lock,
@@ -31,6 +32,7 @@ const MainLayout: React.FC = () => {
     isReadOnly,
   } = useApp();
 
+  useStackTables();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 

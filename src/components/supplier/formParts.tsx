@@ -132,7 +132,7 @@ export const StepBar: React.FC<{
               type="button"
               onClick={() => onGo(s.id)}
               aria-current={active ? 'step' : undefined}
-              className="group flex flex-col items-center gap-2 w-24 sm:w-32 shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1d5fa8] rounded-lg"
+              className="group flex flex-col items-center gap-2 w-14 min-[420px]:w-24 sm:w-32 shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1d5fa8] rounded-lg"
             >
               <span
                 className={`grid place-items-center w-11 h-11 rounded-full border-2 transition-colors ${
@@ -147,7 +147,7 @@ export const StepBar: React.FC<{
               </span>
               <span className="text-center leading-tight">
                 <span className="block text-[11px] font-semibold uppercase tracking-wide text-[#3a5274] dark:text-slate-400">Paso {s.id}</span>
-                <span className={`block text-[13px] font-semibold ${active ? 'text-[#0b1d3a] dark:text-white' : 'text-[#3a5274] dark:text-slate-300'}`}>{s.label}</span>
+                <span className={`hidden min-[420px]:block text-[13px] font-semibold ${active ? 'text-[#0b1d3a] dark:text-white' : 'text-[#3a5274] dark:text-slate-300'}`}>{s.label}</span>
               </span>
             </button>
             {i < steps.length - 1 && (
@@ -157,5 +157,9 @@ export const StepBar: React.FC<{
         );
       })}
     </ol>
+    {/* Celular angosto: no caben los nombres bajo cada círculo, se muestra solo el del paso actual */}
+    <p className="min-[420px]:hidden mt-3 text-center text-[13px] font-semibold text-[#0b1d3a] dark:text-white">
+      {steps.find((s) => s.id === current)?.label}
+    </p>
   </nav>
 );

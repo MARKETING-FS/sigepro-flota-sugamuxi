@@ -274,7 +274,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
 
       {/* 1. SECCIÓN: INFORMACIÓN BÁSICA Y TRIBUTARIA */}
       <div className="fs-card rounded-[24px] overflow-hidden animate-fade-up">
-        <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between">
+        <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow"><Building2 className="w-[18px] h-[18px]" /></span>
             <h3 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">
@@ -627,7 +627,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
       {/* 2. SECCIÓN: REPRESENTANTE LEGAL (SI APLICA) */}
       {!isNatural && (
         <div className="fs-card rounded-[24px] overflow-hidden animate-fade-up">
-          <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between">
+          <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow"><User className="w-[18px] h-[18px]" /></span>
               <h3 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">
@@ -728,7 +728,7 @@ export const SupplierDataEditorTab: React.FC<Props> = ({ dossier, reviewerName }
 
       {/* 3. SECCIÓN: INFORMACIÓN BANCARIA */}
       <div className="fs-card rounded-[24px] overflow-hidden animate-fade-up">
-        <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex items-center justify-between">
+        <div className="bg-[#2c84c4]/[0.08] px-5 py-3.5 border-b border-black/[0.07] dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-xl bg-gradient-action text-white grid place-items-center shadow-glow"><CreditCard className="w-[18px] h-[18px]" /></span>
             <h3 className="font-display text-base font-semibold text-[#0b1d3a] dark:text-white">

@@ -160,7 +160,7 @@ export const SetupCard: React.FC<SetupCardProps> = ({
                 Evaluaciones anuales ya registradas: <strong className="tabular-nums">{previousAnnualCount}</strong>
               </p>
             </div>
-            <div role="radiogroup" aria-label="Ciclo anual" className="flex items-center gap-1.5">
+            <div role="radiogroup" aria-label="Ciclo anual" className="flex flex-wrap items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
@@ -168,7 +168,7 @@ export const SetupCard: React.FC<SetupCardProps> = ({
                   role="radio"
                   aria-checked={cycle === n}
                   onClick={() => onCycle(n)}
-                  className={`h-9 px-3.5 text-xs font-semibold rounded-full transition-colors cursor-pointer ${focusRing} ${
+                  className={`h-9 px-3.5 text-xs font-semibold whitespace-nowrap rounded-full transition-colors cursor-pointer ${focusRing} ${
                     cycle === n ? chipOn : chipOff
                   }`}
                 >

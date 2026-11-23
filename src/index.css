@@ -515,3 +515,84 @@ select option, select optgroup { color: #0b1d3a; }
   font-size: 1.125rem !important;
   line-height: 1.75rem;
 }
+
+/* ───────── Celular y tableta: las tablas de listas se muestran como tarjetas (sin deslizar de lado) ─────────
+   Las etiquetas de cada dato las pone useStackTables a partir de los encabezados de la tabla. */
+@media (max-width: 1023px) {
+  table.table-stack,
+  table.table-stack > tbody {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+  }
+  table.table-stack > thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  table.table-stack > tbody > tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+    padding: 1rem 1.1rem;
+  }
+  table.table-stack > tbody > tr > td {
+    display: block;
+    min-width: 0;
+    padding: 0 !important;
+    text-align: left !important;
+    overflow-wrap: anywhere;
+  }
+  table.table-stack > tbody > tr > td:first-child,
+  table.table-stack > tbody > tr > td:last-child,
+  table.table-stack > tbody > tr > td[colspan] {
+    grid-column: 1 / -1;
+  }
+  table.table-stack > tbody > tr > td.stack-wide {
+    grid-column: 1 / -1;
+  }
+  table.table-stack > tbody > tr > td[data-label]:not([data-label=""])::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+  /* Contenido que en la tabla iba en una sola línea: en la tarjeta puede partirse */
+  table.table-stack td .truncate,
+  table.table-stack td [class*="max-w-"] {
+    max-width: 100% !important;
+    white-space: normal;
+  }
+  table.table-stack td .whitespace-nowrap {
+    white-space: normal;
+  }
+}
+
+/* Tableta ancha / portátil: tres columnas por tarjeta cuando hay espacio */
+@media (min-width: 640px) and (max-width: 1023px) {
+  table.table-stack > tbody > tr {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Pantallas medianas con tabla ancha: la columna de acciones se queda fija a la derecha para no tener que deslizar hasta ella */
+@media (min-width: 1024px) {
+  th.sticky-actions,
+  td.sticky-actions {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    box-shadow: -10px 0 10px -10px rgba(15, 42, 82, 0.22);
+  }
+  th.sticky-actions { background: inherit; }
+  td.sticky-actions { background: var(--nd-card); }
+  tr:hover > td.sticky-actions { background: #eaf2fb; }
+  .dark tr:hover > td.sticky-actions { background: #0c2350; }
+}

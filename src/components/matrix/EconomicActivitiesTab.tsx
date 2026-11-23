@@ -601,12 +601,8 @@ export const EconomicActivitiesTab: React.FC<EconomicActivitiesTabProps> = ({
                     </div>
 
                     <div>
-                      <div className="sm:hidden px-3 py-1 bg-[#2c84c4]/10 border border-b-0 border-black/10 dark:border-white/10 rounded-t-xl text-[10px] text-[#1d5fa8] dark:text-[#69bdd7] flex items-center justify-between font-medium">
-                        <span>Desliza horizontalmente para ver las columnas</span>
-                        <span className="font-bold">↔</span>
-                      </div>
-                      <div className="overflow-x-auto border border-black/10 dark:border-white/10 rounded-b-xl sm:rounded-t-xl">
-                        <table className="w-full text-left text-xs divide-y divide-black/10 dark:divide-white/10 min-w-[700px] lg:min-w-full">
+                      <div className="overflow-x-auto border border-black/10 dark:border-white/10 rounded-xl">
+                        <table className="table-stack w-full text-left text-xs divide-y divide-black/10 dark:divide-white/10 min-w-[700px] lg:min-w-full">
                         <thead className="bg-black/[0.04] dark:bg-white/[0.06] text-[11px] font-bold text-[#3a5274] dark:text-slate-300 uppercase tracking-wider">
                           <tr>
                             <th className="px-4 py-3">Código & Tipo de Documento</th>
