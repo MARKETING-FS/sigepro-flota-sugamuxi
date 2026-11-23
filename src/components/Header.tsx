@@ -23,6 +23,7 @@ const SECTION_TITLE: Partial<Record<AppView, string>> = {
   documentMatrix: 'Parametrización',
   auditoria: 'Auditoría',
   usuarios: 'Usuarios',
+  respaldos: 'Respaldos',
   convocatorias: 'Convocatorias',
 };
 

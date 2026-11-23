@@ -26,6 +26,7 @@ import {
   CalendarDays,
   Info,
   ChevronDown,
+  DatabaseBackup,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SystemAuditEntry } from '../types';
@@ -48,6 +49,7 @@ const ACTION_META: Record<string, { label: string; hint: string; icon: React.Ele
   ALTA_PROVEEDOR: { label: 'Proveedor nuevo', hint: 'Se creó un proveedor', icon: FolderPlus },
   CREACION_EXPEDIENTE: { label: 'Expediente nuevo', hint: 'Se creó un expediente', icon: FolderPlus },
   PARAMETRIZACION_SISTEMA: { label: 'Configuración', hint: 'Se cambió la parametrización', icon: Settings2 },
+  RESPALDO_SISTEMA: { label: 'Respaldo del sistema', hint: 'Se creó, descargó, borró o restauró un respaldo', icon: DatabaseBackup },
 };
 
 const STATUS_WORDS: Record<string, string> = {

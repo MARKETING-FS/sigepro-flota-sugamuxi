@@ -12,6 +12,7 @@ import {
   Settings,
   ShieldCheck,
   UserCog,
+  DatabaseBackup,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -54,6 +55,7 @@ const GROUPS: Array<{ title: string; items: NavItem[] }> = [
       { view: 'parametrizacion', label: 'Parametrización', icon: Settings, superOnly: true, alsoActiveOn: ['documentMatrix'] },
       { view: 'auditoria', label: 'Auditoría', icon: ShieldCheck, superOnly: true },
       { view: 'usuarios', label: 'Usuarios', icon: UserCog, superOnly: true },
+      { view: 'respaldos', label: 'Respaldos', icon: DatabaseBackup, superOnly: true },
     ],
   },
 ];

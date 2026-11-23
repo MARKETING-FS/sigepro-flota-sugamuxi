@@ -28,7 +28,8 @@ export type AppView =
   | 'informesExcel'
   | 'registrarProveedor'
   | 'parametrizacion'
-  | 'usuarios';
+  | 'usuarios'
+  | 'respaldos';
 
 export type SupplierType = 'NATURAL' | 'JURIDICA';
 export type SupplierTier = 'A' | 'B' | 'C'; // Tipo A (Crítico/Estratégico), Tipo B (Importante/Operativo), Tipo C (Estándar/Ocasional)
@@ -341,7 +342,7 @@ export interface SystemAuditEntry {
   fileNumber: string;
   user: string;
   userRole: UserRole | 'SYSTEM';
-  action: 'EDICION_CAMPO' | 'CAMBIO_ESTADO' | 'REVISION_DOCUMENTO' | 'VALIDACION_SARLAFT' | 'ALTA_PROVEEDOR' | 'CREACION_EXPEDIENTE' | 'PARAMETRIZACION_SISTEMA' | 'CREACION_REGISTRO' | 'ASIGNACION_REVISOR' | 'CALIFICACION_PROVEEDOR' | 'INACTIVACION_PROVEEDOR' | 'REACTIVACION_PROVEEDOR' | 'ELIMINACION_PROVEEDOR';
+  action: 'EDICION_CAMPO' | 'CAMBIO_ESTADO' | 'REVISION_DOCUMENTO' | 'VALIDACION_SARLAFT' | 'ALTA_PROVEEDOR' | 'CREACION_EXPEDIENTE' | 'PARAMETRIZACION_SISTEMA' | 'CREACION_REGISTRO' | 'ASIGNACION_REVISOR' | 'CALIFICACION_PROVEEDOR' | 'INACTIVACION_PROVEEDOR' | 'REACTIVACION_PROVEEDOR' | 'ELIMINACION_PROVEEDOR' | 'RESPALDO_SISTEMA';
   section: string; // e.g. "Información General", "Información Bancaria", "Información Financiera", "Información Tributaria", "Conceptos y SARLAFT"
   fieldChanged: string; // e.g. "Razón Social", "NIT", "Entidad Bancaria", "Total Activos"
   oldValue: string;

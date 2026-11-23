@@ -1101,7 +1101,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // además un rol sin permiso nunca queda en una pantalla exclusiva del superadministrador.
   useEffect(() => {
     if (!authUserKey) return;
-    const SUPER_ONLY: AppView[] = ['usuarios', 'parametrizacion', 'documentMatrix', 'auditoria', 'adminForms'];
+    const SUPER_ONLY: AppView[] = ['usuarios', 'parametrizacion', 'documentMatrix', 'auditoria', 'adminForms', 'respaldos'];
     const WRITE_ONLY: AppView[] = ['registrarProveedor'];
     let lastUser = '';
     try {

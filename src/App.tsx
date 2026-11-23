@@ -7,6 +7,7 @@ import { InstitutionalFormsAdmin } from './components/InstitutionalFormsAdmin';
 import { BancoProveedoresView } from './components/BancoProveedoresView';
 import { UsersAdminView } from './components/users/UsersAdminView';
 import { AuditLogView } from './components/AuditLogView';
+import { BackupsView } from './components/backups/BackupsView';
 import { ExcelReportsView } from './components/ExcelReportsView';
 import { AdminRegisterSupplierView } from './components/AdminRegisterSupplierView';
 import { AdminParametrizationView } from './components/AdminParametrizationView';
@@ -125,7 +126,7 @@ const MainLayout: React.FC = () => {
             </div>
           )}
           {activeView === 'revisores' && <InternalReviewView />}
-          {(activeView === 'adminForms' || activeView === 'parametrizacion' || activeView === 'documentMatrix' || activeView === 'auditoria' || activeView === 'usuarios') &&
+          {(activeView === 'adminForms' || activeView === 'parametrizacion' || activeView === 'documentMatrix' || activeView === 'auditoria' || activeView === 'usuarios' || activeView === 'respaldos') &&
             (accountRole !== 'SUPERADMIN' ? (
               <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
                 <div className="w-12 h-12 rounded-2xl bg-[#2c84c4]/12 text-[#1d5fa8] dark:text-[#69bdd7] flex items-center justify-center mx-auto mb-3">
@@ -149,6 +150,7 @@ const MainLayout: React.FC = () => {
                 {activeView === 'documentMatrix' && <AdminParametrizationView initialTab="matrix_base" />}
                 {activeView === 'auditoria' && <AuditLogView />}
                 {activeView === 'usuarios' && <UsersAdminView />}
+                {activeView === 'respaldos' && <BackupsView />}
               </>
             ))}
           {activeView === 'evaluaciones' && <SupplierEvaluationsView />}
